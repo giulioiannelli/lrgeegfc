@@ -1,15 +1,16 @@
 """LRG EEG Functional Connectivity toolkit."""
 
-from .constants import BRAIN_BANDS, BRAIN_BAND_LABELS, PARAMETER_KEYS, PHASE_LABELS
-from .utils.datamanag.loaders import load_data_dict, load_mat_pat_data as load_mat_file
-from .utils.datamanag.patient import (
+from .config.const import BRAIN_BANDS, BRAIN_BAND_LABELS, PARAMETER_KEYS, PHASE_LABELS
+from .utils.io import (
+    load_data_dict,
+    load_mat_pat_data as load_mat_file,
     PatientRecording,
     load_dataset,
     load_patient_dataset,
     load_patient_metadata,
     load_timeseries,
 )
-from .utils.corrmat import (
+from .utils.fc.corr import (
     apply_threshold_filter,
     build_band_correlation_matrices,
     build_corr_network,
@@ -24,18 +25,18 @@ from .utils.corrmat import (
     find_threshold_jumps,
     process_network_for_phase,
 )
-from .workflow import BandComputationResult, compute_band_connectivity
-from .workflow_msc import MSCResult, compute_msc_matrix, load_msc_matrix, get_msc_cache_path, compute_msc_for_patient
-from .workflow_corr import CorrResult, compute_corr_matrix, load_corr_matrix, get_corr_cache_path, compute_corr_for_patient
-from .workflow_lrg import LRGResult, compute_lrg_analysis, load_lrg_result, get_lrg_cache_path, compute_lrg_for_patient
-from .workflow_cleaning import (
+from .workflow.core import BandComputationResult, compute_band_connectivity
+from .workflow.msc import MSCResult, compute_msc_matrix, load_msc_matrix, get_msc_cache_path, compute_msc_for_patient
+from .workflow.corr import CorrResult, compute_corr_matrix, load_corr_matrix, get_corr_cache_path, compute_corr_for_patient
+from .workflow.lrg import LRGResult, compute_lrg_analysis, load_lrg_result, get_lrg_cache_path, compute_lrg_for_patient
+from .workflow.cleaning import (
     CleanedCorrResult,
     clean_correlation_matrix_full,
     load_cleaned_corr_matrix,
     get_cleaned_corr_cache_path,
     compute_cleaned_corr_for_patient,
 )
-from .compare import (
+from .utils.metrics.compare import (
     UltrametricComparison,
     compare_ultrametric_matrices,
     compare_fc_methods,
@@ -50,6 +51,6 @@ from .visuals.reorganization import (
     plot_phase_reorganization,
     plot_reorganization_distance_matrix,
 )
-from .batch_compute import compute_all_matrices
+from .utils.pipelines.batch_compute import compute_all_matrices
 from .utils import *  # noqa: F401,F403
 from .config.const import *  # noqa: F401,F403

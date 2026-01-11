@@ -9,8 +9,7 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any
 from scipy.io import loadmat
 
-from lrg_eegfc.config.const import PARAMETER_KEYS, PHASE_LABELS,\
-    sEEG_DATAPATH, PATIENTS_LIST
+from lrg_eegfc.config.const import PARAMETER_KEYS, PHASE_LABELS, sEEG_DATAPATH, list_patients
 
 __all__ = [
     "load_mat_pat_data",
@@ -59,7 +58,7 @@ def load_mat_pat_data(
 
 def load_data_dict(
     mat_path: Path = sEEG_DATAPATH,
-    pat_list: List[str] = PATIENTS_LIST,
+    pat_list: List[str] | None = None,
     phase_labels: List[str] = PHASE_LABELS,
     param_keys_list: List[str] = PARAMETER_KEYS,
 ) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, pd.DataFrame]]:
@@ -89,6 +88,9 @@ def load_data_dict(
         extracted parameters, and a dict mapping each patient to a DataFrame of
         channel labels and coordinates.
     """
+
+    if pat_list is None:
+        pat_list = list_patients(mat_path)
 
     data_dict: Dict[str, Dict[str, Any]] = {}
     int_label_pos_map: Dict[str, pd.DataFrame] = {}

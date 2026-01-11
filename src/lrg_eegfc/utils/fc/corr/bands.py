@@ -11,7 +11,7 @@ from numpy.typing import NDArray
 
 from lrgsglib.utils import bandpass_sos
 
-from ...config.const import BRAIN_BANDS
+from lrg_eegfc.config.const import BRAIN_BANDS
 from .base import build_corr_network
 from .thresholds import find_threshold_jumps
 

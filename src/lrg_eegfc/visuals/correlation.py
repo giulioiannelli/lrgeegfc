@@ -15,11 +15,10 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from lrgsglib.utils.basic.probability import marchenko_pastur
 from lrgsglib.nx_patches.funcs.thresholding import compute_threshold_stats
 
-from lrg_eegfc import load_corr_matrix, get_corr_cache_path
-from lrg_eegfc.workflow_cleaning import load_cleaned_corr_matrix
-from lrg_eegfc.workflow_corr import compute_corr_matrix
-from lrg_eegfc.utils.datamanag.patient import load_patient_metadata
-from lrg_eegfc.utils.corrmat.thresholds import find_exact_detachment_threshold, find_threshold_jumps
+from lrg_eegfc.workflow.corr import compute_corr_matrix, get_corr_cache_path, load_corr_matrix
+from lrg_eegfc.workflow.cleaning import load_cleaned_corr_matrix
+from lrg_eegfc.utils.io import load_patient_metadata
+from lrg_eegfc.utils.fc.corr.thresholds import find_exact_detachment_threshold, find_threshold_jumps
 
 
 def imshow_colorbar_caxdivider(im, ax, position='right', orientation='vertical', size='5%', pad=0.05):

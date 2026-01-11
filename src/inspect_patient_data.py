@@ -11,8 +11,16 @@ Usage:
 """
 
 import argparse
+from datetime import date
 from pathlib import Path
-from lrg_eegfc.utils.datamanag.inspect import inspect_all_patients, generate_report, save_report
+
+from lrg_eegfc.utils.io import (
+    generate_csv_rows,
+    generate_report,
+    inspect_all_patients,
+    save_csv,
+    save_report,
+)
 
 
 def main():
@@ -35,8 +43,20 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("PATIENT_DATA_REPORT.txt"),
-        help="Output report file (default: PATIENT_DATA_REPORT.txt)"
+        default=None,
+        help="Optional output report file (legacy single-file output)"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path(".agents/plans/active"),
+        help="Directory for dated Markdown/CSV outputs (default: .agents/plans/active)"
+    )
+    parser.add_argument(
+        "--output-prefix",
+        type=str,
+        default=None,
+        help="Prefix for dated output files (default: <date>_data_inventory)"
     )
     parser.add_argument(
         "--print-only",
@@ -59,12 +79,18 @@ def main():
     print(report)
 
     if not args.print_only:
-        save_report(results, args.output)
-        print(f"\n✓ Report saved to: {args.output}")
-        print(f"\nSummary:")
-        print(f"  Total patients inspected: {results['summary']['total_patients']}")
-        print(f"  Patients with issues: {results['summary']['patients_with_issues']}")
-        print(f"  Total issues found: {results['summary']['total_issues']}")
+        prefix = args.output_prefix or f\"{date.today().isoformat()}_data_inventory\"
+        args.output_dir.mkdir(parents=True, exist_ok=True)
+        md_path = args.output_dir / f\"{prefix}.md\"
+        csv_path = args.output_dir / f\"{prefix}.csv\"
+
+        save_report(results, md_path)
+        save_csv(generate_csv_rows(results), csv_path)
+
+        if args.output is not None:
+            save_report(results, args.output)
+
+        print(f\"\\n✓ Report saved to: {md_path}\")\n        print(f\"✓ CSV saved to: {csv_path}\")\n        if args.output is not None:\n            print(f\"✓ Legacy report saved to: {args.output}\")\n        print(f\"\\nSummary:\")\n        print(f\"  Total patients inspected: {results['summary']['total_patients']}\")\n        print(f\"  Patients with issues: {results['summary']['patients_with_issues']}\")\n        print(f\"  Total issues found: {results['summary']['total_issues']}\")
 
 
 if __name__ == "__main__":

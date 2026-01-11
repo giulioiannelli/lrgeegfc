@@ -6,6 +6,7 @@ comprehensive reports about data completeness and structure.
 
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import csv
 import numpy as np
 from scipy.io import loadmat
 import h5py
@@ -84,8 +85,12 @@ def inspect_mat_file(mat_path: Path) -> Dict:
         for fs_key in ['fs', 'Fs', 'sampling_rate', 'SamplingRate']:
             if fs_key in mat and result['fs'] is None:
                 try:
-                    result['fs'] = float(mat[fs_key])
-                except:
+                    value = mat[fs_key]
+                    if isinstance(value, np.ndarray):
+                        if value.size == 1:
+                            value = value.item()
+                    result['fs'] = float(value)
+                except Exception:
                     pass
 
     except Exception as e_scipy:
@@ -160,6 +165,8 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
         'phases': {},
         'metadata_files': {},
         'issues': [],
+        'has_channel_labels': False,
+        'has_implant': False,
     }
 
     if not patient_dir.exists():
@@ -182,12 +189,27 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
             result['issues'].append(f'{phase}: No sampling rate (fs) found')
 
     # Check metadata files
+    patnum = None
+    try:
+        patnum = int(patient.split("_")[-1])
+    except ValueError:
+        patnum = None
+
+    if patnum is None:
+        implant_csv = patient_dir / f'Implant_{patient}.csv'
+        implant_xlsx = patient_dir / f'Implant_{patient}.xlsx'
+    else:
+        implant_csv = patient_dir / f'Implant_pat_{patnum:02d}.csv'
+        implant_xlsx = patient_dir / f'Implant_pat_{patnum:02d}.xlsx'
+
     metadata_files = {
         'channel_labels_csv': patient_dir / 'channel_labels.csv',
         'channel_labels_txt': patient_dir / 'channel_labels.txt',
-        'implant_csv': patient_dir / f'Implant_{patient.lower()}.csv',
-        'implant_xlsx': patient_dir / f'Implant_{patient.lower()}.xlsx',
         'channel_names_mat': patient_dir / 'ChannelNames.mat',
+        'implant_csv': implant_csv,
+        'implant_xlsx': implant_xlsx,
+        'implant_csv_alt': patient_dir / f'Implant_{patient.lower()}.csv',
+        'implant_xlsx_alt': patient_dir / f'Implant_{patient.lower()}.xlsx',
     }
 
     for name, path in metadata_files.items():
@@ -201,8 +223,16 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
         result['metadata_files'][k]['exists']
         for k in ['channel_labels_csv', 'channel_labels_txt', 'channel_names_mat']
     )
+    result['has_channel_labels'] = has_channel_labels
     if not has_channel_labels:
         result['issues'].append('No channel label files found')
+
+    has_implant = any(
+        info['exists']
+        for key, info in result['metadata_files'].items()
+        if key.startswith('implant_')
+    )
+    result['has_implant'] = has_implant
 
     return result
 
@@ -460,3 +490,40 @@ def save_report(results: Dict, output_path: Path):
     report = generate_report(results)
     output_path.write_text(report)
     print(f"Report saved to: {output_path}")
+
+
+def generate_csv_rows(results: Dict) -> List[Dict[str, object]]:
+    """Flatten inspection results into per-phase CSV rows."""
+    rows: List[Dict[str, object]] = []
+    for patient, patient_data in results['patients'].items():
+        issues = "; ".join(patient_data.get('issues', []))
+        for phase in PHASE_LABELS:
+            phase_data = patient_data['phases'].get(phase, {})
+            data_shape = phase_data.get('data_shape')
+            if isinstance(data_shape, tuple):
+                data_shape = "x".join(str(dim) for dim in data_shape)
+            rows.append({
+                'patient': patient,
+                'phase': phase,
+                'file_exists': phase_data.get('exists'),
+                'data_variable': phase_data.get('data_variable'),
+                'data_shape': data_shape,
+                'file_format': phase_data.get('file_format'),
+                'fs': phase_data.get('fs'),
+                'has_channel_labels': patient_data.get('has_channel_labels'),
+                'has_implant': patient_data.get('has_implant'),
+                'issues': issues,
+            })
+    return rows
+
+
+def save_csv(rows: List[Dict[str, object]], output_path: Path) -> None:
+    """Save inspection rows to a CSV file."""
+    if not rows:
+        output_path.write_text("")
+        return
+    fieldnames = list(rows[0].keys())
+    with output_path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)

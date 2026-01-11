@@ -3,40 +3,52 @@
 This document summarises the architecture of the **LRG EEG Functional
 Connectivity** toolkit after the 2024 refactor.
 
-## Package layout
+## Package layout (current)
 
 ```
 src/lrg_eegfc/
-├── __init__.py              # Public API exports
-├── cli.py                   # Command line entry points
-├── constants.py             # Frequency bands and parameter keys
-├── correlation.py           # Correlation matrix utilities
-├── io.py                    # Dataset loading helpers
-├── plotting.py              # Plot generation helpers
-└── workflow.py              # High level orchestration helpers
+|-- __init__.py              # Public API exports
+|-- cli.py                   # CLI for correlation workflow
+|-- compare.py               # Compatibility wrapper
+|-- plotting.py              # Compatibility wrapper
+|-- io.py                    # Compatibility wrapper
+|-- workflow/                # Canonical workflows
+|-- workflow.py              # Compatibility wrapper
+|-- workflow_corr.py         # Compatibility wrapper
+|-- workflow_msc.py          # Compatibility wrapper
+|-- workflow_lrg.py          # Compatibility wrapper
+|-- workflow_cleaning.py     # Compatibility wrapper
+|-- batch_compute.py         # Compatibility wrapper
+|-- config/                  # Dataset-aware constants
+|-- utils/                   # Loaders + FC primitives
+`-- visuals/                 # Figure generation
 ```
 
 ### Data flow
 
-1. **Loading** – :mod:`lrg_eegfc.io` contains `load_timeseries` and related
-   helpers that normalise each `.mat` file into NumPy arrays.  Optional channel
-   metadata is automatically merged when available.
-2. **Processing** – :mod:`lrg_eegfc.correlation` implements the
-   Marchenko–Pastur cleaning step, percolation-based threshold selection and the
-   band-wise correlation matrix computation.
-3. **Workflow orchestration** – :mod:`lrg_eegfc.workflow` ties loading and
-   processing together and produces a ready-to-use
-   :class:`~lrg_eegfc.workflow.BandComputationResult` instance.
-4. **Presentation** – :mod:`lrg_eegfc.plotting` provides plotting helpers and is
-   used both by the CLI and notebooks.
+1. **Loading** – `utils/io/` handles `.mat` files and channel metadata.
+   The robust loader in `patient_robust.py` supports multiple variable names.
+2. **Processing (correlation)** – `utils/fc/corr/` builds correlation matrices,
+   applies percolation-based thresholds, and supports MP cleaning.
+3. **Processing (MSC)** – `utils/fc/msc/` computes magnitude-squared
+   coherence with optional surrogate-based sparsification.
+4. **Workflows** – `workflow/corr.py`, `workflow/msc.py`, and
+   `workflow/cleaning.py` add caching and orchestration.
+5. **LRG analysis** – `workflow/lrg.py` computes ultrametrics, dendrograms, and
+   entropy curves using `lrgsglib`.
+6. **Presentation** – `visuals/plotting.py` supports the CLI; `visuals/` contains
+   notebook-ready figures and multi-panel outputs.
 
 ## Command line interface
 
-The `lrg-eegfc-corr` entry point defined in :mod:`lrg_eegfc.cli` exposes a
-single command that covers the typical workflow: load a patient/phase
-recording, band-pass filter it, compute a correlation matrix, apply a threshold
-and optionally produce plots.  All filesystem paths are configurable and the
-command reuses cached correlation matrices unless `--overwrite` is passed.
+The `lrg-eegfc-corr` entry point in :mod:`lrg_eegfc.cli` targets the
+correlation-based workflow: load a patient/phase recording, band-pass filter
+it, compute a correlation matrix, apply a percolation threshold, and optionally
+produce plots. All filesystem paths are configurable and the command reuses
+cached correlation matrices unless `--overwrite` is passed.
+
+MSC and LRG workflows are accessed through the Python APIs or the
+`src/*.py` pipeline scripts invoked by `scripts/run_step.sh`.
 
 ## Dependency notes
 

@@ -91,7 +91,7 @@ def visualize_single(
     # Check if cache file exists
     try:
         if cleaned:
-            from lrg_eegfc.workflow_cleaning import load_cleaned_corr_matrix
+            from lrg_eegfc.workflow.cleaning import load_cleaned_corr_matrix
             _ = load_cleaned_corr_matrix(patient, phase, band, cache_root)
         else:
             _ = load_corr_matrix(patient, phase, band, cache_root)
@@ -135,7 +135,7 @@ def visualize_single(
                 return
 
             if cleaned:
-                from lrg_eegfc.workflow_cleaning import load_cleaned_corr_matrix
+                from lrg_eegfc.workflow.cleaning import load_cleaned_corr_matrix
                 corr_matrix, _ = load_cleaned_corr_matrix(patient, phase, band, cache_root)
             else:
                 corr_matrix = load_corr_matrix(patient, phase, band, cache_root)

@@ -8,7 +8,7 @@ import numpy as np
 
 from lrgsglib.utils.lrg.infocomm import extract_ultrametric_matrix
 
-from ...config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
 from .network import process_network_for_phase
 
 

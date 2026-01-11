@@ -68,6 +68,26 @@ def main():
         default=2048.0,
         help="Sampling rate in Hz (default: 2048.0)"
     )
+    parser.add_argument(
+        "--filter-time",
+        type=int,
+        default=None,
+        help="Limit to first N samples (dev-only convenience)"
+    )
+
+    # Subset selection
+    parser.add_argument(
+        "--bands",
+        nargs="+",
+        default=None,
+        help="Band names to process (default: all bands)"
+    )
+    parser.add_argument(
+        "--phases",
+        nargs="+",
+        default=None,
+        help="Phase names to process (default: all phases)"
+    )
 
     # Cache control
     parser.add_argument(
@@ -101,15 +121,19 @@ def main():
     print("MSC Functional Connectivity Matrix Computation")
     print("=" * 70)
     print(f"Patients: {', '.join(args.patients)}")
-    print(f"Bands: {', '.join(BRAIN_BANDS.keys())}")
-    print(f"Phases: {', '.join(PHASE_LABELS)}")
+    selected_bands = args.bands or list(BRAIN_BANDS.keys())
+    selected_phases = args.phases or list(PHASE_LABELS)
+    print(f"Bands: {', '.join(selected_bands)}")
+    print(f"Phases: {', '.join(selected_phases)}")
     print(f"Sparsify: {args.sparsify}")
     if args.sparsify == "soft":
         print(f"N surrogates: {args.n_surrogates}")
     print(f"nperseg: {args.nperseg}")
     print(f"batch_size: {args.batch_size}")
+    if args.filter_time:
+        print(f"Filter time: {args.filter_time}")
     print(f"Cache root: {args.cache_root}")
-    expected = len(args.patients) * len(BRAIN_BANDS) * len(PHASE_LABELS)
+    expected = len(args.patients) * len(selected_bands) * len(selected_phases)
     print(f"Expected matrices: {expected}")
     print("=" * 70)
 
@@ -124,12 +148,15 @@ def main():
 
         results = compute_msc_for_patient(
             patient,
+            bands=selected_bands,
+            phases=selected_phases,
             verbose=args.verbose,
             sparsify=args.sparsify,
             n_surrogates=args.n_surrogates,
             nperseg=args.nperseg,
             batch_size=args.batch_size,
             sample_rate=args.sample_rate,
+            filter_time=args.filter_time,
             cache_root=args.cache_root,
             overwrite_cache=args.overwrite,
         )
@@ -140,12 +167,12 @@ def main():
             for phase in results[band]
             if results[band][phase] is not None
         )
-        n_failed = len(BRAIN_BANDS) * len(PHASE_LABELS) - n_computed
+        n_failed = len(selected_bands) * len(selected_phases) - n_computed
 
         total_computed += n_computed
         total_failed += n_failed
 
-        print(f"  ✓ Computed: {n_computed}/{len(BRAIN_BANDS) * len(PHASE_LABELS)}")
+        print(f"  ✓ Computed: {n_computed}/{len(selected_bands) * len(selected_phases)}")
         if n_failed > 0:
             print(f"  ✗ Failed: {n_failed}")
 

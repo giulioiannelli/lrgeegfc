@@ -11,16 +11,16 @@ import networkx as nx
 import numpy as np
 from scipy.io import loadmat
 
-from .constants import BRAIN_BANDS, PHASE_LABELS
-from .io import load_patient_metadata
-from .plotting import (
+from .config.const import BRAIN_BANDS, PHASE_LABELS
+from .utils.io import load_patient_metadata
+from .visuals.plotting import (
     plot_correlation_matrix,
     plot_entropy,
     plot_dendrogram,
     plot_graph,
     prepare_dendrogram,
 )
-from .workflow import compute_band_connectivity
+from .workflow.core import compute_band_connectivity
 
 __all__ = ["create_corr_matrix_band_parser", "corr_matrix_band"]
 

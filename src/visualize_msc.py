@@ -37,7 +37,7 @@ from lrg_eegfc.visuals.msc import (
     plot_msc_heatmap,
     plot_msc_summary,
 )
-from lrg_eegfc.workflow_msc import load_msc_matrix
+from lrg_eegfc.workflow.msc import load_msc_matrix
 
 
 def visualize_single(

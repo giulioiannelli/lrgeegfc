@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from lrg_eegfc.constants import BRAIN_BANDS
-from lrg_eegfc.workflow_corr import load_corr_matrix
-from lrg_eegfc.workflow_msc import load_msc_matrix
+from lrg_eegfc.config.const import BRAIN_BANDS
+from lrg_eegfc.workflow.corr import load_corr_matrix
+from lrg_eegfc.workflow.msc import load_msc_matrix
 
 __all__ = ["plot_fc_comparison"]
 

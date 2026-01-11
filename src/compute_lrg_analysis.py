@@ -21,7 +21,7 @@ Usage:
 
 import argparse
 from pathlib import Path
-from lrg_eegfc.workflow_lrg import compute_lrg_for_patient
+from lrg_eegfc.workflow.lrg import compute_lrg_for_patient
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
 
 

@@ -15,7 +15,7 @@ from lrg_eegfc.visuals.metastable import (
     create_sankey_diagram,
     track_cluster_changes,
 )
-from lrg_eegfc.workflow_lrg import load_lrg_result
+from lrg_eegfc.workflow.lrg import load_lrg_result
 
 
 def main():
@@ -120,9 +120,7 @@ def main():
 
                 # Load channel labels
                 try:
-                    from lrg_eegfc.utils.datamanag.patient_robust import (
-                        load_patient_dataset_robust,
-                    )
+                    from lrg_eegfc.utils.io import load_patient_dataset_robust
 
                     dataset = load_patient_dataset_robust(
                         args.patient, args.dataset_root, phases=[phase]
@@ -163,8 +161,8 @@ def main():
                 # Compute clustering across tau values (requires network)
                 # We need to reconstruct the network from the LRG result
                 # For now, we'll create a placeholder that loads the FC matrix
-                from lrg_eegfc.workflow_corr import load_corr_matrix
-                from lrg_eegfc.workflow_msc import load_msc_matrix
+                from lrg_eegfc.workflow.corr import load_corr_matrix
+                from lrg_eegfc.workflow.msc import load_msc_matrix
                 import networkx as nx
 
                 if args.fc_method == "corr":

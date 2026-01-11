@@ -13,7 +13,7 @@ from typing import Dict, Tuple
 import numpy as np
 from numpy.typing import NDArray
 
-from ...config.const import (
+from lrg_eegfc.config.const import (
     BRAIN_BANDS,
     DEFAULT_N_SURROGATES,
 )

@@ -32,10 +32,10 @@ from lrgsglib.utils.basic.linalg import (
     tree_baker_gamma,
     tree_fowlkes_mallows_index,
 )
-from ..workflow_corr import load_corr_matrix
-from ..workflow_msc import load_msc_matrix
-from ..workflow_lrg import load_lrg_result
-from ..utils.datamanag.patient_robust import load_patient_dataset_robust
+from lrg_eegfc.workflow.corr import load_corr_matrix
+from lrg_eegfc.workflow.msc import load_msc_matrix
+from lrg_eegfc.workflow.lrg import load_lrg_result
+from lrg_eegfc.utils.io import load_patient_dataset_robust
 
 __all__ = [
     "compute_cluster_membership_correlation",

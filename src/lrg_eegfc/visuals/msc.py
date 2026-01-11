@@ -14,7 +14,7 @@ import numpy as np
 import scipy.io
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from ..workflow_msc import load_msc_matrix, get_msc_cache_path
+from lrg_eegfc.workflow.msc import load_msc_matrix, get_msc_cache_path
 
 __all__ = [
     "plot_msc_heatmap",
@@ -406,7 +406,7 @@ def plot_msc_summary(
     )
 
     if msc_matrix is None:
-        from ..workflow_msc import get_msc_cache_path
+        from lrg_eegfc.workflow.msc import get_msc_cache_path
         cache_path = get_msc_cache_path(
             patient, phase, band, cache_root, sparsify="none", nperseg=nperseg
         )

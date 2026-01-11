@@ -16,9 +16,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.cluster.hierarchy import dendrogram, fcluster, optimal_leaf_ordering
 from scipy.spatial.distance import squareform
 
-from ..workflow_lrg import load_lrg_result
-from ..workflow_corr import load_corr_matrix
-from ..workflow_msc import load_msc_matrix
+from lrg_eegfc.workflow.lrg import load_lrg_result
+from lrg_eegfc.workflow.corr import load_corr_matrix
+from lrg_eegfc.workflow.msc import load_msc_matrix
 
 __all__ = [
     "compute_partition_stability_index",
@@ -136,7 +136,7 @@ def plot_lrg_entropy_curves(
     result = load_lrg_result(patient, phase, band, fc_method, cache_root)
 
     if result is None:
-        from ..workflow_lrg import get_lrg_cache_path
+        from lrg_eegfc.workflow.lrg import get_lrg_cache_path
         cache_path = get_lrg_cache_path(patient, phase, band, fc_method, cache_root)
         raise FileNotFoundError(f"LRG result not found: {cache_path}")
 
@@ -229,7 +229,7 @@ def plot_lrg_dendrogram(
     result = load_lrg_result(patient, phase, band, fc_method, cache_root)
 
     if result is None:
-        from ..workflow_lrg import get_lrg_cache_path
+        from lrg_eegfc.workflow.lrg import get_lrg_cache_path
         cache_path = get_lrg_cache_path(patient, phase, band, fc_method, cache_root)
         raise FileNotFoundError(f"LRG result not found: {cache_path}")
 
@@ -373,7 +373,7 @@ def plot_ultrametric_heatmap(
     result = load_lrg_result(patient, phase, band, fc_method, cache_root)
 
     if result is None:
-        from ..workflow_lrg import get_lrg_cache_path
+        from lrg_eegfc.workflow.lrg import get_lrg_cache_path
         cache_path = get_lrg_cache_path(patient, phase, band, fc_method, cache_root)
         raise FileNotFoundError(f"LRG result not found: {cache_path}")
 
@@ -541,7 +541,7 @@ def plot_lrg_full_panel(
 
     # Load channel labels
     try:
-        from ..utils.datamanag.patient_robust import load_patient_dataset_robust
+        from lrg_eegfc.utils.io import load_patient_dataset_robust
 
         dataset = load_patient_dataset_robust(patient, dataset_root, phases=[phase])
         recording = dataset[phase]

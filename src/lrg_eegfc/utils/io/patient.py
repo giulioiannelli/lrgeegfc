@@ -57,12 +57,18 @@ def _load_parameters(mat: Mapping[str, object]) -> Mapping[str, float]:
     if params is None:
         return parameters
 
+    def _unwrap_scalar(value: object) -> object:
+        while isinstance(value, np.ndarray) and value.size == 1:
+            value = value.item()
+        return value
+
     names = getattr(getattr(params, "dtype", None), "names", None) or ()
     for name in names:
         if name not in PARAMETER_KEYS:
             continue
         try:
-            parameters[name] = float(params[name][0][0][0][0])
+            raw = _unwrap_scalar(params[name])
+            parameters[name] = float(raw)
         except Exception:  # noqa: BLE001
             logging.debug("Could not parse parameter %s", name, exc_info=True)
     return parameters

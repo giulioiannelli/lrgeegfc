@@ -7,7 +7,7 @@ Usage
 -----
 In a notebook, start with:
 
-    from lrgsglib import move_to_rootf
+    from lrgsglib.config.funcs import move_to_rootf
     move_to_rootf(pathname='lrg_eegfc')
 
     from lrg_eegfc.notebook import *
@@ -19,32 +19,37 @@ This imports all commonly-used functions and sets up the output directory.
 from pathlib import Path
 
 import numpy as np
+from lrgsglib.config.funcs import move_to_rootf
 
 # Core configuration
 from .config import *
 from .config.const import BRAIN_BANDS, BRAIN_BANDS_NAMES, PHASE_LABELS, PATIENTS_LIST
 
 # Data loading
-from .utils.datamanag.loaders import load_data_dict
-from .utils.datamanag.patient import PatientRecording, load_timeseries
+from .utils.io import (
+    load_data_dict,
+    PatientRecording,
+    load_timeseries,
+    load_patient_dataset_robust,
+)
 
 # Correlation FC
-from .utils.corrmat import build_corr_network, find_threshold_jumps
-from .utils.corrmat.bands import process_band_correlation
-from .utils.corrmat.structures import compute_structures_for_patient
+from .utils.fc.corr import build_corr_network, find_threshold_jumps
+from .utils.fc.corr.bands import build_corrmat_perband, build_band_correlation_matrices
+from .utils.fc.corr.structures import compute_structures_for_patient
 
 # Coherence FC
-from .utils.coherence import coherence_fc_pipeline
+from .utils.fc.msc import coherence_fc_pipeline
 
 # Clustering utilities
-from .utils.clustering import (
+from .utils.lrg import (
     compute_optimal_clusters_auto,
     fcluster_with_outliers,
     get_dendrogram_consistent_clusters,
 )
 
 # Distance utilities
-from .utils.distances import (
+from .utils.metrics.comparison import (
     compute_cross_patient_consistency,
     compute_phase_distance_matrix,
     rank_distance_measures,
@@ -92,11 +97,11 @@ from .visuals.reorganization import (
 from .visuals.compare import plot_fc_comparison
 
 # Workflows
-from .workflow_corr import compute_band_connectivity
-from .compare import compare_fc_methods
+from .workflow.corr import compute_corr_matrix, compute_corr_for_patient
+from .utils.metrics.compare import compare_fc_methods
 
 # Core plotting utilities
-from .plotting import (
+from .visuals.plotting import (
     plot_correlation_matrix,
     plot_dendrogram,
     plot_entropy,
@@ -106,6 +111,7 @@ from .plotting import (
 
 # Re-export commonly used items from utils
 from .utils import *
+from . import *  # noqa: F401,F403
 
 # __all__ = [
 #     # Setup

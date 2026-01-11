@@ -17,7 +17,7 @@ from lrgsglib.utils.lrg import (
     compute_optimal_threshold,
 )
 
-from ...config.const import BRAIN_BANDS
+from lrg_eegfc.config.const import BRAIN_BANDS
 from .bands import build_corrmat_single_band
 
 

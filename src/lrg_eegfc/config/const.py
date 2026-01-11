@@ -10,10 +10,12 @@ from __future__ import annotations
 #
 from pathlib import Path
 from typing import Dict, Tuple, List
+from functools import lru_cache
 #
 __all__ = [
     'sEEG_DATAPATH',
     'PATIENTS_LIST',
+    'list_patients',
     'PHASE_LABELS',
     'PARAMETER_KEYS',
     'BRAIN_BANDS_NAMES',
@@ -21,13 +23,53 @@ __all__ = [
     'BRAIN_BANDS',
     'BRAIN_BANDS_TEX_NAMES',
     'BRAIN_BAND_TEX_DICT',
+    'BRAIN_BAND_LABELS',
     'DEFAULT_N_SURROGATES',
 ]
 #
 sEEG_DATAPATH = Path('data') / 'stereoeeg_patients'
-#: Patients available in the LRG EEG-FC dataset.
-PATIENTS_LIST: List[str] = [p.name for p in Path(sEEG_DATAPATH).iterdir() 
-                 if p.is_dir() and p.name.startswith('Pat_')]
+#
+@lru_cache(maxsize=None)
+def list_patients(dataset_root: Path = sEEG_DATAPATH) -> List[str]:
+    """Return available patient IDs without scanning on import."""
+    if not dataset_root.exists():
+        return []
+    return sorted(
+        p.name
+        for p in dataset_root.iterdir()
+        if p.is_dir() and p.name.startswith("Pat_")
+    )
+
+
+class _LazyPatientsList(list):
+    def __init__(self):
+        super().__init__()
+        self._loaded = False
+
+    def _load(self) -> None:
+        if not self._loaded:
+            self[:] = list_patients()
+            self._loaded = True
+
+    def __iter__(self):
+        self._load()
+        return super().__iter__()
+
+    def __len__(self) -> int:
+        self._load()
+        return super().__len__()
+
+    def __getitem__(self, index):
+        self._load()
+        return super().__getitem__(index)
+
+    def __repr__(self) -> str:
+        self._load()
+        return super().__repr__()
+
+
+#: Patients available in the LRG EEG-FC dataset (lazy-loaded).
+PATIENTS_LIST: List[str] = _LazyPatientsList()
 #: Recording phases expected in the publicly shared SEEG datasets.
 PHASE_LABELS: Tuple[str, ...] = ('rsPre', 'taskLearn', 'taskTest', 'rsPost')
 #: Keys typically embedded inside the ``Parameters`` struct of the ``.mat``
@@ -75,5 +117,7 @@ BRAIN_BAND_TEX_DICT: Dict[str, str] = {
     band: tex_label
     for band, tex_label in zip(BRAIN_BANDS_NAMES, BRAIN_BANDS_TEX_NAMES)
 }
+#: Backwards-compatible alias for LaTeX-friendly labels.
+BRAIN_BAND_LABELS: Dict[str, str] = BRAIN_BAND_TEX_DICT
 #: Default number of surrogates for coherence-based FC null model estimation
 DEFAULT_N_SURROGATES: int = 200
