@@ -12,9 +12,12 @@ notebooks and scripts.
 ## Cache directories (default)
 
 - Correlation FC: `data/corr_cache/Pat_XX/`
+- Correlation FC (dev runs with `filter_time`): `data/corr_cache_dev/Pat_XX/`
 - Cleaned correlation: `data/corr_cache/Pat_XX/` (+ `_meta.npz`)
 - MSC FC: `data/msc_cache/Pat_XX/`
+- MSC FC (dev runs with `filter_time`): `data/msc_cache_dev/Pat_XX/`
 - LRG analysis: `data/lrg_cache/Pat_XX/`
+- LRG analysis (dev runs with `filter_time`): `data/lrg_cache_dev/Pat_XX/`
 - Figures: `data/figures/<category>/Pat_XX/`
 - CLI (legacy): `data/correlations/Pat_XX/` from `lrg-eegfc-corr`
 - Time-window MSC: `data/msc_cache_windows/Pat_XX/<phase>/<band>/`
@@ -24,9 +27,11 @@ notebooks and scripts.
 
 Correlation:
 - `data/corr_cache/Pat_XX/{band}_{phase}_corr_ftype-{filter_type}_zdiag-{bool}.npy`
+- If `filter_time` is used: add `_ftime-{N}` before `.npy`
 
 MSC:
 - `data/msc_cache/Pat_XX/{band}_{phase}_msc_sparsify-{mode}_nsurr-{N}_nperseg-{n}.npy`
+- If `filter_time` is used: add `_ftime-{N}` before `.npy`
 
 Time-window MSC (proposed):
 - `data/msc_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_msc_sparsify-{mode}_nsurr-{N}_nperseg-{n}.npy`
@@ -37,6 +42,7 @@ Cleaned correlation:
 
 LRG:
 - `data/lrg_cache/Pat_XX/{band}_{phase}_lrg_{fc_method}.npz`
+- If `filter_time` is used: add `_ftime-{N}` before `.npz`
 
 Time-window LRG (proposed):
 - `data/lrg_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_lrg_{fc_method}.npz`
@@ -82,6 +88,8 @@ if lrg is None:
 - Use `overwrite_cache=True` in compute functions when you must recompute.
 - Keep parameters consistent (filter type, nperseg, surrogates) or you will
   write new cache files with different suffixes.
+- Dev runs with `filter_time` automatically redirect to `*_cache_dev` when using
+  the default cache roots (MSC + correlation).
 
 ## Recommended usage in this repo
 
@@ -91,7 +99,5 @@ if lrg is None:
 
 ## Notes
 
-- `config/const.py` reads the filesystem at import time; prefer `constants.py`
-  for lightweight imports in utilities.
 - The CLI `lrg-eegfc-corr` uses a different output root
   (`data/correlations/Pat_XX/`). Use it for quick checks only.

@@ -32,8 +32,8 @@ def main():
     parser.add_argument(
         "--patients",
         nargs="+",
-        default=["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"],
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_07 Pat_08)"
+        default=["Pat_02", "Pat_03", "Pat_05", "Pat_08"],
+        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
     )
 
     # Correlation parameters
@@ -110,6 +110,10 @@ def main():
 
     args = parser.parse_args()
 
+    if args.filter_time is not None and args.filter_time > 0 and args.cache_root == Path("data/corr_cache"):
+        args.cache_root = Path("data/corr_cache_dev")
+        print(f"Using dev cache root for filter_time: {args.cache_root}")
+
     # Print configuration
     print("=" * 70)
     print("Correlation Functional Connectivity Matrix Computation")
@@ -181,8 +185,12 @@ def main():
     print("\nCache")
     print(f"  root:        {args.cache_root}/")
     print(f"  per-patient: {args.cache_root}/{{patient}}/")
-    print("  filename:    "
-          f"{{band}}_{{phase}}_corr_ftype-{args.filter_type}_zdiag-{args.zero_diagonal}.npy")
+    filename_pattern = (
+        f"{{band}}_{{phase}}_corr_ftype-{args.filter_type}_zdiag-{args.zero_diagonal}.npy"
+    )
+    if args.filter_time is not None and args.filter_time > 0:
+        filename_pattern = filename_pattern.replace(".npy", f"_ftime-{args.filter_time}.npy")
+    print(f"  filename:    {filename_pattern}")
 
 
 if __name__ == "__main__":

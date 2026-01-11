@@ -18,7 +18,16 @@ from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
 from lrg_eegfc.utils.fc.corr import build_corr_network
 from lrg_eegfc.utils.io import load_timeseries, load_patient_dataset_robust
 
+DEFAULT_CORR_CACHE_ROOT = Path("data/corr_cache")
+DEFAULT_CORR_DEV_CACHE_ROOT = Path("data/corr_cache_dev")
+
 __all__ = ["CorrResult", "compute_corr_matrix", "load_corr_matrix", "get_corr_cache_path"]
+
+
+def _resolve_cache_root(cache_root: Path, filter_time: Optional[int]) -> Path:
+    if filter_time is not None and filter_time > 0 and cache_root == DEFAULT_CORR_CACHE_ROOT:
+        return DEFAULT_CORR_DEV_CACHE_ROOT
+    return cache_root
 
 
 @dataclass
@@ -65,9 +74,10 @@ def get_corr_cache_path(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = DEFAULT_CORR_CACHE_ROOT,
     filter_type: str = "abs",
     zero_diagonal: bool = True,
+    filter_time: Optional[int] = None,
 ) -> Path:
     """Get cache file path for correlation matrix.
 
@@ -91,11 +101,14 @@ def get_corr_cache_path(
     Path
         Path to cache file
     """
+    cache_root = _resolve_cache_root(cache_root, filter_time)
     cache_dir = cache_root / patient
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     # Include filter_type and zero_diagonal in filename for different cache keys
     suffix = f"ftype-{filter_type}_zdiag-{zero_diagonal}"
+    if filter_time is not None and filter_time > 0:
+        suffix = f"{suffix}_ftime-{filter_time}"
     return cache_dir / f"{band}_{phase}_corr_{suffix}.npy"
 
 
@@ -103,9 +116,10 @@ def load_corr_matrix(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = DEFAULT_CORR_CACHE_ROOT,
     filter_type: str = "abs",
     zero_diagonal: bool = True,
+    filter_time: Optional[int] = None,
 ) -> Optional[np.ndarray]:
     """Load cached correlation matrix if it exists.
 
@@ -129,7 +143,15 @@ def load_corr_matrix(
     np.ndarray or None
         Cached correlation matrix, or None if not cached
     """
-    cache_path = get_corr_cache_path(patient, phase, band, cache_root, filter_type, zero_diagonal)
+    cache_path = get_corr_cache_path(
+        patient,
+        phase,
+        band,
+        cache_root,
+        filter_type,
+        zero_diagonal,
+        filter_time,
+    )
 
     if cache_path.exists():
         return np.load(cache_path)
@@ -141,7 +163,7 @@ def compute_corr_matrix(
     phase: str,
     band: str,
     dataset_root: Path = Path("data/stereoeeg_patients"),
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = DEFAULT_CORR_CACHE_ROOT,
     *,
     use_cache: bool = True,
     overwrite_cache: bool = False,
@@ -218,8 +240,18 @@ def compute_corr_matrix(
         available = ", ".join(sorted(BRAIN_BANDS))
         raise KeyError(f"Band '{band}' not defined. Available: {available}")
 
+    cache_root = _resolve_cache_root(cache_root, filter_time)
+
     # Check cache
-    cache_path = get_corr_cache_path(patient, phase, band, cache_root, filter_type, zero_diagonal)
+    cache_path = get_corr_cache_path(
+        patient,
+        phase,
+        band,
+        cache_root,
+        filter_type,
+        zero_diagonal,
+        filter_time,
+    )
 
     if use_cache and not overwrite_cache and cache_path.exists():
         if verbose:

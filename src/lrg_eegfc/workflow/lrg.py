@@ -24,7 +24,16 @@ from lrgsglib.core import (
     get_giant_component,
 )
 
+DEFAULT_LRG_CACHE_ROOT = Path("data/lrg_cache")
+DEFAULT_LRG_DEV_CACHE_ROOT = Path("data/lrg_cache_dev")
+
 __all__ = ["LRGResult", "compute_lrg_analysis", "load_lrg_result", "get_lrg_cache_path"]
+
+
+def _resolve_cache_root(cache_root: Path, filter_time: Optional[int]) -> Path:
+    if filter_time is not None and filter_time > 0 and cache_root == DEFAULT_LRG_CACHE_ROOT:
+        return DEFAULT_LRG_DEV_CACHE_ROOT
+    return cache_root
 
 
 @dataclass
@@ -75,7 +84,8 @@ def get_lrg_cache_path(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
+    filter_time: Optional[int] = None,
 ) -> Path:
     """Get cache file path for LRG analysis results.
 
@@ -91,16 +101,22 @@ def get_lrg_cache_path(
         FC method ("msc" or "corr")
     cache_root : Path, optional
         Root directory for cache files
+    filter_time : int, optional
+        Limit used for upstream FC caches (for dev cache separation)
 
     Returns
     -------
     Path
         Path to cache file
     """
+    cache_root = _resolve_cache_root(cache_root, filter_time)
     cache_dir = cache_root / patient
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    return cache_dir / f"{band}_{phase}_lrg_{fc_method}.npz"
+    suffix = f"{band}_{phase}_lrg_{fc_method}"
+    if filter_time is not None and filter_time > 0:
+        suffix = f"{suffix}_ftime-{filter_time}"
+    return cache_dir / f"{suffix}.npz"
 
 
 def load_lrg_result(
@@ -108,7 +124,8 @@ def load_lrg_result(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
+    filter_time: Optional[int] = None,
 ) -> Optional[LRGResult]:
     """Load cached LRG analysis result if it exists.
 
@@ -124,13 +141,22 @@ def load_lrg_result(
         FC method ("msc" or "corr")
     cache_root : Path, optional
         Root directory for cache files
+    filter_time : int, optional
+        Limit used for upstream FC caches (for dev cache separation)
 
     Returns
     -------
     LRGResult or None
         Cached LRG result, or None if not cached
     """
-    cache_path = get_lrg_cache_path(patient, phase, band, fc_method, cache_root)
+    cache_path = get_lrg_cache_path(
+        patient,
+        phase,
+        band,
+        fc_method,
+        cache_root=cache_root,
+        filter_time=filter_time,
+    )
 
     if cache_path.exists():
         data = np.load(cache_path)
@@ -156,13 +182,14 @@ def compute_lrg_analysis(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
     *,
     use_cache: bool = True,
     overwrite_cache: bool = False,
     entropy_steps: int = 400,
     entropy_t1: float = -3.0,
     entropy_t2: float = 5.0,
+    filter_time: Optional[int] = None,
     verbose: bool = False,
 ) -> LRGResult:
     """Compute LRG analysis (ultrametric distances, entropy) from FC matrix.
@@ -197,6 +224,8 @@ def compute_lrg_analysis(
         Start of tau range (log scale) for entropy (default: -3.0)
     entropy_t2 : float, optional
         End of tau range (log scale) for entropy (default: 5.0)
+    filter_time : int, optional
+        Limit used for upstream FC caches (for dev cache separation)
     verbose : bool, optional
         Print progress information (default: False)
 
@@ -239,12 +268,26 @@ def compute_lrg_analysis(
         raise ValueError(f"adjacency_matrix must be square, got shape {adjacency_matrix.shape}")
 
     # Check cache
-    cache_path = get_lrg_cache_path(patient, phase, band, fc_method, cache_root)
+    cache_path = get_lrg_cache_path(
+        patient,
+        phase,
+        band,
+        fc_method,
+        cache_root=cache_root,
+        filter_time=filter_time,
+    )
 
     if use_cache and not overwrite_cache and cache_path.exists():
         if verbose:
             print(f"Loading cached LRG analysis: {cache_path}")
-        return load_lrg_result(patient, phase, band, fc_method, cache_root)
+        return load_lrg_result(
+            patient,
+            phase,
+            band,
+            fc_method,
+            cache_root=cache_root,
+            filter_time=filter_time,
+        )
 
     # Compute LRG analysis
     if verbose:
@@ -329,6 +372,8 @@ def compute_lrg_for_patient(
     fc_method: str,
     bands: Optional[list] = None,
     phases: Optional[list] = None,
+    fc_cache_root: Optional[Path] = None,
+    filter_time: Optional[int] = None,
     **kwargs
 ) -> Dict[str, Dict[str, LRGResult]]:
     """Compute LRG analysis for all band/phase combinations for a patient.
@@ -343,6 +388,10 @@ def compute_lrg_for_patient(
         List of band names (default: all BRAIN_BANDS)
     phases : list, optional
         List of phase names (default: all phases)
+    fc_cache_root : Path, optional
+        Cache root for FC matrices (default: workflow defaults)
+    filter_time : int, optional
+        Limit used for upstream FC caches (for dev cache separation)
     **kwargs
         Additional arguments passed to compute_lrg_analysis()
 
@@ -383,7 +432,16 @@ def compute_lrg_for_patient(
         for phase in phases:
             try:
                 # Load FC matrix
-                fc_matrix = load_fc_matrix(patient, phase, band)
+                if fc_cache_root is None:
+                    fc_matrix = load_fc_matrix(patient, phase, band, filter_time=filter_time)
+                else:
+                    fc_matrix = load_fc_matrix(
+                        patient,
+                        phase,
+                        band,
+                        cache_root=fc_cache_root,
+                        filter_time=filter_time,
+                    )
                 if fc_matrix is None:
                     print(f"WARNING: No cached FC matrix for {patient} {phase} {band} ({fc_method})")
                     results[band][phase] = None
@@ -391,7 +449,13 @@ def compute_lrg_for_patient(
 
                 # Compute LRG analysis
                 result = compute_lrg_analysis(
-                    fc_matrix, patient, phase, band, fc_method, **kwargs
+                    fc_matrix,
+                    patient,
+                    phase,
+                    band,
+                    fc_method,
+                    filter_time=filter_time,
+                    **kwargs,
                 )
                 results[band][phase] = result
 

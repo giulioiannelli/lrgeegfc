@@ -34,8 +34,8 @@ def main():
     parser.add_argument(
         "--patients",
         nargs="+",
-        default=["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"],
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_07 Pat_08)"
+        default=["Pat_02", "Pat_03", "Pat_05", "Pat_08"],
+        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
     )
 
     # FC method selection
@@ -65,6 +65,12 @@ def main():
         default=5.0,
         help="End of tau range (log scale) for entropy (default: 5.0)"
     )
+    parser.add_argument(
+        "--filter-time",
+        type=int,
+        default=None,
+        help="Limit used for upstream FC caches (dev-only convenience)"
+    )
 
     # Cache control
     parser.add_argument(
@@ -88,6 +94,10 @@ def main():
 
     args = parser.parse_args()
 
+    if args.filter_time is not None and args.filter_time > 0 and args.cache_root == Path("data/lrg_cache"):
+        args.cache_root = Path("data/lrg_cache_dev")
+        print(f"Using dev cache root for filter_time: {args.cache_root}")
+
     # Print configuration
     print("=" * 70)
     print("LRG Analysis Computation")
@@ -98,6 +108,8 @@ def main():
     print(f"FC method: {args.fc_method}")
     print(f"Entropy steps: {args.entropy_steps}")
     print(f"Entropy tau range: [{args.entropy_t1}, {args.entropy_t2}]")
+    if args.filter_time:
+        print(f"Filter time: {args.filter_time}")
     print(f"Cache root: {args.cache_root}")
     expected = len(args.patients) * len(BRAIN_BANDS) * len(PHASE_LABELS)
     print(f"Expected LRG analyses: {expected}")
@@ -119,6 +131,7 @@ def main():
             entropy_steps=args.entropy_steps,
             entropy_t1=args.entropy_t1,
             entropy_t2=args.entropy_t2,
+            filter_time=args.filter_time,
             cache_root=args.cache_root,
             overwrite_cache=args.overwrite,
         )
@@ -151,7 +164,10 @@ def main():
     # Print cache information
     print(f"\nCache location: {args.cache_root}/{{patient}}/")
     print("\nFilename format:")
-    print(f"  {{band}}_{{phase}}_lrg_{args.fc_method}.npz")
+    if args.filter_time is not None and args.filter_time > 0:
+        print(f"  {{band}}_{{phase}}_lrg_{args.fc_method}_ftime-{args.filter_time}.npz")
+    else:
+        print(f"  {{band}}_{{phase}}_lrg_{args.fc_method}.npz")
 
     print("\nOutputs in each .npz file:")
     print("  - ultrametric_matrix: Condensed distance matrix")

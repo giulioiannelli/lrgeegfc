@@ -34,7 +34,9 @@
 - Track network stability vs surrogate count (e.g. Frobenius norm diff,
   Pearson/Spearman correlation on upper triangle, degree distribution change).
 - Identify a saturation point to justify final surrogate choice.
-- Implementation target: `tests/test_msc_surrogates_scaling.py` (timing + metrics).
+- Implementation targets:
+  - `tests/test_msc_surrogates_scaling.py` (timing + metrics, opt-in)
+  - `scripts/msc_surrogate_scaling.py` (interactive CLI sweep)
 - Use the saturation test to justify per-window surrogate counts in Stage S.
 
 3) Single-patient dev notebooks
@@ -71,7 +73,8 @@
   `compute_corr_matrix`, `compute_msc_matrix` write caches.
 - Visualize: notebooks/scripts must call `load_*` first and should not compute
   unless caches are missing (dev-only exceptions).
-- Cache roots are fixed under `data/{corr_cache,msc_cache}/`.
+- Cache roots are fixed under `data/{corr_cache,msc_cache}/` for full runs.
+- Dev runs with `filter_time` auto-redirect to `data/{corr_cache_dev,msc_cache_dev}/`.
 
 ## Deliverables
 - Parameter summary file for MSC and correlation.

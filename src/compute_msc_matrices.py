@@ -33,8 +33,8 @@ def main():
     parser.add_argument(
         "--patients",
         nargs="+",
-        default=["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"],
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_07 Pat_08)"
+        default=["Pat_02", "Pat_03", "Pat_05", "Pat_08"],
+        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
     )
 
     # MSC parameters
@@ -110,6 +110,10 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if args.filter_time is not None and args.filter_time > 0 and args.cache_root == Path("data/msc_cache"):
+        args.cache_root = Path("data/msc_cache_dev")
+        print(f"Using dev cache root for filter_time: {args.cache_root}")
 
     # Validate arguments
     if args.sparsify == "soft" and args.n_surrogates == 0:
@@ -194,6 +198,8 @@ def main():
             f"{{band}}_{{phase}}_msc_sparsify-{args.sparsify}_"
             f"nsurr-{args.n_surrogates}_nperseg-{args.nperseg}.npy"
         )
+    if args.filter_time is not None and args.filter_time > 0:
+        filename_pattern = filename_pattern.replace(".npy", f"_ftime-{args.filter_time}.npy")
 
     print("\nCache")
     print(f"  root:        {args.cache_root}/")
