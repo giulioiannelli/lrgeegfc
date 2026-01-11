@@ -42,8 +42,8 @@ def main():
     parser.add_argument(
         "--patients",
         nargs="+",
-        default=["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"],
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_07 Pat_08)"
+        default=["Pat_02", "Pat_03", "Pat_05", "Pat_08"],
+        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
     )
 
     # Phase/band selection

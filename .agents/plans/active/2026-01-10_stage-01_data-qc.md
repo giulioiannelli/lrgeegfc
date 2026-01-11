@@ -12,29 +12,24 @@
   `utils/datamanag/patient_robust.py` (post-refactor: `lrg_eegfc.utils.io`)
 
 ## Current status
-- `src/inspect_patient_data.py` exists but does not emit a dated report in `.agents/`.
-- Robust loader is available in `utils/datamanag/patient_robust.py`.
-- No consolidated report under `.agents/plans/active/` yet.
+- Data inventory run completed and summarized in:
+  - `.agents/plans/active/2026-01-10_data_inventory.md`
+- Issues detected in Pat_05/06/07/08 (missing `fs`, missing phases, missing labels).
+- Pat_03 has likely transposed `taskLearn`/`taskTest` shapes.
+- Decisions: default missing `fs` to 2048 Hz; auto-transpose when channel
+  dimension mismatches other phases; exclude patients missing phases.
 
 ## Tasks
 1) Run data inventory
-- Create or update a script to list patients, phases, channel counts, and
-  sampling rate extraction status.
-- Log missing phases and missing metadata explicitly.
-- Track which patients have implant coordinate files (Implant_pat_XX.csv).
-- Implementation target: update `src/inspect_patient_data.py` to emit both
-  Markdown and CSV reports.
+- Completed; see report file above.
 
 2) Sampling rate checks
-- Confirm whether `fs` is present in the `Parameters` struct or alternate keys.
-- Record whether the loader needs to fall back to default `sample_rate`.
+- Pending decision: which default `fs` to use for Pat_05/06/07/08.
+- Decision: use 2048 Hz default for missing `fs` (no per-patient overrides).
 
 3) Output report
-- Store a summary report under `.agents/plans/active/` with date.
-- Capture warnings and per-patient anomalies.
-- Expected outputs:
-  - `.agents/plans/active/2026-01-10_data_inventory.md`
-  - `.agents/plans/active/2026-01-10_data_inventory.csv`
+- Markdown summary is in place.
+- CSV report not found in repo; regenerate if needed for tooling.
 
 ## Compute vs visualize
 - This stage is compute-only (report generation). No figures are produced here.
@@ -48,3 +43,5 @@
 - For each patient/phase: data path, channel count, fs status, and metadata
   availability are known.
 - Patients with electrode coordinate files are identified for spatial plots.
+- Handling plan for missing phases / missing fs / transposed data is agreed.
+  - Missing phases: exclude Pat_06 and Pat_07 from cross-phase analysis runs.

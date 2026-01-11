@@ -25,6 +25,7 @@ __all__ = [
     'BRAIN_BAND_TEX_DICT',
     'BRAIN_BAND_LABELS',
     'DEFAULT_N_SURROGATES',
+    'DEFAULT_SAMPLE_RATE',
 ]
 #
 sEEG_DATAPATH = Path('data') / 'stereoeeg_patients'
@@ -121,3 +122,5 @@ BRAIN_BAND_TEX_DICT: Dict[str, str] = {
 BRAIN_BAND_LABELS: Dict[str, str] = BRAIN_BAND_TEX_DICT
 #: Default number of surrogates for coherence-based FC null model estimation
 DEFAULT_N_SURROGATES: int = 200
+#: Default sampling rate when `fs` is missing from metadata
+DEFAULT_SAMPLE_RATE: float = 2048.0

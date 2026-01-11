@@ -8,7 +8,7 @@ import numpy as np
 
 from lrgsglib.utils.lrg.infocomm import extract_ultrametric_matrix
 
-from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS, DEFAULT_SAMPLE_RATE
 from .network import process_network_for_phase
 
 
@@ -74,7 +74,7 @@ def compute_structures_for_single(
     else:
         pin_labels = int_label_map[patient]["label"]
     fs_raw = entry.get("fs", None)
-    fs = float(np.asarray(fs_raw).flat[0]) if fs_raw is not None else 1024
+    fs = float(np.asarray(fs_raw).flat[0]) if fs_raw is not None else DEFAULT_SAMPLE_RATE
 
     G, _, lnkgM, _, _, dists = process_network_for_phase(
         data_ts,

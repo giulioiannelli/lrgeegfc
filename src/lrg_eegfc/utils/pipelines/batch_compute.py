@@ -32,7 +32,7 @@ def compute_all_matrices(
     """
     if patients is None:
         detected = list_patients(Path("data/stereoeeg_patients"))
-        patients = detected or ["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"]
+        patients = detected or ["Pat_02", "Pat_03", "Pat_05", "Pat_08"]
 
     print("Computing all MSC and Correlation matrices...")
     print("=" * 70)
@@ -110,7 +110,7 @@ def main() -> int:
         "--patients",
         nargs="+",
         default=None,
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_07 Pat_08)"
+        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
     )
     parser.add_argument(
         "--verbose",

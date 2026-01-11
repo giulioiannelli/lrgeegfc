@@ -16,7 +16,7 @@ import pandas as pd
 from scipy.io import loadmat
 import h5py
 
-from ...config.const import PHASE_LABELS
+from ...config.const import DEFAULT_SAMPLE_RATE, PHASE_LABELS
 
 __all__ = ["PatientRecording", "load_timeseries_robust", "load_patient_dataset_robust"]
 
@@ -340,9 +340,14 @@ def load_patient_dataset_robust(
     Dict[str, PatientRecording]
         Dictionary mapping phase names to PatientRecording objects.
         Phases that fail to load are omitted (with warning logged).
+        Missing sampling rates are filled with the default value.
     """
     metadata = load_patient_metadata_robust(patient, root_path)
     dataset = {}
+    expected_channels = None
+
+    if metadata is not None and "label" in metadata.columns:
+        expected_channels = len(metadata)
 
     for phase in phases:
         try:
@@ -353,6 +358,22 @@ def load_patient_dataset_robust(
                 continue
 
             timeseries = load_timeseries_robust(patient, phase, root_path)
+
+            if expected_channels is None and dataset:
+                expected_channels = next(iter(dataset.values())).timeseries.shape[0]
+
+            if expected_channels is not None:
+                if timeseries.shape[0] != expected_channels and timeseries.shape[1] == expected_channels:
+                    logger.warning(
+                        f"{patient}/{phase}: Transposing to match {expected_channels} channels "
+                        f"(shape {timeseries.shape} -> {timeseries.T.shape})"
+                    )
+                    timeseries = timeseries.T
+                elif timeseries.shape[0] != expected_channels and timeseries.shape[1] != expected_channels:
+                    logger.warning(
+                        f"{patient}/{phase}: Channel count mismatch (expected {expected_channels}, "
+                        f"got {timeseries.shape[0]})"
+                    )
 
             # Load parameters
             mat = _try_load_mat_scipy(mat_path)
@@ -367,6 +388,27 @@ def load_patient_dataset_robust(
                         mat_h5.close()
                 else:
                     parameters = {}
+
+            fs_value = None
+            if "fs" in parameters and parameters["fs"] is not None:
+                fs_value = parameters["fs"]
+            else:
+                for key in ("Fs", "sampling_rate", "SamplingRate", "srate"):
+                    if key in parameters and parameters[key] is not None:
+                        fs_value = parameters[key]
+                        break
+
+            if fs_value is None:
+                parameters["fs"] = float(DEFAULT_SAMPLE_RATE)
+            else:
+                try:
+                    parameters["fs"] = float(np.asarray(fs_value).flat[0])
+                except Exception:
+                    logger.warning(
+                        f"{patient}/{phase}: Could not parse fs={fs_value}, using default "
+                        f"{DEFAULT_SAMPLE_RATE}"
+                    )
+                    parameters["fs"] = float(DEFAULT_SAMPLE_RATE)
 
             dataset[phase] = PatientRecording(
                 timeseries=timeseries,

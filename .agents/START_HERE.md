@@ -29,3 +29,5 @@ from lrg_eegfc.notebook import *
 - Cache-first: never recompute in visualization notebooks/scripts.
 - Use `lrg_eegfc.notebook` to avoid long imports and to keep CWD correct.
 - Cache naming is parameter-sensitive (MSC uses `sparsify-*` and `nperseg-*`).
+- Default missing `fs` to 2048 Hz; auto-transpose phases if channel count differs.
+- Exclude patients missing phases (currently Pat_06, Pat_07) from cross-phase runs.
