@@ -6,7 +6,7 @@
 
 ## Current status
 - Refactor pass completed: workflows split into `workflow/`, utils into `utils/{io,fc,lrg,metrics,pipelines}`, visuals kept top-level.
-- Compatibility stubs added for `workflow_*`, `plotting.py`, `compare.py`, `batch_compute.py`, and `io.py`.
+- Compatibility stubs removed; top-level now only exposes canonical modules.
 - Constants unified under `config/const.py` (lazy patient listing).
 - Docs and guides updated; sanity notebook validated cache reads.
 
@@ -99,7 +99,7 @@
 
 ## Status update (2026-01-10)
 ### Completed
-- Moved workflows to `src/lrg_eegfc/workflow/` and added stubs at top level.
+- Moved workflows to `src/lrg_eegfc/workflow/` and removed top-level stubs.
 - Moved utils into `src/lrg_eegfc/utils/{io,fc,lrg,metrics,pipelines}`.
 - Moved plotting helpers to `src/lrg_eegfc/visuals/plotting.py`.
 - Removed `constants.py` and `shared.py`; added `utils/common.py` for shared imports.

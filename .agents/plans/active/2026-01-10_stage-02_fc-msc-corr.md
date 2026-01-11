@@ -7,7 +7,7 @@
 
 ## Inputs
 - Outputs from Stage 01 (dataset inventory)
-- `workflow_msc.py`, `workflow_corr.py` (post-refactor: `lrg_eegfc.workflow.msc`, `lrg_eegfc.workflow.corr`)
+- `lrg_eegfc.workflow.msc`, `lrg_eegfc.workflow.corr`
 - Existing notebooks and legacy notebooks for parameter references
 
 ## Current status

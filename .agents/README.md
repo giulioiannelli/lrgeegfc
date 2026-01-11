@@ -42,22 +42,13 @@ Note: `docs/overview.md` reflects the current module layout.
 src/lrg_eegfc/
 |-- __init__.py
 |-- cli.py
-|-- compare.py            # compatibility wrapper
 |-- notebook.py
-|-- plotting.py           # compatibility wrapper
-|-- io.py                 # compatibility wrapper
-|-- batch_compute.py      # compatibility wrapper
 |-- workflow/             # canonical workflows
 |   |-- core.py
 |   |-- corr.py
 |   |-- msc.py
 |   |-- lrg.py
 |   `-- cleaning.py
-|-- workflow.py           # compatibility wrapper
-|-- workflow_corr.py      # compatibility wrapper
-|-- workflow_cleaning.py  # compatibility wrapper
-|-- workflow_lrg.py       # compatibility wrapper
-|-- workflow_msc.py       # compatibility wrapper
 |-- config/
 |   `-- const.py
 |-- utils/
@@ -167,8 +158,8 @@ pip install ./lrgsglib
 
 - Confirm dataset root exists (default `data/stereoeeg_patients/`) and that
   `.mat` files expose a usable data variable (`Data` or one of the robust keys).
-- Decide the workflow: correlation (`workflow_corr`), MSC (`workflow_msc`), or
-  LRG analysis (`workflow_lrg`) after an FC matrix exists.
+- Decide the workflow: correlation (`workflow.corr`), MSC (`workflow.msc`), or
+  LRG analysis (`workflow.lrg`) after an FC matrix exists.
 - Use cache-aware helpers to avoid recomputation during iteration.
 - Prefer `constants.py` for lightweight imports; `config/const.py` reads
   the filesystem at import time.

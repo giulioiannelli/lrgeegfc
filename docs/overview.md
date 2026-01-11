@@ -9,16 +9,7 @@ Connectivity** toolkit after the 2024 refactor.
 src/lrg_eegfc/
 |-- __init__.py              # Public API exports
 |-- cli.py                   # CLI for correlation workflow
-|-- compare.py               # Compatibility wrapper
-|-- plotting.py              # Compatibility wrapper
-|-- io.py                    # Compatibility wrapper
 |-- workflow/                # Canonical workflows
-|-- workflow.py              # Compatibility wrapper
-|-- workflow_corr.py         # Compatibility wrapper
-|-- workflow_msc.py          # Compatibility wrapper
-|-- workflow_lrg.py          # Compatibility wrapper
-|-- workflow_cleaning.py     # Compatibility wrapper
-|-- batch_compute.py         # Compatibility wrapper
 |-- config/                  # Dataset-aware constants
 |-- utils/                   # Loaders + FC primitives
 `-- visuals/                 # Figure generation
