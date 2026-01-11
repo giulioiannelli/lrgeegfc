@@ -1,0 +1,358 @@
+================================================================================
+STEREOEEG PATIENT DATA INSPECTION REPORT
+================================================================================
+Root path: data/stereoeeg_patients
+Total patients: 6
+Patients with issues: 4
+Total issues: 19
+================================================================================
+
+================================================================================
+PATIENT: Pat_02
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (117, 1323208)
+               Sampling rate: 2048.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         1],
+       [         1]], dtype=uint32))
+               Other parameters: Phase, fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+  taskLearn    ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (117, 1602370)
+               Sampling rate: 2048.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         2],
+       [         1]], dtype=uint32))
+               Other parameters: TaskPhase, fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+  taskTest     ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (117, 2156149)
+               Sampling rate: 2048.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         2],
+       [         1]], dtype=uint32))
+               Other parameters: TaskPhase, fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (117, 1350464)
+               Sampling rate: 2048.0 Hz
+               Filter info:
+                 - filter_order: 4
+               Other parameters: Phase, fs, fcutHigh, fcutLow, filter_order, DataDimensions
+               Available keys: Data, Parameters, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✓
+                            data/stereoeeg_patients/Pat_02/channel_labels.csv
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✓
+                            data/stereoeeg_patients/Pat_02/ChannelNames.mat
+
+✓ No issues found for this patient
+
+================================================================================
+PATIENT: Pat_03
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (122, 685090)
+               Sampling rate: 1024.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         2],
+       [         1]], dtype=uint32))
+               Other parameters: fs, fcutHigh, fcutLow, filter_order, DataDimensions, NotchFilter
+               Available keys: Data, Parameters, None
+  taskLearn    ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (856595, 122)
+               Sampling rate: 1024.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         2],
+       [         1]], dtype=uint32))
+               Other parameters: TaskPhase, fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+  taskTest     ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (1235200, 122)
+               Sampling rate: 1024.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         2],
+       [         1]], dtype=uint32))
+               Other parameters: TaskPhase, fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (122, 477102)
+               Sampling rate: 1024.0 Hz
+               Filter info:
+                 - filter_order: 4
+                 - NotchFilter: (b'', b'MCOS', b'string', array([[3707764736],
+       [         2],
+       [         1],
+       [         1],
+       [         1],
+       [         1]], dtype=uint32))
+               Other parameters: fs, fcutHigh, fcutLow, filter_order, NotchFilter, DataDimensions
+               Available keys: Data, Parameters, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✓
+                            data/stereoeeg_patients/Pat_03/channel_labels.csv
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✗
+
+✓ No issues found for this patient
+
+================================================================================
+PATIENT: Pat_05
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (118, 1195554)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskLearn    ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (118, 1556386)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskTest     ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (118, 2248650)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (118, 1400273)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✓
+                            data/stereoeeg_patients/Pat_05/channel_labels.csv
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✗
+
+Issues Found:
+--------------------------------------------------------------------------------
+  ⚠ rsPre: No sampling rate (fs) found
+  ⚠ taskLearn: No sampling rate (fs) found
+  ⚠ taskTest: No sampling rate (fs) found
+  ⚠ rsPost: No sampling rate (fs) found
+
+================================================================================
+PATIENT: Pat_06
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (115, 1369484)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskLearn    ✗ File missing
+  taskTest     ✗ File missing
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (115, 1293207)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✗
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✗
+
+Issues Found:
+--------------------------------------------------------------------------------
+  ⚠ rsPre: No sampling rate (fs) found
+  ⚠ Missing phase: taskLearn
+  ⚠ Missing phase: taskTest
+  ⚠ rsPost: No sampling rate (fs) found
+  ⚠ No channel label files found
+
+================================================================================
+PATIENT: Pat_07
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (116, 1033753)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskLearn    ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (116, 1198654)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskTest     ✗ File: scipy (MATLAB v5-v7)
+               Available keys: None
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (116, 1468621)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✗
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✗
+
+Issues Found:
+--------------------------------------------------------------------------------
+  ⚠ rsPre: No sampling rate (fs) found
+  ⚠ taskLearn: No sampling rate (fs) found
+  ⚠ taskTest: No data variable found (keys: ['None'])
+  ⚠ rsPost: No sampling rate (fs) found
+  ⚠ No channel label files found
+
+================================================================================
+PATIENT: Pat_08
+================================================================================
+
+Phase Data:
+--------------------------------------------------------------------------------
+  rsPre        ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (120, 1169408)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskLearn    ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (120, 1092074)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  taskTest     ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (120, 2208949)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+  rsPost       ✓ File: scipy (MATLAB v5-v7)
+               Data variable: Data
+               Shape: (120, 1313720)
+               Sampling rate: ⚠ NOT FOUND
+               Available keys: Data, None
+
+Metadata Files:
+--------------------------------------------------------------------------------
+  Channel Labels Csv        ✗
+  Channel Labels Txt        ✗
+  Implant Csv               ✗
+  Implant Xlsx              ✗
+  Channel Names Mat         ✗
+
+Issues Found:
+--------------------------------------------------------------------------------
+  ⚠ rsPre: No sampling rate (fs) found
+  ⚠ taskLearn: No sampling rate (fs) found
+  ⚠ taskTest: No sampling rate (fs) found
+  ⚠ rsPost: No sampling rate (fs) found
+  ⚠ No channel label files found
+
+================================================================================
+SUMMARY OF DIVERGENCES BETWEEN PATIENTS
+================================================================================
+
+Sampling Rates:
+  1024.0 Hz: Pat_03
+  2048.0 Hz: Pat_02
+
+Data Variable Names Used:
+  'Data': 21 occurrences
+
+File Formats:
+  scipy (MATLAB v5-v7): 22 files
+
+================================================================================
+RECOMMENDATIONS FOR COLLABORATORS
+================================================================================
+
+1. Missing or corrupted phase data:
+   - Pat_06/taskLearn
+   - Pat_06/taskTest
+   - Pat_07/taskTest
+
+2. Missing sampling rate (fs) information:
+   - Pat_05/rsPre
+   - Pat_05/taskLearn
+   - Pat_05/taskTest
+   - Pat_05/rsPost
+   - Pat_06/rsPre
+   - Pat_06/rsPost
+   - Pat_07/rsPre
+   - Pat_07/taskLearn
+   - Pat_07/rsPost
+   - Pat_08/rsPre
+   - Pat_08/taskLearn
+   - Pat_08/taskTest
+   - Pat_08/rsPost
+   Please add 'fs' field to Parameters struct or as standalone variable
+
+3. Missing channel label files:
+   - Pat_06: Please provide channel_labels.csv or ChannelNames.mat
+   - Pat_07: Please provide channel_labels.csv or ChannelNames.mat
+   - Pat_08: Please provide channel_labels.csv or ChannelNames.mat
+
+================================================================================
