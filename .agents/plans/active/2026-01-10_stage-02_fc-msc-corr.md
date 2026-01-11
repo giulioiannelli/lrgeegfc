@@ -14,9 +14,11 @@
 - Dev notebooks exist for single-patient FC generation.
 - `src/compute_corr_matrices.py` and `src/compute_msc_matrices.py` accept
   `--bands`, `--phases`, and `--filter-time`.
-- No surrogate scaling tests or MSC method doc yet.
+- No surrogate scaling test results yet.
 - Sanity check showed MSC cache names include `sparsify-*` and `nperseg-*`
   (e.g., `*_msc_sparsify-none_nperseg-1024.npy`); loader defaults must match.
+ - Parameter summary draft created (`2026-01-10_fc_params.md`).
+ - MSC method guide drafted (`.agents/guides/MSC_METHOD_GUIDE.md`).
 
 ## Tasks
 1) Parameter consolidation
