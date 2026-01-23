@@ -13,9 +13,8 @@ documented public APIs and optional plotting helpers.
   - [Step 1: Clone the repository](#step-1-clone-the-repository)
   - [Step 2: Initialize submodules](#step-2-initialize-submodules)
   - [Step 3: Create the conda environment](#step-3-create-the-conda-environment)
-  - [Step 4: Configure environment activation hook](#step-4-configure-environment-activation-hook)
-  - [Step 5: Install lrgsglib](#step-5-install-lrgsglib)
-  - [Step 6: Install lrg-eegfc](#step-6-install-lrg-eegfc)
+  - [Step 4: Build and configure lrgsglib](#step-4-build-and-configure-lrgsglib)
+  - [Step 5: Install lrg-eegfc](#step-5-install-lrg-eegfc)
 - [Dataset layout](#dataset-layout)
 - [Command line usage](#command-line-usage)
 - [Python API overview](#python-api-overview)
@@ -36,15 +35,14 @@ git submodule update --init --recursive
 conda env create -f lapbrain.yml
 conda activate lapbrain
 
-# Configure environment activation hook
-mkdir -p "$CONDA_PREFIX/etc/conda/activate.d"
-echo "source $(pwd)/lrgsglib/tools/bash/config_env.sh" \
-    > "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
-chmod +x "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
+# Build lrgsglib (generates config scripts and conda hooks)
+cd lrgsglib
+git checkout lrg_eegfc
+CONDA_ENV_NAME=lapbrain make all
+pip install -e .
+cd ..
 
-# Install dependencies in editable mode
-cd lrgsglib && git checkout lrg_eegfc && cd ..
-pip install -e ./lrgsglib
+# Install lrg-eegfc
 pip install -e .
 ```
 
@@ -95,35 +93,41 @@ If the environment already exists and you want to update it:
 conda env update -f lapbrain.yml --prune
 ```
 
-### Step 4: Configure environment activation hook
+### Step 4: Build and configure lrgsglib
 
-The `lrgsglib` submodule provides a shell script that sets up useful
-environment variables. Configure conda to source it automatically on
-activation:
-
-```bash
-mkdir -p "$CONDA_PREFIX/etc/conda/activate.d"
-echo "source $(pwd)/lrgsglib/tools/bash/config_env.sh" \
-    > "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
-chmod +x "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
-```
-
-This creates a hook that runs each time you activate the `lapbrain`
-environment, exporting paths like `LRGSG_ROOT`, `LRGSG_DATA`, etc.
-
-### Step 5: Install lrgsglib
-
-The `lrgsglib` submodule must be installed in editable mode on the correct
-branch:
+The `lrgsglib` submodule must be built to generate environment configuration
+scripts and set up conda activation hooks. Switch to the correct branch and
+run the build:
 
 ```bash
 cd lrgsglib
 git checkout lrg_eegfc
-cd ..
-pip install -e ./lrgsglib
+CONDA_ENV_NAME=lapbrain make all
 ```
 
-### Step 6: Install lrg-eegfc
+This command:
+- Generates `config_env.sh` and `unconfig_env.sh` with paths rooted at the
+  current directory
+- Creates conda activation/deactivation hooks that automatically export
+  environment variables (`LRGSG_ROOT`, `LRGSG_DATA`, etc.) when you activate
+  the `lapbrain` environment
+- Compiles any required C extensions
+
+**Custom conda prefix:** If you installed the conda environment with
+`--prefix`, set the `CONDA_PREFIX` variable before running make:
+
+```bash
+CONDA_PREFIX=/path/to/custom/envs/lapbrain CONDA_ENV_NAME=lapbrain make all
+```
+
+After building, install the package in editable mode:
+
+```bash
+pip install -e .
+cd ..
+```
+
+### Step 5: Install lrg-eegfc
 
 Install the main package in editable mode:
 
