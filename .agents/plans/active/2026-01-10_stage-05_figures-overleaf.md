@@ -11,6 +11,17 @@
   figure list below.
 - No Overleaf bundle folder yet.
 - Visualization functions currently live under `visuals/` (kept at top level).
+- Time-window scripts added: `src/compute_time_windows.py`,
+  `src/visualize_time_windows.py`.
+- Time-window guide added: `.agents/guides/TIME_WINDOW_GUIDE.md`.
+- Stage 05 notebooks created for legacy figure prototypes:
+  - `ipynb/05_figures/01_timeseries_emd_singlepat.ipynb`
+  - `ipynb/05_figures/02_corr_networks_per_band_singlepat.ipynb`
+  - `ipynb/05_figures/03_lrg_full_panel_singlepat.ipynb`
+  - `ipynb/05_figures/04_sankey_cluster_transitions.ipynb`
+  - `ipynb/05_figures/05_band_pca_exploration.ipynb`
+  - `ipynb/05_figures/06_poster_layouts.ipynb`
+  - `ipynb/05_figures/07_single_patient_experiments.ipynb`
 
 ## Output locations
 - Figures: `data/figures/<category>/Pat_XX/`
@@ -120,15 +131,21 @@ S) Time-window analysis + entropy animation
   - Window length: max(10 s, 10 cycles at lowest band frequency)
   - Overlap: 25%
   - Minimum segments: 20 (reduce window length if needed)
-- Implementation target: new script `src/visualize_time_windows.py`
+- Compute target: new script `src/compute_time_windows.py` (writes window caches)
+- Visualization target: new script `src/visualize_time_windows.py`
 - Documentation target: `.agents/guides/TIME_WINDOW_GUIDE.md`
+- Single-case notebooks added:
+  - `ipynb/01_preprocessing/02_time_window_split_singlepat.ipynb`
+  - `ipynb/01_preprocessing/03_time_window_corr_singlepat.ipynb`
+  - `ipynb/05_figures/08_specific_heat_animation_singlepat.ipynb`
+  - `ipynb/05_figures/09_time_window_panels_singlepat.ipynb`
 - Validation approach:
   - Dev mode: unvalidated MSC (`sparsify="none"`).
   - Final run: per-window surrogate validation (`sparsify="soft"`).
   - Cache per-window MSC and per-window LRG outputs to avoid recomputation.
-- Cache layout (proposed):
-  - MSC windows: `data/msc_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_msc_*.npy`
-  - LRG windows: `data/lrg_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_lrg_*.npz`
+- Cache layout (run directories):
+  - FC windows: `data/*_cache_windows/Pat_XX/<phase>/<band>/<run_id>/win-0000.npy`
+  - LRG windows: `data/lrg_cache_windows/Pat_XX/<phase>/<band>/<run_id>/win-0000_lrg.npz`
 
 T) Band-dependent reorganization summary
 - Type: batch script
@@ -141,6 +158,33 @@ U) Spatial embedding of nodes with cluster coloring (single case)
   electrode positions and color nodes by LRG clusters.
 - Output: `data/figures/spatial/Pat_XX/`
 - See `2026-01-10_stage-05u_spatial-embedding.md` for full tasks.
+
+## Status checklist (2026-01-10)
+| Figure | Type | Target | Status | Notes |
+| --- | --- | --- | --- | --- |
+| A | notebook | `ipynb/05_figures/01_timeseries_emd_singlepat.ipynb` | present | Cache-first single-case. |
+| B | notebook | `ipynb/05_figures/02_msc_network_singlepat.ipynb` | present | MSC matrix + network single-case. |
+| C | script | `src/visualize_msc_grid.py` | present | Phase x band grid from MSC cache. |
+| D | script | `src/visualize_msc_all_patients.py` | present | All patients for same band/phase. |
+| E | notebook/script | `ipynb/02_fc_msc/05_msc_vs_corr_singlepat.ipynb`, `src/visualize_comparison.py` | present | Uses cached corr + MSC. |
+| F | script | `src/compare_network_variants.py` | present | Compare dense MSC vs validated vs corr. |
+| G | script | `src/visualize_corr_cleaning.py` | present | MP spectrum + cleaned matrix plots. |
+| H | notebook/script | `ipynb/02_fc_msc/04_msc_dense_vs_validated_singlepat.ipynb`, `src/visualize_msc_validation.py` | present | Notebook + batch script. |
+| I | notebook/script | `ipynb/03_lrg/01_lrg_singlepat.ipynb`, `src/visualize_lrg.py` | present | LRG summary panels. |
+| L | script | `src/visualize_lrg_video.py` | present | Density frames across tau (optional GIF). |
+| M | notebook/script | `ipynb/03_lrg/02_lrg_entropy_psi_singlepat.ipynb`, `src/visualize_lrg.py` | present | Full panel includes entropy/PSI network. |
+| N | script | `src/visualize_lrg_phase_grid.py` | present | Dendrogram grids across phases. |
+| O | script | `src/visualize_reorganization_metrics.py` | present | Heatmaps from `results/reorganization`. |
+| P | script | `src/visualize_metric_correlation.py` | present | Cross-metric correlation. |
+| Q | notebook/script | `ipynb/05_figures/04_sankey_cluster_transitions.ipynb`, `src/visualize_metastable.py` | present | Metastable Sankey. |
+| R | script | `src/aggregate_subject_stats.py` | present | Cross-subject summary tables + heatmaps. |
+| S | notebook/script | `ipynb/05_figures/08_specific_heat_animation_singlepat.ipynb`, `src/visualize_time_windows.py` | present | Time-window analysis. |
+| T | script | `src/visualize_reorganization_summary.py` | present | Band-dependent summary. |
+| U | notebook | `ipynb/05_figures/06_spatial_embedding_singlepat.ipynb` | present | Spatial embedding (matplotlib fallback). |
+
+Bundle status:
+- `src/build_overleaf_bundle.py` present (writes manifest + copies).
+- `outputs/overleaf/manifest.md` generated by script.
 
 ## Deliverables
 - A figure generation matrix that tags each item as notebook vs script.

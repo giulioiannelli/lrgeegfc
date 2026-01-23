@@ -9,6 +9,7 @@ Dates are derived from the file name prefix (YYYY-MM-DD).
 - 2026-01-10 — stage 01 data qc: `.agents/plans/active/2026-01-10_stage-01_data-qc.md`
 - 2026-01-10 — stage 02 fc msc corr: `.agents/plans/active/2026-01-10_stage-02_fc-msc-corr.md`
 - 2026-01-10 — stage 03 lrg: `.agents/plans/active/2026-01-10_stage-03_lrg.md`
+- 2026-01-10 — lrg params note: `.agents/plans/active/2026-01-10_lrg_params.md`
 - 2026-01-10 — stage 04 reorganization metrics: `.agents/plans/active/2026-01-10_stage-04_reorganization-metrics.md`
 - 2026-01-10 — stage 05 figures overleaf: `.agents/plans/active/2026-01-10_stage-05_figures-overleaf.md`
 - 2026-01-10 — stage 05u spatial embedding: `.agents/plans/active/2026-01-10_stage-05u_spatial-embedding.md`

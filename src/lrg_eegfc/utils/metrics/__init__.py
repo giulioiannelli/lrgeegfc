@@ -14,6 +14,14 @@ from .compare import (
     batch_compare_fc_methods,
     batch_compare_phases,
 )
+from .reorganization import (
+    build_metric_specs,
+    compute_metric_matrix,
+    compute_cluster_labels,
+    cluster_swap_coefficient,
+    compute_cluster_swap_matrix,
+    compute_ari_matrix,
+)
 
 __all__ = [
     "compute_phase_distance_matrix",
@@ -26,4 +34,10 @@ __all__ = [
     "aggregate_comparisons",
     "batch_compare_fc_methods",
     "batch_compare_phases",
+    "build_metric_specs",
+    "compute_metric_matrix",
+    "compute_cluster_labels",
+    "cluster_swap_coefficient",
+    "compute_cluster_swap_matrix",
+    "compute_ari_matrix",
 ]

@@ -19,6 +19,7 @@
   (e.g., `*_msc_sparsify-none_nperseg-1024.npy`); loader defaults must match.
  - Parameter summary draft created (`2026-01-10_fc_params.md`).
  - MSC method guide drafted (`.agents/guides/MSC_METHOD_GUIDE.md`).
+ - Stage 02 legacy notebooks consolidated into updated single-case notebooks.
 
 ## Tasks
 1) Parameter consolidation
@@ -46,6 +47,8 @@
 - Target notebooks:
   - `ipynb/02_fc_msc/01_build_corr_networks_singlepat.ipynb`
   - `ipynb/02_fc_msc/02_build_msc_networks_singlepat.ipynb`
+  - `ipynb/02_fc_msc/04_msc_dense_vs_validated_singlepat.ipynb`
+  - `ipynb/02_fc_msc/05_msc_vs_corr_singlepat.ipynb`
 
 4) Batch-ready scripts
 - Ensure `src/compute_msc_matrices.py` and `src/compute_corr_matrices.py`

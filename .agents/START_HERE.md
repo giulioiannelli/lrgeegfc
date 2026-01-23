@@ -15,7 +15,8 @@ current state of the refactor.
 4) Read `.agents/plans/active/2026-01-10_stage-00_notebook-consolidation.md` (notebook cleanup).
 5) Read `.agents/plans/active/2026-01-10_stage-03_lrg.md` and `2026-01-10_stage-04_reorganization-metrics.md`.
 6) Read `.agents/plans/active/2026-01-10_stage-05_figures-overleaf.md` and `2026-01-10_stage-05u_spatial-embedding.md`.
-7) Read `.agents/guides/MSC_METHOD_GUIDE.md` and `.agents/guides/CACHING_GUIDE.md`.
+7) Read `.agents/guides/MSC_METHOD_GUIDE.md`, `.agents/guides/CACHING_GUIDE.md`,
+   and `.agents/guides/TIME_WINDOW_GUIDE.md`.
 
 ## Notebook header (required)
 ```python

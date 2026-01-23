@@ -21,7 +21,11 @@ notebooks and scripts.
 - Figures: `data/figures/<category>/Pat_XX/`
 - CLI (legacy): `data/correlations/Pat_XX/` from `lrg-eegfc-corr`
 - Time-window MSC: `data/msc_cache_windows/Pat_XX/<phase>/<band>/`
+- Time-window MSC (dev): `data/msc_cache_windows_dev/Pat_XX/<phase>/<band>/`
+- Time-window correlation: `data/corr_cache_windows/Pat_XX/<phase>/<band>/`
+- Time-window correlation (dev): `data/corr_cache_windows_dev/Pat_XX/<phase>/<band>/`
 - Time-window LRG: `data/lrg_cache_windows/Pat_XX/<phase>/<band>/`
+- Time-window LRG (dev): `data/lrg_cache_windows_dev/Pat_XX/<phase>/<band>/`
 
 ## Cache keys and filenames
 
@@ -33,8 +37,18 @@ MSC:
 - `data/msc_cache/Pat_XX/{band}_{phase}_msc_sparsify-{mode}_nsurr-{N}_nperseg-{n}.npy`
 - If `filter_time` is used: add `_ftime-{N}` before `.npy`
 
-Time-window MSC (proposed):
-- `data/msc_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_msc_sparsify-{mode}_nsurr-{N}_nperseg-{n}.npy`
+Time-window cache runs:
+- Stored under `data/*_cache_windows/Pat_XX/<phase>/<band>/<run_id>/`
+- Each run directory contains:
+  - `run_meta.json` (run parameters)
+  - `windows.csv` (window indices + start/stop)
+  - `win-0000.npy` matrices (per window)
+
+Time-window correlation (example run_id):
+- `winsec-10_ov-0p25_corr-ftype-abs_zdiag-True_forder-4`
+
+Time-window MSC (example run_id):
+- `winsec-10_ov-0p25_msc-sparsify-soft_nsurr-200_nperseg-1024_noverlap-512`
 
 Cleaned correlation:
 - `data/corr_cache/Pat_XX/{band}_{phase}_corr_cleaned.npy`
@@ -44,8 +58,8 @@ LRG:
 - `data/lrg_cache/Pat_XX/{band}_{phase}_lrg_{fc_method}.npz`
 - If `filter_time` is used: add `_ftime-{N}` before `.npz`
 
-Time-window LRG (proposed):
-- `data/lrg_cache_windows/Pat_XX/<phase>/<band>/win_<idx>_lrg_{fc_method}.npz`
+Time-window LRG:
+- `data/lrg_cache_windows/Pat_XX/<phase>/<band>/<run_id>/win-0000_lrg.npz`
 
 ## Load-first pattern (preferred)
 

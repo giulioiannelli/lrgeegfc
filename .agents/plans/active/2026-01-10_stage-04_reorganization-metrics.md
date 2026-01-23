@@ -13,7 +13,9 @@
 ## Current status
 - Phase reorganization plots exist in `visuals/reorganization.py`.
 - Ultrametric comparisons exist in `compare.py`.
-- No consolidated per-metric distance tables yet.
+- New metric helpers added under `lrg_eegfc.utils.metrics.reorganization`.
+- Single-patient + cross-patient notebooks created under `ipynb/04_reorganization/`.
+- No consolidated per-metric distance tables yet (script added, not run).
 
 ## Tasks
 1) Metric inventory and retention
@@ -49,6 +51,7 @@
 - Output as CSV/NPZ under `results/reorganization/Pat_XX/`.
 - Implementation target: new script `src/compute_reorganization_metrics.py`
   that writes per-patient CSVs + NPZ matrices.
+  - Script added; run to populate `results/reorganization/`.
 
 5) Cross-metric comparisons
 - Build a correlation matrix comparing the metrics themselves.
@@ -66,6 +69,9 @@
 - Cluster correlation coefficient outputs.
 - Cross-metric correlation matrix.
 - Cross-subject summary tables under `results/reorganization/summary/`.
+ - Updated notebooks:
+   - `ipynb/04_reorganization/01_distance_metrics_singlepat.ipynb`
+   - `ipynb/04_reorganization/02_distance_metrics_crosspat.ipynb`
 
 ## Exit criteria
 - All metrics run from cached LRG results.

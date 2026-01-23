@@ -66,7 +66,6 @@ def visualize_single(
                     band,
                     fc_method,
                     cache_root=cache_root,
-                    dataset_root=dataset_root,
                     output_path=entropy_path,
                 )
                 if verbose:

@@ -8,22 +8,22 @@
 
 ## Inputs
 - `ipynb/INDEX.md` (current catalog)
-- `ipynb/90_archive/.old/` (legacy notebooks)
-- `ipynb/90_archive/.old_reviewed/` (reviewed legacy notebooks)
+- `ipynb/90_archive/.old/` (legacy notebooks to review)
 
 ## Current status
 - Notebook folders created (`ipynb/00_intake` ... `ipynb/05_figures`, `ipynb/90_archive`).
 - Active notebooks moved into ordered folders.
-- Legacy notebooks archived under `ipynb/90_archive/.old/2025-12-11/`.
-- `ipynb/INDEX.md` exists and lists all notebooks.
-- `ipynb/90_archive/.old_reviewed/` created but empty.
+- Legacy notebooks are still under `ipynb/90_archive/.old/` until extraction is complete.
+- `ipynb/INDEX.md` exists and lists all notebooks with keep/merge/drop tags.
+- Stage 04 + Stage 05 legacy notebooks were merged into new notebooks and moved to `.old_reviewed/`.
+- Stage 02 legacy notebooks were merged into updated single-case notebooks and moved to `.old_reviewed/`.
+- Stage S time-window notebooks were merged into updated notebooks and moved to `.old_reviewed/`.
 
 ## Tasks
 1) Inventory and tagging
-- Read every notebook in `ipynb/90_archive/.old/`.
-- Tag each as: keep (unique logic), merge (duplicate logic), or drop (redundant).
-- Record tags in `ipynb/INDEX.md` summary lines.
-- Add a short `status` token (keep/merge/drop) to the summary column.
+- Completed; see updated `ipynb/INDEX.md`.
+2) Legacy cleanup
+- Do not move notebooks to `.old_reviewed/` until their code is extracted.
 
 2) Extraction to modules or new notebooks
 - For each "keep" or "merge" notebook, extract reusable code into

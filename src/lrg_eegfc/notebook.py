@@ -99,6 +99,14 @@ from .visuals.compare import plot_fc_comparison
 # Workflows
 from .workflow.corr import compute_corr_matrix, compute_corr_for_patient
 from .utils.metrics.compare import compare_fc_methods
+from .workflow.time_windows import (
+    build_window_run_id,
+    get_window_cache_dir,
+    get_lrg_window_cache_dir,
+    suggest_window_sec,
+    compute_window_params,
+    generate_window_indices,
+)
 
 # Core plotting utilities
 from .visuals.plotting import (
