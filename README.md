@@ -8,9 +8,14 @@ documented public APIs and optional plotting helpers.
 
 ---
 
+- [Quick Start](#quick-start)
 - [Installation](#installation)
-  - [Installing `lrgsglib`](#installing-lrgsglib)
-  - [Editable development install](#editable-development-install)
+  - [Step 1: Clone the repository](#step-1-clone-the-repository)
+  - [Step 2: Initialize submodules](#step-2-initialize-submodules)
+  - [Step 3: Create the conda environment](#step-3-create-the-conda-environment)
+  - [Step 4: Configure environment activation hook](#step-4-configure-environment-activation-hook)
+  - [Step 5: Install lrgsglib](#step-5-install-lrgsglib)
+  - [Step 6: Install lrg-eegfc](#step-6-install-lrg-eegfc)
 - [Dataset layout](#dataset-layout)
 - [Command line usage](#command-line-usage)
 - [Python API overview](#python-api-overview)
@@ -19,51 +24,131 @@ documented public APIs and optional plotting helpers.
 
 ---
 
+## Quick Start
+
+```bash
+# Clone and setup
+git clone https://github.com/giulioiannelli/lrgeegfc.git
+cd lrgeegfc
+git submodule update --init --recursive
+
+# Create and activate conda environment
+conda env create -f lapbrain.yml
+conda activate lapbrain
+
+# Configure environment activation hook
+mkdir -p "$CONDA_PREFIX/etc/conda/activate.d"
+echo "source $(pwd)/lrgsglib/tools/bash/config_env.sh" \
+    > "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
+chmod +x "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
+
+# Install dependencies in editable mode
+cd lrgsglib && git checkout lrg_eegfc && cd ..
+pip install -e ./lrgsglib
+pip install -e .
+```
+
 ## Installation
 
-The project targets Python **3.11+**.  The package depends on
-[`lrgsglib`](https://github.com/giulioiannelli/lrgsglib), a companion library
-that provides the Laplacian-based graph operators used throughout the
-workflows.  Install the core package with:
+The project targets Python **3.12** (as specified in `lapbrain.yml`). Follow
+these steps to set up the complete environment.
+
+### Step 1: Clone the repository
 
 ```bash
-pip install .
+git clone https://github.com/giulioiannelli/lrgeegfc.git
+cd lrgeegfc
 ```
 
-The command automatically registers the ``lrg-eegfc-corr`` command line tool
-and installs the runtime dependencies (`numpy`, `pandas`, `scipy`, `networkx`,
-`matplotlib`, `h5py`, `emd` and `lrgsglib`).
+### Step 2: Initialize submodules
 
-### Installing `lrgsglib`
-
-`lrgsglib` is included as a Git submodule for convenience.  When cloning the
-repository run:
+The project depends on [`lrgsglib`](https://github.com/giulioiannelli/lrgsglib),
+a companion library that provides Laplacian-based graph operators. It is
+included as a Git submodule:
 
 ```bash
-git clone https://github.com/giulioiannelli/lrg_eegfc.git
-cd lrg_eegfc
 git submodule update --init --recursive
-pip install ./lrgsglib
 ```
 
-Alternatively install it directly from its repository:
+### Step 3: Create the conda environment
+
+The repository includes a `lapbrain.yml` file that defines all conda
+dependencies (numpy, scipy, matplotlib, graph-tool, etc.):
 
 ```bash
-pip install git+https://github.com/giulioiannelli/lrgsglib.git
+conda env create -f lapbrain.yml
+conda activate lapbrain
 ```
 
-### Editable development install
-
-For local development create a virtual environment and install the project in
-editable mode together with the optional developer tooling:
+**Custom installation path:** To install the environment in a specific
+location (e.g., on a larger disk or shared filesystem), use the `--prefix`
+option instead of the default location:
 
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .[dev]
+conda env create -f lapbrain.yml --prefix /path/to/custom/envs/lapbrain
+conda activate /path/to/custom/envs/lapbrain
 ```
 
-The `dev` extra installs pytest, black, isort, flake8 and mypy.  Run the full
+If the environment already exists and you want to update it:
+
+```bash
+conda env update -f lapbrain.yml --prune
+```
+
+### Step 4: Configure environment activation hook
+
+The `lrgsglib` submodule provides a shell script that sets up useful
+environment variables. Configure conda to source it automatically on
+activation:
+
+```bash
+mkdir -p "$CONDA_PREFIX/etc/conda/activate.d"
+echo "source $(pwd)/lrgsglib/tools/bash/config_env.sh" \
+    > "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
+chmod +x "$CONDA_PREFIX/etc/conda/activate.d/custom_env_setup.sh"
+```
+
+This creates a hook that runs each time you activate the `lapbrain`
+environment, exporting paths like `LRGSG_ROOT`, `LRGSG_DATA`, etc.
+
+### Step 5: Install lrgsglib
+
+The `lrgsglib` submodule must be installed in editable mode on the correct
+branch:
+
+```bash
+cd lrgsglib
+git checkout lrg_eegfc
+cd ..
+pip install -e ./lrgsglib
+```
+
+### Step 6: Install lrg-eegfc
+
+Install the main package in editable mode:
+
+```bash
+pip install -e .
+```
+
+This registers the `lrg-eegfc-corr` command line tool and makes the
+`lrg_eegfc` module available for imports.
+
+For development with linting and testing tools:
+
+```bash
+pip install -e ".[dev]"
+```
+
+### Verify installation
+
+```bash
+python -c "import lrg_eegfc; import lrgsglib; print('OK')"
+```
+
+### Developer tools
+
+The `dev` extra installs pytest, black, isort, flake8 and mypy. Run the full
 quality gate with:
 
 ```bash

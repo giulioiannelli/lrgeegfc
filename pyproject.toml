@@ -69,10 +69,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/giulioiannelli/lrg_eegfc"
-Repository = "https://github.com/giulioiannelli/lrg_eegfc"
-Documentation = "https://github.com/giulioiannelli/lrg_eegfc#readme"
-"Bug Tracker" = "https://github.com/giulioiannelli/lrg_eegfc/issues"
+Homepage = "https://github.com/giulioiannelli/lrgeegfc"
+Repository = "https://github.com/giulioiannelli/lrgeegfc"
+Documentation = "https://github.com/giulioiannelli/lrgeegfc#readme"
+"Bug Tracker" = "https://github.com/giulioiannelli/lrgeegfc/issues"
 
 [project.scripts]
 lrg-eegfc-corr = "lrg_eegfc.cli:main"
