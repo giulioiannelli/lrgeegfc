@@ -168,7 +168,15 @@ def plot_msc_and_network(
                     if not key.startswith("__"):
                         labels_raw = label_data[key].flatten()
                         break
-            channel_labels = [str(label[0]) if hasattr(label, '__getitem__') else str(label) for label in labels_raw]
+            # Decode labels properly (handle bytes and nested arrays)
+            channel_labels = []
+            for label in labels_raw:
+                if hasattr(label, '__getitem__') and len(label) > 0:
+                    label = label[0]
+                if isinstance(label, bytes):
+                    channel_labels.append(label.decode('utf-8'))
+                else:
+                    channel_labels.append(str(label))
         else:
             channel_labels = [str(i) for i in range(msc_matrix.shape[0])]
     except Exception:
@@ -426,10 +434,15 @@ def plot_msc_summary(
                     if not key.startswith("__"):
                         labels_raw = label_data[key].flatten()
                         break
-            channel_labels = [
-                str(label[0]) if hasattr(label, "__getitem__") else str(label)
-                for label in labels_raw
-            ]
+            # Decode labels properly (handle bytes and nested arrays)
+            channel_labels = []
+            for label in labels_raw:
+                if hasattr(label, '__getitem__') and len(label) > 0:
+                    label = label[0]
+                if isinstance(label, bytes):
+                    channel_labels.append(label.decode('utf-8'))
+                else:
+                    channel_labels.append(str(label))
         else:
             channel_labels = [str(i) for i in range(msc_matrix.shape[0])]
     except Exception:
