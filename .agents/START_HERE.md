@@ -22,7 +22,7 @@ current state of the refactor.
 ```python
 %matplotlib inline
 from lrgsglib.config.funcs import move_to_rootf
-move_to_rootf(pathname="lrg_eegfc")
+move_to_rootf(pathname="lrgeegfc")
 from lrg_eegfc.notebook import *
 ```
 

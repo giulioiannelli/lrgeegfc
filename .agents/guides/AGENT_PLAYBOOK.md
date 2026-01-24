@@ -18,7 +18,7 @@
 - CLI scripts follow the argparse + cache-first pattern (see `src/compute_corr_matrices.py`, `src/compute_msc_matrices.py`); keep user-facing defaults and verbose logging consistent.
 - Visual modules accept cached matrices/graphs and plain `Path` destinations; keep plotting code notebook-faithful (see `visuals/correlation.py` for style).
 - Notebook ergonomics go through `lrg_eegfc.notebook` + `setup_notebook()`; when adding helpers, make them available there.
-- Standard notebook header (avoid empty patient list): `move_to_rootf(pathname="lrg_eegfc")` then `from lrg_eegfc.notebook import *`.
+- Standard notebook header (avoid empty patient list): `move_to_rootf(pathname="lrgeegfc")` then `from lrg_eegfc.notebook import *`.
 
 ## Known Rough Edges (flag for refactors)
 - Keep the workflow and utils boundaries clean; avoid pushing visualization logic into `workflow/`.

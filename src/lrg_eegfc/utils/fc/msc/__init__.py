@@ -43,6 +43,7 @@ def coherence_fc_pipeline(
     batch_size: int = 64,
     zero_diagonal: bool = True,
     rng: np.random.Generator | None = None,
+    n_workers: int | None = None,
     verbose: bool = False,
 ) -> Dict[str, NDArray]:
     """
@@ -82,6 +83,9 @@ def coherence_fc_pipeline(
         If True, set diagonal elements to zero (no self-loops) (default: True)
     rng : np.random.Generator, optional
         Random number generator for reproducibility in surrogate generation
+    n_workers : int, optional
+        Number of parallel workers for surrogate computation. If None, uses all CPU
+        cores. Set to 1 to disable parallelism (default: None)
     verbose : bool, optional
         If True, print timing information for each step of the pipeline (default: False)
 
@@ -176,6 +180,7 @@ def coherence_fc_pipeline(
                 nperseg=nperseg,
                 noverlap=noverlap,
                 rng=rng,
+                n_workers=n_workers,
             )
             if verbose:
                 print(f"  [4/5] Surrogate generation ({n_surrogates} surrogates): {time.time() - t_surr:.3f}s")

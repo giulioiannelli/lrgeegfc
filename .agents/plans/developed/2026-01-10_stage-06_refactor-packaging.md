@@ -108,7 +108,7 @@
 - Added sanity notebook `ipynb/00_intake/01_sanity_imports.ipynb`.
 
 ### Key learnings to carry forward
-- Notebooks must call `move_to_rootf(pathname="lrg_eegfc")` or list_patients will
+- Notebooks must call `move_to_rootf(pathname="lrgeegfc")` or list_patients will
   return empty results due to relative paths.
 - Cache filenames encode parameters (e.g., `msc` uses `sparsify-*` and `nperseg-*`);
   notebook loaders should match those defaults or explicitly fall back.

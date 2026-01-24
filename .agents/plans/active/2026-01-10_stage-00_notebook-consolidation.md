@@ -31,7 +31,7 @@
 - Add a short note in the new notebook indicating which legacy notebook it
   replaced.
 - Standard notebook header (to avoid empty patient list):
-  - `move_to_rootf(pathname="lrg_eegfc")`
+  - `move_to_rootf(pathname="lrgeegfc")`
   - `from lrg_eegfc.notebook import *`
 - Target destination folders:
   - `ipynb/01_preprocessing/` (data checks, time windows)

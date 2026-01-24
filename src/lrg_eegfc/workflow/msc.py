@@ -15,7 +15,11 @@ import networkx as nx
 import numpy as np
 
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
-from lrg_eegfc.utils.fc.msc import coherence_fc_pipeline
+from lrg_eegfc.utils.fc.msc import (
+    coherence_fc_pipeline,
+    surrogate_msc_null,
+    soft_sparsify_surrogate,
+)
 from lrg_eegfc.utils.io import load_timeseries, load_patient_dataset_robust
 
 DEFAULT_MSC_CACHE_ROOT = Path("data/msc_cache")
@@ -185,6 +189,7 @@ def compute_msc_matrix(
     nperseg: int = 1024,
     noverlap: Optional[int] = None,
     batch_size: int = 64,
+    n_workers: Optional[int] = None,
     filter_time: Optional[int] = None,
     verbose: bool = False,
 ) -> MSCResult:
@@ -225,6 +230,9 @@ def compute_msc_matrix(
     batch_size : int, optional
         Number of Welch segments to process per batch (reduces Python/FFT overhead;
         default: 64)
+    n_workers : int, optional
+        Number of parallel workers for surrogate computation. If None, uses all CPU
+        cores. Set to 1 to disable parallelism (default: None)
     filter_time : int, optional
         Limit to first N samples (for testing)
     verbose : bool, optional
@@ -336,29 +344,71 @@ def compute_msc_matrix(
 
     if verbose:
         print(f"  Data shape: {data.shape}")
-        print(f"  Computing MSC with Welch's method...")
 
     # Compute MSC for single band
     bands_dict = {band: BRAIN_BANDS[band]}
 
-    adj_matrices = coherence_fc_pipeline(
-        data,
-        fs=sample_rate,
-        bands=bands_dict,
-        sparsify=sparsify,
-        n_surrogates=n_surrogates if sparsify == "soft" else 0,
-        nperseg=nperseg,
-        noverlap=noverlap,
-        batch_size=batch_size,
-        zero_diagonal=True,
-        verbose=verbose,
+    # For soft sparsification, we first need the dense MSC
+    # Check if dense MSC is already cached (to avoid recomputing)
+    dense_cache_path = get_msc_cache_path(
+        patient, phase, band, cache_root,
+        sparsify="none", n_surrogates=0, nperseg=nperseg, filter_time=filter_time,
     )
 
-    adj_matrix = adj_matrices[band]
+    if dense_cache_path.exists() and not overwrite_cache:
+        if verbose:
+            print(f"  Loading cached dense MSC: {dense_cache_path.name}")
+        dense_msc = np.load(dense_cache_path)
+    else:
+        if verbose:
+            print(f"  Computing dense MSC with Welch's method...")
+        # Compute dense MSC (no sparsification)
+        dense_matrices = coherence_fc_pipeline(
+            data,
+            fs=sample_rate,
+            bands=bands_dict,
+            sparsify="none",
+            nperseg=nperseg,
+            noverlap=noverlap,
+            batch_size=batch_size,
+            zero_diagonal=True,
+            verbose=verbose,
+        )
+        dense_msc = dense_matrices[band]
 
-    # Cache result
+        # Cache the dense MSC for future use
+        if verbose:
+            print(f"  Saving dense MSC to cache: {dense_cache_path.name}")
+        np.save(dense_cache_path, dense_msc)
+
+    # Apply sparsification if requested
+    if sparsify == "soft" and n_surrogates > 0:
+        if verbose:
+            print(f"  Computing {n_surrogates} surrogates for soft sparsification...")
+
+        # Compute surrogate null distribution
+        W_null = surrogate_msc_null(
+            data,
+            sample_rate,
+            bands_dict,
+            n_surrogates,
+            nperseg=nperseg,
+            noverlap=noverlap,
+            n_workers=n_workers,
+        )
+
+        if verbose:
+            print(f"  Applying soft sparsification...")
+
+        # Apply soft sparsification
+        adj_matrix = soft_sparsify_surrogate(dense_msc, W_null[band])
+        np.fill_diagonal(adj_matrix, 0.0)
+    else:
+        adj_matrix = dense_msc
+
+    # Cache the final result (sparsified or dense)
     if verbose:
-        print(f"  Saving to cache: {cache_path}")
+        print(f"  Saving to cache: {cache_path.name}")
     np.save(cache_path, adj_matrix)
 
     # Build graph

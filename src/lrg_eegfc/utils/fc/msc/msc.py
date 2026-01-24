@@ -110,7 +110,8 @@ def compute_msc_welch(
     CSD *= scale
 
     # Compute magnitude-squared coherence
-    PSD = np.real(np.array([CSD[i, i, :] for i in range(N)]))  # shape: (N, F)
+    # Extract diagonal PSD values (vectorized)
+    PSD = np.real(np.diagonal(CSD, axis1=0, axis2=1).T)  # shape: (N, F)
 
     denom = PSD[:, None, :] * PSD[None, :, :]
 
@@ -118,9 +119,8 @@ def compute_msc_welch(
 
     Coh = np.divide(CSD_mag_sq, denom, out=np.zeros((N, N, F)), where=denom > 0)
 
-    # Set diagonal to 1 (coherence with self)
-    for i in range(N):
-        Coh[i, i, :] = 1.0
+    # Set diagonal to 1 (coherence with self) - vectorized via einsum view
+    np.einsum('iif->if', Coh)[...] = 1.0
 
     return freqs, Coh
 

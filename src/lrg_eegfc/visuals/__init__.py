@@ -17,6 +17,16 @@ from .lrg import (
     plot_ultrametric_heatmap,
     plot_lrg_full_panel,
 )
+from .spatial import (
+    load_spatial_metadata,
+    prepare_spatial_coordinates,
+    build_edge_traces,
+    plot_spatial_network_3d,
+    plot_spatial_network_3d_mpl,
+    plot_spatial_clusters_comparison,
+    view_brain_connectome,
+    plot_brain_connectome,
+)
 
 __all__ = [
     # Correlation visualizations
@@ -33,4 +43,14 @@ __all__ = [
     "plot_lrg_dendrogram",
     "plot_ultrametric_heatmap",
     "plot_lrg_full_panel",
+    # Spatial 3D visualizations
+    "load_spatial_metadata",
+    "prepare_spatial_coordinates",
+    "build_edge_traces",
+    "plot_spatial_network_3d",
+    "plot_spatial_network_3d_mpl",
+    "plot_spatial_clusters_comparison",
+    # Brain connectome visualizations (nilearn)
+    "view_brain_connectome",
+    "plot_brain_connectome",
 ]

@@ -51,26 +51,13 @@ def soft_sparsify_surrogate(
     edges without binarization or strict backbone extraction.
     """
     n_surrogates = W_null.shape[0]
-    N = W.shape[0]
 
-    # Initialize p-values and adjacency
-    p_values = np.zeros_like(W)
-    A = np.zeros_like(W)
+    # Compute empirical p-values for all edges at once (vectorized)
+    # p_ij = (#surrogates with W_null[r, i, j] >= W[i, j]) / n_surrogates
+    p_values = np.sum(W_null >= W[None, :, :], axis=0) / n_surrogates
 
-    # Compute empirical p-values for each edge
-    for i in range(N):
-        for j in range(N):
-            # Count surrogates with equal or greater coherence
-            n_exceeding = np.sum(W_null[:, i, j] >= W[i, j])
-
-            # Empirical p-value
-            p_values[i, j] = n_exceeding / n_surrogates
-
-    # Soft sparsification: g_ij = 1 - p_ij
-    g = 1.0 - p_values
-
-    # Apply soft weights
-    A = g * W
+    # Soft sparsification: g_ij = 1 - p_ij, then apply to weights
+    A = (1.0 - p_values) * W
 
     # Ensure diagonal is zero (no self-loops)
     np.fill_diagonal(A, 0.0)

@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import os
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Dict, Tuple
 
 import numpy as np
 from numpy.typing import NDArray
+from tqdm import tqdm
 
 from .msc import compute_msc_welch, band_average_msc
 
@@ -14,6 +17,34 @@ __all__ = [
     'circular_shift_surrogates',
     'surrogate_msc_null',
 ]
+
+
+def _compute_single_surrogate_msc(
+    X: NDArray,
+    fs: float,
+    bands: Dict[str, Tuple[float, float]],
+    nperseg: int,
+    noverlap: int | None,
+    seed: int,
+) -> Dict[str, NDArray]:
+    """
+    Worker function to compute MSC for a single surrogate.
+
+    This function is designed to be called in a separate process.
+    """
+    rng = np.random.default_rng(seed)
+    N, L = X.shape
+
+    # Generate surrogate via vectorized circular shifts
+    shifts = rng.integers(0, L, size=N)
+    indices = (np.arange(L)[None, :] - shifts[:, None]) % L
+    X_surr = np.take_along_axis(X, indices, axis=1)
+
+    # Compute MSC for this surrogate
+    freqs, Coh = compute_msc_welch(X_surr, fs, nperseg=nperseg, noverlap=noverlap)
+
+    # Band average and return
+    return band_average_msc(Coh, freqs, bands)
 
 
 def circular_shift_surrogates(
@@ -59,13 +90,14 @@ def circular_shift_surrogates(
     N, L = X.shape
     X_surr = np.zeros((n_surrogates, N, L), dtype=X.dtype)
 
+    # Vectorized circular shifts using advanced indexing
+    base_indices = np.arange(L)
     for r in range(n_surrogates):
-        for i in range(N):
-            # Random shift for this channel
-            shift = rng.integers(0, L)
-
-            # Circular shift
-            X_surr[r, i, :] = np.roll(X[i, :], shift)
+        # Generate all shifts for this surrogate at once
+        shifts = rng.integers(0, L, size=N)
+        # Create index array: (indices - shifts) mod L for each channel
+        indices = (base_indices[None, :] - shifts[:, None]) % L
+        X_surr[r] = np.take_along_axis(X, indices, axis=1)
 
     return X_surr
 
@@ -78,6 +110,7 @@ def surrogate_msc_null(
     nperseg: int = 256,
     noverlap: int | None = None,
     rng: np.random.Generator | None = None,
+    n_workers: int | None = None,
 ) -> Dict[str, NDArray]:
     """
     Compute null distribution of band-averaged MSC using circular shift surrogates.
@@ -98,6 +131,9 @@ def surrogate_msc_null(
         Number of overlapping samples (default: nperseg // 2)
     rng : np.random.Generator, optional
         Random number generator for reproducibility
+    n_workers : int, optional
+        Number of parallel workers. If None, uses number of CPU cores.
+        Set to 1 to disable parallelism.
 
     Returns
     -------
@@ -108,42 +144,55 @@ def surrogate_msc_null(
 
     Notes
     -----
-    This function generates circular shift surrogates ONE AT A TIME to avoid excessive
-    memory usage. For large datasets, this is critical to prevent OOM errors.
+    This function generates circular shift surrogates in parallel using ProcessPoolExecutor.
+    Each surrogate MSC computation is independent (embarrassingly parallel).
 
-    Memory usage: O(N × L) instead of O(n_surrogates × N × L)
+    Memory usage per worker: O(N × L)
     """
     if rng is None:
         rng = np.random.default_rng()
+
+    if n_workers is None:
+        n_workers = os.cpu_count() or 1
 
     N, L = X.shape
 
     # Initialize null distribution dict
     W_null = {band_name: np.zeros((n_surrogates, N, N)) for band_name in bands}
 
-    # Compute MSC for each surrogate (one at a time to save memory!)
-    for r in range(n_surrogates):
-        # Generate ONE surrogate at a time
-        X_surr_r = np.empty_like(X)
-        for i in range(N):
-            shift = rng.integers(0, L)
-            X_surr_r[i, :] = np.roll(X[i, :], shift)
+    # Generate independent seeds for each surrogate (for reproducibility)
+    seeds = rng.integers(0, 2**31, size=n_surrogates)
 
-        # Compute MSC for this surrogate
-        freqs, Coh = compute_msc_welch(
-            X_surr_r,
-            fs,
-            nperseg=nperseg,
-            noverlap=noverlap,
-        )
+    if n_workers == 1:
+        # Sequential execution (useful for debugging)
+        for r in tqdm(range(n_surrogates), desc="Surrogates", unit="surr"):
+            W_bands_r = _compute_single_surrogate_msc(
+                X, fs, bands, nperseg, noverlap, int(seeds[r])
+            )
+            for band_name in bands:
+                W_null[band_name][r] = W_bands_r[band_name]
+    else:
+        # Parallel execution
+        with ProcessPoolExecutor(max_workers=n_workers) as executor:
+            # Submit all surrogate computations
+            futures = {
+                executor.submit(
+                    _compute_single_surrogate_msc,
+                    X, fs, bands, nperseg, noverlap, int(seeds[r])
+                ): r
+                for r in range(n_surrogates)
+            }
 
-        # Band average
-        W_bands_r = band_average_msc(Coh, freqs, bands)
-
-        # Store in null distribution
-        for band_name in bands:
-            W_null[band_name][r] = W_bands_r[band_name]
-
-        # X_surr_r goes out of scope and gets garbage collected
+            # Collect results as they complete with progress bar
+            for future in tqdm(
+                as_completed(futures),
+                total=n_surrogates,
+                desc=f"Surrogates ({n_workers} workers)",
+                unit="surr",
+            ):
+                r = futures[future]
+                W_bands_r = future.result()
+                for band_name in bands:
+                    W_null[band_name][r] = W_bands_r[band_name]
 
     return W_null

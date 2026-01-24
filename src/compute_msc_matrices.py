@@ -19,6 +19,7 @@ Usage:
 """
 
 import argparse
+import os
 from pathlib import Path
 from lrg_eegfc import compute_msc_for_patient
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
@@ -73,6 +74,12 @@ def main():
         type=int,
         default=None,
         help="Limit to first N samples (dev-only convenience)"
+    )
+    parser.add_argument(
+        "--n-workers",
+        type=int,
+        default=None,
+        help="Number of parallel workers for surrogate computation (default: all CPUs)"
     )
 
     # Subset selection
@@ -132,6 +139,8 @@ def main():
     print(f"Sparsify: {args.sparsify}")
     if args.sparsify == "soft":
         print(f"N surrogates: {args.n_surrogates}")
+        n_workers = args.n_workers if args.n_workers else os.cpu_count()
+        print(f"N workers: {n_workers}")
     print(f"nperseg: {args.nperseg}")
     print(f"batch_size: {args.batch_size}")
     if args.filter_time:
@@ -159,6 +168,7 @@ def main():
             n_surrogates=args.n_surrogates,
             nperseg=args.nperseg,
             batch_size=args.batch_size,
+            n_workers=args.n_workers,
             sample_rate=args.sample_rate,
             filter_time=args.filter_time,
             cache_root=args.cache_root,
