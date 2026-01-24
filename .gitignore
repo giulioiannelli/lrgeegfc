@@ -1,6 +1,8 @@
 .vscode/
 data/
 
+.codex_session
+
 *.mp4
 *.pyc
 __pycache__/
