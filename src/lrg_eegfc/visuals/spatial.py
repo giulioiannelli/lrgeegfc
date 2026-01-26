@@ -213,8 +213,8 @@ def prepare_spatial_coordinates(
 def _estimate_mni_transform(coords: np.ndarray, metadata: pd.DataFrame) -> np.ndarray:
     """Estimate transform from native space to MNI-like coordinates.
 
-    Uses atlas labels to determine hemisphere and applies an estimated
-    affine transformation to place electrodes in approximate MNI space.
+    Uses Desikan-Killiany atlas labels and their known MNI coordinates to
+    estimate a translation that aligns native coordinates to MNI space.
 
     This is an approximation - for accurate MNI coordinates, use proper
     registration with patient MRI data.
@@ -231,47 +231,187 @@ def _estimate_mni_transform(coords: np.ndarray, metadata: pd.DataFrame) -> np.nd
     mni_coords : np.ndarray
         Coordinates in approximate MNI space.
     """
-    # Determine hemisphere distribution from atlas labels
+    # Known MNI coordinates for Desikan-Killiany regions (approximate centroids)
+    # Values from standard MNI atlases
+    MNI_REGION_COORDS = {
+        # Left hemisphere cortical regions
+        "ctx-lh-fusiform": (-35, -50, -18),
+        "ctx-lh-parahippocampal": (-25, -25, -20),
+        "ctx-lh-middletemporal": (-55, -25, -10),
+        "ctx-lh-inferiortemporal": (-50, -30, -25),
+        "ctx-lh-superiortemporal": (-55, -15, 0),
+        "ctx-lh-transversetemporal": (-45, -20, 10),
+        "ctx-lh-temporalpole": (-35, 15, -30),
+        "ctx-lh-bankssts": (-55, -45, 5),
+        "ctx-lh-entorhinal": (-25, -10, -30),
+        "ctx-lh-insula": (-38, 0, 5),
+        "ctx-lh-lateralorbitofrontal": (-30, 35, -15),
+        "ctx-lh-medialorbitofrontal": (-8, 45, -15),
+        "ctx-lh-parsorbitalis": (-40, 40, -10),
+        "ctx-lh-parstriangularis": (-48, 30, 5),
+        "ctx-lh-parsopercularis": (-50, 15, 10),
+        "ctx-lh-rostralmiddlefrontal": (-35, 45, 20),
+        "ctx-lh-caudalmiddlefrontal": (-40, 15, 45),
+        "ctx-lh-superiorfrontal": (-15, 35, 45),
+        "ctx-lh-frontalpole": (-10, 65, -5),
+        "ctx-lh-precentral": (-40, -10, 55),
+        "ctx-lh-postcentral": (-45, -25, 55),
+        "ctx-lh-paracentral": (-10, -30, 65),
+        "ctx-lh-supramarginal": (-55, -40, 35),
+        "ctx-lh-inferiorparietal": (-45, -60, 40),
+        "ctx-lh-superiorparietal": (-25, -60, 55),
+        "ctx-lh-precuneus": (-10, -60, 40),
+        "ctx-lh-cuneus": (-10, -85, 20),
+        "ctx-lh-lingual": (-15, -70, -5),
+        "ctx-lh-pericalcarine": (-10, -85, 5),
+        "ctx-lh-lateraloccipital": (-40, -80, 10),
+        "ctx-lh-rostralanteriorcingulate": (-8, 35, 10),
+        "ctx-lh-caudalanteriorcingulate": (-8, 15, 30),
+        "ctx-lh-posteriorcingulate": (-8, -40, 30),
+        "ctx-lh-isthmuscingulate": (-10, -45, 10),
+        "ctx-lh-hippocampus": (-28, -20, -15),
+        "ctx-lh-amygdala": (-25, -5, -20),
+        # Right hemisphere (mirror of left)
+        "ctx-rh-fusiform": (35, -50, -18),
+        "ctx-rh-parahippocampal": (25, -25, -20),
+        "ctx-rh-middletemporal": (55, -25, -10),
+        "ctx-rh-inferiortemporal": (50, -30, -25),
+        "ctx-rh-superiortemporal": (55, -15, 0),
+        "ctx-rh-transversetemporal": (45, -20, 10),
+        "ctx-rh-temporalpole": (35, 15, -30),
+        "ctx-rh-bankssts": (55, -45, 5),
+        "ctx-rh-entorhinal": (25, -10, -30),
+        "ctx-rh-insula": (38, 0, 5),
+        "ctx-rh-lateralorbitofrontal": (30, 35, -15),
+        "ctx-rh-medialorbitofrontal": (8, 45, -15),
+        "ctx-rh-parsorbitalis": (40, 40, -10),
+        "ctx-rh-parstriangularis": (48, 30, 5),
+        "ctx-rh-parsopercularis": (50, 15, 10),
+        "ctx-rh-rostralmiddlefrontal": (35, 45, 20),
+        "ctx-rh-caudalmiddlefrontal": (40, 15, 45),
+        "ctx-rh-superiorfrontal": (15, 35, 45),
+        "ctx-rh-frontalpole": (10, 65, -5),
+        "ctx-rh-precentral": (40, -10, 55),
+        "ctx-rh-postcentral": (45, -25, 55),
+        "ctx-rh-paracentral": (10, -30, 65),
+        "ctx-rh-supramarginal": (55, -40, 35),
+        "ctx-rh-inferiorparietal": (45, -60, 40),
+        "ctx-rh-superiorparietal": (25, -60, 55),
+        "ctx-rh-precuneus": (10, -60, 40),
+        "ctx-rh-rostralanteriorcingulate": (8, 35, 10),
+        "ctx-rh-caudalanteriorcingulate": (8, 15, 30),
+        "ctx-rh-posteriorcingulate": (8, -40, 30),
+        "ctx-rh-isthmuscingulate": (10, -45, 10),
+        "ctx-rh-hippocampus": (28, -20, -15),
+        "ctx-rh-amygdala": (25, -5, -20),
+        # Subcortical
+        "Left-Hippocampus": (-28, -20, -15),
+        "Right-Hippocampus": (28, -20, -15),
+        "Left-Amygdala": (-25, -5, -20),
+        "Right-Amygdala": (25, -5, -20),
+        "Left-Thalamus": (-12, -18, 8),
+        "Right-Thalamus": (12, -18, 8),
+        "Left-Caudate": (-12, 12, 10),
+        "Right-Caudate": (12, 12, 10),
+        "Left-Putamen": (-25, 5, 2),
+        "Right-Putamen": (25, 5, 2),
+        "Left-Accumbens-area": (-10, 10, -8),
+        "Right-Accumbens-area": (10, 10, -8),
+        "Left-Pallidum": (-18, 0, 0),
+        "Right-Pallidum": (18, 0, 0),
+        "Cerebellum-Cortex": (0, -55, -35),
+        "Brain-Stem": (0, -30, -30),
+    }
+
+    def get_primary_region(dk_str):
+        """Extract primary region from Desikan-Killiany string."""
+        if pd.isna(dk_str):
+            return None
+        parts = str(dk_str).strip().split(",")
+        if parts:
+            return parts[0].strip().strip('"').strip()
+        return None
+
+    # Detect coordinate system orientation using atlas labels
+    # In MNI: inferior structures (cerebellum, temporal pole) have negative Z
+    #         superior structures (superior frontal) have positive Z
+    # Some patients have inverted Z (more negative = more inferior)
+    # Others have standard Z (more positive = more superior)
+
+    z_inverted = False
     if "Desikan-Killany" in metadata.columns:
-        atlas = metadata["Desikan-Killany"].dropna().astype(str)
-        lh_count = sum("lh" in a or "Left" in a for a in atlas)
-        rh_count = sum("rh" in a or "Right" in a for a in atlas)
-        is_bilateral = lh_count > 10 and rh_count > 10
-        is_predominantly_left = lh_count > rh_count
+        # Find inferior regions (cerebellum, temporal pole, fusiform)
+        inferior_z = []
+        superior_z = []
+        for idx, row in metadata.iterrows():
+            region = get_primary_region(row.get("Desikan-Killany"))
+            if region:
+                region_lower = region.lower()
+                if any(r in region_lower for r in ["cerebellum", "temporalpole", "fusiform", "entorhinal"]):
+                    inferior_z.append(coords[idx, 2])
+                elif any(r in region_lower for r in ["superiorfrontal", "precentral", "postcentral", "superiorparietal"]):
+                    superior_z.append(coords[idx, 2])
+
+        if inferior_z and superior_z:
+            # If inferior regions have MORE negative Z than superior, it's inverted
+            z_inverted = np.mean(inferior_z) < np.mean(superior_z)
+        elif inferior_z:
+            # If only inferior regions exist and Z is very negative, likely inverted
+            z_inverted = np.mean(inferior_z) < -20
+        elif superior_z:
+            # If only superior regions exist and Z is very positive, likely standard
+            z_inverted = np.mean(superior_z) < 0
+
+    # Work with potentially flipped coordinates
+    working_coords = coords.copy()
+
+    # Collect matched region coordinates for calibration
+    native_coords_matched = []
+    mni_coords_matched = []
+
+    if "Desikan-Killany" in metadata.columns:
+        for idx, row in metadata.iterrows():
+            region = get_primary_region(row.get("Desikan-Killany"))
+            if region and region in MNI_REGION_COORDS:
+                native_coords_matched.append(working_coords[idx])
+                mni_coords_matched.append(MNI_REGION_COORDS[region])
+
+    # Calculate translation offset
+    if len(native_coords_matched) >= 3:
+        native_arr = np.array(native_coords_matched)
+        mni_arr = np.array(mni_coords_matched)
+        # Use median to reduce effect of outliers
+        translation = np.median(mni_arr - native_arr, axis=0)
     else:
-        is_bilateral = False
-        is_predominantly_left = coords[:, 0].mean() < 0
-
-    # Current centroid
-    centroid = coords.mean(axis=0)
-
-    if is_bilateral:
-        # Bilateral implant: shift to center brain, keep X relative positions
-        # Target centroid at (0, -40, -15) - midline
-        target_centroid = np.array([0.0, -40.0, -15.0])
-        translation = target_centroid - centroid
-        mni_coords = coords + translation
-
-        # Scale X to fit within brain bounds if needed
-        x_range = mni_coords[:, 0].max() - mni_coords[:, 0].min()
-        if x_range > 140:  # Typical brain width ~140mm
-            scale = 130.0 / x_range
-            mni_coords[:, 0] = mni_coords[:, 0] * scale
-    else:
-        # Unilateral implant: shift to appropriate hemisphere
-        if is_predominantly_left:
-            target_centroid = np.array([-35.0, -40.0, -15.0])
+        # Fallback: use hemisphere-based heuristic
+        if "Desikan-Killany" in metadata.columns:
+            atlas = metadata["Desikan-Killany"].dropna().astype(str)
+            lh_count = sum("lh" in a or "Left" in a for a in atlas)
+            rh_count = sum("rh" in a or "Right" in a for a in atlas)
+            is_bilateral = lh_count > 10 and rh_count > 10
+            is_predominantly_left = lh_count > rh_count
         else:
-            target_centroid = np.array([35.0, -40.0, -15.0])
+            is_bilateral = False
+            is_predominantly_left = working_coords[:, 0].mean() < 0
+
+        centroid = working_coords.mean(axis=0)
+
+        if is_bilateral:
+            target_centroid = np.array([0.0, -20.0, 10.0])
+        elif is_predominantly_left:
+            target_centroid = np.array([-35.0, -20.0, 10.0])
+        else:
+            target_centroid = np.array([35.0, -20.0, 10.0])
 
         translation = target_centroid - centroid
-        mni_coords = coords + translation
 
-        # Ensure correct hemisphere (X sign)
-        if is_predominantly_left and mni_coords[:, 0].mean() > 0:
-            mni_coords[:, 0] = -mni_coords[:, 0]
-        elif not is_predominantly_left and mni_coords[:, 0].mean() < 0:
-            mni_coords[:, 0] = -mni_coords[:, 0]
+    # Apply translation
+    mni_coords = working_coords + translation
+
+    # Clamp to reasonable MNI bounds
+    mni_coords[:, 0] = np.clip(mni_coords[:, 0], -75, 75)  # X: left-right
+    mni_coords[:, 1] = np.clip(mni_coords[:, 1], -110, 75)  # Y: posterior-anterior
+    mni_coords[:, 2] = np.clip(mni_coords[:, 2], -60, 85)  # Z: inferior-superior
 
     return mni_coords
 
@@ -476,8 +616,8 @@ def plot_spatial_network_3d(
         criterion="distance",
     )
 
-    # Prepare coordinates
-    coords = prepare_spatial_coordinates(metadata, scale="mm", center=True)
+    # Prepare coordinates (use MNI transform for proper brain positioning)
+    coords = prepare_spatial_coordinates(metadata, scale="mm", center=False, to_mni=True)
 
     # Prepare node colors and hover info
     if colorby == "cluster":
@@ -650,7 +790,7 @@ def plot_spatial_network_3d_mpl(
         criterion="distance",
     )
 
-    coords = prepare_spatial_coordinates(metadata, scale="mm", center=True)
+    coords = prepare_spatial_coordinates(metadata, scale="mm", center=False, to_mni=True)
 
     # Create figure
     fig = plt.figure(figsize=figsize)
@@ -818,7 +958,7 @@ def plot_spatial_clusters_comparison(
         result_b.linkage_matrix, t=result_b.optimal_threshold, criterion="distance"
     )
 
-    coords = prepare_spatial_coordinates(metadata, scale="mm", center=True)
+    coords = prepare_spatial_coordinates(metadata, scale="mm", center=False, to_mni=True)
 
     # Get colors (use same palette for comparability)
     colors_a, _ = _get_cluster_colors(labels_a)
