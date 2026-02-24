@@ -18,6 +18,11 @@ current state of the refactor.
 7) Read `.agents/guides/MSC_METHOD_GUIDE.md`, `.agents/guides/CACHING_GUIDE.md`,
    and `.agents/guides/TIME_WINDOW_GUIDE.md`.
 
+## Quick references (for fast lookup)
+- `.agents/guides/FUNCTION_MAP.md` - Complete function reference (130+ functions)
+- `.agents/guides/FIGURE_PATTERNS.md` - Figure templates and patterns
+- `.agents/guides/AGENT_TASKS.md` - Common autonomous task procedures
+
 ## Notebook header (required)
 ```python
 %matplotlib inline
