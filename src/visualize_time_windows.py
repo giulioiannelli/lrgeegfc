@@ -62,7 +62,7 @@ def main() -> int:
     )
     parser.add_argument("--filter-order", type=int, default=4, help="Bandpass filter order")
 
-    parser.add_argument("--sparsify", choices=["none", "soft"], default="none")
+    parser.add_argument("--sparsify", choices=["none", "soft", "fdr", "disparity", "hybrid", "ecm"], default="none")
     parser.add_argument("--n-surrogates", type=int, default=0)
     parser.add_argument("--nperseg", type=int, default=1024)
     parser.add_argument("--noverlap", type=int, default=None)

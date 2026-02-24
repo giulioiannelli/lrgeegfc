@@ -173,9 +173,9 @@ def main() -> int:
     # MSC version selection
     parser.add_argument(
         "--sparsify",
-        choices=["none", "soft"],
+        choices=["none", "soft", "fdr", "disparity", "hybrid", "ecm"],
         default="none",
-        help="MSC version: 'none' (dense) or 'soft' (surrogate-validated). Default: none",
+        help="MSC sparsification method. Default: none",
     )
     parser.add_argument(
         "--n-surrogates",

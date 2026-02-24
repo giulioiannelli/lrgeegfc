@@ -19,7 +19,13 @@ from lrg_eegfc.config.const import (
 )
 from .bands import validate_bands
 from .msc import compute_msc_welch, band_average_msc
-from .sparsify import soft_sparsify_surrogate
+from .sparsify import (
+    soft_sparsify_surrogate,
+    fdr_sparsify_surrogate,
+    disparity_filter,
+    hybrid_sparsify,
+    ecm_sparsify,
+)
 from .surrogates import surrogate_msc_null
 
 
@@ -28,6 +34,10 @@ __all__ = [
     'compute_msc_welch',
     'band_average_msc',
     'soft_sparsify_surrogate',
+    'fdr_sparsify_surrogate',
+    'disparity_filter',
+    'hybrid_sparsify',
+    'ecm_sparsify',
     'surrogate_msc_null',
 ]
 
@@ -45,6 +55,11 @@ def coherence_fc_pipeline(
     rng: np.random.Generator | None = None,
     n_workers: int | None = None,
     verbose: bool = False,
+    fdr_q: float = 0.05,
+    disparity_alpha: float = 0.05,
+    ecm_alpha: float = 0.05,
+    ecm_n_ensemble: int = 100,
+    ecm_weight_scale: int = 1000,
 ) -> Dict[str, NDArray]:
     """
     Coherence-based functional connectivity pipeline.
@@ -162,45 +177,66 @@ def coherence_fc_pipeline(
         print(f"  [3/5] Band averaging: {time.time() - t0:.3f}s")
 
     # Step 4: Sparsification (optional)
+    _NEEDS_SURROGATES = {"soft", "fdr", "hybrid"}
+
     t0 = time.time()
     if sparsify == "none":
-        # Return dense MSC matrices
         adjacency_matrices = W_bands
         if verbose:
             print(f"  [4/5] Sparsification (none): {time.time() - t0:.3f}s")
-    elif sparsify == "soft":
-        # Compute surrogate null distribution
+
+    elif sparsify == "disparity":
+        adjacency_matrices = {}
+        for band_name in bands:
+            adjacency_matrices[band_name] = disparity_filter(
+                W_bands[band_name], alpha=disparity_alpha,
+            )
+        if verbose:
+            print(f"  [4/5] Disparity filter (alpha={disparity_alpha}): {time.time() - t0:.3f}s")
+
+    elif sparsify == "ecm":
+        adjacency_matrices = {}
+        for band_name in bands:
+            adjacency_matrices[band_name] = ecm_sparsify(
+                W_bands[band_name],
+                alpha=ecm_alpha,
+                n_ensemble=ecm_n_ensemble,
+                weight_scale=ecm_weight_scale,
+            )
+        if verbose:
+            print(f"  [4/5] ECM filter (alpha={ecm_alpha}, n_ensemble={ecm_n_ensemble}): {time.time() - t0:.3f}s")
+
+    elif sparsify in _NEEDS_SURROGATES:
         if n_surrogates > 0:
             t_surr = time.time()
             W_null = surrogate_msc_null(
-                X,
-                fs,
-                bands,
-                n_surrogates,
-                nperseg=nperseg,
-                noverlap=noverlap,
-                rng=rng,
-                n_workers=n_workers,
+                X, fs, bands, n_surrogates,
+                nperseg=nperseg, noverlap=noverlap,
+                rng=rng, n_workers=n_workers,
             )
             if verbose:
                 print(f"  [4/5] Surrogate generation ({n_surrogates} surrogates): {time.time() - t_surr:.3f}s")
 
-            # Apply soft sparsification to each band
             t_spars = time.time()
             adjacency_matrices = {}
             for band_name in bands:
-                A = soft_sparsify_surrogate(W_bands[band_name], W_null[band_name])
+                if sparsify == "soft":
+                    A = soft_sparsify_surrogate(W_bands[band_name], W_null[band_name])
+                elif sparsify == "fdr":
+                    A = fdr_sparsify_surrogate(W_bands[band_name], W_null[band_name], q=fdr_q)
+                elif sparsify == "hybrid":
+                    A = hybrid_sparsify(W_bands[band_name], W_null[band_name], alpha=disparity_alpha)
                 adjacency_matrices[band_name] = A
             if verbose:
-                print(f"        Soft sparsification: {time.time() - t_spars:.3f}s")
+                print(f"        {sparsify} sparsification: {time.time() - t_spars:.3f}s")
                 print(f"        Total sparsification step: {time.time() - t0:.3f}s")
         else:
-            # No surrogates requested, return dense MSC
             adjacency_matrices = W_bands
             if verbose:
                 print(f"  [4/5] Sparsification (skipped, n_surrogates=0): {time.time() - t0:.3f}s")
     else:
-        raise ValueError(f"Unknown sparsify method: {sparsify}. Use 'soft' or 'none'.")
+        valid = ", ".join(sorted(["none", "soft", "fdr", "disparity", "hybrid", "ecm"]))
+        raise ValueError(f"Unknown sparsify method: {sparsify!r}. Valid: {valid}")
 
     # Zero diagonal if requested
     t0 = time.time()

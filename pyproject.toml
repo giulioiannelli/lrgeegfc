@@ -44,6 +44,7 @@ dependencies = [
     "networkx>=3.0",
     "emd>=0.8.0",
     "lrgsglib",
+    "NEMtropy>=3.0.0",
 ]
 
 [project.optional-dependencies]

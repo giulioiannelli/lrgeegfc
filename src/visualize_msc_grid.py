@@ -26,7 +26,7 @@ def main() -> int:
     parser.add_argument("--phases", nargs="+", default=None)
     parser.add_argument(
         "--sparsify",
-        choices=["none", "soft"],
+        choices=["none", "soft", "fdr", "disparity", "hybrid", "ecm"],
         default="none",
         help="MSC sparsify mode (default: none)",
     )

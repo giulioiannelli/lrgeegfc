@@ -7,6 +7,7 @@ uses magnitude-squared coherence instead.
 
 from __future__ import annotations
 
+import gc
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Optional, Tuple
@@ -14,11 +15,15 @@ from typing import Dict, Optional, Tuple
 import networkx as nx
 import numpy as np
 
-from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.const import BRAIN_BANDS, DEFAULT_NPERSEG, PHASE_LABELS
 from lrg_eegfc.utils.fc.msc import (
     coherence_fc_pipeline,
     surrogate_msc_null,
     soft_sparsify_surrogate,
+    fdr_sparsify_surrogate,
+    disparity_filter,
+    hybrid_sparsify,
+    ecm_sparsify,
 )
 from lrg_eegfc.utils.io import load_timeseries, load_patient_dataset_robust
 
@@ -55,11 +60,21 @@ class MSCResult:
     mean_msc : float
         Mean MSC value (excluding diagonal)
     sparsify : str
-        Sparsification method ("none" or "soft")
+        Sparsification method ("none", "soft", "fdr", "disparity", "hybrid", "ecm")
     n_surrogates : int
-        Number of surrogates used (0 if sparsify="none")
+        Number of surrogates used (0 if no surrogates needed)
     nperseg : int
         Window length for Welch's method
+    fdr_q : float or None
+        FDR q-value (only for sparsify="fdr")
+    disparity_alpha : float or None
+        Disparity alpha level (only for sparsify="disparity" or "hybrid")
+    ecm_alpha : float or None
+        ECM significance level (only for sparsify="ecm")
+    ecm_n_ensemble : int or None
+        ECM ensemble size (only for sparsify="ecm")
+    ecm_weight_scale : int or None
+        ECM weight scaling factor (only for sparsify="ecm")
     """
 
     adjacency_matrix: np.ndarray
@@ -72,6 +87,11 @@ class MSCResult:
     sparsify: str
     n_surrogates: int
     nperseg: int
+    fdr_q: Optional[float] = None
+    disparity_alpha: Optional[float] = None
+    ecm_alpha: Optional[float] = None
+    ecm_n_ensemble: Optional[int] = None
+    ecm_weight_scale: Optional[int] = None
 
 
 def get_msc_cache_path(
@@ -81,8 +101,13 @@ def get_msc_cache_path(
     cache_root: Path = DEFAULT_MSC_CACHE_ROOT,
     sparsify: str = "none",
     n_surrogates: int = 0,
-    nperseg: int = 1024,
+    nperseg: int = DEFAULT_NPERSEG,
     filter_time: Optional[int] = None,
+    fdr_q: Optional[float] = None,
+    disparity_alpha: Optional[float] = None,
+    ecm_alpha: Optional[float] = None,
+    ecm_n_ensemble: Optional[int] = None,
+    ecm_weight_scale: Optional[int] = None,
 ) -> Path:
     """Get cache file path for MSC matrix.
 
@@ -97,11 +122,15 @@ def get_msc_cache_path(
     cache_root : Path, optional
         Root directory for cache files
     sparsify : str, optional
-        Sparsification method ("none" or "soft")
+        Sparsification method
     n_surrogates : int, optional
-        Number of surrogates (0 if sparsify="none")
+        Number of surrogates (0 if not needed)
     nperseg : int, optional
         Window length for Welch's method
+    fdr_q : float, optional
+        FDR q-value (only for sparsify="fdr")
+    disparity_alpha : float, optional
+        Disparity significance level (only for sparsify="disparity" or "hybrid")
 
     Returns
     -------
@@ -115,6 +144,16 @@ def get_msc_cache_path(
     # Include sparsification parameters in filename
     if sparsify == "none":
         suffix = f"sparsify-none_nperseg-{nperseg}"
+    elif sparsify == "soft":
+        suffix = f"sparsify-soft_nsurr-{n_surrogates}_nperseg-{nperseg}"
+    elif sparsify == "fdr":
+        suffix = f"sparsify-fdr_nsurr-{n_surrogates}_q-{fdr_q}_nperseg-{nperseg}"
+    elif sparsify == "disparity":
+        suffix = f"sparsify-disparity_alpha-{disparity_alpha}_nperseg-{nperseg}"
+    elif sparsify == "hybrid":
+        suffix = f"sparsify-hybrid_nsurr-{n_surrogates}_alpha-{disparity_alpha}_nperseg-{nperseg}"
+    elif sparsify == "ecm":
+        suffix = f"sparsify-ecm_alpha-{ecm_alpha}_nens-{ecm_n_ensemble}_wscale-{ecm_weight_scale}_nperseg-{nperseg}"
     else:
         suffix = f"sparsify-{sparsify}_nsurr-{n_surrogates}_nperseg-{nperseg}"
 
@@ -131,8 +170,13 @@ def load_msc_matrix(
     cache_root: Path = DEFAULT_MSC_CACHE_ROOT,
     sparsify: str = "none",
     n_surrogates: int = 0,
-    nperseg: int = 1024,
+    nperseg: int = DEFAULT_NPERSEG,
     filter_time: Optional[int] = None,
+    fdr_q: Optional[float] = None,
+    disparity_alpha: Optional[float] = None,
+    ecm_alpha: Optional[float] = None,
+    ecm_n_ensemble: Optional[int] = None,
+    ecm_weight_scale: Optional[int] = None,
 ) -> Optional[np.ndarray]:
     """Load cached MSC matrix if it exists.
 
@@ -147,11 +191,15 @@ def load_msc_matrix(
     cache_root : Path, optional
         Root directory for cache files
     sparsify : str, optional
-        Sparsification method ("none" or "soft")
+        Sparsification method
     n_surrogates : int, optional
         Number of surrogates
     nperseg : int, optional
         Window length for Welch's method
+    fdr_q : float, optional
+        FDR q-value (only for sparsify="fdr")
+    disparity_alpha : float, optional
+        Disparity significance level
 
     Returns
     -------
@@ -159,14 +207,11 @@ def load_msc_matrix(
         Cached MSC matrix, or None if not cached
     """
     cache_path = get_msc_cache_path(
-        patient,
-        phase,
-        band,
-        cache_root,
-        sparsify,
-        n_surrogates,
-        nperseg,
-        filter_time,
+        patient, phase, band, cache_root,
+        sparsify, n_surrogates, nperseg, filter_time,
+        fdr_q=fdr_q, disparity_alpha=disparity_alpha,
+        ecm_alpha=ecm_alpha, ecm_n_ensemble=ecm_n_ensemble,
+        ecm_weight_scale=ecm_weight_scale,
     )
 
     if cache_path.exists():
@@ -186,12 +231,17 @@ def compute_msc_matrix(
     sample_rate: float = 2048.0,
     sparsify: str = "none",
     n_surrogates: int = 0,
-    nperseg: int = 1024,
+    nperseg: int = DEFAULT_NPERSEG,
     noverlap: Optional[int] = None,
     batch_size: int = 64,
     n_workers: Optional[int] = None,
     filter_time: Optional[int] = None,
     verbose: bool = False,
+    fdr_q: float = 0.05,
+    disparity_alpha: float = 0.05,
+    ecm_alpha: float = 0.05,
+    ecm_n_ensemble: int = 100,
+    ecm_weight_scale: int = 1000,
 ) -> MSCResult:
     """Compute MSC-based functional connectivity matrix.
 
@@ -275,16 +325,17 @@ def compute_msc_matrix(
 
     cache_root = _resolve_cache_root(cache_root, filter_time)
 
+    _NEEDS_SURROGATES = {"soft", "fdr", "hybrid"}
+
     # Check cache
     cache_path = get_msc_cache_path(
-        patient,
-        phase,
-        band,
-        cache_root,
-        sparsify,
-        n_surrogates,
-        nperseg,
-        filter_time,
+        patient, phase, band, cache_root,
+        sparsify, n_surrogates, nperseg, filter_time,
+        fdr_q=fdr_q if sparsify == "fdr" else None,
+        disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
+        ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
+        ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
+        ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
     )
 
     if use_cache and not overwrite_cache and cache_path.exists():
@@ -309,8 +360,13 @@ def compute_msc_matrix(
             n_channels=n_channels,
             mean_msc=mean_msc,
             sparsify=sparsify,
-            n_surrogates=n_surrogates,
+            n_surrogates=n_surrogates if sparsify in _NEEDS_SURROGATES else 0,
             nperseg=nperseg,
+            fdr_q=fdr_q if sparsify == "fdr" else None,
+            disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
+            ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
+            ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
+            ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
         )
 
     # Compute MSC from timeseries
@@ -382,29 +438,51 @@ def compute_msc_matrix(
         np.save(dense_cache_path, dense_msc)
 
     # Apply sparsification if requested
-    if sparsify == "soft" and n_surrogates > 0:
+    if sparsify in _NEEDS_SURROGATES and n_surrogates > 0:
         if verbose:
-            print(f"  Computing {n_surrogates} surrogates for soft sparsification...")
+            print(f"  Computing {n_surrogates} surrogates for {sparsify} sparsification...")
 
-        # Compute surrogate null distribution
         W_null = surrogate_msc_null(
-            data,
-            sample_rate,
-            bands_dict,
-            n_surrogates,
-            nperseg=nperseg,
-            noverlap=noverlap,
-            n_workers=n_workers,
+            data, sample_rate, bands_dict, n_surrogates,
+            nperseg=nperseg, noverlap=noverlap, n_workers=n_workers,
         )
 
         if verbose:
-            print(f"  Applying soft sparsification...")
+            print(f"  Applying {sparsify} sparsification...")
 
-        # Apply soft sparsification
-        adj_matrix = soft_sparsify_surrogate(dense_msc, W_null[band])
+        if sparsify == "soft":
+            adj_matrix = soft_sparsify_surrogate(dense_msc, W_null[band])
+        elif sparsify == "fdr":
+            adj_matrix = fdr_sparsify_surrogate(dense_msc, W_null[band], q=fdr_q)
+        elif sparsify == "hybrid":
+            adj_matrix = hybrid_sparsify(dense_msc, W_null[band], alpha=disparity_alpha)
+
         np.fill_diagonal(adj_matrix, 0.0)
+
+        del W_null
+        gc.collect()
+
+    elif sparsify == "disparity":
+        if verbose:
+            print(f"  Applying disparity filter (alpha={disparity_alpha})...")
+        adj_matrix = disparity_filter(dense_msc, alpha=disparity_alpha)
+
+    elif sparsify == "ecm":
+        if verbose:
+            print(f"  Applying ECM filter (alpha={ecm_alpha}, n_ensemble={ecm_n_ensemble}, scale={ecm_weight_scale})...")
+        adj_matrix = ecm_sparsify(
+            dense_msc,
+            alpha=ecm_alpha,
+            n_ensemble=ecm_n_ensemble,
+            weight_scale=ecm_weight_scale,
+        )
+
     else:
         adj_matrix = dense_msc
+
+    # Free intermediate data no longer needed
+    del data, dataset, recording, dense_msc
+    gc.collect()
 
     # Cache the final result (sparsified or dense)
     if verbose:
@@ -431,8 +509,13 @@ def compute_msc_matrix(
         n_channels=n_channels,
         mean_msc=mean_msc,
         sparsify=sparsify,
-        n_surrogates=n_surrogates if sparsify == "soft" else 0,
+        n_surrogates=n_surrogates if sparsify in _NEEDS_SURROGATES else 0,
         nperseg=nperseg,
+        fdr_q=fdr_q if sparsify == "fdr" else None,
+        disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
+        ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
+        ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
+        ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
     )
 
 
@@ -440,8 +523,9 @@ def compute_msc_for_patient(
     patient: str,
     bands: Optional[list] = None,
     phases: Optional[list] = None,
+    return_results: bool = False,
     **kwargs
-) -> Dict[str, Dict[str, MSCResult]]:
+) -> Dict[str, Dict[str, Optional[MSCResult]]]:
     """Compute MSC matrices for all band/phase combinations for a patient.
 
     Parameters
@@ -452,13 +536,19 @@ def compute_msc_for_patient(
         List of band names (default: all BRAIN_BANDS)
     phases : list, optional
         List of phase names (default: all phases)
+    return_results : bool, optional
+        If True, return full MSCResult objects (high memory usage).
+        If False (default), return lightweight status dict with just success/failure
+        markers. Use False for batch processing to avoid memory accumulation.
     **kwargs
         Additional arguments passed to compute_msc_matrix()
 
     Returns
     -------
-    Dict[str, Dict[str, MSCResult]]
-        Nested dict indexed by [band][phase]
+    Dict[str, Dict[str, MSCResult | bool | None]]
+        Nested dict indexed by [band][phase]. If return_results=True, contains
+        MSCResult objects. If return_results=False, contains True for success,
+        None for failure.
 
     Examples
     --------
@@ -480,9 +570,18 @@ def compute_msc_for_patient(
         for phase in phases:
             try:
                 result = compute_msc_matrix(patient, phase, band, **kwargs)
-                results[band][phase] = result
+                if return_results:
+                    results[band][phase] = result
+                else:
+                    # Don't store the full result to save memory
+                    # Just mark as successful (True-like for backwards compat)
+                    results[band][phase] = True
+                    del result
             except Exception as e:
                 print(f"WARNING: Failed to compute {patient} {phase} {band}: {e}")
                 results[band][phase] = None
+
+            # Force garbage collection after each computation to free memory
+            gc.collect()
 
     return results

@@ -50,3 +50,37 @@ def test_msc_surrogate_scaling_smoke() -> None:
     assert results[0].shape == results[1].shape
     assert np.isfinite(results[0]).all()
     assert np.isfinite(results[1]).all()
+
+
+@pytest.mark.slow
+@pytest.mark.parametrize("sparsify_method,extra_kwargs", [
+    ("fdr", {"n_surrogates": 25, "fdr_q": 0.05}),
+    ("disparity", {"disparity_alpha": 0.05}),
+    ("hybrid", {"n_surrogates": 25, "disparity_alpha": 0.05}),
+    ("ecm", {"ecm_alpha": 0.05, "ecm_n_ensemble": 25, "ecm_weight_scale": 1000}),
+])
+def test_msc_sparsify_methods(sparsify_method: str, extra_kwargs: dict) -> None:
+    """Test that each sparsification method produces valid output."""
+    patient = _pick_patient()
+    phase = PHASE_LABELS[0]
+    band = next(iter(BRAIN_BANDS.keys()))
+
+    result = compute_msc_matrix(
+        patient,
+        phase,
+        band,
+        sparsify=sparsify_method,
+        filter_time=5000,
+        overwrite_cache=True,
+        use_cache=True,
+        verbose=False,
+        **extra_kwargs,
+    )
+
+    adj = result.adjacency_matrix
+    assert adj.shape[0] == adj.shape[1], "Matrix must be square"
+    assert np.isfinite(adj).all(), "No NaN/Inf allowed"
+    assert (adj >= 0).all(), "MSC weights must be non-negative"
+    assert np.allclose(adj, adj.T), "Matrix must be symmetric"
+    assert np.allclose(np.diag(adj), 0), "Diagonal must be zero"
+    assert result.sparsify == sparsify_method

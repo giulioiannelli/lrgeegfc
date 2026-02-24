@@ -2,14 +2,23 @@
 """Compute MSC-based functional connectivity matrices.
 
 This script computes MSC matrices for all patients, phases, and bands.
-Supports both dense MSC (no validation) and validated MSC (with surrogates).
+Supports dense MSC and multiple sparsification methods.
 
 Usage:
     # Dense MSC (no validation)
     python src/compute_msc_matrices.py
 
-    # Validated MSC with surrogates
+    # Validated MSC with surrogates (soft)
     python src/compute_msc_matrices.py --sparsify soft --n-surrogates 200
+
+    # FDR-corrected thresholding
+    python src/compute_msc_matrices.py --sparsify fdr --n-surrogates 200
+
+    # Disparity filter (no surrogates needed)
+    python src/compute_msc_matrices.py --sparsify disparity
+
+    # Hybrid (surrogate excess + disparity)
+    python src/compute_msc_matrices.py --sparsify hybrid --n-surrogates 200
 
     # Specific patients
     python src/compute_msc_matrices.py --patients Pat_02 Pat_03
@@ -19,10 +28,11 @@ Usage:
 """
 
 import argparse
+import gc
 import os
 from pathlib import Path
 from lrg_eegfc import compute_msc_for_patient
-from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS, VALID_SPARSIFY_METHODS
 
 
 def main():
@@ -41,7 +51,7 @@ def main():
     # MSC parameters
     parser.add_argument(
         "--sparsify",
-        choices=["none", "soft"],
+        choices=list(VALID_SPARSIFY_METHODS),
         default="none",
         help="Sparsification method (default: none for dense MSC)"
     )
@@ -49,13 +59,43 @@ def main():
         "--n-surrogates",
         type=int,
         default=0,
-        help="Number of surrogates for validation (only if sparsify=soft, default: 0)"
+        help="Number of surrogates for validation (default: 0)"
+    )
+    parser.add_argument(
+        "--fdr-q",
+        type=float,
+        default=0.05,
+        help="FDR q-value threshold (only if sparsify=fdr, default: 0.05)"
+    )
+    parser.add_argument(
+        "--disparity-alpha",
+        type=float,
+        default=0.05,
+        help="Disparity filter significance level (only if sparsify=disparity or hybrid, default: 0.05)"
+    )
+    parser.add_argument(
+        "--ecm-alpha",
+        type=float,
+        default=0.05,
+        help="ECM z-test significance level (only if sparsify=ecm, default: 0.05)"
+    )
+    parser.add_argument(
+        "--ecm-n-ensemble",
+        type=int,
+        default=100,
+        help="ECM ensemble size for null model sampling (only if sparsify=ecm, default: 100)"
+    )
+    parser.add_argument(
+        "--ecm-weight-scale",
+        type=int,
+        default=1000,
+        help="ECM weight scaling factor for float→int conversion (only if sparsify=ecm, default: 1000)"
     )
     parser.add_argument(
         "--nperseg",
         type=int,
-        default=1024,
-        help="Window length for Welch's method (default: 1024)"
+        default=4096,
+        help="Window length for Welch's method (default: 4096)"
     )
     parser.add_argument(
         "--batch-size",
@@ -122,9 +162,10 @@ def main():
         args.cache_root = Path("data/msc_cache_dev")
         print(f"Using dev cache root for filter_time: {args.cache_root}")
 
-    # Validate arguments
-    if args.sparsify == "soft" and args.n_surrogates == 0:
-        print("WARNING: sparsify='soft' but n_surrogates=0. Setting n_surrogates=200.")
+    # Validate arguments: auto-set surrogates for methods that need them
+    _NEEDS_SURROGATES = {"soft", "fdr", "hybrid"}
+    if args.sparsify in _NEEDS_SURROGATES and args.n_surrogates == 0:
+        print(f"WARNING: sparsify='{args.sparsify}' but n_surrogates=0. Setting n_surrogates=200.")
         args.n_surrogates = 200
 
     # Print configuration
@@ -137,10 +178,18 @@ def main():
     print(f"Bands: {', '.join(selected_bands)}")
     print(f"Phases: {', '.join(selected_phases)}")
     print(f"Sparsify: {args.sparsify}")
-    if args.sparsify == "soft":
+    if args.sparsify in _NEEDS_SURROGATES:
         print(f"N surrogates: {args.n_surrogates}")
         n_workers = args.n_workers if args.n_workers else os.cpu_count()
         print(f"N workers: {n_workers}")
+    if args.sparsify == "fdr":
+        print(f"FDR q: {args.fdr_q}")
+    if args.sparsify in ("disparity", "hybrid"):
+        print(f"Disparity alpha: {args.disparity_alpha}")
+    if args.sparsify == "ecm":
+        print(f"ECM alpha: {args.ecm_alpha}")
+        print(f"ECM ensemble: {args.ecm_n_ensemble}")
+        print(f"ECM weight scale: {args.ecm_weight_scale}")
     print(f"nperseg: {args.nperseg}")
     print(f"batch_size: {args.batch_size}")
     if args.filter_time:
@@ -173,9 +222,15 @@ def main():
             filter_time=args.filter_time,
             cache_root=args.cache_root,
             overwrite_cache=args.overwrite,
+            return_results=False,
+            fdr_q=args.fdr_q,
+            disparity_alpha=args.disparity_alpha,
+            ecm_alpha=args.ecm_alpha,
+            ecm_n_ensemble=args.ecm_n_ensemble,
+            ecm_weight_scale=args.ecm_weight_scale,
         )
 
-        # Count successes
+        # Count successes (True or MSCResult object means success, None means failure)
         n_computed = sum(
             1 for band in results
             for phase in results[band]
@@ -186,12 +241,16 @@ def main():
         total_computed += n_computed
         total_failed += n_failed
 
-        print(f"  ✓ Computed: {n_computed}/{len(selected_bands) * len(selected_phases)}")
+        print(f"  Computed: {n_computed}/{len(selected_bands) * len(selected_phases)}")
         if n_failed > 0:
-            print(f"  ✗ Failed: {n_failed}")
+            print(f"  Failed: {n_failed}")
+
+        # Free memory between patients
+        del results
+        gc.collect()
 
     print("\n" + "=" * 70)
-    print("✓ MSC matrix computation complete!")
+    print("MSC matrix computation complete!")
     print("=" * 70)
     if show_totals:
         print(f"Total computed: {total_computed}/{expected}")
@@ -203,10 +262,30 @@ def main():
     # Print cache information
     if args.sparsify == "none":
         filename_pattern = f"{{band}}_{{phase}}_msc_sparsify-none_nperseg-{args.nperseg}.npy"
-    else:
+    elif args.sparsify == "soft":
         filename_pattern = (
-            f"{{band}}_{{phase}}_msc_sparsify-{args.sparsify}_"
+            f"{{band}}_{{phase}}_msc_sparsify-soft_"
             f"nsurr-{args.n_surrogates}_nperseg-{args.nperseg}.npy"
+        )
+    elif args.sparsify == "fdr":
+        filename_pattern = (
+            f"{{band}}_{{phase}}_msc_sparsify-fdr_"
+            f"nsurr-{args.n_surrogates}_q-{args.fdr_q}_nperseg-{args.nperseg}.npy"
+        )
+    elif args.sparsify == "disparity":
+        filename_pattern = (
+            f"{{band}}_{{phase}}_msc_sparsify-disparity_"
+            f"alpha-{args.disparity_alpha}_nperseg-{args.nperseg}.npy"
+        )
+    elif args.sparsify == "hybrid":
+        filename_pattern = (
+            f"{{band}}_{{phase}}_msc_sparsify-hybrid_"
+            f"nsurr-{args.n_surrogates}_alpha-{args.disparity_alpha}_nperseg-{args.nperseg}.npy"
+        )
+    elif args.sparsify == "ecm":
+        filename_pattern = (
+            f"{{band}}_{{phase}}_msc_sparsify-ecm_"
+            f"alpha-{args.ecm_alpha}_nens-{args.ecm_n_ensemble}_wscale-{args.ecm_weight_scale}_nperseg-{args.nperseg}.npy"
         )
     if args.filter_time is not None and args.filter_time > 0:
         filename_pattern = filename_pattern.replace(".npy", f"_ftime-{args.filter_time}.npy")

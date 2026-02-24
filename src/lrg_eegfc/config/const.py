@@ -25,7 +25,13 @@ __all__ = [
     'BRAIN_BAND_TEX_DICT',
     'BRAIN_BAND_LABELS',
     'DEFAULT_N_SURROGATES',
+    'DEFAULT_NPERSEG',
     'DEFAULT_SAMPLE_RATE',
+    'DEFAULT_FDR_Q',
+    'DEFAULT_DISPARITY_ALPHA',
+    'DEFAULT_ECM_N_ENSEMBLE',
+    'DEFAULT_ECM_WEIGHT_SCALE',
+    'VALID_SPARSIFY_METHODS',
 ]
 #
 sEEG_DATAPATH = Path('data') / 'stereoeeg_patients'
@@ -122,5 +128,19 @@ BRAIN_BAND_TEX_DICT: Dict[str, str] = {
 BRAIN_BAND_LABELS: Dict[str, str] = BRAIN_BAND_TEX_DICT
 #: Default number of surrogates for coherence-based FC null model estimation
 DEFAULT_N_SURROGATES: int = 200
+#: Default Welch segment length for MSC estimation (df = fs / nperseg)
+DEFAULT_NPERSEG: int = 4096
 #: Default sampling rate when `fs` is missing from metadata
 DEFAULT_SAMPLE_RATE: float = 2048.0
+#: Default FDR q-value for FDR-corrected sparsification
+DEFAULT_FDR_Q: float = 0.05
+#: Default significance level for disparity filter
+DEFAULT_DISPARITY_ALPHA: float = 0.05
+#: Default number of ensemble samples for ECM sparsification
+DEFAULT_ECM_N_ENSEMBLE: int = 100
+#: Default weight scaling factor for ECM (float→int conversion)
+DEFAULT_ECM_WEIGHT_SCALE: int = 1000
+#: Valid sparsification methods for MSC matrices
+VALID_SPARSIFY_METHODS: Tuple[str, ...] = (
+    "none", "soft", "fdr", "disparity", "hybrid", "ecm",
+)
