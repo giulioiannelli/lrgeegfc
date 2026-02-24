@@ -30,7 +30,60 @@ __all__ = [
 
 
 def _load_channel_labels(patient: str, dataset_root: Path) -> List[str]:
-    """Helper function to load channel labels."""
+    """Helper function to load channel labels.
+
+    Tries multiple sources in order:
+    1. channel_labels.txt (preferred - plain text)
+    2. channel_labels.csv
+    3. channel_labels.mat
+
+    Labels are simplified by removing reference suffix (e.g., ",G2").
+    """
+    # Try plain text file first (most reliable)
+    txt_file = dataset_root / patient / "channel_labels.txt"
+    if txt_file.exists():
+        try:
+            with open(txt_file, "r") as f:
+                labels = []
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        # Remove reference suffix (e.g., ",G2") and clean up
+                        if "," in line:
+                            label = line.split(",")[0]
+                        else:
+                            label = line
+                        # Remove spaces for compact dendrogram labels
+                        label = label.replace(" ", "")
+                        labels.append(label)
+                if labels:
+                    return labels
+        except Exception:
+            pass
+
+    # Try CSV file
+    csv_file = dataset_root / patient / "channel_labels.csv"
+    if csv_file.exists():
+        try:
+            with open(csv_file, "r") as f:
+                labels = []
+                for i, line in enumerate(f):
+                    if i == 0 and "label" in line.lower():
+                        continue  # Skip header
+                    line = line.strip().strip('"')
+                    if line:
+                        if "," in line:
+                            label = line.split(",")[0]
+                        else:
+                            label = line
+                        label = label.replace(" ", "")
+                        labels.append(label)
+                if labels:
+                    return labels
+        except Exception:
+            pass
+
+    # Fall back to .mat file
     try:
         label_file = dataset_root / patient / "channel_labels.mat"
         if label_file.exists():
@@ -50,6 +103,63 @@ def _load_channel_labels(patient: str, dataset_root: Path) -> List[str]:
     except Exception:
         pass
     return []
+
+
+def _find_psi_optimal_partition(psi_values: np.ndarray, n_communities: np.ndarray) -> int:
+    """Find optimal number of communities from PSI using peak detection.
+
+    Strategy:
+    1. Find all local maxima (peaks) in PSI
+    2. If 2nd peak > max_peak / 2, use 2nd peak (hierarchical structure)
+    3. Otherwise use the global maximum
+
+    Parameters
+    ----------
+    psi_values : np.ndarray
+        PSI values
+    n_communities : np.ndarray
+        Corresponding number of communities
+
+    Returns
+    -------
+    int
+        Optimal number of communities
+    """
+    if len(psi_values) < 3:
+        return int(n_communities[np.argmax(psi_values)]) if len(psi_values) > 0 else 2
+
+    # Find local maxima (peaks)
+    # A peak is a point higher than both neighbors
+    peaks_idx = []
+    for i in range(1, len(psi_values) - 1):
+        if psi_values[i] > psi_values[i - 1] and psi_values[i] > psi_values[i + 1]:
+            peaks_idx.append(i)
+
+    # Also check endpoints
+    if psi_values[0] > psi_values[1]:
+        peaks_idx.insert(0, 0)
+    if psi_values[-1] > psi_values[-2]:
+        peaks_idx.append(len(psi_values) - 1)
+
+    if len(peaks_idx) == 0:
+        # No peaks found, use global max
+        return int(n_communities[np.argmax(psi_values)])
+
+    # Sort peaks by PSI value (descending)
+    peaks_idx = sorted(peaks_idx, key=lambda i: psi_values[i], reverse=True)
+
+    max_psi = psi_values[peaks_idx[0]]
+
+    # If there's a second peak and it's > max/2, use it (indicates hierarchical structure)
+    if len(peaks_idx) > 1:
+        second_psi = psi_values[peaks_idx[1]]
+        if second_psi > max_psi / 2:
+            # Sort the top 2 peaks by n_communities (prefer larger partition)
+            top_two = sorted(peaks_idx[:2], key=lambda i: n_communities[i], reverse=True)
+            return int(n_communities[top_two[0]])
+
+    # Use global maximum
+    return int(n_communities[peaks_idx[0]])
 
 
 def compute_partition_stability_index(linkage_matrix: np.ndarray):
@@ -441,6 +551,7 @@ def plot_lrg_full_panel(
     output_path: Optional[Path] = None,
     figsize: tuple = (20, 12),
     verbose: bool = False,
+    n_communities: Optional[int] = None,
 ) -> Path:
     """Create comprehensive LRG analysis visualization - CORRECTED VERSION.
 
@@ -471,6 +582,9 @@ def plot_lrg_full_panel(
         Figure size
     verbose : bool
         Print progress
+    n_communities : int, optional
+        Fixed number of communities to use for partitioning.
+        If provided, overrides PSI-based selection for cross-phase comparison.
 
     Returns
     -------
@@ -529,30 +643,54 @@ def plot_lrg_full_panel(
     n_nodes = lrg_result.n_nodes
 
     # Compute PSI
-    psi_values, n_communities = compute_partition_stability_index(linkage_matrix)
+    psi_values, psi_n_communities = compute_partition_stability_index(linkage_matrix)
 
-    # Get optimal partition
-    optimal_clusters = fcluster(linkage_matrix, t=optimal_threshold, criterion="distance")
+    # Determine target number of communities
+    if n_communities is not None:
+        # Use fixed number of communities (for cross-phase comparison)
+        target_n = n_communities
+        if verbose:
+            print(f"Using fixed n_communities={target_n}")
+    else:
+        # Get optimal partition using PSI peak detection
+        target_n = _find_psi_optimal_partition(psi_values, psi_n_communities)
+
+    # Store for PSI plot annotation
+    psi_optimal_n = target_n
+
+    # Find the threshold corresponding to this number of communities
+    # The threshold is between the (n-1)th and n-th merge heights
+    merge_heights = linkage_matrix[:, 2]
+    if target_n >= 2 and target_n <= n_nodes:
+        # For n communities, we cut just above the (n_nodes - n)th merge
+        cut_idx = n_nodes - target_n
+        if cut_idx < len(merge_heights) and cut_idx > 0:
+            # Threshold between this merge and the next
+            psi_threshold = (merge_heights[cut_idx - 1] + merge_heights[cut_idx]) / 2
+        elif cut_idx == 0:
+            psi_threshold = merge_heights[0] / 2
+        else:
+            psi_threshold = optimal_threshold
+    else:
+        psi_threshold = optimal_threshold
+
+    # Use computed threshold for partitioning
+    optimal_clusters = fcluster(linkage_matrix, t=psi_threshold, criterion="distance")
     n_clusters = len(np.unique(optimal_clusters))
 
     if verbose:
         print(f"Optimal threshold: {optimal_threshold:.6f}")
         print(f"Number of clusters: {n_clusters}")
 
-    # Load channel labels
-    try:
-        from lrg_eegfc.utils.io import load_patient_dataset_robust
-
-        dataset = load_patient_dataset_robust(patient, dataset_root, phases=[phase])
-        recording = dataset[phase]
-
-        if hasattr(recording, "channel_labels") and recording.channel_labels is not None:
-            channel_labels = {i: label for i, label in enumerate(recording.channel_labels)}
-        else:
-            channel_labels = {i: f"Ch{i}" for i in range(n_nodes)}
-    except Exception as e:
+    # Load channel labels using the proper helper function
+    labels_list = _load_channel_labels(patient, dataset_root)
+    if labels_list and len(labels_list) >= n_nodes:
+        channel_labels = {i: labels_list[i] for i in range(n_nodes)}
         if verbose:
-            print(f"Could not load channel labels: {e}")
+            print(f"Loaded {len(labels_list)} channel labels from file")
+    else:
+        if verbose:
+            print(f"Using default channel labels (found {len(labels_list) if labels_list else 0})")
         channel_labels = {i: f"Ch{i}" for i in range(n_nodes)}
 
     # Create figure with custom grid layout (matching FIGMNTGN01)
@@ -646,19 +784,20 @@ def plot_lrg_full_panel(
     dendro = dendrogram(
         linkage_matrix,
         ax=ax_dendro,
-        color_threshold=optimal_threshold,
+        color_threshold=psi_threshold,  # Use PSI-based threshold
         labels=labels_for_dendro,
         above_threshold_color="k",
         leaf_font_size=5,
         orientation="right",
     )
 
-    # CORRECTED: Set log scale and limits exactly as in FIGMNTGN03
+    # Set log scale and limits
     tmin = linkage_matrix[:, 2][0] * 0.8
     tmax = linkage_matrix[:, 2][-1] * 1.01
     ax_dendro.set_xscale("log")
     ax_dendro.axvline(
-        optimal_threshold, color="b", linestyle="--", linewidth=2, label=r"$\mathcal{D}_{\rm th}$"
+        psi_threshold, color="b", linestyle="--", linewidth=2,
+        label=f"PSI cut (n={n_clusters})"
     )
     ax_dendro.set_xlim(tmin, tmax)
     ax_dendro.set_xlabel(r"$\mathcal{D}/\mathcal{D}_{\max}$", fontsize=11)
@@ -666,7 +805,8 @@ def plot_lrg_full_panel(
     ax_dendro.legend(fontsize=9)
 
     # -------------------------------------------------------------------------
-    # Panel (d): Network with Partition Colors (k=0.1 for weighted networks)
+    # Panel (d): Network with Partition Colors
+    # Uses power-law edge scaling and thresholded backbone for layout
     # -------------------------------------------------------------------------
     # Extract node colors from dendrogram
     leaf_label_colors = {lbl: col for lbl, col in zip(dendro["ivl"], dendro["leaves_color_list"])}
@@ -677,76 +817,94 @@ def plot_lrg_full_panel(
     # Build full graph from FC matrix
     G = nx.from_numpy_array(fc_matrix)
 
-    # Create layout: use percolation threshold for sparse backbone if available
-    if percolation_threshold is not None:
-        # Create sparse backbone using percolation threshold for layout
-        # Keep only edges above threshold (first detachment from giant component)
-        # This reveals community structure by removing weak edges
-        G_backbone = nx.Graph()
-        G_backbone.add_nodes_from(G.nodes())
-        for u, v in G.edges():
-            if G[u][v]["weight"] >= percolation_threshold:
-                G_backbone.add_edge(u, v, weight=G[u][v]["weight"])
+    # Edge width parameters (same as Figure 1)
+    EDGE_POWER = 2.0  # Power law exponent
+    MAX_WIDTH = 4.0  # Max edge width
 
-        # Compute layout on sparse backbone (reveals hierarchical structure)
-        pos = nx.spring_layout(G_backbone, seed=43, scale=1, k=0.1, iterations=50)
-    else:
-        # No percolation threshold available (e.g., MSC method)
-        # Use full graph for layout
-        pos = nx.spring_layout(G, seed=43, scale=1, k=0.1, iterations=50)
+    # Create layout using thresholded backbone to separate communities
+    # Use median as threshold for layout computation
+    weights_array = np.array([G[u][v]["weight"] for u, v in G.edges()])
+    layout_threshold = np.percentile(weights_array, 75)  # Top 25% edges for layout
 
-    # Draw FULL network (all edges) using backbone-based positions
-    # This shows all connectivity with hierarchically-organized layout
-    widths = [G[u][v]["weight"] for u, v in G.edges()]
+    G_backbone = nx.Graph()
+    G_backbone.add_nodes_from(G.nodes())
+    for u, v in G.edges():
+        if G[u][v]["weight"] >= layout_threshold:
+            G_backbone.add_edge(u, v, weight=G[u][v]["weight"])
 
-    # Draw network
-    nx.draw(
-        G,  # Full graph, not MST!
-        pos=pos,
-        ax=ax_network,
-        width=widths,
-        node_color=node_colors,
+    # Use larger k for better separation when using backbone
+    pos = nx.spring_layout(G_backbone, seed=43, scale=1, k=0.3, iterations=100)
+
+    # Get edge weights for full graph
+    edges = list(G.edges(data=True))
+    weights = np.array([e[2]['weight'] for e in edges])
+
+    # Power law scaling for width (same as Figure 1)
+    scaled = np.power(weights, EDGE_POWER)
+    widths = MAX_WIDTH * scaled
+
+    # Color edges using same colormap as matrix (viridis)
+    cmap_edges = plt.cm.get_cmap('viridis')
+    alphas = np.power(weights, EDGE_POWER)
+    edge_colors = [(*cmap_edges(w)[:3], a) for w, a in zip(weights, alphas)]
+
+    # Draw network with power-law scaled edges
+    nx.draw_networkx_nodes(
+        G, pos, ax=ax_network,
         node_size=80,
-        with_labels=False,
-        font_size=6,
-        font_color="k",
+        node_color=node_colors,
+        alpha=0.9,
+        edgecolors='white',
+        linewidths=0.5,
+    )
+
+    nx.draw_networkx_edges(
+        G, pos, ax=ax_network,
+        width=widths,
+        edge_color=edge_colors,
     )
 
     ax_network.set_title(
-        f"(d) Network (Optimal Partition: {n_clusters} communities)", fontsize=12, fontweight="bold"
+        f"(d) Network (PSI Partition: {n_clusters} communities)", fontsize=12, fontweight="bold"
     )
+    ax_network.axis('off')
 
     # -------------------------------------------------------------------------
     # Panel (e): PSI Plot
     # -------------------------------------------------------------------------
-    ax_psi.plot(n_communities, psi_values, "-o", color="green", linewidth=2, markersize=4)
+    ax_psi.plot(psi_n_communities, psi_values, "-o", color="green", linewidth=2, markersize=4)
 
-    # Find most stable partition from PSI
+    # Mark all PSI peaks for reference
+    if len(psi_values) > 2:
+        # Find local maxima
+        for i in range(1, len(psi_values) - 1):
+            if psi_values[i] > psi_values[i - 1] and psi_values[i] > psi_values[i + 1]:
+                ax_psi.plot(psi_n_communities[i], psi_values[i], 'ro', markersize=8, alpha=0.5)
+
+    # Mark the selected partition
+    partition_label = f"Selected: n={psi_optimal_n}"
+    if n_communities is not None:
+        partition_label += " (fixed)"
     if len(psi_values) > 0:
-        max_psi_idx = np.argmax(psi_values)
-        optimal_n_communities = n_communities[max_psi_idx]
-
-        # Mark optimal partition from PSI
         ax_psi.axvline(
-            optimal_n_communities,
+            psi_optimal_n,
             ls="--",
-            c="red",
+            c="blue",
             linewidth=2,
-            label=f"PSI optimal: n={optimal_n_communities}",
+            label=partition_label,
         )
-
-        # Mark partition we used
-        ax_psi.axvline(
-            n_clusters, ls=":", c="blue", linewidth=2, label=f"Used: n={n_clusters}"
-        )
+        # Mark the PSI value at selected partition
+        if psi_optimal_n in psi_n_communities:
+            idx = np.where(psi_n_communities == psi_optimal_n)[0][0]
+            ax_psi.plot(psi_optimal_n, psi_values[idx], 'b*', markersize=15, zorder=10)
 
     ax_psi.set_xlabel(r"$n$ (Number of Communities)", fontsize=11)
     ax_psi.set_ylabel(r"$\Psi(n, \tau)$ (PSI)", fontsize=11)
-    ax_psi.set_title("(e) Partition Stability", fontsize=12, fontweight="bold")
-    ax_psi.legend(fontsize=9)
+    ax_psi.set_title("(e) Partition Stability Index", fontsize=12, fontweight="bold")
+    ax_psi.legend(fontsize=9, loc="upper right")
     ax_psi.grid(alpha=0.3)
-    if len(n_communities) > 0:
-        ax_psi.set_xlim(1, min(20, max(n_communities)))
+    if len(psi_n_communities) > 0:
+        ax_psi.set_xlim(1, min(30, max(psi_n_communities)))
 
     # -------------------------------------------------------------------------
     # Save figure

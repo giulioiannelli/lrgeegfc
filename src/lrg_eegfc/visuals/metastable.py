@@ -30,13 +30,14 @@ def compute_clustering_across_tau(
     Gcc,
     method: str = "ward",
     scaling_factor: float = 0.99,
+    n_clusters_list: list = None,
 ) -> Tuple[Dict, Dict]:
     """Compute clustering for different tau values.
 
     Parameters
     ----------
     linkage_matrix : np.ndarray
-        Hierarchical linkage matrix
+        Hierarchical linkage matrix (unused, kept for backwards compatibility)
     tau_values : np.ndarray
         Array of tau (diffusion time) values to test
     Gcc : networkx.Graph
@@ -44,7 +45,11 @@ def compute_clustering_across_tau(
     method : str
         Linkage method (default: "ward")
     scaling_factor : float
-        For optimal threshold computation
+        For optimal threshold computation (used if n_clusters_list is None)
+    n_clusters_list : list, optional
+        Target number of clusters for each tau value. If provided, uses
+        maxclust criterion for controlled hierarchical merging visualization.
+        Should be decreasing (many clusters at small tau → few at large tau).
 
     Returns
     -------
@@ -58,12 +63,19 @@ def compute_clustering_across_tau(
     partitions = {}
     n_clusters = {}
 
-    for tau in tau_values:
+    for i, tau in enumerate(tau_values):
         spectrum, L, rho, Trho, tau_used = compute_laplacian_properties(Gcc, tau=tau)
         dists = squareform(Trho)
         linkage, label_list, _ = compute_normalized_linkage(dists, Gcc, method=method)
-        clTh, *_ = compute_optimal_threshold(linkage, scaling_factor=scaling_factor)
-        clusters = fcluster(linkage, clTh, criterion="distance")
+
+        if n_clusters_list is not None:
+            # Use fixed number of clusters for controlled visualization
+            target_n = n_clusters_list[i]
+            clusters = fcluster(linkage, target_n, criterion="maxclust")
+        else:
+            # Original behavior: compute optimal threshold at each tau
+            clTh, *_ = compute_optimal_threshold(linkage, scaling_factor=scaling_factor)
+            clusters = fcluster(linkage, clTh, criterion="distance")
 
         partitions[tau] = clusters
         n_clusters[tau] = len(np.unique(clusters))
