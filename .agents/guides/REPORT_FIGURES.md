@@ -142,6 +142,129 @@ Pat_02 beta band has a simple dominant 2-community split (n* = 2 at all τ). Log
 
 ---
 
+## Section: Cross-Condition MSLCD Diagnostics (`sec:cross_condition`, Subsection 5.2)
+
+This subsection presents a systematic comparison of the LRG multiscale community detection diagnostics across all patients, experimental phases, and frequency bands. It includes cross-condition heatmaps and boxplots (Part B), edge-weight threshold analysis (Part C), and a summary LaTeX table (Part D).
+
+### Quick regenerate
+
+```bash
+# Step 1: Compute master diagnostics CSV + coarsening trajectories (~5 min)
+lrg-eegfc compute diagnostics -v
+
+# Step 2: Compute threshold analysis for Pat_02/rsPre (~2 min)
+lrg-eegfc compute threshold-analysis -v
+
+# Step 3: Generate all 9 figures + LaTeX table (~15 sec)
+lrg-eegfc plot cross --figure-type all -v
+```
+
+### Figure Index
+
+| Label | File | CLI command | Data Source | Speed |
+|-------|------|-------------|-------------|-------|
+| `fig:coarsening_beta` | `fig_B1_coarsening_beta.pdf` | `plot cross --figure-type coarsening-beta` | `mslcd_coarsening_trajectories.npz` | Fast |
+| `fig:coarsening_patient` | `fig_B2_coarsening_Pat_02.pdf` | `plot cross --figure-type coarsening-patient` | `mslcd_coarsening_trajectories.npz` | Fast |
+| `fig:metastability_heatmaps` | `fig_B3_metastability_heatmaps.pdf` | `plot cross --figure-type metastability-heatmaps` | `mslcd_diagnostics_master.csv` | Fast |
+| `fig:metastability_boxplots` | `fig_B4_metastability_boxplots.pdf` | `plot cross --figure-type metastability-boxplots` | `mslcd_diagnostics_master.csv` | Fast |
+| `fig:partition_richness` | `fig_B5_partition_richness.pdf` | `plot cross --figure-type partition-richness` | `mslcd_diagnostics_master.csv` | Fast |
+| `fig:community_balance` | `fig_B6_community_balance.pdf` | `plot cross --figure-type community-balance` | `mslcd_diagnostics_master.csv` | Fast |
+| `fig:threshold_susceptibility` | `fig_C1_threshold_susceptibility.pdf` | `plot cross --figure-type threshold-susceptibility` | `threshold_analysis_Pat02.npz` | Fast |
+| `fig:threshold_connectivity` | `fig_C2_threshold_connectivity.pdf` | `plot cross --figure-type threshold-connectivity` | `threshold_analysis_Pat02.npz` | Fast |
+| `tab:mslcd_diagnostics` | `mslcd_diagnostics_Pat02.tex` | `plot cross --figure-type latex-table` | `mslcd_diagnostics_master.csv` | Fast |
+
+### Output Directories
+
+- **B-figures:** `data/figures/report_mslcd_section/cross_condition/`
+- **C-figures:** `data/figures/report_mslcd_section/threshold_analysis/`
+- **Tables:** `data/tables/`
+
+### Data Files Produced
+
+| File | Content | Size |
+|------|---------|------|
+| `data/tables/mslcd_diagnostics_master.csv` | 114 rows x 30 columns — all scalar diagnostics for every (patient, phase, band) triplet | 27 KB |
+| `data/tables/mslcd_coarsening_trajectories.npz` | Per-triplet arrays: `{patient}__{phase}__{band}__tau`, `__nmax`, `__eigenvalues` | 229 KB |
+| `data/tables/threshold_analysis_Pat02.npz` | 6 bands x 9 thresholds: eigenvalues, S(tau), C(tau), connectivity metrics (all LCC-based) | 367 KB |
+| `data/tables/mslcd_diagnostics_Pat02.tex` | Booktabs LaTeX table with 6 diagnostic columns | 2 KB |
+
+### Parameters Used
+
+- **Patients:** Pat_02, Pat_03, Pat_05, Pat_08 (Pat_06, Pat_07 excluded — missing phases)
+- **Phases:** rsPre, taskLearn, taskTest, rsPost
+- **Bands:** delta, theta, alpha, beta, low_gamma, high_gamma
+- **FC method:** MSC (dense, sparsify=none, nperseg=4096)
+- **Metastability:** n_tau=20 log-spaced tau in [1/lambda_max, 1/lambda_2], monotonic non-increasing n_max(tau) constraint, normalization by coarsening events only
+- **Sensible peaks:** mean-floor + log-drop chain (LOG_DROP_MAX=0.5 decades, MIN_N_SPACING=5)
+- **Threshold analysis:** Patient=Pat_02, Phase=rsPre, percentiles=[0, 50, 70, 80, 85, 90, 95, 97, 99]
+- **Community balance:** H_size = normalized size entropy, H / ln(n*), range [0,1]
+
+### Figure Descriptions
+
+#### Part B: Cross-Condition Figures
+
+**B1 — Coarsening trajectories (beta band).** Step-plots of n_max(tau) vs log10(tau) for the beta band across all patients. Each subplot is one patient, phase colours distinguish rsPre (blue), taskLearn (orange), taskTest (green), rsPost (red). Common legend below grid. No titles. Shows how hierarchical resolution degrades with diffusion time — steeper curves indicate stronger multiscale structure.
+
+**B2 — Coarsening trajectories (Pat_02, all bands).** Same layout as B1 but fixed patient = Pat_02, one subplot per frequency band. Band names annotated in LaTeX (e.g., $\delta$, $\theta$). Reveals band-dependent coarsening speed: high_gamma collapses quickly (few effective channels), while delta/theta sustain high n_max over a wider tau range.
+
+**B3 — Metastability heatmaps.** Two rows: mean metastability mu_bar (top) and max metastability mu_max (bottom). One column per patient. Each cell is a band x phase value. Square cells with magma colormap and luminance-adaptive text annotations (white on dark, black on light). Shared colorbar per row. Highlights which band/phase combinations exhibit the most community reassignment under the LRG coarsening flow.
+
+**B4 — Metastability boxplots.** One subplot per band, boxplots of mu_bar grouped by phase. Individual patient values overlaid as shaped markers (circle=Pat_02, square=Pat_03, diamond=Pat_05, down-triangle=Pat_08). Combined legend outside the grid shows both phase colours and patient marker shapes. Reveals inter-patient variability within each band/phase cell.
+
+**B5 — Partition richness heatmap.** N_sens (number of sensible PSI peaks) as band x phase heatmap, one panel per patient. YlGnBu colormap, integer annotations, square cells. High N_sens indicates rich multiscale structure; low N_sens (e.g., alpha taskLearn/taskTest for Pat_02 = 1) indicates a single dominant partition scale.
+
+**B6 — Community balance heatmap.** H_size (normalized community size entropy) as band x phase heatmap, one panel per patient. RdYlGn colormap (red=unbalanced, green=balanced), range [0,1], square cells. H_size near 1 means communities are roughly equal-sized; near 0 means one giant community dominates.
+
+#### Part C: Threshold Analysis (Pat_02, rsPre)
+
+**C1 — Entropic susceptibility at thresholds.** 2x3 grid (one subplot per band). Curves show C(tau) = -dS/d(log10 tau) at 9 edge-weight threshold percentiles (0% to 99%), coloured by plasma colormap. Log-scale x-axis (tau), extending to tau = 10^3. Shared colorbar indicates threshold percentile. Reveals how progressive edge removal exposes hidden multi-peak structure in C(tau): at low thresholds the susceptibility has one dominant peak, but at high thresholds (90-99%) secondary peaks emerge or the dominant peak splits as weak edges are pruned.
+
+**C2 — Connectivity metrics vs threshold.** 2x2 grid: (a) connected components, (b) LCC fraction |C_1|/N, (c) LCC density (edges_in_lcc / max_possible), (d) transitivity (global clustering coefficient). X-axis: "Edges remaining (%)" on inverted log scale (100% at left, 1% at right). One curve per band. Band-dependent disconnection thresholds visible: delta network remains connected until ~85% removal, while high_gamma fragments already at ~50%. LCC density actually increases at extreme thresholds (surviving core is dense clique-like). Transitivity reveals band-specific clustering topology under progressive pruning.
+
+#### Part D: LaTeX Table
+
+**Tab — MSLCD diagnostics for Pat_02.** Booktabs table with multirow band grouping. 6 diagnostic columns: N_sens (partition richness), n_max(tau') (communities at finest scale), n_max(1/lambda_2) (communities at coarsest scale), mu_bar (mean metastability), mu_max (max metastability), H_size (community balance). Ready for direct inclusion in Overleaf.
+
+### Code Architecture
+
+| Module | Function | Purpose |
+|--------|----------|---------|
+| `workflow.diagnostics` | `compute_triplet_diagnostics()` | Full LRG pipeline for one (patient, phase, band) triplet — spectral properties, entropic susceptibility, partition richness, coarsening + metastability, community balance |
+| `workflow.diagnostics` | `compute_threshold_analysis()` | Progressive edge-weight pruning with LCC extraction, eigenvalue decomposition, entropy/susceptibility curves, connectivity metrics |
+| `workflow.diagnostics` | `threshold_matrix()` | Zero out edges below given weight percentile |
+| `workflow.diagnostics` | `sensible_psi_peaks()` | Mean-floor + log-drop chain peak detection for PSI |
+| `visuals.cross_condition` | `plot_coarsening_beta()` | B1 figure |
+| `visuals.cross_condition` | `plot_coarsening_patient()` | B2 figure |
+| `visuals.cross_condition` | `plot_metastability_heatmaps()` | B3 figure |
+| `visuals.cross_condition` | `plot_metastability_boxplots()` | B4 figure |
+| `visuals.cross_condition` | `plot_partition_richness()` | B5 figure |
+| `visuals.cross_condition` | `plot_community_balance()` | B6 figure |
+| `visuals.cross_condition` | `plot_threshold_susceptibility()` | C1 figure |
+| `visuals.cross_condition` | `plot_threshold_connectivity()` | C2 figure |
+| `visuals.cross_condition` | `generate_latex_table()` | LaTeX table |
+| `visuals.cross_condition` | `generate_cross_condition_figure()` | Master dispatcher |
+| `cli.compute` | `diagnostics` command | CLI entry: compute master CSV + trajectories NPZ |
+| `cli.compute` | `threshold-analysis` command | CLI entry: compute threshold analysis NPZ |
+| `cli.plot` | `cross` command | CLI entry: generate all figures from cached data |
+
+### Implementation Notes
+
+- **LCC extraction is critical for threshold analysis.** After removing low-weight edges the graph can disconnect. Computing the Laplacian on the full disconnected graph injects spurious zero eigenvalues (appearing as ~10^-16) that corrupt the entropy/susceptibility curves and spectral analysis. All eigenvalues and entropy curves are computed on the Largest Connected Component (LCC) subgraph.
+- **Connectivity metrics are non-trivial.** Edge fraction and mean degree were replaced with LCC density and transitivity because the former are trivially determined by the threshold percentile (edge_frac = 1 - pct/100 by definition). LCC density and transitivity reveal actual topological changes: density increases at extreme thresholds as the surviving core becomes clique-like, and transitivity shows band-specific clustering decay.
+- **Data-driven metastability.** The coarsening trajectory uses a monotonic non-increasing constraint on n_max(tau) to prevent flickering from marginal PSI peaks. Metastability mu_i is normalized by the number of coarsening events (steps where n_max actually changes), not total steps, so increasing n_tau doesn't dilute the signal.
+- **C2 eigenvalue spectrum figure was dropped** as uninformative for the cross-condition narrative. The three-panel layout (sorted eigenvalues, lambda_2 vs threshold, spectral gap ratio) was messy and didn't add insight beyond what C1 and C2-connectivity already show.
+- **Square heatmap cells** via `aspect="equal"` in imshow, with luminance-adaptive text colour (white if cell luminance < 0.5, black otherwise) for readability on both dark and light cells.
+
+### Key Findings (from generated data)
+
+- **Band-dependent coarsening:** High_gamma networks collapse to 1-2 communities quickly (n_max(tau') = 6-19), while delta/theta networks sustain 40-57 communities over a wide tau range. This reflects the sparser effective connectivity in high-frequency bands.
+- **Phase sensitivity of metastability:** Task phases (taskLearn, taskTest) show markedly different metastability from resting phases in delta/theta (e.g., delta rsPre mu_bar=0.436 vs taskLearn mu_bar=0.051). Alpha taskLearn/taskTest collapse to a single partition (N_sens=1, n_start=6).
+- **Threshold-revealed multi-scale structure:** Progressive edge removal in C1 exposes secondary C(tau) peaks that are hidden in the full-weight graph, particularly in delta and theta bands where a single dominant peak at low thresholds splits into multiple peaks at 90-95% removal.
+- **Band-dependent disconnection:** Delta/beta networks remain connected until 85-90% edge removal; high_gamma fragments already at ~50% removal, consistent with sparser high-frequency FC.
+- **LCC densification:** At extreme thresholds (>95%), LCC density increases despite fewer total edges — the surviving core forms a dense subgraph, suggesting a hub-like backbone structure in the FC network.
+
+---
+
 ## Section: [NEXT SECTION PLACEHOLDER]
 
 _To be filled as figures are generated._

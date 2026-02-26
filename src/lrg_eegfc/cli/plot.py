@@ -50,7 +50,7 @@ def plot() -> None:
 @verbose_option()
 @click.pass_context
 def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
-         cache_root, dataset_root, output_dir, dpi, show_fig, verbose):
+         cache_root, dataset_root, output_dir, dpi, fmt, show_fig, verbose):
     """Visualize correlation FC matrices and networks."""
     from lrg_eegfc.visuals.correlation import (
         plot_correlation_summary,
@@ -71,7 +71,7 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
         for p in phase_list:
             try:
                 if plot_type in ("summary", "all"):
-                    out = out_sub / f"{b}_{p}_corr_summary.png"
+                    out = out_sub / f"{b}_{p}_corr_summary.{fmt}"
                     if not out.exists():
                         plot_correlation_summary(
                             patient, p, b,
@@ -84,7 +84,7 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
                         rpt.skip(f"{b}/{p} summary (exists)", path=out, show=show_fig)
 
                 if plot_type in ("network", "all"):
-                    out = out_sub / f"{b}_{p}_corr_network.png"
+                    out = out_sub / f"{b}_{p}_corr_network.{fmt}"
                     if not out.exists():
                         plot_correlation_and_network(
                             patient, p, b,
@@ -98,7 +98,7 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
                         rpt.skip(f"{b}/{p} network (exists)", path=out, show=show_fig)
 
                 if plot_type in ("mp", "all"):
-                    out = out_sub / f"{b}_{p}_corr_mp.png"
+                    out = out_sub / f"{b}_{p}_corr_mp.{fmt}"
                     if not out.exists():
                         plot_marchenko_pastur_comparison(
                             patient, p, b,
@@ -111,7 +111,7 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
                         rpt.skip(f"{b}/{p} MP (exists)", path=out, show=show_fig)
 
                 if plot_type in ("percolation", "all"):
-                    out = out_sub / f"{b}_{p}_corr_percolation.png"
+                    out = out_sub / f"{b}_{p}_corr_percolation.{fmt}"
                     if not out.exists():
                         plot_percolation_curves(
                             patient, p, b,
@@ -153,7 +153,7 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
 @click.pass_context
 def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
         n_surrogates, nperseg, cache_root, dataset_root, output_dir, dpi,
-        show_fig, verbose):
+        fmt, show_fig, verbose):
     """Visualize MSC FC matrices and networks."""
     from lrg_eegfc.visuals.msc import (
         plot_msc_and_network,
@@ -173,7 +173,7 @@ def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
         for p in phase_list:
             try:
                 if plot_type in ("network", "all"):
-                    out = out_sub / f"{b}_{p}_msc_network.png"
+                    out = out_sub / f"{b}_{p}_msc_network.{fmt}"
                     if not out.exists():
                         plot_msc_and_network(
                             patient, p, b,
@@ -189,7 +189,7 @@ def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
                         rpt.skip(f"{b}/{p} network (exists)", path=out, show=show_fig)
 
                 if plot_type in ("comparison", "all"):
-                    out = out_sub / f"{b}_{p}_msc_comparison.png"
+                    out = out_sub / f"{b}_{p}_msc_comparison.{fmt}"
                     if not out.exists():
                         plot_msc_comparison_dense_vs_validated(
                             patient, p, b,
@@ -203,7 +203,7 @@ def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
                         rpt.skip(f"{b}/{p} comparison (exists)", path=out, show=show_fig)
 
                 if plot_type in ("summary", "all"):
-                    out = out_sub / f"{b}_{p}_msc_summary.png"
+                    out = out_sub / f"{b}_{p}_msc_summary.{fmt}"
                     if not out.exists():
                         plot_msc_summary(
                             patient, p, b,
@@ -245,8 +245,8 @@ def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
 @verbose_option()
 @click.pass_context
 def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
-        orientation, cache_root, dataset_root, output_dir, dpi, show_fig,
-        verbose):
+        orientation, cache_root, dataset_root, output_dir, dpi, fmt,
+        show_fig, verbose):
     """Visualize LRG hierarchical analysis."""
     from lrg_eegfc.visuals.lrg import (
         plot_lrg_dendrogram,
@@ -271,7 +271,7 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
         for p in phase_list:
             try:
                 if plot_type in ("entropy", "all"):
-                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_entropy.png"
+                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_entropy.{fmt}"
                     if not out.exists():
                         plot_lrg_entropy_curves(
                             patient, p, b, fc_method,
@@ -283,7 +283,7 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
                         rpt.skip(f"{b}/{p} entropy (exists)", path=out, show=show_fig)
 
                 if plot_type in ("dendrogram", "all"):
-                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_dendrogram.png"
+                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_dendrogram.{fmt}"
                     if not out.exists():
                         plot_lrg_dendrogram(
                             patient, p, b, fc_method,
@@ -297,7 +297,7 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
                         rpt.skip(f"{b}/{p} dendrogram (exists)", path=out, show=show_fig)
 
                 if plot_type in ("ultrametric", "all"):
-                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_ultrametric.png"
+                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_ultrametric.{fmt}"
                     if not out.exists():
                         plot_ultrametric_heatmap(
                             patient, p, b, fc_method,
@@ -310,7 +310,7 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
                         rpt.skip(f"{b}/{p} ultrametric (exists)", path=out, show=show_fig)
 
                 if plot_type in ("full", "all"):
-                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_full.png"
+                    out = out_sub / f"{b}_{p}_lrg_{fc_method}_full.{fmt}"
                     if not out.exists():
                         plot_lrg_full_panel(
                             patient, p, b, fc_method,
@@ -344,7 +344,7 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
 @verbose_option()
 @click.pass_context
 def reorganization(ctx, patient, band, bands, phase, phases, fc_method,
-                   cache_root, output_dir, dpi, show_fig, verbose):
+                   cache_root, output_dir, dpi, fmt, show_fig, verbose):
     """Visualize phase reorganization of brain networks."""
     from lrg_eegfc.visuals.reorganization import plot_phase_reorganization
 
@@ -358,7 +358,7 @@ def reorganization(ctx, patient, band, bands, phase, phases, fc_method,
 
     for b in band_list:
         try:
-            out = out_sub / f"{b}_reorganization_{fc_method}.png"
+            out = out_sub / f"{b}_reorganization_{fc_method}.{fmt}"
             if not out.exists():
                 plot_phase_reorganization(
                     patient, b, fc_method,
@@ -394,7 +394,7 @@ def reorganization(ctx, patient, band, bands, phase, phases, fc_method,
 @verbose_option()
 @click.pass_context
 def metastable(ctx, patient, band, phase, fc_method, cache_root,
-               dataset_root, output_dir, dpi, show_fig, verbose):
+               dataset_root, output_dir, dpi, fmt, show_fig, verbose):
     """Generate metastable nodes Sankey diagrams."""
     from lrg_eegfc.visuals.metastable import (
         compute_clustering_across_tau,
@@ -452,7 +452,7 @@ def metastable(ctx, patient, band, phase, fc_method, cache_root,
 @verbose_option()
 @click.pass_context
 def cleaning(ctx, patient, band, bands, phase, phases, cache_root,
-             dataset_root, output_dir, dpi, show_fig, verbose):
+             dataset_root, output_dir, dpi, fmt, show_fig, verbose):
     """Plot Marchenko-Pastur cleaning diagnostics."""
     from lrg_eegfc.visuals.correlation import plot_marchenko_pastur_comparison
 
@@ -467,7 +467,7 @@ def cleaning(ctx, patient, band, bands, phase, phases, cache_root,
     for b in band_list:
         for p in phase_list:
             try:
-                out = out_sub / f"{b}_{p}_mp_cleaning.png"
+                out = out_sub / f"{b}_{p}_mp_cleaning.{fmt}"
                 if not out.exists():
                     plot_marchenko_pastur_comparison(
                         patient, p, b,
@@ -501,8 +501,8 @@ def cleaning(ctx, patient, band, bands, phase, phases, cache_root,
 @verbose_option()
 @click.pass_context
 def comparison(ctx, patient, band, bands, phase, phases,
-               corr_cache, msc_cache, nperseg, output_dir, dpi, show_fig,
-               verbose):
+               corr_cache, msc_cache, nperseg, output_dir, dpi, fmt,
+               show_fig, verbose):
     """Compare correlation vs MSC FC methods visually."""
     from lrg_eegfc.visuals.compare import plot_fc_comparison
 
@@ -517,7 +517,7 @@ def comparison(ctx, patient, band, bands, phase, phases,
     for b in band_list:
         for p in phase_list:
             try:
-                out = out_sub / f"{b}_{p}_fc_comparison.png"
+                out = out_sub / f"{b}_{p}_fc_comparison.{fmt}"
                 if not out.exists():
                     plot_fc_comparison(
                         patient, p, b,
@@ -551,7 +551,7 @@ def comparison(ctx, patient, band, bands, phase, phases,
 @verbose_option()
 @click.pass_context
 def msc_grid(ctx, patient, sparsify, nperseg, n_surrogates, cache_root,
-             output_dir, dpi, show_fig, verbose):
+             output_dir, dpi, fmt, show_fig, verbose):
     """Plot band x phase grid of MSC matrices."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     rpt.header(f"MSC Grid: {patient}", sparsify=sparsify)
@@ -587,9 +587,9 @@ def msc_grid(ctx, patient, sparsify, nperseg, n_surrogates, cache_root,
 
         fig.suptitle(f"{patient} MSC Grid (sparsify={sparsify})", fontsize=14)
         fig.tight_layout()
-        out = output_dir / patient / f"msc_grid_{sparsify}.png"
+        out = output_dir / patient / f"msc_grid_{sparsify}.{fmt}"
         out.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(out, dpi=dpi)
+        fig.savefig(out, dpi=dpi, bbox_inches="tight")
         plt.close(fig)
         rpt.saved(out, show=show_fig)
     except Exception as exc:
@@ -614,7 +614,8 @@ def msc_grid(ctx, patient, sparsify, nperseg, n_surrogates, cache_root,
 @verbose_option()
 @click.pass_context
 def msc_all_patients(ctx, patients, band, bands, phase, phases, sparsify,
-                     nperseg, cache_root, output_dir, dpi, show_fig, verbose):
+                     nperseg, cache_root, output_dir, dpi, fmt, show_fig,
+                     verbose):
     """Plot MSC matrices across all patients."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     pat_list = resolve_patients(patients)
@@ -648,9 +649,9 @@ def msc_all_patients(ctx, patients, band, bands, phase, phases, sparsify,
 
                 fig.suptitle(f"{b} / {p} (sparsify={sparsify})")
                 fig.tight_layout()
-                out = output_dir / f"all_patients_{b}_{p}_{sparsify}.png"
+                out = output_dir / f"all_patients_{b}_{p}_{sparsify}.{fmt}"
                 out.parent.mkdir(parents=True, exist_ok=True)
-                fig.savefig(out, dpi=dpi)
+                fig.savefig(out, dpi=dpi, bbox_inches="tight")
                 plt.close(fig)
                 rpt.saved(out, show=show_fig)
     except Exception as exc:
@@ -676,7 +677,7 @@ def msc_all_patients(ctx, patients, band, bands, phase, phases, sparsify,
 @verbose_option()
 @click.pass_context
 def lrg_phase_grid(ctx, patient, band, bands, phase, phases, fc_method,
-                   cache_root, dataset_root, output_dir, dpi, show_fig,
+                   cache_root, dataset_root, output_dir, dpi, fmt, show_fig,
                    verbose):
     """Plot LRG full panels across phases."""
     from lrg_eegfc.visuals.lrg import plot_lrg_full_panel
@@ -692,7 +693,7 @@ def lrg_phase_grid(ctx, patient, band, bands, phase, phases, fc_method,
     for b in band_list:
         for p in phase_list:
             try:
-                out = out_sub / f"{b}_{p}_lrg_{fc_method}_full.png"
+                out = out_sub / f"{b}_{p}_lrg_{fc_method}_full.{fmt}"
                 if not out.exists():
                     plot_lrg_full_panel(
                         patient, p, b, fc_method,
@@ -728,7 +729,7 @@ def lrg_phase_grid(ctx, patient, band, bands, phase, phases, fc_method,
 @verbose_option()
 @click.pass_context
 def lrg_video(ctx, patient, band, phase, fc_method, n_frames, cache_root,
-              dataset_root, output_dir, dpi, verbose):
+              dataset_root, output_dir, dpi, fmt, verbose):
     """Generate ultrametric threshold animation frames."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     rpt.header(f"LRG Video Frames: {patient}", band=band, phase=phase)
@@ -752,7 +753,7 @@ def lrg_video(ctx, patient, band, phase, fc_method, n_frames, cache_root,
 @verbose_option()
 @click.pass_context
 def msc_validation(ctx, patient, band, bands, phase, phases, nperseg,
-                   n_surrogates, cache_root, output_dir, dpi, show_fig,
+                   n_surrogates, cache_root, output_dir, dpi, fmt, show_fig,
                    verbose):
     """Dense vs validated MSC comparison figures."""
     from lrg_eegfc.visuals.msc import plot_msc_comparison_dense_vs_validated
@@ -768,7 +769,7 @@ def msc_validation(ctx, patient, band, bands, phase, phases, nperseg,
     for b in band_list:
         for p in phase_list:
             try:
-                out = out_sub / f"{b}_{p}_msc_validation.png"
+                out = out_sub / f"{b}_{p}_msc_validation.{fmt}"
                 if not out.exists():
                     plot_msc_comparison_dense_vs_validated(
                         patient, p, b,
@@ -800,7 +801,7 @@ def msc_validation(ctx, patient, band, bands, phase, phases, nperseg,
 @verbose_option()
 @click.pass_context
 def time_windows(ctx, patient, band, bands, phase, phases, fc_method,
-                 cache_root, output_dir, dpi, verbose):
+                 cache_root, output_dir, dpi, fmt, verbose):
     """Visualize cached time-window FC matrices."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     rpt.header(f"Time Window Visualization: {patient}")
@@ -823,7 +824,7 @@ def time_windows(ctx, patient, band, bands, phase, phases, fc_method,
 @verbose_option()
 @click.pass_context
 def reorg_metrics(ctx, patient, band, bands, phase, phases, fc_method,
-                  cache_root, output_dir, dpi, show_fig, verbose):
+                  cache_root, output_dir, dpi, fmt, show_fig, verbose):
     """Plot reorganization metric matrices."""
     from lrg_eegfc.visuals.reorganization import plot_reorganization_distance_matrix
 
@@ -837,7 +838,7 @@ def reorg_metrics(ctx, patient, band, bands, phase, phases, fc_method,
 
     for b in band_list:
         try:
-            out = out_sub / f"{b}_reorg_metrics_{fc_method}.png"
+            out = out_sub / f"{b}_reorg_metrics_{fc_method}.{fmt}"
             if not out.exists():
                 plot_reorganization_distance_matrix(
                     patient, b, fc_method,
@@ -867,7 +868,8 @@ def reorg_metrics(ctx, patient, band, bands, phase, phases, fc_method,
 @output_options("data/figures/reorganization")
 @verbose_option()
 @click.pass_context
-def reorg_summary(ctx, patient, fc_method, cache_root, output_dir, dpi, verbose):
+def reorg_summary(ctx, patient, fc_method, cache_root, output_dir, dpi, fmt,
+                  verbose):
     """Band-level reorganization metric summary."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     rpt.header(f"Reorganization Summary: {patient}", fc_method=fc_method)
@@ -887,7 +889,8 @@ def reorg_summary(ctx, patient, fc_method, cache_root, output_dir, dpi, verbose)
 @output_options("data/figures/reorganization")
 @verbose_option()
 @click.pass_context
-def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi, verbose):
+def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi,
+                       fmt, verbose):
     """Cross-metric agreement analysis."""
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     rpt.header(f"Metric Correlation: {patient}", fc_method=fc_method)
@@ -902,9 +905,11 @@ def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi, ver
 @plot.command("cross")
 @click.option("--figure-type",
               type=click.Choice([
-                  "resolution", "susceptibility-phases", "susceptibility-bands",
-                  "coarsening", "metastability", "partition-richness",
-                  "community-balance", "summary-scatter", "latex-table", "all",
+                  "coarsening-beta", "coarsening-patient",
+                  "metastability-heatmaps", "metastability-boxplots",
+                  "partition-richness", "community-balance",
+                  "threshold-susceptibility", "threshold-connectivity",
+                  "latex-table", "all",
               ]),
               default="all", show_default=True,
               help="Which cross-condition figure to generate.")
@@ -914,18 +919,23 @@ def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi, ver
 @click.option("--trajectories", type=click.Path(path_type=Path),
               default=Path("data/tables/mslcd_coarsening_trajectories.npz"),
               show_default=True, help="Coarsening trajectories NPZ.")
-@click.option("--msc-cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+@click.option("--threshold-data", type=click.Path(path_type=Path),
+              default=Path("data/tables/threshold_analysis_Pat02.npz"),
+              show_default=True, help="Threshold analysis NPZ.")
 @output_options("data/figures/report_mslcd_section/cross_condition")
+@click.option("--threshold-output-dir", type=click.Path(path_type=Path),
+              default=Path("data/figures/report_mslcd_section/threshold_analysis"),
+              show_default=True, help="Output dir for threshold figures.")
 @click.option("--latex-output", type=click.Path(path_type=Path),
               default=Path("data/tables/mslcd_diagnostics_Pat02.tex"),
               show_default=True)
 @show_option()
 @verbose_option()
 @click.pass_context
-def cross(ctx, figure_type, csv_path, trajectories, msc_cache_root,
-          output_dir, dpi, latex_output, show_fig, verbose):
-    """Generate cross-condition MSLCD diagnostic figures.
+def cross(ctx, figure_type, csv_path, trajectories, threshold_data,
+          output_dir, threshold_output_dir, dpi, fmt, latex_output, show_fig,
+          verbose):
+    """Generate cross-condition MSLCD diagnostic figures (Section 4.8).
 
     \b
     Reads from the master CSV produced by ``compute diagnostics`` and generates
@@ -934,16 +944,16 @@ def cross(ctx, figure_type, csv_path, trajectories, msc_cache_root,
 
     \b
     Figure types:
-      resolution            B1 - Resolution window width heatmap
-      susceptibility-phases  B2 - C(tau) across phases
-      susceptibility-bands   B3 - C(tau) across bands
-      coarsening            B4 - Coarsening trajectories
-      metastability         B5 - Metastability statistics
-      partition-richness    B6 - Partition richness heatmap
-      community-balance     B7 - Community size balance
-      summary-scatter       B8 - Grand summary scatter
-      latex-table           Part C - LaTeX table for Pat_02
-      all                   Generate everything
+      coarsening-beta          B1 - Coarsening trajectories (beta, all patients)
+      coarsening-patient       B2 - Coarsening trajectories (Pat_02, all bands)
+      metastability-heatmaps   B3 - Metastability mu_mean / mu_max heatmaps
+      metastability-boxplots   B4 - Metastability boxplots with patient overlay
+      partition-richness       B5 - N_sens heatmap
+      community-balance        B6 - H_size heatmap
+      threshold-susceptibility C1 - C(tau) at different thresholds
+      threshold-connectivity   C2 - Connectivity metrics vs threshold
+      latex-table              Part D - LaTeX diagnostic table
+      all                      Generate everything
     """
     from lrg_eegfc.visuals.cross_condition import (
         generate_cross_condition_figure,
@@ -958,9 +968,29 @@ def cross(ctx, figure_type, csv_path, trajectories, msc_cache_root,
         output_dir=str(output_dir),
     )
 
-    if not csv_path.exists():
+    # Check that required data files exist
+    needs_csv = {
+        "coarsening-beta", "coarsening-patient",
+        "metastability-heatmaps", "metastability-boxplots",
+        "partition-richness", "community-balance", "latex-table",
+    }
+    needs_threshold = {
+        "threshold-susceptibility", "threshold-spectrum",
+        "threshold-connectivity",
+    }
+    targets = (
+        set(FIGURE_TYPES.keys()) - {"all"}
+        if figure_type == "all" else {figure_type}
+    )
+
+    if (needs_csv & targets) and not csv_path.exists():
         rpt.fail(f"Master CSV not found: {csv_path}")
         rpt.info("Run first: lrg-eegfc compute diagnostics")
+        return
+
+    if (needs_threshold & targets) and not threshold_data.exists():
+        rpt.fail(f"Threshold data not found: {threshold_data}")
+        rpt.info("Run first: lrg-eegfc compute threshold-analysis")
         return
 
     try:
@@ -968,8 +998,9 @@ def cross(ctx, figure_type, csv_path, trajectories, msc_cache_root,
             figure_type=figure_type,
             csv_path=csv_path,
             trajectories_path=trajectories,
+            threshold_path=threshold_data,
             output_dir=output_dir,
-            msc_cache=msc_cache_root,
+            threshold_output_dir=threshold_output_dir,
             latex_output=latex_output,
             dpi=dpi,
         )

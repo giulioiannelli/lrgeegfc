@@ -100,11 +100,17 @@ def cache_options(default_root: str = "data/corr_cache") -> Callable:
 
 
 def output_options(default_dir: str = "data/figures") -> Callable:
-    """Add ``--output-dir`` and ``--dpi`` options."""
+    """Add ``--output-dir``, ``--dpi``, and ``--format`` options."""
     def decorator(f: Callable) -> Callable:
         f = click.option(
+            "--format", "fmt",
+            type=click.Choice(["png", "pdf", "svg", "eps"]),
+            default="png", show_default=True,
+            help="Output figure format.",
+        )(f)
+        f = click.option(
             "--dpi", type=int, default=150, show_default=True,
-            help="Figure resolution.",
+            help="Figure resolution (raster formats).",
         )(f)
         f = click.option(
             "--output-dir",

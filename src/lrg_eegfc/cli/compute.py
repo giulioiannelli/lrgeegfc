@@ -608,3 +608,75 @@ def diagnostics(ctx, patients, bands, band, phases, phase, msc_cache_root,
     rpt.saved(trajectories_output)
 
     rpt.summary()
+
+
+# ---------------------------------------------------------------------------
+# compute threshold-analysis
+# ---------------------------------------------------------------------------
+
+@compute.command("threshold-analysis")
+@click.option("--patient", default="Pat_02", show_default=True,
+              help="Patient ID for threshold analysis.")
+@click.option("--phase", default="rsPre", show_default=True,
+              help="Phase for threshold analysis.")
+@band_phase_options()
+@click.option("--msc-cache-root", type=click.Path(path_type=Path),
+              default=Path("data/msc_cache"), show_default=True)
+@click.option("--nperseg", type=int, default=4096, show_default=True)
+@click.option("--output", type=click.Path(path_type=Path),
+              default=Path("data/tables/threshold_analysis_Pat02.npz"),
+              show_default=True, help="Output NPZ path.")
+@verbose_option()
+@click.pass_context
+def threshold_analysis(ctx, patient, phase, bands, band, phases,
+                       msc_cache_root, nperseg, output, verbose):
+    """Compute threshold analysis for edge-weight pruning.
+
+    Loads the full MSC adjacency matrix for a patient/phase and progressively
+    removes the bottom X% of edges by weight.  At each threshold, computes
+    Laplacian eigenvalues, entropy curves, and connectivity metrics.
+
+    \b
+    Default thresholds: 0, 50, 70, 80, 85, 90, 95, 97, 99 (percentile).
+
+    \b
+    Output NPZ keys per band:
+      {band}__tau, {band}__log10_tau     - reference tau grid
+      {band}__C__{pct}, {band}__S__{pct} - susceptibility / entropy
+      {band}__eigenvalues__{pct}         - Laplacian eigenvalues
+      {band}__connectivity               - (n_thresholds, 4) array
+    """
+    import numpy as np
+    from lrg_eegfc.workflow.diagnostics import compute_threshold_analysis
+
+    rpt = CliReporter.from_context(ctx, verbose=verbose)
+    band_list = resolve_bands(bands, band)
+
+    rpt.header(
+        "Threshold Analysis",
+        Patient=patient,
+        Phase=phase,
+        Bands=", ".join(band_list),
+    )
+
+    try:
+        result = compute_threshold_analysis(
+            patient=patient,
+            phase=phase,
+            bands=band_list,
+            msc_cache=msc_cache_root,
+            nperseg=nperseg,
+            verbose=rpt.verbose,
+        )
+
+        output.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(output, **result)
+        rpt.saved(output)
+        rpt.info(f"  {len([k for k in result if '__connectivity' in k])} bands processed")
+    except Exception as exc:
+        rpt.fail(f"threshold-analysis: {exc}")
+        import traceback
+        if verbose:
+            traceback.print_exc()
+
+    rpt.summary()
