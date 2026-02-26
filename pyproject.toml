@@ -45,6 +45,7 @@ dependencies = [
     "emd>=0.8.0",
     "lrgsglib",
     "NEMtropy>=3.0.0",
+    "click>=8.1.0",
 ]
 
 [project.optional-dependencies]
@@ -76,7 +77,8 @@ Documentation = "https://github.com/giulioiannelli/lrgeegfc#readme"
 "Bug Tracker" = "https://github.com/giulioiannelli/lrgeegfc/issues"
 
 [project.scripts]
-lrg-eegfc-corr = "lrg_eegfc.cli:main"
+lrg-eegfc = "lrg_eegfc.cli:app"
+lrg-eegfc-corr = "lrg_eegfc.cli._legacy:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

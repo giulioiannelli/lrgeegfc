@@ -41,14 +41,25 @@ Note: `docs/overview.md` reflects the current module layout.
 ```
 src/lrg_eegfc/
 |-- __init__.py
-|-- cli.py
 |-- notebook.py
+|-- cli/                  # unified CLI (lrg-eegfc command)
+|   |-- __init__.py       #   exports `app`
+|   |-- _app.py           #   LazyGroup root + 7 lazy subcommands
+|   |-- _common.py        #   shared options, resolvers, CliReporter
+|   |-- compute.py        #   6 compute commands
+|   |-- plot.py           #   16 plot commands
+|   |-- show.py           #   4 show commands (query cached results)
+|   |-- data.py           #   3 data inspection commands
+|   |-- cache.py          #   4 cache management commands
+|   |-- config_cmd.py     #   2 config display commands
+|   |-- bundle.py         #   1 publication bundle command
+|   `-- _legacy.py        #   old cli.py (lrg-eegfc-corr compat)
 |-- workflow/             # canonical workflows
-|   |-- core.py
 |   |-- corr.py
 |   |-- msc.py
 |   |-- lrg.py
-|   `-- cleaning.py
+|   |-- cleaning.py
+|   `-- time_windows.py
 |-- config/
 |   `-- const.py
 |-- utils/
@@ -63,10 +74,8 @@ src/lrg_eegfc/
 |   |-- msc.py
 |   |-- compare.py
 |   |-- lrg.py
-|   |-- lrg_revised.py    # wrapper
-|   |-- lrg_backup.py     # wrapper
+|   |-- spatial.py        # 3D brain visualization
 |   |-- reorganization.py
-|   |-- plotting.py
 |   `-- metastable.py
 ```
 
@@ -126,10 +135,18 @@ Notes:
 
 ## Entry points and scripts
 
-- CLI (correlation only):
+- **Unified CLI** (32 subcommands across 6 groups):
+  - `lrg-eegfc --help` for full command listing
+  - `lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rsPre -v`
+  - `lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v`
+  - `lrg-eegfc cache list`
+  - `lrg-eegfc config show`
+  - See `.agents/guides/CLI_REFERENCE.md` for full reference
+
+- Legacy CLI (correlation only, kept for compat):
   - `lrg-eegfc-corr --patient Pat_01 --phase rsPre --band beta --plot-all`
 
-- Pipeline scripts (used by `scripts/run_step.sh`):
+- Pipeline scripts (still functional, also available via CLI):
   - `python src/compute_corr_matrices.py`
   - `python src/compute_msc_matrices.py`
   - `python src/compute_lrg_analysis.py`
@@ -179,8 +196,10 @@ pip install ./lrgsglib
 - `config/const.py` reads `data/stereoeeg_patients` at import time to build a
   patient list; it will fail if the dataset is missing. Prefer `constants.py`
   when you need a lightweight import.
-- The CLI is correlation-focused; MSC and LRG workflows are accessed via
-  Python APIs or the pipeline scripts.
+- The unified CLI (`lrg-eegfc`) supports all workflows (corr, MSC, LRG).
+  The old `lrg-eegfc-corr` entry point is kept for backward compatibility.
+- 4 plot commands are TODO stubs: `lrg-video`, `time-windows`, `reorg-summary`,
+  `metric-correlation`. Use the standalone scripts for these until implemented.
 
 ## Quick mental model
 

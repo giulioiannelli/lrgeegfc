@@ -131,20 +131,33 @@ from lrg_eegfc.utils.io import load_timeseries, inspect_patient
 ```
 src/lrg_eegfc/
 ├── __init__.py          # Package exports
-├── cli.py               # Command-line interface
 ├── notebook.py          # Notebook utilities
+├── cli/                 # Unified CLI (lrg-eegfc command)
+│   ├── __init__.py      #   exports `app`
+│   ├── _app.py          #   LazyGroup root + 7 lazy subcommands
+│   ├── _common.py       #   shared options, resolvers, CliReporter
+│   ├── compute.py       #   6 compute commands
+│   ├── plot.py          #   16 plot commands
+│   ├── show.py          #   4 show commands (query cached results)
+│   ├── data.py          #   3 data inspection commands
+│   ├── cache.py         #   4 cache management commands
+│   ├── config_cmd.py    #   2 config display commands
+│   ├── bundle.py        #   1 publication bundle command
+│   └── _legacy.py       #   old cli.py (lrg-eegfc-corr compat)
 ├── config/              # Constants, plotting config
 ├── workflow/            # High-level compute + cache
 │   ├── corr.py          # Correlation workflow
 │   ├── msc.py           # MSC workflow
 │   ├── lrg.py           # LRG analysis workflow
-│   └── cleaning.py      # Marchenko-Pastur cleaning
+│   ├── cleaning.py      # Marchenko-Pastur cleaning
+│   └── time_windows.py  # Sliding-window FC
 ├── visuals/             # All visualization
 │   ├── correlation.py   # Correlation plots
 │   ├── msc.py           # MSC plots
 │   ├── lrg.py           # LRG/dendrogram plots
 │   ├── spatial.py       # 3D brain visualization
-│   └── reorganization.py # Phase comparison
+│   ├── reorganization.py # Phase comparison
+│   └── metastable.py   # Sankey diagrams
 └── utils/               # Low-level utilities
     ├── io/              # Data loading
     ├── fc/              # FC computation primitives
@@ -154,8 +167,35 @@ src/lrg_eegfc/
 
 ---
 
+## CLI Quick Reference
+
+The `lrg-eegfc` command provides 36 subcommands across 7 groups.
+See `.agents/guides/CLI_REFERENCE.md` for complete documentation.
+
+```bash
+# Common workflows
+lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc compute lrg --patients Pat_02 --fc-method msc -v
+lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v
+lrg-eegfc plot corr --patient Pat_02 --plot-type all -v
+
+# Query cached results (no figures)
+lrg-eegfc show lrg --patient Pat_02 --phase rsPre --fc-method msc
+lrg-eegfc show msc --patient Pat_02 --band alpha --phase rsPre
+
+# Inspection and cache management
+lrg-eegfc data inspect --patients Pat_02 -v
+lrg-eegfc cache list
+lrg-eegfc config show
+```
+
+Command groups: `compute` (6), `plot` (16), `show` (4), `data` (3), `cache` (4), `config` (2), `bundle` (1)
+
+---
+
 ## Detailed Guides
 
+- `.agents/guides/CLI_REFERENCE.md` - CLI command reference and examples
 - `.agents/guides/FUNCTION_MAP.md` - Complete function reference
 - `.agents/guides/FIGURE_PATTERNS.md` - Figure templates
 - `.agents/guides/CACHING_GUIDE.md` - Cache management

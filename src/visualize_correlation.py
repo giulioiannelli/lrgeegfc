@@ -29,7 +29,7 @@ from typing import List
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from lrg_eegfc.constants import BRAIN_BANDS
+from lrg_eegfc.config.const import BRAIN_BANDS
 from lrg_eegfc.visuals.correlation import (
     plot_correlation_heatmap,
     plot_correlation_and_network,
