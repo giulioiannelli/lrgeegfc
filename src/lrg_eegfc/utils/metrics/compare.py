@@ -13,6 +13,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from lrg_eegfc.config.paths import LRG_CACHE
+
 from lrgsglib.core import (
     ultrametric_matrix_distance,
     ultrametric_multiscale_distance,
@@ -180,9 +182,10 @@ def compare_fc_methods(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    method_1: str = "corr",
+    method_2: str = "msc",
 ) -> Optional[UltrametricComparison]:
-    """Compare MSC vs correlation FC for a specific patient/phase/band.
+    """Compare two FC methods for a specific patient/phase/band.
 
     Parameters
     ----------
@@ -192,8 +195,10 @@ def compare_fc_methods(
         Recording phase
     band : str
         Frequency band
-    cache_root : Path, optional
-        Root directory for LRG cache files
+    method_1 : str
+        First FC method (default ``"corr"``)
+    method_2 : str
+        Second FC method (default ``"msc"``)
 
     Returns
     -------
@@ -203,25 +208,23 @@ def compare_fc_methods(
     Examples
     --------
     >>> comparison = compare_fc_methods("Pat_02", "rsPre", "beta")
-    >>> if comparison:
-    ...     print(f"MSC vs Correlation distance: {comparison.matrix_distance:.4f}")
+    >>> comparison = compare_fc_methods("Pat_02", "rsPre", "beta", "msc", "imcoh")
     """
     from lrg_eegfc.workflow.lrg import load_lrg_result
 
-    # Load LRG results for both methods
-    lrg_corr = load_lrg_result(patient, phase, band, "corr", cache_root)
-    lrg_msc = load_lrg_result(patient, phase, band, "msc", cache_root)
+    lrg_1 = load_lrg_result(patient, phase, band, method_1)
+    lrg_2 = load_lrg_result(patient, phase, band, method_2)
 
-    if lrg_corr is None or lrg_msc is None:
+    if lrg_1 is None or lrg_2 is None:
         return None
 
     return compare_ultrametric_matrices(
-        lrg_corr.ultrametric_matrix,
-        lrg_msc.ultrametric_matrix,
-        lrg_corr.linkage_matrix,
-        lrg_msc.linkage_matrix,
-        label_1=f"{patient}_{phase}_{band}_corr",
-        label_2=f"{patient}_{phase}_{band}_msc",
+        lrg_1.ultrametric_matrix,
+        lrg_2.ultrametric_matrix,
+        lrg_1.linkage_matrix,
+        lrg_2.linkage_matrix,
+        label_1=f"{patient}_{phase}_{band}_{method_1}",
+        label_2=f"{patient}_{phase}_{band}_{method_2}",
     )
 
 
@@ -231,7 +234,7 @@ def compare_phases(
     phase_2: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Optional[Path] = None,
 ) -> Optional[UltrametricComparison]:
     """Compare two phases for same patient/band/method.
 
@@ -248,9 +251,9 @@ def compare_phases(
     band : str
         Frequency band
     fc_method : str
-        FC method: "msc" or "corr"
+        FC method (``"corr"``, ``"msc"``, or ``"imcoh"``)
     cache_root : Path, optional
-        Root directory for LRG cache files
+        Root directory for LRG cache files (auto-routed when omitted)
 
     Returns
     -------
@@ -267,8 +270,9 @@ def compare_phases(
     from lrg_eegfc.workflow.lrg import load_lrg_result
 
     # Load LRG results for both phases
-    lrg_1 = load_lrg_result(patient, phase_1, band, fc_method, cache_root)
-    lrg_2 = load_lrg_result(patient, phase_2, band, fc_method, cache_root)
+    kw = {"cache_root": cache_root} if cache_root is not None else {}
+    lrg_1 = load_lrg_result(patient, phase_1, band, fc_method, **kw)
+    lrg_2 = load_lrg_result(patient, phase_2, band, fc_method, **kw)
 
     if lrg_1 is None or lrg_2 is None:
         return None
@@ -331,7 +335,7 @@ def batch_compare_fc_methods(
     patients: List[str],
     phases: List[str],
     bands: List[str],
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     verbose: bool = False,
 ) -> pd.DataFrame:
     """Batch compare MSC vs correlation across patients/phases/bands.
@@ -401,7 +405,7 @@ def batch_compare_phases(
     phase_pairs: List[Tuple[str, str]],
     bands: List[str],
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     verbose: bool = False,
 ) -> pd.DataFrame:
     """Batch compare phase pairs (e.g., pre vs post) for memory effects.

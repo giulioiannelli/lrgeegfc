@@ -1,7 +1,7 @@
 """LRG (Laplacian Renormalization Group) analysis workflow.
 
 This module provides workflows for computing LRG-based ultrametric distances
-from functional connectivity matrices (MSC or correlation-based).
+from functional connectivity matrices (correlation, MSC, or ImCoh).
 """
 
 from __future__ import annotations
@@ -14,7 +14,8 @@ import networkx as nx
 import numpy as np
 from scipy.spatial.distance import squareform
 
-from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.const import BRAIN_BANDS, FC_METHODS, PHASE_LABELS
+from lrg_eegfc.config.paths import LRG_CACHE, LRG_DEV_CACHE, lrg_cache_for, lrg_filename
 from lrgsglib.core import (
     compute_laplacian_properties,
     compute_normalized_linkage,
@@ -24,8 +25,29 @@ from lrgsglib.core import (
     get_giant_component,
 )
 
-DEFAULT_LRG_CACHE_ROOT = Path("data/lrg_cache")
-DEFAULT_LRG_DEV_CACHE_ROOT = Path("data/lrg_cache_dev")
+DEFAULT_LRG_CACHE_ROOT = LRG_CACHE
+DEFAULT_LRG_DEV_CACHE_ROOT = LRG_DEV_CACHE
+
+# Sentinel value to detect when cache_root was not explicitly set by the caller.
+_CACHE_ROOT_AUTO = object()
+
+_SIGNED_IMCOH_LRG_MSG = (
+    "Signed ImCoh is in [-1, 1] and cannot feed LRG (Laplacian requires "
+    "non-negative edge weights). Use fc_method='imcoh_abs' (|ImCoh|) or "
+    "fc_method='imcoh_sq' (|ImCoh|^2). See Ewald et al. 2012 for magnitude "
+    "conventions."
+)
+
+
+def _guard_signed_imcoh(fc_method: str) -> None:
+    """Raise if *fc_method* is the signed ``"imcoh"`` variant.
+
+    Called at every LRG entry point (compute / load / cache-path resolver)
+    so that a silent Laplacian failure is impossible downstream.
+    """
+    if fc_method == "imcoh":
+        raise ValueError(_SIGNED_IMCOH_LRG_MSG)
+
 
 __all__ = ["LRGResult", "compute_lrg_analysis", "load_lrg_result", "get_lrg_cache_path"]
 
@@ -84,7 +106,7 @@ def get_lrg_cache_path(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
+    cache_root: Path | object = _CACHE_ROOT_AUTO,
     filter_time: Optional[int] = None,
 ) -> Path:
     """Get cache file path for LRG analysis results.
@@ -98,9 +120,10 @@ def get_lrg_cache_path(
     band : str
         Frequency band
     fc_method : str
-        FC method ("msc" or "corr")
+        FC method (``"corr"``, ``"msc"``, or ``"imcoh"``)
     cache_root : Path, optional
-        Root directory for cache files
+        Root directory for cache files.  When omitted the correct
+        directory is selected automatically via :func:`lrg_cache_for`.
     filter_time : int, optional
         Limit used for upstream FC caches (for dev cache separation)
 
@@ -109,14 +132,19 @@ def get_lrg_cache_path(
     Path
         Path to cache file
     """
+    _guard_signed_imcoh(fc_method)
+    if cache_root is _CACHE_ROOT_AUTO:
+        cache_root = lrg_cache_for(fc_method)
     cache_root = _resolve_cache_root(cache_root, filter_time)
     cache_dir = cache_root / patient
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    suffix = f"{band}_{phase}_lrg_{fc_method}"
+    # Base filename encodes the transform for imcoh_abs / imcoh_sq so that
+    # both variants can coexist under IMCOH_LRG_CACHE.
+    base = lrg_filename(band, phase, fc_method)  # ends in ".npz"
     if filter_time is not None and filter_time > 0:
-        suffix = f"{suffix}_ftime-{filter_time}"
-    return cache_dir / f"{suffix}.npz"
+        base = base.replace(".npz", f"_ftime-{filter_time}.npz")
+    return cache_dir / base
 
 
 def load_lrg_result(
@@ -124,7 +152,7 @@ def load_lrg_result(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
+    cache_root: Path | object = _CACHE_ROOT_AUTO,
     filter_time: Optional[int] = None,
 ) -> Optional[LRGResult]:
     """Load cached LRG analysis result if it exists.
@@ -138,9 +166,10 @@ def load_lrg_result(
     band : str
         Frequency band
     fc_method : str
-        FC method ("msc" or "corr")
+        FC method (``"corr"``, ``"msc"``, or ``"imcoh"``)
     cache_root : Path, optional
-        Root directory for cache files
+        Root directory for cache files.  Auto-selected via
+        :func:`lrg_cache_for` when omitted.
     filter_time : int, optional
         Limit used for upstream FC caches (for dev cache separation)
 
@@ -149,6 +178,7 @@ def load_lrg_result(
     LRGResult or None
         Cached LRG result, or None if not cached
     """
+    _guard_signed_imcoh(fc_method)
     cache_path = get_lrg_cache_path(
         patient,
         phase,
@@ -182,7 +212,7 @@ def compute_lrg_analysis(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = DEFAULT_LRG_CACHE_ROOT,
+    cache_root: Path | object = _CACHE_ROOT_AUTO,
     *,
     use_cache: bool = True,
     overwrite_cache: bool = False,
@@ -211,9 +241,10 @@ def compute_lrg_analysis(
     band : str
         Frequency band (for caching)
     fc_method : str
-        FC method: "msc" or "corr"
+        FC method (``"corr"``, ``"msc"``, or ``"imcoh"``)
     cache_root : Path, optional
-        Root directory for cache files
+        Root directory for cache files.  Auto-selected via
+        :func:`lrg_cache_for` when omitted.
     use_cache : bool, optional
         If True, load from cache if available (default: True)
     overwrite_cache : bool, optional
@@ -256,8 +287,9 @@ def compute_lrg_analysis(
     Optimal threshold: 0.2345
     """
     # Validate fc_method
-    if fc_method not in ["msc", "corr"]:
-        raise ValueError(f"fc_method must be 'msc' or 'corr', got '{fc_method}'")
+    _guard_signed_imcoh(fc_method)
+    if fc_method not in FC_METHODS:
+        raise ValueError(f"fc_method must be one of {FC_METHODS}, got {fc_method!r}")
 
     # Validate adjacency matrix
     if not isinstance(adjacency_matrix, np.ndarray):
@@ -345,24 +377,33 @@ def compute_lrg_analysis(
         n_nodes=n_nodes,
     )
 
-    # Cache result
-    if verbose:
-        print(f"  Saving to cache: {cache_path}")
-
-    np.savez_compressed(
-        cache_path,
-        ultrametric_matrix=result.ultrametric_matrix,
-        linkage_matrix=result.linkage_matrix,
-        entropy_tau=result.entropy_tau,
-        entropy_1_minus_S=result.entropy_1_minus_S,
-        entropy_C=result.entropy_C,
-        optimal_threshold=result.optimal_threshold,
-        patient=result.patient,
-        phase=result.phase,
-        band=result.band,
-        fc_method=result.fc_method,
-        n_nodes=result.n_nodes,
-    )
+    # Cache result. Write only when caller wants it persisted:
+    #   overwrite_cache=True       → force write (explicit save)
+    #   use_cache and not exists   → normal populate-on-miss
+    # Otherwise (use_cache=False, overwrite_cache=False) skip the write
+    # entirely — caller is computing on modified input (ablation, etc.)
+    # and must not poison the shared cache.
+    should_write = overwrite_cache or (use_cache and not cache_path.exists())
+    if should_write:
+        if verbose:
+            print(f"  Saving to cache: {cache_path}")
+        np.savez_compressed(
+            cache_path,
+            ultrametric_matrix=result.ultrametric_matrix,
+            linkage_matrix=result.linkage_matrix,
+            entropy_tau=result.entropy_tau,
+            entropy_1_minus_S=result.entropy_1_minus_S,
+            entropy_C=result.entropy_C,
+            optimal_threshold=result.optimal_threshold,
+            patient=result.patient,
+            phase=result.phase,
+            band=result.band,
+            fc_method=result.fc_method,
+            n_nodes=result.n_nodes,
+        )
+    elif verbose:
+        print(f"  Skipping cache write (use_cache={use_cache}, "
+              f"overwrite_cache={overwrite_cache}, exists={cache_path.exists()})")
 
     return result
 
@@ -383,7 +424,7 @@ def compute_lrg_for_patient(
     patient : str
         Patient identifier
     fc_method : str
-        FC method: "msc" or "corr"
+        FC method (``"corr"``, ``"msc"``, or ``"imcoh"``)
     bands : list, optional
         List of band names (default: all BRAIN_BANDS)
     phases : list, optional
@@ -416,32 +457,25 @@ def compute_lrg_for_patient(
     if phases is None:
         phases = list(PHASE_LABELS)
 
-    # Import the appropriate workflow
-    if fc_method == "msc":
-        from lrg_eegfc.workflow.msc import load_msc_matrix
-        load_fc_matrix = load_msc_matrix
-    elif fc_method == "corr":
-        from lrg_eegfc.workflow.corr import load_corr_matrix
-        load_fc_matrix = load_corr_matrix
-    else:
-        raise ValueError(f"fc_method must be 'msc' or 'corr', got '{fc_method}'")
+    from lrg_eegfc.workflow.fc import load_fc_matrix
+
+    if fc_method not in FC_METHODS:
+        raise ValueError(f"fc_method must be one of {FC_METHODS}, got {fc_method!r}")
 
     results = {band: {} for band in bands}
 
     for band in bands:
         for phase in phases:
             try:
-                # Load FC matrix
-                if fc_cache_root is None:
-                    fc_matrix = load_fc_matrix(patient, phase, band, filter_time=filter_time)
-                else:
-                    fc_matrix = load_fc_matrix(
-                        patient,
-                        phase,
-                        band,
-                        cache_root=fc_cache_root,
-                        filter_time=filter_time,
-                    )
+                # Load FC matrix via unified dispatcher
+                fc_kw = {}
+                if fc_cache_root is not None:
+                    fc_kw["cache_root"] = fc_cache_root
+                if filter_time is not None:
+                    fc_kw["filter_time"] = filter_time
+                fc_matrix = load_fc_matrix(
+                    patient, phase, band, fc_method, **fc_kw
+                )
                 if fc_matrix is None:
                     print(f"WARNING: No cached FC matrix for {patient} {phase} {band} ({fc_method})")
                     results[band][phase] = None

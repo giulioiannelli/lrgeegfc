@@ -20,6 +20,8 @@ import plotly.graph_objects as go
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from scipy.cluster.hierarchy import fcluster
 
+from lrg_eegfc.config.paths import CORR_CACHE, LRG_CACHE, MSC_CACHE, SEEG_DATAPATH, FIGURES_ROOT
+
 __all__ = [
     "load_spatial_metadata",
     "prepare_spatial_coordinates",
@@ -95,8 +97,13 @@ def load_spatial_metadata(
 
     # Load files
     # Implant file may have quoted Desikan-Killany field with internal commas
-    # Only read the columns we need
-    implant = pd.read_csv(implant_csv, usecols=["label", "x", "y", "z", "Desikan-Killany"])
+    # Only read the columns we need — try both column name variants
+    try:
+        implant = pd.read_csv(implant_csv, usecols=["label", "x", "y", "z", "Desikan-Killany"])
+    except ValueError:
+        # Some patients use "Desikan-K" instead of "Desikan-Killany"
+        implant = pd.read_csv(implant_csv, usecols=["label", "x", "y", "z", "Desikan-K"])
+        implant = implant.rename(columns={"Desikan-K": "Desikan-Killany"})
 
     # Channel labels file may or may not have a header
     # Also may have extra columns (e.g., "F 1,G2" format)
@@ -539,8 +546,8 @@ def plot_spatial_network_3d(
     phase: str,
     band: str,
     fc_method: str = "msc",
-    dataset_root: Path = Path("data/stereoeeg_patients"),
-    lrg_cache_root: Path = Path("data/lrg_cache"),
+    dataset_root: Path = SEEG_DATAPATH,
+    lrg_cache_root: Path = LRG_CACHE,
     fc_cache_root: Optional[Path] = None,
     edge_threshold: float = 0.3,
     max_edges: int = 500,
@@ -647,18 +654,11 @@ def plot_spatial_network_3d(
     # Add edges if requested
     if show_edges:
         # Load FC matrix for edges
-        if fc_method == "msc":
-            from lrg_eegfc.workflow.msc import load_msc_matrix
-
-            fc_root = fc_cache_root or Path("data/msc_cache")
-            fc_matrix = load_msc_matrix(patient, phase, band, cache_root=fc_root)
-        else:
-            from lrg_eegfc.workflow.corr import load_corr_matrix
-
-            fc_root = fc_cache_root or Path("data/corr_cache")
-            fc_matrix = load_corr_matrix(
-                patient, phase, band, cache_root=fc_root, filter_type="abs"
-            )
+        from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc
+        fc_kw = {}
+        if fc_cache_root is not None:
+            fc_kw["cache_root"] = fc_cache_root
+        fc_matrix = _load_fc(patient, phase, band, fc_method, **fc_kw)
 
         if fc_matrix is not None:
             edge_trace = build_edge_traces(
@@ -715,8 +715,8 @@ def plot_spatial_network_3d_mpl(
     phase: str,
     band: str,
     fc_method: str = "msc",
-    dataset_root: Path = Path("data/stereoeeg_patients"),
-    lrg_cache_root: Path = Path("data/lrg_cache"),
+    dataset_root: Path = SEEG_DATAPATH,
+    lrg_cache_root: Path = LRG_CACHE,
     fc_cache_root: Optional[Path] = None,
     edge_threshold: float = 0.3,
     max_edges: int = 200,
@@ -798,18 +798,11 @@ def plot_spatial_network_3d_mpl(
 
     # Plot edges
     if show_edges:
-        if fc_method == "msc":
-            from lrg_eegfc.workflow.msc import load_msc_matrix
-
-            fc_root = fc_cache_root or Path("data/msc_cache")
-            fc_matrix = load_msc_matrix(patient, phase, band, cache_root=fc_root)
-        else:
-            from lrg_eegfc.workflow.corr import load_corr_matrix
-
-            fc_root = fc_cache_root or Path("data/corr_cache")
-            fc_matrix = load_corr_matrix(
-                patient, phase, band, cache_root=fc_root, filter_type="abs"
-            )
+        from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc
+        fc_kw = {}
+        if fc_cache_root is not None:
+            fc_kw["cache_root"] = fc_cache_root
+        fc_matrix = _load_fc(patient, phase, band, fc_method, **fc_kw)
 
         if fc_matrix is not None:
             n_nodes = coords.shape[0]
@@ -873,7 +866,7 @@ def plot_spatial_network_3d_mpl(
 
     # Save
     if output_path is None:
-        output_dir = Path("data/figures/spatial") / patient
+        output_dir = FIGURES_ROOT / "spatial" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_{fc_method}_spatial3d.png"
     else:
@@ -892,8 +885,8 @@ def plot_spatial_clusters_comparison(
     phase_b: str,
     band: str,
     fc_method: str = "msc",
-    dataset_root: Path = Path("data/stereoeeg_patients"),
-    lrg_cache_root: Path = Path("data/lrg_cache"),
+    dataset_root: Path = SEEG_DATAPATH,
+    lrg_cache_root: Path = LRG_CACHE,
     node_size: int = 8,
     title: Optional[str] = None,
     width: int = 1400,
@@ -1058,7 +1051,7 @@ def view_brain_connectome(
     phase: str,
     band: str,
     fc_method: str = "msc",
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     fc_cache_root: Optional[Path] = None,
     lrg_cache_root: Optional[Path] = None,
     edge_threshold: Optional[float] = None,
@@ -1129,16 +1122,11 @@ def view_brain_connectome(
     coords = prepare_spatial_coordinates(metadata, scale="mm", center=False, to_mni=True)
 
     # Load FC matrix
-    if fc_method == "msc":
-        from lrg_eegfc.workflow.msc import load_msc_matrix
-        fc_root = fc_cache_root or Path("data/msc_cache")
-        fc_matrix = load_msc_matrix(patient, phase, band, cache_root=fc_root)
-    else:
-        from lrg_eegfc.workflow.corr import load_corr_matrix
-        fc_root = fc_cache_root or Path("data/corr_cache")
-        fc_matrix = load_corr_matrix(
-            patient, phase, band, cache_root=fc_root, filter_type="abs"
-        )
+    from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc
+    fc_kw = {}
+    if fc_cache_root is not None:
+        fc_kw["cache_root"] = fc_cache_root
+    fc_matrix = _load_fc(patient, phase, band, fc_method, **fc_kw)
 
     if fc_matrix is None:
         raise FileNotFoundError(
@@ -1194,7 +1182,7 @@ def plot_brain_connectome(
     phase: str,
     band: str,
     fc_method: str = "msc",
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     fc_cache_root: Optional[Path] = None,
     lrg_cache_root: Optional[Path] = None,
     edge_threshold: Optional[float] = None,
@@ -1259,16 +1247,11 @@ def plot_brain_connectome(
     coords = prepare_spatial_coordinates(metadata, scale="mm", center=False, to_mni=True)
 
     # Load FC matrix
-    if fc_method == "msc":
-        from lrg_eegfc.workflow.msc import load_msc_matrix
-        fc_root = fc_cache_root or Path("data/msc_cache")
-        fc_matrix = load_msc_matrix(patient, phase, band, cache_root=fc_root)
-    else:
-        from lrg_eegfc.workflow.corr import load_corr_matrix
-        fc_root = fc_cache_root or Path("data/corr_cache")
-        fc_matrix = load_corr_matrix(
-            patient, phase, band, cache_root=fc_root, filter_type="abs"
-        )
+    from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc
+    fc_kw = {}
+    if fc_cache_root is not None:
+        fc_kw["cache_root"] = fc_cache_root
+    fc_matrix = _load_fc(patient, phase, band, fc_method, **fc_kw)
 
     if fc_matrix is None:
         raise FileNotFoundError(
@@ -1320,7 +1303,7 @@ def plot_brain_connectome(
 
     # Save figure
     if output_path is None:
-        output_dir = Path("data/figures/spatial") / patient
+        output_dir = FIGURES_ROOT / "spatial" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_{fc_method}_brain_connectome.png"
     else:

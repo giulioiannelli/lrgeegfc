@@ -32,8 +32,8 @@ from lrgsglib.utils.basic.linalg import (
     tree_baker_gamma,
     tree_fowlkes_mallows_index,
 )
-from lrg_eegfc.workflow.corr import load_corr_matrix
-from lrg_eegfc.workflow.msc import load_msc_matrix
+from lrg_eegfc.config.paths import LRG_CACHE, SEEG_DATAPATH, FIGURES_ROOT
+from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc_matrix
 from lrg_eegfc.workflow.lrg import load_lrg_result
 from lrg_eegfc.utils.io import load_patient_dataset_robust
 
@@ -137,7 +137,7 @@ def plot_phase_reorganization(
     band: str,
     fc_method: str,
     phases: List[str] = None,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     output_path: Optional[Path] = None,
     figsize: tuple = (34, 20),
     verbose: bool = False,
@@ -206,7 +206,7 @@ def plot_phase_reorganization(
     fc_matrices: Dict[str, np.ndarray] = {}
     channel_labels: Dict[int, str] = {}
     try:
-        dataset = load_patient_dataset_robust(patient, Path("data/stereoeeg_patients"), phases=phases)
+        dataset = load_patient_dataset_robust(patient, SEEG_DATAPATH, phases=phases)
         recording = next(iter(dataset.values()))
         if hasattr(recording, "channel_labels") and recording.channel_labels:
             channel_labels = {i: lbl for i, lbl in enumerate(recording.channel_labels)}
@@ -214,14 +214,7 @@ def plot_phase_reorganization(
         channel_labels = {}
 
     for phase in phases:
-        if fc_method == "corr":
-            fc_matrix = load_corr_matrix(
-                patient, phase, band, cache_root=Path("data/corr_cache"), filter_type="abs", zero_diagonal=True
-            )
-        else:
-            fc_matrix = load_msc_matrix(
-                patient, phase, band, cache_root=Path("data/msc_cache"), sparsify="none", n_surrogates=0
-            )
+        fc_matrix = _load_fc_matrix(patient, phase, band, fc_method)
         if fc_matrix is None:
             raise FileNotFoundError(f"FC matrix not found for {patient} {phase} {band} ({fc_method})")
         np.fill_diagonal(fc_matrix, 0)
@@ -422,7 +415,7 @@ def plot_phase_reorganization(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/reorganization") / patient
+        output_dir = FIGURES_ROOT / "reorganization" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = (
             output_dir / f"{band}_{fc_method}_phase_reorganization.png"
@@ -447,7 +440,7 @@ def plot_reorganization_distance_matrix(
     band: str,
     fc_method: str,
     phases: List[str] = None,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     output_path: Optional[Path] = None,
     figsize: tuple = (22, 22),
     verbose: bool = False,
@@ -652,7 +645,7 @@ def plot_reorganization_distance_matrix(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/reorganization") / patient
+        output_dir = FIGURES_ROOT / "reorganization" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{fc_method}_distance_matrix.png"
     else:

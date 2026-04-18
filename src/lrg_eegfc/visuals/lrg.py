@@ -16,9 +16,9 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.cluster.hierarchy import dendrogram, fcluster, optimal_leaf_ordering
 from scipy.spatial.distance import squareform
 
+from lrg_eegfc.config.paths import CORR_CACHE, LRG_CACHE, MSC_CACHE, SEEG_DATAPATH, FIGURES_ROOT
 from lrg_eegfc.workflow.lrg import load_lrg_result
-from lrg_eegfc.workflow.corr import load_corr_matrix
-from lrg_eegfc.workflow.msc import load_msc_matrix
+from lrg_eegfc.workflow.fc import load_fc_matrix as _load_fc_matrix
 
 __all__ = [
     "compute_partition_stability_index",
@@ -211,7 +211,7 @@ def plot_lrg_entropy_curves(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     output_path: Optional[Path] = None,
     figsize: tuple = (10, 6),
 ) -> Path:
@@ -273,7 +273,7 @@ def plot_lrg_entropy_curves(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/lrg") / patient
+        output_dir = FIGURES_ROOT / "lrg" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_lrg_{fc_method}_entropy.png"
     else:
@@ -292,11 +292,11 @@ def plot_lrg_dendrogram(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     output_path: Optional[Path] = None,
     orientation: str = "top",
     figsize: tuple = (12, 8),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     optimal_leaf_order: bool = True,
     show_labels: bool = True,
     max_labels: int = 50,
@@ -373,8 +373,13 @@ def plot_lrg_dendrogram(
         leaf_font_size=8 if len(labels) <= max_labels else 5,
     )
 
-    # Add optimal threshold line
-    if orientation == "top":
+    # Compute proper axis limits from merge heights (log-space padding)
+    merge_heights = linkage[:, 2]
+    tmin = merge_heights[merge_heights > 0].min() * 0.5
+    tmax = merge_heights.max() * 2.0
+
+    # Add optimal threshold line and set axis properties
+    if orientation in ("top", "bottom"):
         ax.axhline(
             optimal_th,
             color="blue",
@@ -385,7 +390,8 @@ def plot_lrg_dendrogram(
         ax.set_ylabel("Ultrametric Distance", fontsize=12)
         ax.set_xlabel("Channel Index", fontsize=12)
         ax.set_yscale("log")
-    elif orientation == "right":
+        ax.set_ylim(tmin, tmax)
+    elif orientation in ("right", "left"):
         ax.axvline(
             optimal_th,
             color="blue",
@@ -396,28 +402,7 @@ def plot_lrg_dendrogram(
         ax.set_xlabel("Ultrametric Distance", fontsize=12)
         ax.set_ylabel("Channel Index", fontsize=12)
         ax.set_xscale("log")
-    elif orientation == "bottom":
-        ax.axhline(
-            optimal_th,
-            color="blue",
-            linestyle="--",
-            lw=2,
-            label=f"Optimal Threshold = {optimal_th:.3f}",
-        )
-        ax.set_ylabel("Ultrametric Distance", fontsize=12)
-        ax.set_xlabel("Channel Index", fontsize=12)
-        ax.set_yscale("log")
-    elif orientation == "left":
-        ax.axvline(
-            optimal_th,
-            color="blue",
-            linestyle="--",
-            lw=2,
-            label=f"Optimal Threshold = {optimal_th:.3f}",
-        )
-        ax.set_xlabel("Ultrametric Distance", fontsize=12)
-        ax.set_ylabel("Channel Index", fontsize=12)
-        ax.set_xscale("log")
+        ax.set_xlim(tmin, tmax)
 
     ax.set_title(
         f"LRG Dendrogram - {patient} {phase} {band} ({fc_method})", fontsize=14
@@ -426,7 +411,7 @@ def plot_lrg_dendrogram(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/lrg") / patient
+        output_dir = FIGURES_ROOT / "lrg" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_lrg_{fc_method}_dendrogram.png"
     else:
@@ -445,10 +430,10 @@ def plot_ultrametric_heatmap(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
+    cache_root: Path = LRG_CACHE,
     output_path: Optional[Path] = None,
     figsize: tuple = (10, 10),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     cmap: str = "viridis",
 ) -> Path:
     """Plot ultrametric distance matrix as heatmap.
@@ -527,7 +512,7 @@ def plot_ultrametric_heatmap(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/lrg") / patient
+        output_dir = FIGURES_ROOT / "lrg" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_lrg_{fc_method}_ultrametric.png"
     else:
@@ -546,12 +531,13 @@ def plot_lrg_full_panel(
     phase: str,
     band: str,
     fc_method: str,
-    cache_root: Path = Path("data/lrg_cache"),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    cache_root: Path = LRG_CACHE,
+    dataset_root: Path = SEEG_DATAPATH,
     output_path: Optional[Path] = None,
     figsize: tuple = (20, 12),
     verbose: bool = False,
     n_communities: Optional[int] = None,
+    fc_matrix: Optional[np.ndarray] = None,
 ) -> Path:
     """Create comprehensive LRG analysis visualization - CORRECTED VERSION.
 
@@ -585,6 +571,10 @@ def plot_lrg_full_panel(
     n_communities : int, optional
         Fixed number of communities to use for partitioning.
         If provided, overrides PSI-based selection for cross-phase comparison.
+    fc_matrix : np.ndarray, optional
+        Pre-loaded FC matrix to use for panel (a) heatmap and network.
+        If provided, skips auto-loading from cache. Useful for CReMa-validated
+        or other custom matrices.
 
     Returns
     -------
@@ -604,31 +594,33 @@ def plot_lrg_full_panel(
         print(f"Loaded LRG result: {lrg_result.n_nodes} nodes")
 
     # Load FC matrix for visualization
+    _METHOD_LABELS = {
+        "corr": "Correlation",
+        "msc": r"$\mathrm{MSC}$",
+        "imcoh": r"$\mathrm{ImCoh}$",
+        "imcoh_abs": r"$|\mathrm{ImCoh}|$",
+        "imcoh_sq": r"$|\mathrm{ImCoh}|^2$",
+    }
     percolation_threshold = None  # Will be set for correlation method
-    if fc_method == "corr":
-        fc_matrix = load_corr_matrix(
-            patient, phase, band, cache_root=Path("data/corr_cache"), filter_type="abs", zero_diagonal=True
-        )
-        method_label = "Correlation"
-
-        # Load percolation threshold from correlation metadata
-        # This is the threshold where first node detaches from giant component
-        meta_path = Path("data/corr_cache") / patient / f"{band}_{phase}_corr_cleaned_meta.npz"
-        if meta_path.exists():
-            meta_data = np.load(meta_path, allow_pickle=True)
-            percolation_threshold = float(meta_data["threshold"])
-            if verbose:
-                print(f"Loaded percolation threshold: {percolation_threshold:.6f}")
-        else:
-            if verbose:
-                print("Warning: No percolation metadata found, will use all edges for layout")
-    elif fc_method == "msc":
-        fc_matrix = load_msc_matrix(
-            patient, phase, band, cache_root=Path("data/msc_cache"), sparsify="none", n_surrogates=0
-        )
-        method_label = "MSC"
+    if fc_matrix is not None:
+        # Use pre-loaded FC matrix (e.g. CReMa-validated)
+        method_label = _METHOD_LABELS.get(fc_method, fc_method.upper())
+        if verbose:
+            print(f"Using pre-loaded FC matrix ({fc_matrix.shape[0]} nodes)")
     else:
-        raise ValueError(f"Unknown fc_method: {fc_method}")
+        fc_matrix = _load_fc_matrix(patient, phase, band, fc_method)
+        method_label = _METHOD_LABELS.get(fc_method, fc_method.upper())
+
+        # Load percolation threshold for correlation method
+        if fc_method == "corr":
+            meta_path = CORR_CACHE / patient / f"{band}_{phase}_corr_cleaned_meta.npz"
+            if meta_path.exists():
+                meta_data = np.load(meta_path, allow_pickle=True)
+                percolation_threshold = float(meta_data["threshold"])
+                if verbose:
+                    print(f"Loaded percolation threshold: {percolation_threshold:.6f}")
+            elif verbose:
+                print("Warning: No percolation metadata found, will use all edges for layout")
 
     if fc_matrix is None:
         raise FileNotFoundError(f"FC matrix not found for {patient} {phase} {band} ({fc_method})")
@@ -641,6 +633,18 @@ def plot_lrg_full_panel(
     entropy_1_minus_S = lrg_result.entropy_1_minus_S
     entropy_C = lrg_result.entropy_C
     n_nodes = lrg_result.n_nodes
+
+    # If LRG used only the giant component (n_nodes < matrix size),
+    # extract the same subgraph so panels (a) and (d) match the dendrogram.
+    _gc_nodes = None  # original indices of giant component nodes
+    if n_nodes < fc_matrix.shape[0]:
+        from lrgsglib.utils import get_giant_component as _get_gc
+        _G_full = nx.from_numpy_array(fc_matrix)
+        _G_giant = _get_gc(_G_full)
+        _gc_nodes = sorted(_G_giant.nodes())
+        fc_matrix = fc_matrix[np.ix_(_gc_nodes, _gc_nodes)]
+        if verbose:
+            print(f"Extracted giant component: {n_nodes}/{_G_full.number_of_nodes()} nodes")
 
     # Compute PSI
     psi_values, psi_n_communities = compute_partition_stability_index(linkage_matrix)
@@ -685,7 +689,11 @@ def plot_lrg_full_panel(
     # Load channel labels using the proper helper function
     labels_list = _load_channel_labels(patient, dataset_root)
     if labels_list and len(labels_list) >= n_nodes:
-        channel_labels = {i: labels_list[i] for i in range(n_nodes)}
+        if _gc_nodes is not None:
+            # Map contiguous indices 0..n_nodes-1 to original giant component channels
+            channel_labels = {i: labels_list[orig] for i, orig in enumerate(_gc_nodes)}
+        else:
+            channel_labels = {i: labels_list[i] for i in range(n_nodes)}
         if verbose:
             print(f"Loaded {len(labels_list)} channel labels from file")
     else:
@@ -791,9 +799,10 @@ def plot_lrg_full_panel(
         orientation="right",
     )
 
-    # Set log scale and limits
-    tmin = linkage_matrix[:, 2][0] * 0.8
-    tmax = linkage_matrix[:, 2][-1] * 1.01
+    # Set log scale and limits (log-space padding for readability)
+    merge_heights = linkage_matrix[:, 2]
+    tmin = merge_heights[merge_heights > 0].min() * 0.5
+    tmax = merge_heights.max() * 2.0
     ax_dendro.set_xscale("log")
     ax_dendro.axvline(
         psi_threshold, color="b", linestyle="--", linewidth=2,
@@ -821,19 +830,8 @@ def plot_lrg_full_panel(
     EDGE_POWER = 2.0  # Power law exponent
     MAX_WIDTH = 4.0  # Max edge width
 
-    # Create layout using thresholded backbone to separate communities
-    # Use median as threshold for layout computation
-    weights_array = np.array([G[u][v]["weight"] for u, v in G.edges()])
-    layout_threshold = np.percentile(weights_array, 75)  # Top 25% edges for layout
-
-    G_backbone = nx.Graph()
-    G_backbone.add_nodes_from(G.nodes())
-    for u, v in G.edges():
-        if G[u][v]["weight"] >= layout_threshold:
-            G_backbone.add_edge(u, v, weight=G[u][v]["weight"])
-
-    # Use larger k for better separation when using backbone
-    pos = nx.spring_layout(G_backbone, seed=43, scale=1, k=0.3, iterations=100)
+    # Spectral layout from graph Laplacian eigenvectors
+    pos = nx.spectral_layout(G)
 
     # Get edge weights for full graph
     edges = list(G.edges(data=True))
@@ -910,7 +908,7 @@ def plot_lrg_full_panel(
     # Save figure
     # -------------------------------------------------------------------------
     if output_path is None:
-        output_dir = Path("data/figures/lrg") / patient
+        output_dir = FIGURES_ROOT / "lrg" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_lrg_{fc_method}_full.png"
     else:

@@ -24,6 +24,7 @@ from lrgsglib.config.funcs import move_to_rootf
 # Core configuration
 from .config import *
 from .config.const import BRAIN_BANDS, BRAIN_BANDS_NAMES, PHASE_LABELS, PATIENTS_LIST
+from .config.paths import DATA_ROOT
 
 # Data loading
 from .utils.io import (
@@ -97,6 +98,7 @@ from .visuals.reorganization import (
 from .visuals.compare import plot_fc_comparison
 
 # Workflows
+from .workflow.fc import load_fc_matrix
 from .workflow.corr import compute_corr_matrix, compute_corr_for_patient
 from .utils.metrics.compare import compare_fc_methods
 from .workflow.time_windows import (
@@ -243,7 +245,7 @@ def setup_notebook(
     import matplotlib.pyplot as plt
 
     # Create figure directory
-    path_figs = Path("data") / figure_dir
+    path_figs = DATA_ROOT / figure_dir
     path_figs.mkdir(parents=True, exist_ok=True)
 
     # Configure matplotlib

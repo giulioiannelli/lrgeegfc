@@ -13,6 +13,8 @@ from typing import Callable, Optional, Sequence
 
 import click
 
+from lrg_eegfc.config.paths import CORR_CACHE, FIGURES_ROOT
+
 
 # ---------------------------------------------------------------------------
 # Option decorator factories
@@ -68,11 +70,20 @@ def single_patient_option(required: bool = True) -> Callable:
 
 
 def fc_method_option(required: bool = False, default: str = "msc") -> Callable:
-    """Add ``--fc-method`` option."""
+    """Add ``--fc-method`` option.
+
+    ``"imcoh"`` is the raw signed Nolte-2004 imaginary coherency; it cannot
+    be fed to LRG.  ``"imcoh_abs"`` (=|ImCoh|, Ewald 2012 / Bastos-Schoffelen
+    2016) and ``"imcoh_sq"`` (=|ImCoh|^2) are the LRG-compatible transforms.
+
+    TODO: migrate to a two-level ``--coh-method`` / ``--coh-transform`` API.
+    See ``/home/giulio/.claude/plans/enumerated-napping-codd.md`` for the
+    plan.
+    """
     def decorator(f: Callable) -> Callable:
         return click.option(
             "--fc-method",
-            type=click.Choice(["corr", "msc"]),
+            type=click.Choice(["corr", "msc", "imcoh", "imcoh_abs", "imcoh_sq"]),
             required=required,
             default=default,
             show_default=True,
@@ -81,7 +92,7 @@ def fc_method_option(required: bool = False, default: str = "msc") -> Callable:
     return decorator
 
 
-def cache_options(default_root: str = "data/corr_cache") -> Callable:
+def cache_options(default_root: str = str(CORR_CACHE)) -> Callable:
     """Add ``--cache-root`` and ``--overwrite`` options."""
     def decorator(f: Callable) -> Callable:
         f = click.option(
@@ -99,7 +110,7 @@ def cache_options(default_root: str = "data/corr_cache") -> Callable:
     return decorator
 
 
-def output_options(default_dir: str = "data/figures") -> Callable:
+def output_options(default_dir: str = str(FIGURES_ROOT)) -> Callable:
     """Add ``--output-dir``, ``--dpi``, and ``--format`` options."""
     def decorator(f: Callable) -> Callable:
         f = click.option(

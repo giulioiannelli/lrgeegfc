@@ -1,14 +1,16 @@
 """LRG EEG Functional Connectivity toolkit."""
 
-from .config.const import BRAIN_BANDS, BRAIN_BAND_LABELS, PARAMETER_KEYS, PHASE_LABELS
+from .config.const import BRAIN_BANDS, BRAIN_BAND_LABELS, COHERENCE_METRICS, FC_METHODS, PARAMETER_KEYS, PHASE_LABELS
 from .utils.io import (
     load_data_dict,
     load_mat_pat_data as load_mat_file,
     PatientRecording,
+    bipolar_rereference,
     load_dataset,
     load_patient_dataset,
     load_patient_metadata,
     load_timeseries,
+    parse_seeg_label,
 )
 from .utils.fc.corr import (
     apply_threshold_filter,
@@ -28,6 +30,7 @@ from .utils.fc.corr import (
 from .workflow.core import BandComputationResult, compute_band_connectivity
 from .workflow.msc import MSCResult, compute_msc_matrix, load_msc_matrix, get_msc_cache_path, compute_msc_for_patient
 from .workflow.corr import CorrResult, compute_corr_matrix, load_corr_matrix, get_corr_cache_path, compute_corr_for_patient
+from .workflow.fc import load_fc_matrix
 from .workflow.lrg import LRGResult, compute_lrg_analysis, load_lrg_result, get_lrg_cache_path, compute_lrg_for_patient
 from .workflow.cleaning import (
     CleanedCorrResult,

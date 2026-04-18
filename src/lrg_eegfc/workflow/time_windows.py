@@ -6,18 +6,26 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 from lrg_eegfc.config.const import DEFAULT_SAMPLE_RATE
+from lrg_eegfc.config.paths import (
+    CORR_WINDOWS_CACHE,
+    CORR_WINDOWS_DEV_CACHE,
+    MSC_WINDOWS_CACHE,
+    MSC_WINDOWS_DEV_CACHE,
+    LRG_WINDOWS_CACHE,
+    LRG_WINDOWS_DEV_CACHE,
+)
 
 DEFAULT_WINDOW_OVERLAP = 0.25
 DEFAULT_WINDOW_MIN_SEC = 10.0
 DEFAULT_WINDOW_CYCLES = 10.0
 
-DEFAULT_CORR_WINDOWS_CACHE_ROOT = Path("data/corr_cache_windows")
-DEFAULT_MSC_WINDOWS_CACHE_ROOT = Path("data/msc_cache_windows")
-DEFAULT_LRG_WINDOWS_CACHE_ROOT = Path("data/lrg_cache_windows")
+DEFAULT_CORR_WINDOWS_CACHE_ROOT = CORR_WINDOWS_CACHE
+DEFAULT_MSC_WINDOWS_CACHE_ROOT = MSC_WINDOWS_CACHE
+DEFAULT_LRG_WINDOWS_CACHE_ROOT = LRG_WINDOWS_CACHE
 
-DEFAULT_CORR_WINDOWS_DEV_CACHE_ROOT = Path("data/corr_cache_windows_dev")
-DEFAULT_MSC_WINDOWS_DEV_CACHE_ROOT = Path("data/msc_cache_windows_dev")
-DEFAULT_LRG_WINDOWS_DEV_CACHE_ROOT = Path("data/lrg_cache_windows_dev")
+DEFAULT_CORR_WINDOWS_DEV_CACHE_ROOT = CORR_WINDOWS_DEV_CACHE
+DEFAULT_MSC_WINDOWS_DEV_CACHE_ROOT = MSC_WINDOWS_DEV_CACHE
+DEFAULT_LRG_WINDOWS_DEV_CACHE_ROOT = LRG_WINDOWS_DEV_CACHE
 
 __all__ = [
     "DEFAULT_WINDOW_OVERLAP",
@@ -89,11 +97,11 @@ def build_window_run_id(
                 f"forder-{filter_order}",
             ]
         )
-    elif fc_method == "msc":
+    elif fc_method in ("msc", "imcoh"):
         actual_noverlap = nperseg // 2 if noverlap is None else int(noverlap)
         parts.extend(
             [
-                f"msc-sparsify-{sparsify}",
+                f"{fc_method}-sparsify-{sparsify}",
                 f"nsurr-{int(n_surrogates)}",
                 f"nperseg-{int(nperseg)}",
                 f"noverlap-{int(actual_noverlap)}",
@@ -134,13 +142,15 @@ def get_window_cache_dir(
             DEFAULT_CORR_WINDOWS_DEV_CACHE_ROOT,
             filter_time,
         )
-    else:
+    elif fc_method in ("msc", "imcoh"):
         root = _resolve_cache_root(
             cache_root,
             DEFAULT_MSC_WINDOWS_CACHE_ROOT,
             DEFAULT_MSC_WINDOWS_DEV_CACHE_ROOT,
             filter_time,
         )
+    else:
+        raise ValueError(f"Unknown fc_method: {fc_method}")
 
     run_id = build_window_run_id(
         fc_method=fc_method,
