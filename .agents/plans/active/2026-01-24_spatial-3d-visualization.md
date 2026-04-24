@@ -83,7 +83,7 @@ for i, j in edges:
 
 ## Verification
 
-1. Run demo notebook with Pat_02/rsPre/beta
+1. Run demo notebook with Pat_02/rest_pre/beta
 2. Verify interactive rotation/zoom works
 3. Confirm cluster colors match LRG dendrogram
 4. Test edge threshold slider

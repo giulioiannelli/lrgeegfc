@@ -15,16 +15,60 @@
 
 ## Implementation Patterns to Mirror
 - Workflows return dataclasses capturing metadata (`CorrResult`, `MSCResult`, `LRGResult`, `CleanedCorrResult`)—extend the pattern when adding new workflows.
-- CLI scripts follow the argparse + cache-first pattern (see `src/compute_corr_matrices.py`, `src/compute_msc_matrices.py`); keep user-facing defaults and verbose logging consistent.
+- CLI scripts follow the argparse + cache-first pattern (see `scripts/py/compute_corr_matrices.py`, `scripts/py/compute_msc_matrices.py`); keep user-facing defaults and verbose logging consistent.
 - Visual modules accept cached matrices/graphs and plain `Path` destinations; keep plotting code notebook-faithful (see `visuals/correlation.py` for style).
 - Notebook ergonomics go through `lrg_eegfc.notebook` + `setup_notebook()`; when adding helpers, make them available there.
 - Standard notebook header (avoid empty patient list): `move_to_rootf(pathname="lrgeegfc")` then `from lrg_eegfc.notebook import *`.
+
+## Patient Inclusion / Exclusion
+
+| Patient | fs (Hz) | Phases available | Status |
+|---------|---------|-----------------|--------|
+| Pat_02 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
+| Pat_03 | **1024** | rest_pre, task_learn, task_test, rest_post | **EXCLUDED** — see below |
+| Pat_05 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
+| Pat_06 | 2048 | rest_pre, rest_post only (no task) | excluded from task analyses |
+| Pat_07 | 2048 | rest_pre, task_learn, rest_post (no task_test) | **included** (task_learn only) |
+| Pat_08 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
+
+### Pat_03 exclusion rationale
+
+Pat_03 is excluded from all final group-level analyses because:
+
+1. **Different sampling rate (1024 Hz vs 2048 Hz):** MSC estimation is frequency-dependent.
+   The coherence null distribution, surrogate thresholds, and frequency resolution all
+   depend on fs. Cross-comparing MSC matrices computed at different sampling rates is
+   not methodologically sound.
+2. **Abnormally dense FC:** Pat_03's mean MSC coherence is 3× higher than any other patient
+   (0.177 vs 0.064), with near-zero sparsity after soft thresholding. This holds regardless
+   of nperseg correction (nperseg=2048 at 1024 Hz gives the same values as nperseg=4096).
+3. **Unstable LRG hierarchies:** The dense FC produces hierarchies that drift randomly across
+   phases rather than retaining structured reorganization patterns. Pat_03's rest_post drifts
+   in a third direction (not toward task, not staying at rest_pre).
+
+Pat_03 is kept in ALL analyses as a **negative control / documented outlier**. When
+Pat_03 diverges from the group pattern, this is expected and validates the method's
+sensitivity to data quality. Always include Pat_03 in figures (marked distinctly) and
+report its values separately.
+
+Standard patient list: `["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"]`.
+For analyses requiring all 4 phases: `["Pat_02", "Pat_03", "Pat_05", "Pat_08"]`.
+When reporting group statistics, report both with and without Pat_03 where relevant.
+
+### nperseg and sampling rate
+
+Always use `nperseg_for_fs(fs)` from `config.const` to compute nperseg:
+```python
+from lrg_eegfc.config.const import nperseg_for_fs
+nperseg = nperseg_for_fs(fs)  # 4096 at 2048 Hz, 2048 at 1024 Hz
+```
+This ensures 2-second Welch segments (Δf = 0.5 Hz) for all patients.
 
 ## Known Rough Edges (flag for refactors)
 - Keep the workflow and utils boundaries clean; avoid pushing visualization logic into `workflow/`.
 
 ## When Adding Features
-- Decide the layer: `utils/*` (low-level), `workflow/*` (cached orchestration), `visuals/*` (plots), or `src/*.py` (CLI wrapper). Keep concerns separated.
+- Decide the layer: `utils/*` (low-level), `workflow/*` (cached orchestration), `visuals/*` (plots), or `scripts/py/*.py` (CLI wrapper). Keep concerns separated.
 - Add small, well-named helper functions instead of inlining notebook code; if extracted from a notebook, note the source cell in a comment if it affects behaviour.
 - Update relevant guides/plan files with new commands or expectations.
 - Run spot checks where possible (`pytest` if present, or a small CLI invocation) and record what was run in your notes/commit message.

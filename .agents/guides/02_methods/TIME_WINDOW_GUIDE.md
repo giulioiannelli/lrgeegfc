@@ -38,22 +38,22 @@ visualize windowed FC/LRG results.
 - Dev runs with `filter_time` go to `*_cache_windows_dev`.
 
 ## Compute vs visualize
-- Compute: `src/compute_time_windows.py` (writes caches).
-- Visualize: `src/visualize_time_windows.py` (reads caches only).
+- Compute: `scripts/py/compute_time_windows.py` (writes caches).
+- Visualize: `scripts/py/visualize_time_windows.py` (reads caches only).
 - Notebooks should load cached windows and avoid recomputation.
 
 ## Recommended dev run
 ```bash
-python src/compute_time_windows.py \
-  --patients Pat_02 --phases rsPost --bands alpha \
+python scripts/py/compute_time_windows.py \
+  --patients Pat_02 --phases rest_post --bands alpha \
   --fc-method corr --window-sec 10 --overlap 0.25 \
   --filter-time 5000 --max-windows 5 --verbose
 ```
 
 ## Recommended final run (MSC validation)
 ```bash
-python src/compute_time_windows.py \
-  --patients Pat_02 --phases rsPost --bands alpha \
+python scripts/py/compute_time_windows.py \
+  --patients Pat_02 --phases rest_post --bands alpha \
   --fc-method msc --window-sec 20 --overlap 0.25 \
   --sparsify soft --n-surrogates 200 --nperseg 1024 --lrg
 ```

@@ -4,37 +4,73 @@ This is the canonical guidance for coding agents working in this repository.
 Root `AGENTS.md` and `CLAUDE.md` should remain identical and point here.
 Start with `.agents/START_HERE.md`, then use `.agents/plans/INDEX.md`.
 
+> **Before citing any number or re-running any script, read
+> `.agents/reports/PIPELINE_STATUS.md` — it is the era index that tags
+> every artefact as current (`imcoh_abs` post-reset), superseded
+> (|ImCoh|² or MSC era), or dead-end. The current H1-H4 VI(k) results
+> live in `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md`.**
+
+---
+
+## NOTICE: Data folder has been reorganized
+
+The `data/` folder now has **only 4 top-level categories**:
+- `data/raw/` — raw SEEG patient data
+- `data/cache/` — all computation caches (corr, msc, lrg, imcoh, imcoh_lrg, etc.)
+- `data/reports/` — investigation outputs grouped by topic
+- `data/outputs/` — CLI figures (`outputs/figures/`) and tables (`outputs/tables/`)
+
+The old flat paths (`data/corr_cache/`, `data/msc_cache/`, `data/figures/`, etc.)
+**no longer exist** — they were moved into the new structure. Any code still
+using `Path("data/corr_cache")` will break. Always use `config.paths` constants.
+
+**For new code, always use `config.paths` constants:**
+```python
+from lrg_eegfc.config.paths import (
+    SEEG_DATAPATH, CORR_CACHE, MSC_CACHE, LRG_CACHE,
+    IMCOH_CACHE, IMCOH_LRG_CACHE, FIGURES_ROOT, TABLES_ROOT,
+)
+```
+
+**For scripts, shared helpers are available:**
+```python
+from lrg_eegfc.utils.scripting import setup_script_env, iter_patient_band_phase, save_figure
+ROOT = setup_script_env()
+```
+
+---
+
 ## Purpose and scope
 
 This repo is a Python toolkit for building frequency-specific functional
 connectivity (FC) networks from stereo-EEG (SEEG) recordings and analyzing
-those networks with Laplacian Renormalization Group (LRG) methods. The suite
-exists to:
-- convert SEEG time series into correlation- or coherence-based FC matrices
-- select thresholds and clean matrices for network construction
-- compute LRG ultrametric distances, dendrograms, and entropy curves
-- compare FC methods and phase changes across patients
-- generate publication-grade visualizations
+those networks with Laplacian Renormalization Group (LRG) methods:
+- Convert SEEG time series into FC matrices (correlation, MSC, **ImCoh**)
+- Select thresholds and clean matrices for network construction
+- Compute LRG ultrametric distances, dendrograms, and entropy curves
+- Compare FC methods and phase changes across patients
+- Generate publication-grade visualizations
+
+**ImCoh (Imaginary Coherence)** is the preferred FC method for community-level
+analysis — it eliminates volume conduction bias that contaminates MSC.
+See `.agents/guides/IMCOH_GUIDE.md`.
 
 ## Source of truth
 
-Use these as the authoritative sources:
 - `README.md` for user-facing setup and CLI usage
 - `src/lrg_eegfc/` for the current code structure and APIs
-- `scripts/` plus `src/*.py` for batch analysis pipelines
+- `src/lrg_eegfc/config/paths.py` for **all data path constants**
+- `scripts/` plus `scripts/py/*.py` for batch analysis pipelines
 
-Note: `docs/overview.md` reflects the current module layout.
+## Repository layout
 
-## Repository layout (relevant)
-
-- `src/lrg_eegfc/` Python package
-- `src/*.py` pipeline scripts invoked by `scripts/run_step.sh`
-- `scripts/` shell wrappers for full analyses
-- `data/` local datasets and outputs (not committed)
-- `lrgsglib/` submodule dependency (required for LRG operations)
-- `.agents/plans/active/` current plans and session notes
-- `.agents/plans/developed/` completed plans (ready for reference)
-- `.agents/plans/archive/` completed or superseded plans (see `.agents/plans/INDEX.md`)
+- `src/lrg_eegfc/` — Python package
+- `scripts/py/*.py` — pipeline scripts (being reorganized into numbered dirs)
+- `scripts/` — shell wrappers for full analyses
+- `data/` — local datasets and outputs (not committed, see layout above)
+- `lrgsglib/` — submodule dependency (required for LRG operations)
+- `.agents/guides/` — reference guides for agents
+- `.agents/plans/` — active, developed, and archived plans
 
 ## Package map (current)
 
@@ -55,17 +91,21 @@ src/lrg_eegfc/
 |   |-- bundle.py         #   1 publication bundle command
 |   `-- _legacy.py        #   old cli.py (lrg-eegfc-corr compat)
 |-- workflow/             # canonical workflows
-|   |-- corr.py
-|   |-- msc.py
-|   |-- lrg.py
-|   |-- cleaning.py
-|   `-- time_windows.py
+|   |-- corr.py           #   correlation FC
+|   |-- msc.py            #   MSC / ImCoh FC
+|   |-- lrg.py            #   LRG analysis (accepts fc_method: corr/msc/imcoh)
+|   |-- cleaning.py       #   Marchenko-Pastur cleaning
+|   |-- diagnostics.py    #   LRG diagnostics
+|   `-- time_windows.py   #   sliding-window FC
 |-- config/
-|   `-- const.py
+|   |-- const.py          #   constants (bands, phases, patients, etc.)
+|   |-- paths.py          #   **centralized data paths** (all cache/output dirs)
+|   `-- plotlib.py        #   matplotlib config
 |-- utils/
 |   |-- common.py         # shared imports
+|   |-- scripting.py      # **shared script helpers** (setup_script_env, save_figure, etc.)
 |   |-- io/               # MAT loading and patient metadata
-|   |-- fc/               # FC pipelines (corr + msc)
+|   |-- fc/               # FC pipelines (corr + msc/imcoh)
 |   |-- lrg/              # clustering helpers
 |   |-- metrics/          # comparison metrics
 |   `-- pipelines/        # batch orchestration
@@ -76,132 +116,48 @@ src/lrg_eegfc/
 |   |-- lrg.py
 |   |-- spatial.py        # 3D brain visualization
 |   |-- reorganization.py
+|   |-- cross_condition.py
 |   `-- metastable.py
 ```
 
-## Core workflows and what they produce
+## Core workflows
 
-1) Correlation FC (quickest path)
-- `workflow.core.compute_band_connectivity`
-  - bandpass -> correlation -> percolation jumps -> thresholded graph
-- `workflow.corr.compute_corr_matrix`
-  - caches `data/corr_cache/Pat_XX/<band>_<phase>_corr_*.npy`
+1) **Correlation FC** — `workflow.corr.compute_corr_matrix`
+2) **MSC FC** — `workflow.msc.compute_msc_matrix`
+3) **ImCoh FC** — `workflow.msc.compute_msc_matrix` with `metric="imcoh"` passed through pipeline
+4) **Correlation cleaning** — `workflow.cleaning.clean_correlation_matrix_full`
+5) **LRG analysis** — `workflow.lrg.compute_lrg_analysis` (fc_method: `"corr"`, `"msc"`, `"imcoh"`)
+6) **Comparisons** — `utils.metrics.compare`, `visuals/reorganization.py`
 
-2) Coherence / MSC FC
-- `workflow.msc.compute_msc_matrix`
-  - magnitude-squared coherence, optional surrogate-based sparsification
-  - caches `data/msc_cache/Pat_XX/<band>_<phase>_msc_*.npy`
-
-3) Correlation cleaning (Marchenko-Pastur)
-- `workflow.cleaning.clean_correlation_matrix_full`
-  - bandpass -> correlation -> spectral cleaning -> threshold
-  - caches cleaned matrices under `data/corr_cache/Pat_XX/`
-
-4) LRG analysis
-- `workflow.lrg.compute_lrg_analysis`
-  - LRG entropy curves, ultrametric distances, dendrogram linkage
-  - caches `data/lrg_cache/Pat_XX/<band>_<phase>_lrg_<fc>.npz`
-
-5) Comparisons
-- `utils.metrics.compare` compares ultrametric matrices across methods or phases
-- `visuals/reorganization.py` summarizes phase reorganization and similarity
-
-## Data layout (expected)
+## Data layout
 
 ```
 data/
-`-- stereoeeg_patients/
-    `-- Pat_XX/
-        |-- rsPre.mat
-        |-- taskLearn.mat
-        |-- taskTest.mat
-        |-- rsPost.mat
-        |-- Implant_pat_XX.csv
-        `-- channel_labels.csv
-```
-
-Notes:
-- Standard loader expects a `Data` variable in `.mat` files.
-- Robust loader (`utils/io/patient_robust.py`) scans common keys
-  (`Data`, `data`, `EEG`, `timeseries`, `signal`, `eeg_data`).
-
-## Output locations
-
-- Correlation cache: `data/corr_cache/Pat_XX/`
-- MSC cache: `data/msc_cache/Pat_XX/`
-- LRG cache: `data/lrg_cache/Pat_XX/`
-- Figures: `data/figures/<category>/Pat_XX/`
-- CLI outputs: `data/correlations/Pat_XX/` (from `lrg-eegfc-corr`)
-
-## Entry points and scripts
-
-- **Unified CLI** (32 subcommands across 6 groups):
-  - `lrg-eegfc --help` for full command listing
-  - `lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rsPre -v`
-  - `lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v`
-  - `lrg-eegfc cache list`
-  - `lrg-eegfc config show`
-  - See `.agents/guides/CLI_REFERENCE.md` for full reference
-
-- Legacy CLI (correlation only, kept for compat):
-  - `lrg-eegfc-corr --patient Pat_01 --phase rsPre --band beta --plot-all`
-
-- Pipeline scripts (still functional, also available via CLI):
-  - `python src/compute_corr_matrices.py`
-  - `python src/compute_msc_matrices.py`
-  - `python src/compute_lrg_analysis.py`
-  - `python src/visualize_*.py`
-
-- Orchestrators:
-  - `bash scripts/run_step.sh --list`
-  - `bash scripts/run_full_analysis.sh`
-
-## Setup (local dev)
-
-```
-# submodule + venv
-git submodule update --init --recursive
-python -m venv .venv
-source .venv/bin/activate
-
-# install package + tooling
-pip install -e .[dev]
-
-# ensure lrgsglib is installed (submodule or git)
-pip install ./lrgsglib
+├── raw/stereoeeg_patients/Pat_XX/   # .mat files + electrode metadata
+├── cache/                           # all computation caches
+│   ├── corr/, msc/, lrg/           # standard FC caches
+│   ├── imcoh/, imcoh_lrg/          # ImCoh caches
+│   └── ...                         # dev, windows, crema, etc.
+├── reports/                         # investigation outputs by topic
+│   ├── metric_exploration/
+│   ├── imcoh/, imcoh_unanimity/, imcoh_vi/
+│   └── ...
+└── outputs/
+    ├── figures/                     # CLI figure output
+    └── tables/                      # CSV, tex, npz tables
 ```
 
 ## Agent quickstart checklist
 
-- Confirm dataset root exists (default `data/stereoeeg_patients/`) and that
-  `.mat` files expose a usable data variable (`Data` or one of the robust keys).
-- Decide the workflow: correlation (`workflow.corr`), MSC (`workflow.msc`), or
-  LRG analysis (`workflow.lrg`) after an FC matrix exists.
-- Use cache-aware helpers to avoid recomputation during iteration.
-- Prefer `constants.py` for lightweight imports; `config/const.py` reads
-  the filesystem at import time.
-- For visual outputs, use `visuals/` modules or `scripts/run_step.sh`.
-
-## Coding standards
-
-- Python 3.11+ only
-- Type hints required; mypy is configured in strict mode
-- Format with black and isort (88-char line length)
-- Explicit imports; avoid wildcard imports outside re-export modules
-
-## Known mismatches and caveats
-
-- `docs/overview.md` references modules that no longer exist. Use the
-  `src/lrg_eegfc/` tree above as the accurate map.
-- `config/const.py` reads `data/stereoeeg_patients` at import time to build a
-  patient list; it will fail if the dataset is missing. Prefer `constants.py`
-  when you need a lightweight import.
-- The unified CLI (`lrg-eegfc`) supports all workflows (corr, MSC, LRG).
-  The old `lrg-eegfc-corr` entry point is kept for backward compatibility.
-- 4 plot commands are TODO stubs: `lrg-video`, `time-windows`, `reorg-summary`,
-  `metric-correlation`. Use the standalone scripts for these until implemented.
+- Use `config.paths` for all data paths — never hardcode `Path("data/...")`
+- Use `config.const` for bands, phases, patients — never redeclare locally
+- Use `utils.scripting` helpers in standalone scripts
+- Confirm dataset root exists: `SEEG_DATAPATH` (resolves via symlink)
+- For ImCoh work, use `IMCOH_CACHE` and `IMCOH_LRG_CACHE` from `config.paths`
+- For visual outputs, use `visuals/` modules or `lrg-eegfc plot` CLI
 
 ## Quick mental model
 
-SEEG data -> bandpass filter -> FC matrix (corr or MSC) -> threshold/cleaning
--> graph + LRG ultrametrics/entropy -> comparisons + visualizations.
+SEEG data -> bandpass filter -> FC matrix (corr, MSC, or **ImCoh**) ->
+threshold/cleaning -> graph + LRG ultrametrics/entropy -> comparisons +
+visualizations.

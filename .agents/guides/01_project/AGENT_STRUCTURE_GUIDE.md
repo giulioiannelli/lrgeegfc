@@ -1,7 +1,7 @@
 # Agent Guide: Structure & Invariants
 
 ## Quick Orientation
-- Core package lives in `src/lrg_eegfc/`; runnable scripts live in `src/` (e.g., `compute_corr_matrices.py`, `compute_msc_matrices.py`, `compare_fc_methods.py`).
+- Core package lives in `src/lrg_eegfc/`; runnable scripts live in `scripts/py/` (e.g., `compute_corr_matrices.py`, `compute_msc_matrices.py`, `compare_fc_methods.py`).
 - Session context and historical decisions are tracked in `.agents/plans/active/` (start with `.agents/START_HERE.md`, then use `.agents/plans/INDEX.md` for the full list). Completed plans live under `.agents/plans/developed/`.
 - Data layout is `data/stereoeeg_patients/Pat_XX/{phase}.mat`; caches are kept alongside analysis outputs under `data/`.
 - Companion library `lrgsglib` is a git submodule and must be installed for entropy/percolation utilities.
@@ -13,7 +13,7 @@
   - `visuals/` – plotting modules (`correlation.py`, `msc.py`, `lrg.py`, `metastable.py`, `reorganization.py`, `compare.py`, `plotting.py`) used by CLI/nb.
   - `notebook.py` – curated imports + `setup_notebook()` for consistent figure dirs.
   - `config/const.py` – bands/phases and defaults.
-- `src/*.py` – CLIs/batch scripts mirroring workflows; keep them read-from-cache (no recompute inside visualization scripts).
+- `scripts/py/*.py` – CLIs/batch scripts mirroring workflows; keep them read-from-cache (no recompute inside visualization scripts).
 - `docs/` – high-level overview and developer guide (aligned to current module names).
 - `ipynb/` – archived notebooks + refactored tutorials/analysis (see `.agents/plan/dev/PHASE2_PROGRESS.md`).
 
@@ -30,7 +30,7 @@
 - Cleaning: `workflow.cleaning.clean_correlation_matrix_full` (+ `load_cleaned_corr_matrix`) for MP + percolation thresholds.
 - Coherence/MSC: `workflow.msc.compute_msc_matrix` / `compute_msc_for_patient`; low-level pipeline in `utils.fc.msc.coherence_fc_pipeline`.
 - LRG/ultrametric: `workflow.lrg.compute_lrg_analysis` / `compute_lrg_for_patient`; comparisons in `utils.metrics.compare`.
-- Visualization: `visuals/*.py` functions; CLI wrappers in `src/visualize_*.py`.
+- Visualization: `visuals/*.py` functions; CLI wrappers in `scripts/py/visualize_*.py`.
 - Notebooks: `from lrg_eegfc.notebook import *` then `setup_notebook()` to set figure dir and imports.
 
 ## Status & Reference Files

@@ -135,8 +135,9 @@ Install the main package in editable mode:
 pip install -e .
 ```
 
-This registers the `lrg-eegfc-corr` command line tool and makes the
-`lrg_eegfc` module available for imports.
+This registers the `lrg-eegfc` command line tool (unified CLI) plus the
+legacy `lrg-eegfc-corr` entry point, and makes the `lrg_eegfc` module
+available for imports.
 
 For development with linting and testing tools:
 
@@ -169,16 +170,24 @@ The command line tools assume the following directory structure by default:
 
 ```
 └── data/
-    └── stereoeeg_patients/
-        ├── Pat_01/
-        │   ├── rsPre.mat
-        │   ├── taskLearn.mat
-        │   ├── taskTest.mat
-        │   ├── rsPost.mat
-        │   ├── Implant_pat_01.csv
-        │   └── channel_labels.csv
-        └── …
+    └── raw/
+        └── stereoeeg_patients/
+            ├── Pat_01/
+            │   ├── resting/
+            │   │   ├── rest_pre.mat
+            │   │   └── rest_post.mat
+            │   ├── task/
+            │   │   ├── task_learn.mat
+            │   │   └── task_test.mat
+            │   ├── implant/implant_pat_01.xlsx
+            │   ├── implant_pat_01.csv
+            │   ├── channel_labels.csv
+            │   └── provenance.md
+            └── …
 ```
+
+See `.agents/guides/03_implementation/DATA_LAYOUT.md` for the full canonical
+spec + per-patient quirks + the `lrg-eegfc data normalize` CLI.
 
 Use ``--dataset-root`` to point to a different directory when running the CLI.
 All generated artefacts (correlation matrices and plots) are written to
@@ -186,14 +195,29 @@ All generated artefacts (correlation matrices and plots) are written to
 
 ## Command line usage
 
-The package exposes the ``lrg-eegfc-corr`` entry point which computes a band-
-specific correlation matrix for a patient and optionally creates a set of
-plots:
+The package exposes a unified `lrg-eegfc` CLI with subcommands for compute,
+plot, show, data, cache, config, and bundle. The legacy `lrg-eegfc-corr`
+entry point remains for backward-compatible correlation workflows.
+
+Unified CLI examples:
+
+```bash
+# Compute MSC matrices (cached)
+lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rest_pre -v
+
+# Run LRG analysis from cached FC matrices
+lrg-eegfc compute lrg --patients Pat_02 --fc-method msc -v
+
+# Plot LRG panels from cache
+lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v
+```
+
+Legacy CLI example (correlation-only):
 
 ```bash
 lrg-eegfc-corr \
     --patient Pat_01 \
-    --phase rsPre \
+    --phase rest_pre \
     --band beta \
     --dataset-root /path/to/data/stereoeeg_patients \
     --plot-all
@@ -209,7 +233,10 @@ Key options:
 * ``--plot-*`` flags – enable individual plots; ``--plot-all`` toggles every
   available plot.
 
-Run ``lrg-eegfc-corr --help`` for the full list of options.
+Run ``lrg-eegfc --help`` for the full list of command groups and options.
+
+Pipeline scripts used by the shell runners live in `scripts/py/` and are
+invoked by `scripts/run_step.sh` and `scripts/run_full_analysis.sh`.
 
 ## Python API overview
 

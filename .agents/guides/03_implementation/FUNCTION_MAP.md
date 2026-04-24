@@ -232,7 +232,7 @@ Quick reference for all public functions organized by module.
 | Constant | Value | Purpose |
 |----------|-------|---------|
 | `sEEG_DATAPATH` | `Path("data/stereoeeg_patients")` | Default data path |
-| `PHASE_LABELS` | `('rsPre', 'taskLearn', 'taskTest', 'rsPost')` | Recording phases |
+| `PHASE_LABELS` | `('rest_pre', 'task_learn', 'task_test', 'rest_post')` | Recording phases |
 | `BRAIN_BANDS` | `{'delta': (1,4), 'theta': (4,8), ...}` | Frequency bands |
 | `BRAIN_BANDS_NAMES` | `['delta', 'theta', 'alpha', ...]` | Band names list |
 | `BRAIN_BAND_TEX_DICT` | `{'delta': r'$\delta$', ...}` | LaTeX labels |

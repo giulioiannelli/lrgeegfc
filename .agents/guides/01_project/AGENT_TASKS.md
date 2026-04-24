@@ -70,7 +70,7 @@ from lrg_eegfc.visuals import (
 2. Use `plot_phase_reorganization(patient, band, fc_method, ...)`
 3. Compute distance matrices with `compute_phase_distance_matrix(...)`
 
-**Phases:** rsPre → taskLearn → taskTest → rsPost
+**Phases:** rest_pre → task_learn → task_test → rest_post
 
 ---
 

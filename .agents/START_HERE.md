@@ -1,40 +1,64 @@
 # Start Here
 
-This file is the entry point for agents. It points to the active plans and the
-current state of the refactor.
+This file is the entry point for agents. It points to the current state of
+the scientific pipeline and the key reports that carry the load-bearing
+numerical results.
 
-## Current focus
-- Use `.agents/plans/INDEX.md` for the canonical list of plans.
-- Active refactor + analysis plans live in `.agents/plans/active/`.
-- Completed refactor decisions are in `.agents/plans/developed/`.
+## Current scientific state (2026-04-24)
+
+- **Cohort**: 10 sEEG patients (`Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15`).
+  Cross-phase tests run on n=9 (Pat_14 excluded — vendor `task_test.mat`
+  corrupt). H3 and H4 run on n=10.
+- **Canonical FC metric**: `imcoh_abs` = `⟨|ImCoh(f)|⟩_f` (Ewald 2012
+  convention of the Nolte 2004 imaginary coherency). Volume-conduction
+  immune. MSC is retained as a method baseline only; don't use it for the
+  current hypotheses.
+- **Canonical report for the writing agent**: `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md`.
+  Supersedes `IMCOH_RESULTS_FOR_WRITING.md` (n=5 era, flagged stale).
 
 ## Where to begin
-1) Read `.agents/plans/developed/2026-01-10_stage-06_refactor-packaging.md` (refactor status + layout).
-2) Read `.agents/plans/active/2026-01-10_stage-01_data-qc.md` (data inventory + QC).
-3) Read `.agents/plans/active/2026-01-10_stage-02_fc-msc-corr.md` (MSC/corr plan).
-4) Read `.agents/plans/active/2026-01-10_stage-00_notebook-consolidation.md` (notebook cleanup).
-5) Read `.agents/plans/active/2026-01-10_stage-03_lrg.md` and `2026-01-10_stage-04_reorganization-metrics.md`.
-6) Read `.agents/plans/active/2026-01-10_stage-05_figures-overleaf.md` and `2026-01-10_stage-05u_spatial-embedding.md`.
-7) Read `.agents/guides/MSC_METHOD_GUIDE.md`, `.agents/guides/CACHING_GUIDE.md`,
-   and `.agents/guides/TIME_WINDOW_GUIDE.md`.
 
-## Quick references (for fast lookup)
-- `.agents/guides/CLI_REFERENCE.md` - CLI command reference (32 subcommands, examples, workflows)
-- `.agents/guides/FUNCTION_MAP.md` - Complete function reference (130+ functions)
-- `.agents/guides/FIGURE_PATTERNS.md` - Figure templates and patterns
-- `.agents/guides/AGENT_TASKS.md` - Common autonomous task procedures
+1. **If you are writing a paper section**: read
+   `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md` first. Cross-reference
+   with `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md` for the canonical
+   H1/H2a/H2b/H3/H4 table at n=9/10.
+2. **If you are analyzing new data**: read
+   `.agents/guides/01_project/AGENT_PLAYBOOK.md` for the session workflow,
+   then `.agents/guides/03_implementation/DATA_LAYOUT.md` for per-patient
+   quirks (Pat_03 outlier, Pat_10 channel drop, Pat_13/14 phase-gap notes).
+3. **If you are adding a method**: read
+   `.agents/guides/02_methods/IMCOH_GUIDE.md` for the FC metric,
+   `.agents/guides/02_methods/PROBE_BIAS_GUIDE.md` for the volume-conduction
+   bias that motivated the MSC → ImCoh switch, and
+   `.agents/reports/PIPELINE_STATUS.md` for the era index flagging which
+   artefacts are current vs superseded.
+
+## Quick references
+
+- `.agents/guides/INDEX.md` — full guide index
+- `.agents/guides/03_implementation/CLI_REFERENCE.md` — `lrg-eegfc` CLI
+- `.agents/guides/03_implementation/FUNCTION_MAP.md` — function lookup
+- `.agents/guides/03_implementation/CACHING_GUIDE.md` — cache layout
+- `.agents/guides/03_implementation/FIGURE_PATTERNS.md` — plot templates
 
 ## Notebook header (required)
+
 ```python
-%matplotlib inline
-from lrgsglib.config.funcs import move_to_rootf
-move_to_rootf(pathname="lrgeegfc")
 from lrg_eegfc.notebook import *
+move_to_root(pathname="lrgeegfc")
 ```
 
 ## Key invariants
+
 - Cache-first: never recompute in visualization notebooks/scripts.
-- Use `lrg_eegfc.notebook` to avoid long imports and to keep CWD correct.
-- Cache naming is parameter-sensitive (MSC uses `sparsify-*` and `nperseg-*`).
-- Default missing `fs` to 2048 Hz; auto-transpose phases if channel count differs.
-- Exclude patients missing phases (currently Pat_06, Pat_07) from cross-phase runs.
+- Cache naming is parameter-sensitive (MSC uses `sparsify-*` and `nperseg-*`;
+  ImCoh uses `nperseg-*` only — no surrogates).
+- `fs` defaults to 2048 Hz; Pat_03 is the only override (1024 Hz) via
+  `FS_OVERRIDES` in `src/lrg_eegfc/config/const.py`.
+- Cross-phase analyses currently exclude **Pat_14** (missing `task_test`).
+  Pat_06 is fully 4-phase as of 2026-04-22 — the old "exclude Pat_06" rule
+  no longer applies. Pat_13 `rest_pre` was vendor-replaced 2026-04-23 and is
+  now usable.
+- Pat_10 is canonically 113-channel in every phase via load-time drop
+  (`PATIENT_CHANNEL_DROP` in `config/const.py`). Raw files unmodified. See
+  `memory/pat10_channel_mask.md` for the identification procedure.

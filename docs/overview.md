@@ -1,14 +1,18 @@
 # Project overview
 
 This document summarises the architecture of the **LRG EEG Functional
-Connectivity** toolkit after the 2024 refactor.
+Connectivity** toolkit. Post-2026-04-15 the canonical FC metric is
+`imcoh_abs` (= `⟨|Im(S_ij)/√(S_ii S_jj)|⟩_f`, Nolte 2004 / Ewald 2012);
+MSC is retained as a methodological baseline only. See
+`.agents/guides/02_methods/IMCOH_GUIDE.md` for rationale and
+`.agents/reports/PIPELINE_STATUS.md` for the era index of artefacts.
 
 ## Package layout (current)
 
 ```
 src/lrg_eegfc/
 |-- __init__.py              # Public API exports
-|-- cli.py                   # CLI for correlation workflow
+|-- cli/                     # Unified CLI (lazy-loaded subcommands)
 |-- workflow/                # Canonical workflows
 |-- config/                  # Dataset-aware constants
 |-- utils/                   # Loaders + FC primitives
@@ -32,14 +36,19 @@ src/lrg_eegfc/
 
 ## Command line interface
 
-The `lrg-eegfc-corr` entry point in :mod:`lrg_eegfc.cli` targets the
-correlation-based workflow: load a patient/phase recording, band-pass filter
-it, compute a correlation matrix, apply a percolation threshold, and optionally
-produce plots. All filesystem paths are configurable and the command reuses
-cached correlation matrices unless `--overwrite` is passed.
+The unified `lrg-eegfc` CLI exposes subcommand groups (`compute`, `plot`,
+`show`, `data`, `cache`, `config`, `bundle`) for all workflows. It is lazy
+loaded to keep `--help` fast and avoid importing heavy scientific dependencies
+until needed.
 
-MSC and LRG workflows are accessed through the Python APIs or the
-`src/*.py` pipeline scripts invoked by `scripts/run_step.sh`.
+The legacy `lrg-eegfc-corr` entry point remains for correlation-only
+workflows: load a patient/phase recording, band-pass filter it, compute a
+correlation matrix, apply a percolation threshold, and optionally produce
+plots. All filesystem paths are configurable and the command reuses cached
+correlation matrices unless `--overwrite` is passed.
+
+MSC and LRG workflows are accessed through the unified CLI, the Python APIs,
+or the pipeline scripts invoked by `scripts/run_step.sh`.
 
 ## Dependency notes
 

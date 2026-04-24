@@ -15,14 +15,14 @@ current `data/stereoeeg_patients` tree.
 
 ## Phase availability
 - Missing phases:
-  - Pat_06: `taskLearn`, `taskTest`
+  - Pat_06: `task_learn`, `task_test`
 - Corrupted/missing data variable:
-  - Pat_07: `taskTest` (no `Data` variable)
+  - Pat_07: `task_test` (no `Data` variable)
 
 ## Data shape anomalies
 - Pat_03:
-  - `taskLearn` shape `(856595, 122)` (likely transposed)
-  - `taskTest` shape `(1235200, 122)` (likely transposed)
+  - `task_learn` shape `(856595, 122)` (likely transposed)
+  - `task_test` shape `(1235200, 122)` (likely transposed)
   - Other phases are `(122, T)`, so verify axis ordering in loaders.
 
 ## Metadata availability
@@ -33,6 +33,6 @@ current `data/stereoeeg_patients` tree.
 
 ## Follow-up actions
 - Decide how to handle missing `fs` for Pat_05/06/07/08 (default value or metadata fix).
-- Decide whether to transpose Pat_03 `taskLearn`/`taskTest` in the loader.
+- Decide whether to transpose Pat_03 `task_learn`/`task_test` in the loader.
 - Confirm how to handle missing phases (skip vs exclude patient in cross-phase analyses).
 - Collect or map channel labels / implant coordinates for spatial plots.

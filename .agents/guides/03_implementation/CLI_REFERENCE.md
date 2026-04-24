@@ -134,7 +134,7 @@ Compute correlation-based FC matrices for all band/phase combinations.
 lrg-eegfc compute corr -v
 
 # Single patient, specific band
-lrg-eegfc compute corr --patients Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc compute corr --patients Pat_02 --band alpha --phase rest_pre -v
 
 # Custom filter type
 lrg-eegfc compute corr --patients Pat_02 --filter-type pos --zero-diagonal -v
@@ -148,7 +148,7 @@ Compute magnitude-squared coherence FC matrices with optional sparsification.
 
 ```bash
 # Dense MSC (no sparsification)
-lrg-eegfc compute msc --patients Pat_02 --band beta --phase rsPre -v
+lrg-eegfc compute msc --patients Pat_02 --band beta --phase rest_pre -v
 
 # Surrogate-based soft thresholding (auto-sets n_surrogates=200)
 lrg-eegfc compute msc --patients Pat_02 --sparsify soft -v
@@ -173,7 +173,7 @@ Run LRG ultrametric analysis on cached FC matrices.
 
 ```bash
 # Using MSC FC (default)
-lrg-eegfc compute lrg --patients Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc compute lrg --patients Pat_02 --band alpha --phase rest_pre -v
 
 # Using correlation FC
 lrg-eegfc compute lrg --patients Pat_02 --fc-method corr -v
@@ -189,7 +189,7 @@ Delegates to: `workflow.lrg.compute_lrg_for_patient()`
 Apply Marchenko-Pastur spectral cleaning to correlation matrices.
 
 ```bash
-lrg-eegfc compute clean --patients Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc compute clean --patients Pat_02 --band alpha --phase rest_pre -v
 ```
 
 Delegates to: `workflow.cleaning.compute_cleaned_corr_for_patient()`
@@ -199,7 +199,7 @@ Delegates to: `workflow.cleaning.compute_cleaned_corr_for_patient()`
 Compute sliding-window FC matrices.
 
 ```bash
-lrg-eegfc compute time-windows --patients Pat_02 --band alpha --phase rsPre \
+lrg-eegfc compute time-windows --patients Pat_02 --band alpha --phase rest_pre \
     --window-sec 10 --overlap 0.5 -v
 ```
 
@@ -222,7 +222,7 @@ skipped unless `--overwrite` is used (via cache) or you delete the output.
 
 ```bash
 # Summary plot (combined figure)
-lrg-eegfc plot corr --patient Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc plot corr --patient Pat_02 --band alpha --phase rest_pre -v
 
 # Network visualization (cleaned matrices)
 lrg-eegfc plot corr --patient Pat_02 --plot-type network --cleaned -v
@@ -237,7 +237,7 @@ Plot types: `summary`, `network`, `mp`, `percolation`, `all`
 
 ```bash
 # MSC summary
-lrg-eegfc plot msc --patient Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc plot msc --patient Pat_02 --band alpha --phase rest_pre -v
 
 # Network with soft sparsification
 lrg-eegfc plot msc --patient Pat_02 --plot-type network --sparsify soft -v
@@ -249,10 +249,10 @@ Plot types: `network`, `comparison`, `summary`, `all`
 
 ```bash
 # Full 5-panel figure (entropy + dendrogram + ultrametric + FC + network)
-lrg-eegfc plot lrg --patient Pat_02 --band alpha --phase rsPre --fc-method msc -v
+lrg-eegfc plot lrg --patient Pat_02 --band alpha --phase rest_pre --fc-method msc -v
 
 # Just entropy curves
-lrg-eegfc plot lrg --patient Pat_02 --band alpha --phase rsPre \
+lrg-eegfc plot lrg --patient Pat_02 --band alpha --phase rest_pre \
     --fc-method msc --plot-type entropy -v
 
 # All LRG plot types
@@ -272,7 +272,7 @@ lrg-eegfc plot reorganization --patient Pat_02 --fc-method msc -v
 Generates interactive Sankey diagrams (HTML output).
 
 ```bash
-lrg-eegfc plot metastable --patient Pat_02 --band alpha --phase rsPre --fc-method msc -v
+lrg-eegfc plot metastable --patient Pat_02 --band alpha --phase rest_pre --fc-method msc -v
 ```
 
 ### `lrg-eegfc plot comparison`
@@ -280,7 +280,7 @@ lrg-eegfc plot metastable --patient Pat_02 --band alpha --phase rsPre --fc-metho
 Side-by-side correlation vs MSC comparison.
 
 ```bash
-lrg-eegfc plot comparison --patient Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc plot comparison --patient Pat_02 --band alpha --phase rest_pre -v
 ```
 
 ### `lrg-eegfc plot msc-grid`
@@ -296,7 +296,7 @@ lrg-eegfc plot msc-grid --patient Pat_02 -v
 MSC matrices across all patients for given band/phase.
 
 ```bash
-lrg-eegfc plot msc-all-patients --band alpha --phase rsPre -v
+lrg-eegfc plot msc-all-patients --band alpha --phase rest_pre -v
 ```
 
 ### `lrg-eegfc plot lrg-phase-grid`
@@ -312,7 +312,7 @@ lrg-eegfc plot lrg-phase-grid --patient Pat_02 --fc-method msc -v
 Dense vs surrogate-validated MSC comparison.
 
 ```bash
-lrg-eegfc plot msc-validation --patient Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc plot msc-validation --patient Pat_02 --band alpha --phase rest_pre -v
 ```
 
 ### `lrg-eegfc plot reorg-metrics`
@@ -334,10 +334,10 @@ No figures are generated. Omit `--band` or `--phase` to loop over all values.
 
 ```bash
 # Single band/phase
-lrg-eegfc show corr --patient Pat_02 --band alpha --phase rsPre
+lrg-eegfc show corr --patient Pat_02 --band alpha --phase rest_pre
 
 # All bands for one phase
-lrg-eegfc show corr --patient Pat_02 --phase rsPre
+lrg-eegfc show corr --patient Pat_02 --phase rest_pre
 ```
 
 Prints: shape, mean, std, min, max, median, density, edge count.
@@ -345,8 +345,8 @@ Prints: shape, mean, std, min, max, median, density, edge count.
 ### `lrg-eegfc show msc`
 
 ```bash
-lrg-eegfc show msc --patient Pat_02 --band alpha --phase rsPre
-lrg-eegfc show msc --patient Pat_02 --band alpha --phase rsPre --sparsify soft --n-surrogates 200
+lrg-eegfc show msc --patient Pat_02 --band alpha --phase rest_pre
+lrg-eegfc show msc --patient Pat_02 --band alpha --phase rest_pre --sparsify soft --n-surrogates 200
 ```
 
 Prints: same matrix stats as `show corr`, plus sparsification method.
@@ -355,10 +355,10 @@ Prints: same matrix stats as `show corr`, plus sparsification method.
 
 ```bash
 # One band
-lrg-eegfc show lrg --patient Pat_02 --band alpha --phase rsPre --fc-method msc
+lrg-eegfc show lrg --patient Pat_02 --band alpha --phase rest_pre --fc-method msc
 
 # All bands at once
-lrg-eegfc show lrg --patient Pat_02 --phase rsPre --fc-method msc
+lrg-eegfc show lrg --patient Pat_02 --phase rest_pre --fc-method msc
 ```
 
 Prints: n_nodes, optimal_threshold, entropy tau range, entropy steps,
@@ -368,7 +368,7 @@ stats (mean, std, range), linkage merges, max merge distance.
 ### `lrg-eegfc show cleaned`
 
 ```bash
-lrg-eegfc show cleaned --patient Pat_02 --band alpha --phase rsPre
+lrg-eegfc show cleaned --patient Pat_02 --band alpha --phase rest_pre
 ```
 
 Prints: matrix stats + MP cleaning metadata (threshold, lambda_min/max,
@@ -399,7 +399,7 @@ lrg-eegfc data stats -v
 Compare MSC vs correlation FC methods (tabular output).
 
 ```bash
-lrg-eegfc data compare --patients Pat_02 --band alpha --phase rsPre -v
+lrg-eegfc data compare --patients Pat_02 --band alpha --phase rest_pre -v
 ```
 
 ---
@@ -492,8 +492,8 @@ lrg-eegfc compute msc --patients Pat_02 --sparsify none -v
 lrg-eegfc compute lrg --patients Pat_02 --fc-method msc -v
 
 # 4. Check results
-lrg-eegfc show lrg --patient Pat_02 --phase rsPre --fc-method msc
-lrg-eegfc show msc --patient Pat_02 --phase rsPre
+lrg-eegfc show lrg --patient Pat_02 --phase rest_pre --fc-method msc
+lrg-eegfc show msc --patient Pat_02 --phase rest_pre
 
 # 5. Generate figures
 lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v
@@ -521,7 +521,7 @@ lrg-eegfc cache verify
 
 ```bash
 # Use --filter-time to limit samples (auto-switches to _dev cache)
-lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rsPre \
+lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rest_pre \
     --filter-time 10000 -v
 ```
 
