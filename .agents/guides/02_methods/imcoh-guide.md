@@ -284,6 +284,6 @@ surrogates).
 
 - Implementation: `src/lrg_eegfc/utils/fc/msc/msc.py` (the `metric` parameter)
 - Pipeline: `src/lrg_eegfc/utils/fc/msc/__init__.py` (`coherence_fc_pipeline`)
-- Probe bias guide: `.agents/guides/PROBE_BIAS_GUIDE.md`
-- MSC method guide: `.agents/guides/MSC_METHOD_GUIDE.md`
-- Process report: `.agents/guides/IMCOH_PROCESS_REPORT.md`
+- Probe bias guide: `.agents/guides/probe-bias-guide.md`
+- MSC method guide: `.agents/guides/msc-method-guide.md`
+- Process report: `.agents/guides/2026-04-15_imcoh-process.md`

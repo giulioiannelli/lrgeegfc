@@ -368,7 +368,7 @@ Default knobs (overridable via CLI flags in `fig_E_network.py`):
 - Memory: `imcoh_taxonomy.md` (post-reset); `imcoh_absolute_value_convention.md` (history, superseded).
 - Plan: `~/.claude/plans/enumerated-napping-codd.md`.
 - Verification script: `scripts/01_compute/verify_imcoh_reset.py`.
-- This report: `.agents/reports/IMCOH_RESET_REPORT.md`.
+- This report: `.agents/reports/2026-04-15_imcoh-reset.md`.
 # Section 2 — Caption material per figure
 
 Use these as starting points for LaTeX `\caption{...}` blocks. The
@@ -378,7 +378,7 @@ content lives here so you can integrate it into the manuscript narrative.
 Notation: `|ImCoh|` denotes the band-averaged magnitude of the
 imaginary part of coherency (Nolte et al. 2004), computed at load time
 as `mean(|Im(S_xy)/√(S_xx·S_yy)|, axis=F_band)` from the freq-resolved
-signed cache. See `IMCOH_RESET_REPORT.md` for the post-2026-04-15
+signed cache. See `2026-04-15_imcoh-reset.md` for the post-2026-04-15
 reset taxonomy.
 
 ---
@@ -485,7 +485,7 @@ valid MNI coords). Per-patient bounding-box zoom.
 **Stem.** Force-directed network (classical MDS / PCoA on the
 **continuous LRG heat-kernel transition distance** `~1/ρ_ij` evaluated
 at `τ = optimal_threshold` from the LRG cache). Layout method
-`mds_lrg_continuous` — see `IMCOH_RESET_REPORT.md` §6 for why this
+`mds_lrg_continuous` — see `2026-04-15_imcoh-reset.md` §6 for why this
 beats spring, KK, and MDS-on-ultrametric. 2 rows (MSC top, `|ImCoh|`
 bottom) × Pat_02 / Pat_05 / Pat_08 columns. Same edge recipe as fig_E1.
 

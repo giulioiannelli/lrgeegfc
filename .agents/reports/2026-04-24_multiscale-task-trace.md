@@ -668,7 +668,7 @@ python scripts/01_compute/compute_imcoh_vi.py -v                 # → vi_raw_pr
 python scripts/01_compute/h2c_ultrametric_drift.py               # → h2c_ultrametric_drift.{md,csv}
 python scripts/01_compute/h2d_coactivation_persistence.py        # → h2d_coactivation_persistence.{md,csv} — k ∈ [2, 49]
 python scripts/01_compute/rigorous_hypothesis_test.py            # → rigorous_tests.{md,csv}
-python scripts/01_compute/report_h1h4_vi.py                      # → .agents/reports/H1_H4_VI_RESULTS_POST_RESET.md
+python scripts/01_compute/report_h1h4_vi.py                      # → .agents/reports/2026-04-24_h1-h4-vi-results.md
 python scripts/01_compute/band_k_landscape.py                    # → band_k_landscape.md + unanimity figures
 python scripts/01_compute/h2_band_selectivity.py                 # → h2_band_selectivity.{md,csv}  (Friedman + post-hoc)
 python scripts/01_compute/h2_band_typology.py                    # → h2_band_typology.{md,csv}  (TRACE/ERGODIC/DEAD)
@@ -679,7 +679,7 @@ python scripts/01_compute/h2e_split_half.py -v --mem-gb 10       # → h2e_split
 ```
 
 Outputs under `data/reports/imcoh_vi/`. Canonical H1-H4 table:
-`.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md`.
+`.agents/reports/2026-04-24_h1-h4-vi-results.md`.
 
 ---
 
@@ -712,12 +712,12 @@ Regeneration: `python scripts/01_compute/{fig_h2d_bar, fig_band_typology, fig_h2
 
 ## 14. Cross-references
 
-- Method rationale: `.agents/guides/02_methods/IMCOH_GUIDE.md`
-- Probe-bias control: `.agents/guides/02_methods/PROBE_BIAS_GUIDE.md`
-- Canonical H1-H4 table: `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md`
-- Data layout + per-patient quirks: `.agents/guides/03_implementation/DATA_LAYOUT.md`
+- Method rationale: `.agents/guides/02_methods/imcoh-guide.md`
+- Probe-bias control: `.agents/guides/02_methods/probe-bias-guide.md`
+- Canonical H1-H4 table: `.agents/reports/2026-04-24_h1-h4-vi-results.md`
+- Data layout + per-patient quirks: `.agents/guides/03_implementation/data-layout.md`
 - Pat_10 channel-drop rationale: `memory/pat10_channel_mask.md`
-- Pipeline status by era: `.agents/reports/PIPELINE_STATUS.md`
+- Pipeline status by era: `.agents/reports/2026-04-24_pipeline-status.md`
 
 ---
 

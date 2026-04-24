@@ -11,22 +11,22 @@ pointers: []
 > **⚠ SUPERSEDED (2026-04-24)** — Figure descriptions in this document
 > correspond to the n=5 era of Section 2 (MSC → ImCoh transition narrative)
 > and predate the 2026-04-15 ImCoh reset. The current canonical handoff
-> is [`MULTISCALE_TASK_TRACE_FOR_WRITING.md`](MULTISCALE_TASK_TRACE_FOR_WRITING.md).
+> is [`2026-04-24_multiscale-task-trace.md`](2026-04-24_multiscale-task-trace.md).
 > Methodological content (probe-bias figures, ImCoh vs MSC comparisons)
 > is still valid conceptually; numerical values must be regenerated
 > against `fc_method="imcoh_abs"` on the n=10 cohort before quoting.
 
 # Section 2 figure descriptions (for writing agent)
-## [SUPERSEDED — see MULTISCALE_TASK_TRACE_FOR_WRITING.md]
+## [SUPERSEDED — see 2026-04-24_multiscale-task-trace.md]
 
 Quantitative handoff for drafting Sections 2.1–2.3 of `notes_imcoh.tex`
 (MSC -> ImCoh rewrite). All numbers computed from cache
 (`data/cache/{msc,imcoh,lrg,imcoh_lrg}`) on beta / alpha at `rsPre` unless
 stated; same-/cross-probe means use |FC| with zero diagonal and
 `re.match(r"([A-Za-z]+'?)", label)` probe extraction. Source reports:
-`WRITING_AGENT_BRIEFING.md`, `IMCOH_PAT02_AND_CONTROLS.md`,
-`.agents/guides/02_methods/PROBE_BIAS_GUIDE.md`,
-`SECTION2_FIGURES_HANDOFF.md`.
+`2026-04-15_writing-agent-briefing.md`, `2026-04-15_imcoh-pat02-controls.md`,
+`.agents/guides/02_methods/probe-bias-guide.md`,
+`2026-04-15_section2-figures-handoff.md`.
 
 Patients: 5 total (`Pat_02, 03, 05, 07, 08`); `Pat_06` excluded (missing
 task phases). `Pat_03` recorded at 1024 Hz vs 2048 Hz others — flagged
@@ -36,7 +36,7 @@ as outlier / negative control wherever it is part of the sample.
 
 ## R-group: report summaries
 
-### R1 — ImCoh H2a per-band (from `WRITING_AGENT_BRIEFING.md` §4.2 + §4.3)
+### R1 — ImCoh H2a per-band (from `2026-04-15_writing-agent-briefing.md` §4.2 + §4.3)
 
 "Task trace" = VI(rsPre,rsPost) > VI(taskTest,rsPost). Full k-range
 (k = 2 … N-1, ~116 levels). "Unanimous cells" = (band, k) where all 5
@@ -49,7 +49,7 @@ over k (briefing §4.3 provides numbers for beta only).
 | low_gamma   | 59 (k = 21–108; all 5 patients positive) | not given in briefing |
 | alpha       | 32 (k = 17–61; Pat_02 = −0.05 breaks unanimity) | not given in briefing |
 | delta       | 16 (k = 8–71) | not given in briefing |
-| theta       | 5 (k = 45–49) | ≈ +0.061 (from `IMCOH_PAT02_AND_CONTROLS.md` Step 4c) |
+| theta       | 5 (k = 45–49) | ≈ +0.061 (from `2026-04-15_imcoh-pat02-controls.md` Step 4c) |
 | high_gamma  | 0  | not given in briefing |
 
 Beta / low_gamma are the only "all-5-patients-positive" bands across a
@@ -57,7 +57,7 @@ wide k-range. Reference VI distances in beta (averaged across k, briefing
 §4.3): VI(Pre,Post) ≈ 1.1, VI(TT,Post) ≈ 0.9, VI(TL,TT) ≈ 0.7 → Δ_H2a ≈
 0.2 ≈ 20 % of VI(Pre,TT).
 
-### R2 — Pat_02 H2a rank by band (from `IMCOH_PAT02_AND_CONTROLS.md` Step 3)
+### R2 — Pat_02 H2a rank by band (from `2026-04-15_imcoh-pat02-controls.md` Step 3)
 
 Pat_02 is NOT globally weak — only H2a-specific and band-dependent.
 
@@ -73,7 +73,7 @@ Since the paper headline is beta H2a, Pat_02 is the *strongest* patient
 for that claim; its slow-band weakness is a *separate* band-specific
 pattern.
 
-### R3 — Probe-bias enrichment by scale (from `PROBE_BIAS_GUIDE.md`)
+### R3 — Probe-bias enrichment by scale (from `probe-bias-guide.md`)
 
 Same-community / same-probe enrichment ratio under MSC (beta) — the
 inflation that motivates the estimator switch.

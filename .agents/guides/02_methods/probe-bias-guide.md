@@ -114,7 +114,7 @@ cases have different merge pairs and heights; community overlap at n=5 is
 4-15%). This proves ImCoh captures a genuinely different network structure,
 not just a rescaled version of MSC.
 
-See `.agents/guides/IMCOH_GUIDE.md` for full details on the ImCoh
+See `.agents/guides/imcoh-guide.md` for full details on the ImCoh
 implementation, LRG results, and the caching bug.
 
 ---
@@ -210,7 +210,7 @@ and shared far-field at the signal level.
 7. **Prefer ImCoh over MSC** for any analysis where same-probe bias
    matters. Use `fc_method="imcoh_abs"` in `workflow.fc.load_fc_matrix()`
    (the `|ImCoh|` convention — Ewald 2012 / Bastos & Schoffelen 2016).
-   See `.agents/guides/02_methods/IMCOH_GUIDE.md` for the full three-method
+   See `.agents/guides/02_methods/imcoh-guide.md` for the full three-method
    taxonomy (`imcoh` signed, `imcoh_abs`, `imcoh_sq`) introduced in the
    2026-04-15 reset.
 
@@ -234,6 +234,6 @@ Pat_08: 120 channels, 12 probes (A:11, B:11, C:12, D:12, F:12, P:15, R:10, S:9, 
 - Plot generator: `scripts/gen_brain_connectome_multiscale.py`
 - Epileptic node loader: `src/lrg_eegfc/utils/io/patient.py:load_epileptic_nodes()`
 - Epileptic investigation report: `data/figures/epileptic_analysis_v3/REPORT_FINAL.md`
-- ImCoh guide: `.agents/guides/02_methods/IMCOH_GUIDE.md`
+- ImCoh guide: `.agents/guides/02_methods/imcoh-guide.md`
 - ImCoh implementation: `src/lrg_eegfc/utils/fc/coherence/imcoh.py` (signed Nolte 2004)
 - Loader + magnitude transforms: `src/lrg_eegfc/workflow/fc.py` (`fc_method` ∈ `{"imcoh", "imcoh_abs", "imcoh_sq"}`)

@@ -810,10 +810,10 @@ carry the multiscale axis.
 
 ## 9. Cross-references
 
-- FC metric rationale: `.agents/guides/02_methods/IMCOH_GUIDE.md`
-- Probe-bias caveat: `.agents/guides/02_methods/PROBE_BIAS_GUIDE.md`
-- Writing-agent handoff (cohort-level results): `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md`
-- Era index: `.agents/reports/PIPELINE_STATUS.md`
+- FC metric rationale: `.agents/guides/02_methods/imcoh-guide.md`
+- Probe-bias caveat: `.agents/guides/02_methods/probe-bias-guide.md`
+- Writing-agent handoff (cohort-level results): `.agents/reports/2026-04-24_multiscale-task-trace.md`
+- Era index: `.agents/reports/2026-04-24_pipeline-status.md`
 - Implementation scripts:
   - VI: `scripts/01_compute/compute_imcoh_vi.py`
   - ρ (H2c): `scripts/01_compute/h2c_ultrametric_drift.py`

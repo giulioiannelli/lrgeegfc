@@ -111,7 +111,7 @@ data/
 The per-patient layout is enforced by `lrg-eegfc data normalize` (dry-run by
 default; pass `--apply` to execute). Full spec, vendor → canonical mapping
 rules, and per-patient quirks are documented in
-[`.agents/guides/03_implementation/DATA_LAYOUT.md`](.agents/guides/03_implementation/DATA_LAYOUT.md)
+[`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md)
 — **read it before touching any file under `data/raw/`**.
 
 **Naming sensitivity:**
@@ -131,7 +131,7 @@ rules, and per-patient quirks are documented in
    move_to_root(pathname="lrgeegfc")
    ```
 3. **Per-patient quirks** are centrally documented in
-   [`.agents/guides/03_implementation/DATA_LAYOUT.md`](.agents/guides/03_implementation/DATA_LAYOUT.md) §6.
+   [`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md) §6.
    As of 2026-04-22 the full n=10 roster has all 4 phases — Pat_06 was
    previously task-less but has been re-completed, so the old "exclude Pat_06
    for cross-phase" rule no longer applies.
@@ -260,7 +260,7 @@ src/lrg_eegfc/
 ## CLI Quick Reference
 
 The `lrg-eegfc` command provides 36 subcommands across 7 groups.
-See `.agents/guides/CLI_REFERENCE.md` for complete documentation.
+See `.agents/guides/cli-reference.md` for complete documentation.
 
 ```bash
 # Common workflows (--fc-method accepts: corr, msc, imcoh)
@@ -284,34 +284,34 @@ lrg-eegfc config show
 
 Command groups: `compute` (6), `plot` (16), `show` (4), `data` (4), `cache` (4), `config` (2), `bundle` (1).
 Full data-layout spec + per-patient quirks:
-[`.agents/guides/03_implementation/DATA_LAYOUT.md`](.agents/guides/03_implementation/DATA_LAYOUT.md).
+[`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md).
 
 ---
 
 ## Detailed Guides
 
-**START HERE:** `.agents/reports/PIPELINE_STATUS.md` — era index flagging
+**START HERE:** `.agents/reports/2026-04-24_pipeline-status.md` — era index flagging
 every artefact as current / superseded / dead-end after the
 MSC → |ImCoh|² → |ImCoh| transition. Canonical H1-H4 VI(k) results:
-`.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md`.
+`.agents/reports/2026-04-24_h1-h4-vi-results.md`.
 
 See `.agents/guides/INDEX.md` for the full index. Key references:
 
 **Implementation:**
-- `.agents/guides/03_implementation/CLI_REFERENCE.md` - CLI command reference
-- `.agents/guides/03_implementation/CACHING_GUIDE.md` - Cache structure and data paths
-- `.agents/guides/03_implementation/FUNCTION_MAP.md` - Function lookup table
-- `.agents/guides/03_implementation/FIGURE_PATTERNS.md` - Figure templates
+- `.agents/guides/03_implementation/cli-reference.md` - CLI command reference
+- `.agents/guides/03_implementation/caching-guide.md` - Cache structure and data paths
+- `.agents/guides/03_implementation/function-map.md` - Function lookup table
+- `.agents/guides/03_implementation/figure-patterns.md` - Figure templates
 
 **Methods:**
-- `.agents/guides/02_methods/IMCOH_GUIDE.md` - ImCoh: volume-conduction-immune FC
-- `.agents/guides/02_methods/PROBE_BIAS_GUIDE.md` - **CRITICAL**: same-probe MSC bias
-- `.agents/guides/02_methods/MSC_METHOD_GUIDE.md` - MSC methodology
+- `.agents/guides/02_methods/imcoh-guide.md` - ImCoh: volume-conduction-immune FC
+- `.agents/guides/02_methods/probe-bias-guide.md` - **CRITICAL**: same-probe MSC bias
+- `.agents/guides/02_methods/msc-method-guide.md` - MSC methodology
 
 **Reports:**
-- `.agents/reports/IMCOH_PROCESS_REPORT.md` - Full discovery report with results
-- `.agents/reports/IMCOH_RESULTS_FOR_WRITING.md` - MSC vs ImCoh comparison for writing
-- `.agents/reports/IMCOH_VERIFICATION_RESULTS.md` - Verified cell counts and flags
+- `.agents/reports/2026-04-15_imcoh-process.md` - Full discovery report with results
+- `.agents/reports/2026-04-24_imcoh-results-for-writing.md` - MSC vs ImCoh comparison for writing
+- `.agents/reports/2026-04-15_imcoh-verification.md` - Verified cell counts and flags
 
 **Project:**
-- `.agents/guides/01_project/AGENT_PLAYBOOK.md` - Session workflow
+- `.agents/guides/01_project/agent-playbook.md` - Session workflow

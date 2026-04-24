@@ -57,7 +57,7 @@ pointers: []
 ## Compute vs visualize
 - Notebooks are for single-case, cache-driven visualization or quick checks.
 - Heavy computation should move into `src/` scripts and write caches.
-- Notebook cells should use the load-first pattern from `CACHING_GUIDE.md`.
+- Notebook cells should use the load-first pattern from `caching-guide.md`.
 
 ## Deliverables
 - Updated `ipynb/INDEX.md` with tags and migration notes.

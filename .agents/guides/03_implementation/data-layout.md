@@ -72,7 +72,7 @@ lrg-eegfc data normalize
 lrg-eegfc data normalize --patients Pat_13 Pat_14
 
 # Save the combined plan to disk.
-lrg-eegfc data normalize --report .agents/reports/migration_plan_dryrun.md
+lrg-eegfc data normalize --report .agents/reports/2026-04-22_migration-plan-dryrun.md
 
 # Apply the plan — actually move/rename/generate/delete.
 lrg-eegfc data normalize --apply
@@ -276,7 +276,7 @@ actually participates in downstream analyses:
 **Reproducing these numbers:** `load_epileptic_nodes(patient)` returns the
 full red list from the xlsx; intersect with `channel_labels.csv` via
 `parse_seeg_label()` to get the analyzable subset. The canonical
-epileptic-ImCoh analysis (`.agents/reports/EPILEPTIC_IMCOH_FINAL.md`) was
+epileptic-ImCoh analysis (`.agents/reports/2026-04-18_epileptic-imcoh-final.md`) was
 run on the original n=5; any new analysis can opt into the n=9 expanded
 cohort (drop Pat_15).
 

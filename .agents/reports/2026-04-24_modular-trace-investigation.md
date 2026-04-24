@@ -83,7 +83,7 @@ scale-resolved band × scale map for per-cell evidence.
 
 ## 2026-04-24 — Stage 2/3 (KC + MC + wRF scalar tree-distance tests): FAILS pre-reg, **key heights-vs-topology diagnostic**
 
-Stage 2 literature menu (`.agents/reports/stage2_literature_menu.md`)
+Stage 2 literature menu (`.agents/reports/2026-04-24_stage2-literature-menu.md`)
 identified Kendall-Colijn, Matching Cluster, and weighted Robinson-Foulds
 as the canonical tree-distance scalars that blend branch-lengths AND
 topology — the category the 14 lacked. Implementation in
@@ -170,7 +170,7 @@ at this cohort size for effect sizes of rb ≈ 0.5–0.7.
 
 **Do instead (next session)**: read the existing ImCoh artifacts and
 surface what's already present. Priority order:
-1. `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md` — canonical VI(k)
+1. `.agents/reports/2026-04-24_h1-h4-vi-results.md` — canonical VI(k)
    unanimity tables under `imcoh_abs`. Where does band selectivity appear?
 2. `scripts/01_compute/h2_partition_multiscale.py` outputs +
    `h2_partition_cluster_perm.py` outputs — multiscale partition-distance
@@ -184,7 +184,7 @@ surface what's already present. Priority order:
 4. `scripts/01_compute/h2c_ultrametric_drift.py` — cohort-wide directional
    drift (9/9, 6/6 bands). Universal, not band-specific, but the
    structural-claim backbone.
-5. `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md` — writing-agent
+5. `.agents/reports/2026-04-24_multiscale-task-trace.md` — writing-agent
    handoff. Read this to understand how the existing results are being
    framed for the paper; the scalar-test narrative we just ran did NOT
    plug into this. The fix is to rewrite from the existing cohort-wide
@@ -310,11 +310,11 @@ accordingly (narrower band set or "partial memory").
 
 ## Files of record for the next session
 
-- This file: `.agents/reports/MODULAR_TRACE_INVESTIGATION.md`
+- This file: `.agents/reports/2026-04-24_modular-trace-investigation.md`
 - Compact pastable handoff: `.agents/reports/MODULAR_TRACE_COMPACT_MESSAGE.md`
-- Writing context: `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md`
-- Method definitions: `.agents/guides/02_methods/H2_METRICS.md`
-- Era index: `.agents/reports/PIPELINE_STATUS.md`
+- Writing context: `.agents/reports/2026-04-24_multiscale-task-trace.md`
+- Method definitions: `.agents/guides/02_methods/h2-metrics.md`
+- Era index: `.agents/reports/2026-04-24_pipeline-status.md`
 - Gallery (descriptive, not statistical): `data/outputs/figures/cbr_gallery/`
 - Tree utilities already in place: `src/lrg_eegfc/utils/metrics/tree.py`
   (`tree_internal_nodes`, `jaccard_leafsets`, `h_log_grid`, `dmax_from_Z`,

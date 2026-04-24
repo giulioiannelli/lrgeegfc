@@ -23,8 +23,8 @@ pointers: []
 > physics and is available via the same `compute_msc_welch()` function
 > with `metric="imcoh"`.
 >
-> See `.agents/guides/IMCOH_GUIDE.md` for full details.
-> See `.agents/guides/PROBE_BIAS_GUIDE.md` for the bias quantification.
+> See `.agents/guides/imcoh-guide.md` for full details.
+> See `.agents/guides/probe-bias-guide.md` for the bias quantification.
 
 ---
 

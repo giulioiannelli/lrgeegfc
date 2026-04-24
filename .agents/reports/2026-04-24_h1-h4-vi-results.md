@@ -44,7 +44,7 @@ H2 captures whether a cognitive task leaves a persistent trace on the multiscale
 > block-level persistence), not H2a.** H2a remains here for historical
 > continuity of the VI-based framework but should be demoted to
 > supplementary reporting in the paper. The load-bearing handoff
-> document is `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md`.
+> document is `.agents/reports/2026-04-24_multiscale-task-trace.md`.
 
 | band | k cells | unan. + | unan. − | frac+ | frac− | mean | sd |  Pat_02 | Pat_03 | Pat_05 | Pat_06 | Pat_07 | Pat_08 | Pat_10 | Pat_13 | Pat_14 | Pat_15 |
 |------|--------:|--------:|--------:|------:|------:|-----:|---:|------:|------:|------:|------:|------:|------:|------:|------:|------:|------:|

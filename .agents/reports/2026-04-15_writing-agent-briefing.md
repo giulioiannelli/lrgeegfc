@@ -26,7 +26,7 @@ pointers: []
 This document summarises the shift from Magnitude-Squared Coherence (MSC) to
 Imaginary Coherence (ImCoh) as the primary functional connectivity metric in
 the LRG-sEEG pipeline. All numbers have been independently verified (see
-`IMCOH_VERIFICATION_RESULTS.md`). Use this as the single reference when
+`2026-04-15_imcoh-verification.md`). Use this as the single reference when
 drafting or revising manuscript sections related to FC methodology and results.
 
 ---
@@ -404,8 +404,8 @@ hypothesis, band, k, patient, contrast, sign
 
 | Document | Purpose |
 |----------|---------|
-| `.agents/reports/IMCOH_PROCESS_REPORT.md` | Full discovery journey with technical details |
-| `.agents/reports/IMCOH_RESULTS_FOR_WRITING.md` | Detailed MSC vs ImCoh comparison tables |
-| `.agents/reports/IMCOH_VERIFICATION_RESULTS.md` | Independent verification of all numbers |
-| `.agents/guides/MSC_METHOD_GUIDE.md` | MSC methodology reference |
-| `.agents/guides/PROBE_BIAS_GUIDE.md` | Same-probe bias analysis |
+| `.agents/reports/2026-04-15_imcoh-process.md` | Full discovery journey with technical details |
+| `.agents/reports/2026-04-24_imcoh-results-for-writing.md` | Detailed MSC vs ImCoh comparison tables |
+| `.agents/reports/2026-04-15_imcoh-verification.md` | Independent verification of all numbers |
+| `.agents/guides/msc-method-guide.md` | MSC methodology reference |
+| `.agents/guides/probe-bias-guide.md` | Same-probe bias analysis |

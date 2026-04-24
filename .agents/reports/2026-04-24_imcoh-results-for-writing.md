@@ -11,7 +11,7 @@ pointers: []
 > **⚠ SUPERSEDED (2026-04-24)** — This document was the writing-agent
 > handoff for the n=5 / n=7 / pre-cohort-expansion phase of the project.
 > It has been **superseded** by
-> [`MULTISCALE_TASK_TRACE_FOR_WRITING.md`](MULTISCALE_TASK_TRACE_FOR_WRITING.md),
+> [`2026-04-24_multiscale-task-trace.md`](2026-04-24_multiscale-task-trace.md),
 > which covers the current n=9/n=10 cohort with the reorganized H2
 > hypothesis framework (H2c universal drift direction, H2d band-selective
 > block persistence, H2a demoted). Numbers in this file also predate the
@@ -20,7 +20,7 @@ pointers: []
 > of the MSC → ImCoh transition narrative.
 
 # ImCoh vs MSC Results — Comprehensive Comparison for Writing Agent
-## [SUPERSEDED — see MULTISCALE_TASK_TRACE_FOR_WRITING.md]
+## [SUPERSEDED — see 2026-04-24_multiscale-task-trace.md]
 
 This document provides the complete, verified results comparing the original
 MSC-based analysis with the ImCoh-based reanalysis. Use this to decide which
@@ -264,7 +264,7 @@ to working memory maintenance and cognitive stability).
 | MSC VI profiles (original) | `data/wp0_metric_exploration/task3_multiscale/vi_raw_profiles.csv` |
 | MSC LRG results | `data/lrg_cache/{patient}/{band}_{phase}_lrg_msc.npz` |
 | Visualization gallery | `data/imcoh_figures/gallery/` |
-| Process report | `.agents/guides/IMCOH_PROCESS_REPORT.md` |
+| Process report | `.agents/guides/2026-04-15_imcoh-process.md` |
 
 ### Each .npz LRG file contains:
 ```

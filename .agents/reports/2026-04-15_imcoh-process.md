@@ -393,8 +393,8 @@ is discarded.
 
 ## Related Files
 
-- ImCoh guide: `.agents/guides/IMCOH_GUIDE.md`
-- Probe bias guide: `.agents/guides/PROBE_BIAS_GUIDE.md`
-- MSC method guide: `.agents/guides/MSC_METHOD_GUIDE.md`
+- ImCoh guide: `.agents/guides/imcoh-guide.md`
+- Probe bias guide: `.agents/guides/probe-bias-guide.md`
+- MSC method guide: `.agents/guides/msc-method-guide.md`
 - Memory: `imcoh_lrg_invariance.md` (corrected)
 - Memory: `probe_bias_critical.md`

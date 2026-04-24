@@ -69,7 +69,7 @@ it"**:
 
 - Stage 0b / 1 / 3 / 4 scripts — under
   `scripts/archive/2026-04_failed-scalar-session/`.
-- `MODULAR_TRACE_INVESTIGATION.md` (handoff log, preserved) —
+- `2026-04-24_modular-trace-investigation.md` (handoff log, preserved) —
   its STOP directive stands; its stage chronology is closed.
 - Any "0/14 metrics pass" framing.
 - Any rb-threshold or FDR-m=6 gate as a primary claim.

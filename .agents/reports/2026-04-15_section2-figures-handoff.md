@@ -22,7 +22,7 @@ original `notes.tex` Section 2, which motivated the estimator switch at the
 FC‑estimation level).
 
 **Action requested:** read this document side‑by‑side with your original
-`WRITING_AGENT_BRIEFING.md`, and **select ≤ 20 items** (figure files + report
+`2026-04-15_writing-agent-briefing.md`, and **select ≤ 20 items** (figure files + report
 `.md` files) that you actually need to draft Sections 2.1–2.3. Return the
 selected list; we will then produce a short quantitative description per
 selected figure.
@@ -31,7 +31,7 @@ selected figure.
 
 ## 1. What changed vs. your initial plan
 
-Your initial briefing (`WRITING_AGENT_BRIEFING.md` §8 "Figures to reproduce
+Your initial briefing (`2026-04-15_writing-agent-briefing.md` §8 "Figures to reproduce
 with ImCoh") proposed a generic list:
 
 1. Unanimity maps (H1, H2a, H2b, H3)
@@ -156,17 +156,17 @@ diagnostic appendix.
 
 ## 3. Available supporting reports (`.agents/reports/`)
 
-- `WRITING_AGENT_BRIEFING.md` — your initial brief (MSC→ImCoh narrative,
+- `2026-04-15_writing-agent-briefing.md` — your initial brief (MSC→ImCoh narrative,
   tables, numbers). **Read this first; this handoff complements it.**
-- `IMCOH_PROCESS_REPORT.md` — full discovery journey with technical details.
-- `IMCOH_RESULTS_FOR_WRITING.md` — detailed MSC vs ImCoh comparison tables.
-- `IMCOH_VERIFICATION_RESULTS.md` — verified numbers / cell counts.
-- `IMCOH_PAT02_AND_CONTROLS.md` — Pat_02 and Pat_03 as controls.
-- `IMCOH_GAP_ANALYSIS.md` — H2a beta k‑level gap analysis.
-- `EPILEPTIC_IMCOH_FINAL.md` — paper‑ready framing of epileptic‑node clustering.
+- `2026-04-15_imcoh-process.md` — full discovery journey with technical details.
+- `2026-04-24_imcoh-results-for-writing.md` — detailed MSC vs ImCoh comparison tables.
+- `2026-04-15_imcoh-verification.md` — verified numbers / cell counts.
+- `2026-04-15_imcoh-pat02-controls.md` — Pat_02 and Pat_03 as controls.
+- `2026-04-15_imcoh-gap-analysis.md` — H2a beta k‑level gap analysis.
+- `2026-04-18_epileptic-imcoh-final.md` — paper‑ready framing of epileptic‑node clustering.
 
-Method/guide references also available: `.agents/guides/02_methods/IMCOH_GUIDE.md`,
-`PROBE_BIAS_GUIDE.md`, `MSC_METHOD_GUIDE.md`.
+Method/guide references also available: `.agents/guides/02_methods/imcoh-guide.md`,
+`probe-bias-guide.md`, `msc-method-guide.md`.
 
 ---
 
