@@ -28,7 +28,7 @@ from matplotlib.patches import FancyArrowPatch
 from matplotlib.colors import LinearSegmentedColormap
 from scipy.stats import gaussian_kde
 
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     ALL_PATIENTS, BANDS, BAND_TEX, BRAIN_BAND_TEX_DICT,
     PATIENT_COLORS, N_COMMUNITIES,
     CLR_MSC, CLR_IMCOH,

@@ -53,7 +53,7 @@ from lrg_eegfc.config.paths import CACHE_ROOT, REPORTS_ROOT, SEEG_DATAPATH
 from lrg_eegfc.utils.io.patient import load_timeseries
 from lrg_eegfc.workflow.lrg import compute_lrg_analysis
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
 from _fc_split_half import compute_imcoh_abs_halves
 from h2c_ultrametric_drift import upper_tri
 from h2d_coactivation_persistence import compute_persistence, K_RANGE

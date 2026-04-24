@@ -50,7 +50,7 @@ CLUSTER_Z_THRESH = 1.96
 
 # ─────────────────────────── helpers ───────────────────────────
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr  # canonical
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr, cluster_stats  # canonical
 
 
 def co_cluster_mask(labels: np.ndarray) -> np.ndarray:
@@ -98,25 +98,6 @@ def compute_persistence(Z_rpre, Z_ttest, Z_rpost, k: int) -> tuple[float, float]
     return rho_task, rho_inert
 
 
-# ── cluster-based permutation over k for Δρ ──
-def cluster_stats(z: np.ndarray, thresh: float) -> list[tuple[int, int, float]]:
-    sup = np.isfinite(z) & (z > thresh)
-    out = []
-    in_run = False
-    start = 0
-    mass = 0.0
-    for i, s in enumerate(sup):
-        if s and not in_run:
-            in_run = True; start = i; mass = float(z[i])
-        elif s:
-            mass += float(z[i])
-        elif in_run:
-            out.append((start, i - 1, mass)); in_run = False
-    if in_run:
-        out.append((start, len(sup) - 1, mass))
-    return out
-
-
 def per_k_z(mat: np.ndarray) -> np.ndarray:
     abs_ranks = np.apply_along_axis(stats.rankdata, 0, np.abs(mat))
     signs = np.sign(mat)
@@ -156,10 +137,25 @@ def cluster_perm(mat: np.ndarray, k_values: np.ndarray,
         max_null[i] = max((c[2] for c in cs), default=0.0)
 
     out = []
+    int_scale = np.issubdtype(np.asarray(k_values).dtype, np.integer)
     for s, e, m in obs_clusters:
         p = float((max_null >= m).mean())
-        out.append({"k_start": int(k_values[s]), "k_end": int(k_values[e]),
-                    "len": e - s + 1, "mass": m, "p": p})
+        scale_start = k_values[s]
+        scale_end = k_values[e]
+        rec = {
+            "scale_start": float(scale_start),
+            "scale_end": float(scale_end),
+            "idx_start": int(s),
+            "idx_end": int(e),
+            "len": e - s + 1,
+            "mass": m,
+            "p": p,
+        }
+        if int_scale:
+            # Back-compat keys for all existing k-based callers.
+            rec["k_start"] = int(scale_start)
+            rec["k_end"] = int(scale_end)
+        out.append(rec)
     return out
 
 

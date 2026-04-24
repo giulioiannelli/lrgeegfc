@@ -31,7 +31,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt
 
-from _shared import apply_pub_style, save_fig, load_channel_labels
+from lrg_eegfc.utils.metrics.hypothesis import apply_pub_style, save_fig, load_channel_labels
 from lrg_eegfc.config.paths import FIGURES_ROOT
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
 from lrg_eegfc.workflow.lrg import load_lrg_result

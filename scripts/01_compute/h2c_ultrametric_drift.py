@@ -51,7 +51,7 @@ def upper_tri(mat: np.ndarray) -> np.ndarray:
     return m[iu]
 
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr  # canonical
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr  # canonical
 
 
 def load_D(patient: str, phase: str, band: str) -> np.ndarray | None:

@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import matplotlib.pyplot as plt
 import networkx as nx
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     ALL_PATIENTS, BANDS, BAND_TEX, CMAP_MATRIX,
     PHASE_LABELS, BRAIN_BAND_TEX_DICT,
     REPR_PATIENTS, REPR_BANDS, REPR_PHASES,

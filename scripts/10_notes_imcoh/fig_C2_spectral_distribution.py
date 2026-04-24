@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import matplotlib.pyplot as plt
 
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     ALL_PATIENTS, BANDS, BRAIN_BAND_TEX_DICT,
     apply_pub_style, save_fig, SECTION2_ROOT,
     set_memory_limit, checkpoint_cleanup,

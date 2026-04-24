@@ -44,7 +44,7 @@ from matplotlib.collections import LineCollection
 
 import graph_tool.all as gt
 
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     BRAIN_BAND_TEX_DICT,
     load_channel_labels, extract_probe_labels,
     apply_pub_style, save_helper_fig, SECTION2_ROOT,

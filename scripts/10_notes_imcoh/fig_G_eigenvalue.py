@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import matplotlib.pyplot as plt
 
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     BANDS, BAND_TEX, PHASE_LABELS,
     PHASE_COLORS, PHASE_MARKERS,
     CLR_MSC, CLR_IMCOH,

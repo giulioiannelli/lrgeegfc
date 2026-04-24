@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 
-from _shared import (
+from lrg_eegfc.utils.metrics.hypothesis import (
     ALL_PATIENTS, BANDS, BAND_TEX, BRAIN_BAND_TEX_DICT,
     CLR_SAME, CLR_CROSS, CLR_MSC, CLR_IMCOH, PATIENT_COLORS,
     REPR_PATIENTS, REPR_BANDS, REPR_PHASES,

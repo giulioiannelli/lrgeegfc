@@ -38,7 +38,7 @@ ROOT = setup_script_env()
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from _shared import apply_pub_style, save_fig
+from lrg_eegfc.utils.metrics.hypothesis import apply_pub_style, save_fig
 
 from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, PHASE_LABELS
 from lrg_eegfc.config.paths import (

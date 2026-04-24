@@ -65,7 +65,7 @@ CLUSTER_Z_THRESH = 1.96  # one-sided 0.025 tail
 
 # ─────────────────────────── helpers ───────────────────────────
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr  # canonical
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr, cluster_stats  # canonical
 
 
 def per_k_wilcoxon_z(mat: np.ndarray) -> np.ndarray:
@@ -84,27 +84,6 @@ def per_k_wilcoxon_z(mat: np.ndarray) -> np.ndarray:
         z = np.where(sigma > 0, (w_plus - mu) / sigma, np.nan)
     return z
 
-
-def cluster_stats(z: np.ndarray, thresh: float) -> list[tuple[int, int, float]]:
-    """Return [(start_idx, end_idx, cluster_mass), ...] for supra-threshold runs."""
-    sup = np.isfinite(z) & (z > thresh)
-    out = []
-    in_run = False
-    start = 0
-    mass = 0.0
-    for i, s in enumerate(sup):
-        if s and not in_run:
-            in_run = True
-            start = i
-            mass = float(z[i])
-        elif s:
-            mass += float(z[i])
-        elif in_run:
-            out.append((start, i - 1, mass))
-            in_run = False
-    if in_run:
-        out.append((start, len(sup) - 1, mass))
-    return out
 
 
 def cluster_perm_test(mat: np.ndarray, k_values: np.ndarray,

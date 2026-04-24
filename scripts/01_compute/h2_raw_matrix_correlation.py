@@ -48,7 +48,7 @@ from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, BRAIN_BAND_TEX_DICT, PATIE
 from lrg_eegfc.config.paths import IMCOH_LRG_CACHE, REPORTS_ROOT
 from lrg_eegfc.workflow.lrg import load_lrg_result
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
 from h2c_ultrametric_drift import upper_tri
 
 

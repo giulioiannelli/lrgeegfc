@@ -34,7 +34,7 @@ ROOT = setup_script_env()
 from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, BRAIN_BAND_TEX_DICT, PATIENTS_LIST
 from lrg_eegfc.config.paths import REPORTS_ROOT
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
 
 
 PHASES = ("rest_pre", "task_learn", "task_test", "rest_post")

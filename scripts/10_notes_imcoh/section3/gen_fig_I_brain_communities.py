@@ -29,7 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt
 
-from _shared import apply_pub_style, save_fig
+from lrg_eegfc.utils.metrics.hypothesis import apply_pub_style, save_fig
 from lrg_eegfc.config.paths import FIGURES_ROOT
 from lrg_eegfc.visuals.spatial import plot_brain_connectome_at_n
 

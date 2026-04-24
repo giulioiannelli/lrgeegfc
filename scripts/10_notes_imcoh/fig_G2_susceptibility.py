@@ -9,7 +9,7 @@ from __future__ import annotations
 import numpy as np
 import matplotlib.pyplot as plt
 
-from _shared import METHOD_COLORS, SECTION2_ROOT, apply_pub_style, save_fig
+from lrg_eegfc.utils.metrics.hypothesis import METHOD_COLORS, SECTION2_ROOT, apply_pub_style, save_fig
 from lrg_eegfc.workflow.fc import load_fc_matrix
 
 

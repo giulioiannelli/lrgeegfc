@@ -33,7 +33,7 @@ from lrg_eegfc.config.paths import IMCOH_LRG_CACHE, REPORTS_ROOT
 from lrg_eegfc.utils.metrics import conditional_entropy
 from lrg_eegfc.workflow.lrg import load_lrg_result
 
-from _shared import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr
 from h2d_coactivation_persistence import cluster_perm  # reused: sign-flip cluster-perm over k
 
 

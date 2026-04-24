@@ -31,7 +31,7 @@ from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, BRAIN_BAND_TEX_DICT
 from lrg_eegfc.config.paths import REPORTS_ROOT
 
 _sys.path.insert(0, str(Path(__file__).parent))
-from _shared import boot_ci_mean  # noqa: E402
+from lrg_eegfc.utils.metrics.hypothesis import boot_ci_mean  # noqa: E402
 
 
 IN_DIR = REPORTS_ROOT / "imcoh_vi"

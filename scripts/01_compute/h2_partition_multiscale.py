@@ -52,7 +52,7 @@ from lrg_eegfc.config.paths import IMCOH_LRG_CACHE, REPORTS_ROOT
 from lrg_eegfc.utils.metrics import compute_vi, conditional_entropy
 from lrg_eegfc.workflow.lrg import load_lrg_result
 
-from _shared import wilcoxon_z, bh_fdr
+from lrg_eegfc.utils.metrics.hypothesis import wilcoxon_z, bh_fdr
 
 
 K_RANGE = list(range(2, 50))
