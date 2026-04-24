@@ -15,6 +15,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from lrgsglib.utils.basic.probability import marchenko_pastur
 from lrgsglib.nx_patches.funcs.thresholding import compute_threshold_stats
 
+from lrg_eegfc.config.paths import CORR_CACHE, SEEG_DATAPATH, FIGURES_ROOT
 from lrg_eegfc.workflow.corr import compute_corr_matrix, get_corr_cache_path, load_corr_matrix
 from lrg_eegfc.workflow.cleaning import load_cleaned_corr_matrix
 from lrg_eegfc.utils.io import load_patient_metadata
@@ -152,9 +153,9 @@ def plot_correlation_summary(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
     output_path: Optional[Path] = None,
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     figsize: tuple = (14, 10),
 ) -> Path:
     """Build a single figure with raw, |corr|, percolation/threshold, and network.
@@ -166,7 +167,7 @@ def plot_correlation_summary(
         D: Network graph built from the thresholded matrix (edges scaled by |weight|)
     """
     # Resolve output path
-    patient_dir = Path("data/figures/correlation") / patient
+    patient_dir = FIGURES_ROOT / "correlation" / patient
     patient_dir.mkdir(parents=True, exist_ok=True)
     if output_path is None:
         output_path = patient_dir / f"{band}_{phase}_summary.png"
@@ -370,11 +371,11 @@ def plot_correlation_and_network(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
     output_path: Optional[Path] = None,
     cleaned: bool = False,
     figsize: tuple = (16, 8),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
 ) -> Path:
     """Side-by-side: correlation matrix + network graph with edge weights.
 
@@ -431,7 +432,7 @@ def plot_correlation_and_network(
     # Generate output path if not provided
     if output_path is None:
         suffix = "_cleaned" if cleaned else ""
-        output_dir = Path("data/figures/correlation") / patient
+        output_dir = FIGURES_ROOT / "correlation" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_network{suffix}.png"
     else:
@@ -497,10 +498,10 @@ def plot_marchenko_pastur_comparison(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
     output_path: Optional[Path] = None,
     figsize: tuple = (18, 6),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
 ) -> Path:
     """Plot eigenvalue histogram vs Marchenko-Pastur distribution.
 
@@ -560,7 +561,7 @@ def plot_marchenko_pastur_comparison(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/correlation") / patient
+        output_dir = FIGURES_ROOT / "correlation" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_mp_comparison.png"
     else:
@@ -664,11 +665,11 @@ def plot_percolation_curves(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
     output_path: Optional[Path] = None,
     cleaned: bool = False,
     figsize: tuple = (10, 7),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
 ) -> Path:
     """Plot P_inf and E_inf vs threshold θ.
 
@@ -739,7 +740,7 @@ def plot_percolation_curves(
     # Generate output path if not provided
     if output_path is None:
         suffix = "_cleaned" if cleaned else ""
-        output_dir = Path("data/figures/correlation") / patient
+        output_dir = FIGURES_ROOT / "correlation" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_percolation{suffix}.png"
     else:

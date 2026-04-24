@@ -61,14 +61,15 @@ FC_METHOD_SHORTCUTS: dict[str, tuple[str, Optional[str], Optional[str]]] = {
 }
 
 # ---------------------------------------------------------------------------
-# Patient sampling-rate map (only deviations from default 2048 Hz)
+# Patient sampling-rate map — imported from the single source of truth in
+# config/const.py. Do NOT define a local FS_MAP here.
 # ---------------------------------------------------------------------------
-_FS_OVERRIDES = {"Pat_03": 1024.0}
+from ..config.const import FS_OVERRIDES, DEFAULT_SAMPLE_RATE
 
 
 def _default_nperseg(patient: str) -> int:
     """Return the correct nperseg for *patient* (handles Pat_03 at 1024 Hz)."""
-    fs = _FS_OVERRIDES.get(patient, 2048.0)
+    fs = FS_OVERRIDES.get(patient, DEFAULT_SAMPLE_RATE)
     return nperseg_for_fs(fs)
 
 
@@ -108,7 +109,7 @@ def load_fc_matrix(
     patient : str
         Patient identifier (e.g. ``"Pat_02"``).
     phase : str
-        Recording phase (e.g. ``"rsPre"``).
+        Recording phase (e.g. ``"rest_pre"``).
     band : str
         Frequency band name (must exist in ``BRAIN_BANDS``).
     fc_method : str

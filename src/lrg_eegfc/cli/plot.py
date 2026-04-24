@@ -10,6 +10,16 @@ from pathlib import Path
 
 import click
 
+from lrg_eegfc.config.paths import (
+    CORR_CACHE,
+    MSC_CACHE,
+    LRG_CACHE,
+    SEEG_DATAPATH,
+    FIGURES_ROOT,
+    MSC_WINDOWS_CACHE,
+    TABLES_ROOT,
+)
+
 from ._common import (
     CliReporter,
     band_phase_options,
@@ -42,10 +52,10 @@ def plot() -> None:
               default="summary", show_default=True)
 @click.option("--cleaned", is_flag=True, help="Use MP-cleaned matrix.")
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True)
+              default=CORR_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/correlation")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "correlation"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -144,10 +154,10 @@ def corr(ctx, patient, band, bands, phase, phases, plot_type, cleaned,
 @click.option("--n-surrogates", type=int, default=0, show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+              default=MSC_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/msc")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "msc"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -237,10 +247,10 @@ def msc(ctx, patient, band, bands, phase, phases, plot_type, sparsify,
               type=click.Choice(["top", "right", "bottom", "left"]),
               default="top", show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/lrg")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "lrg"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -338,8 +348,8 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
 @band_phase_options()
 @fc_method_option(required=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
-@output_options("data/figures/reorganization")
+              default=LRG_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "reorganization"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -386,10 +396,10 @@ def reorganization(ctx, patient, band, bands, phase, phases, fc_method,
 @click.option("--phase", required=True)
 @fc_method_option(required=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/metastable")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "metastable"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -444,10 +454,10 @@ def metastable(ctx, patient, band, phase, fc_method, cache_root,
 @single_patient_option()
 @band_phase_options()
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True)
+              default=CORR_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/cleaning")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "cleaning"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -492,11 +502,11 @@ def cleaning(ctx, patient, band, bands, phase, phases, cache_root,
 @single_patient_option()
 @band_phase_options()
 @click.option("--corr-cache", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True)
+              default=CORR_CACHE, show_default=True)
 @click.option("--msc-cache", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+              default=MSC_CACHE, show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
-@output_options("data/figures/comparison")
+@output_options(str(FIGURES_ROOT / "comparison"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -545,8 +555,8 @@ def comparison(ctx, patient, band, bands, phase, phases,
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--n-surrogates", type=int, default=0, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
-@output_options("data/figures/msc")
+              default=MSC_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "msc"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -608,8 +618,8 @@ def msc_grid(ctx, patient, sparsify, nperseg, n_surrogates, cache_root,
 @click.option("--sparsify", default="none", show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
-@output_options("data/figures/msc")
+              default=MSC_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "msc"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -669,10 +679,10 @@ def msc_all_patients(ctx, patients, band, bands, phase, phases, sparsify,
 @band_phase_options()
 @fc_method_option(required=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/lrg")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "lrg"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -722,10 +732,10 @@ def lrg_phase_grid(ctx, patient, band, bands, phase, phases, fc_method,
 @fc_method_option(required=True)
 @click.option("--n-frames", type=int, default=50, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
-@output_options("data/figures/lrg_video")
+              default=SEEG_DATAPATH, show_default=True)
+@output_options(str(FIGURES_ROOT / "lrg_video"))
 @verbose_option()
 @click.pass_context
 def lrg_video(ctx, patient, band, phase, fc_method, n_frames, cache_root,
@@ -747,8 +757,8 @@ def lrg_video(ctx, patient, band, phase, fc_method, n_frames, cache_root,
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--n-surrogates", type=int, default=200, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
-@output_options("data/figures/msc_validation")
+              default=MSC_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "msc_validation"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -796,8 +806,8 @@ def msc_validation(ctx, patient, band, bands, phase, phases, nperseg,
 @band_phase_options()
 @fc_method_option(default="msc")
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache_windows"), show_default=True)
-@output_options("data/figures/time_windows")
+              default=MSC_WINDOWS_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "time_windows"))
 @verbose_option()
 @click.pass_context
 def time_windows(ctx, patient, band, bands, phase, phases, fc_method,
@@ -818,8 +828,8 @@ def time_windows(ctx, patient, band, bands, phase, phases, fc_method,
 @band_phase_options()
 @fc_method_option(default="msc")
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
-@output_options("data/figures/reorganization")
+              default=LRG_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "reorganization"))
 @show_option()
 @verbose_option()
 @click.pass_context
@@ -864,8 +874,8 @@ def reorg_metrics(ctx, patient, band, bands, phase, phases, fc_method,
 @single_patient_option()
 @fc_method_option(default="msc")
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
-@output_options("data/figures/reorganization")
+              default=LRG_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "reorganization"))
 @verbose_option()
 @click.pass_context
 def reorg_summary(ctx, patient, fc_method, cache_root, output_dir, dpi, fmt,
@@ -885,8 +895,8 @@ def reorg_summary(ctx, patient, fc_method, cache_root, output_dir, dpi, fmt,
 @single_patient_option()
 @fc_method_option(default="msc")
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
-@output_options("data/figures/reorganization")
+              default=LRG_CACHE, show_default=True)
+@output_options(str(FIGURES_ROOT / "reorganization"))
 @verbose_option()
 @click.pass_context
 def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi,
@@ -914,20 +924,20 @@ def metric_correlation(ctx, patient, fc_method, cache_root, output_dir, dpi,
               default="all", show_default=True,
               help="Which cross-condition figure to generate.")
 @click.option("--csv", "csv_path", type=click.Path(path_type=Path),
-              default=Path("data/tables/mslcd_diagnostics_master.csv"),
+              default=TABLES_ROOT / "mslcd_diagnostics_master.csv",
               show_default=True, help="Master diagnostics CSV.")
 @click.option("--trajectories", type=click.Path(path_type=Path),
-              default=Path("data/tables/mslcd_coarsening_trajectories.npz"),
+              default=TABLES_ROOT / "mslcd_coarsening_trajectories.npz",
               show_default=True, help="Coarsening trajectories NPZ.")
 @click.option("--threshold-data", type=click.Path(path_type=Path),
-              default=Path("data/tables/threshold_analysis_Pat02.npz"),
+              default=TABLES_ROOT / "threshold_analysis_Pat02.npz",
               show_default=True, help="Threshold analysis NPZ.")
-@output_options("data/figures/report_mslcd_section/cross_condition")
+@output_options(str(FIGURES_ROOT / "report_mslcd_section" / "cross_condition"))
 @click.option("--threshold-output-dir", type=click.Path(path_type=Path),
-              default=Path("data/figures/report_mslcd_section/threshold_analysis"),
+              default=FIGURES_ROOT / "report_mslcd_section" / "threshold_analysis",
               show_default=True, help="Output dir for threshold figures.")
 @click.option("--latex-output", type=click.Path(path_type=Path),
-              default=Path("data/tables/mslcd_diagnostics_Pat02.tex"),
+              default=TABLES_ROOT / "mslcd_diagnostics_Pat02.tex",
               show_default=True)
 @show_option()
 @verbose_option()

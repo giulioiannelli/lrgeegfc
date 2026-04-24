@@ -8,6 +8,7 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from lrg_eegfc.config.const import BRAIN_BANDS
+from lrg_eegfc.config.paths import CORR_CACHE, MSC_CACHE, FIGURES_ROOT
 from lrg_eegfc.workflow.corr import load_corr_matrix
 from lrg_eegfc.workflow.msc import load_msc_matrix
 
@@ -39,8 +40,8 @@ def plot_fc_comparison(
     patient: str,
     phase: str,
     band: str,
-    cache_root_corr: Path = Path("data/corr_cache"),
-    cache_root_msc: Path = Path("data/msc_cache"),
+    cache_root_corr: Path = CORR_CACHE,
+    cache_root_msc: Path = MSC_CACHE,
     output_path: Optional[Path] = None,
     nperseg: int = 1024,
     figsize: tuple = (18, 6),
@@ -57,7 +58,7 @@ def plot_fc_comparison(
     patient : str
         Patient identifier (e.g., "Pat_02")
     phase : str
-        Recording phase (e.g., "rsPre", "taskLearn")
+        Recording phase (e.g., "rest_pre", "task_learn")
     band : str
         Frequency band (e.g., "beta", "alpha")
     cache_root_corr : Path
@@ -167,7 +168,7 @@ def plot_fc_comparison(
 
     # Prepare output path
     if output_path is None:
-        output_dir = Path("data/figures/comparison") / patient
+        output_dir = FIGURES_ROOT / "comparison" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_fc_comparison.png"
     else:

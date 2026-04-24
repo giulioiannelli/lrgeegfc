@@ -54,7 +54,7 @@ DATASET_ROOT = SEEG_DATAPATH
 OUT = FIGURES_ROOT / "epileptic_imcoh_analysis"
 OUT.mkdir(parents=True, exist_ok=True)
 
-FS_MAP = {"Pat_03": 1024.0}
+from lrg_eegfc.config.const import FS_OVERRIDES as FS_MAP  # canonical
 np.random.seed(42)
 
 PAT_COLORS = {
@@ -596,7 +596,7 @@ for pat in PATIENTS:
     epi_pool = sum((v["epi"] for v in mx.values()), [])
     non_pool = sum((v["non"] for v in mx.values()), [])
 
-    for phase in ["rsPre", "rsPost"]:
+    for phase in ["rest_pre", "rest_post"]:
         for band in BANDS:
             A = load_imcoh(pat, phase, band, N)
             if A is None:
@@ -652,10 +652,10 @@ if len(sa_curves) > 0:
     fig = plt.figure(figsize=(16, 10))
     gs = GridSpec(2, 3, figure=fig, hspace=0.35, wspace=0.3)
 
-    # Main panel: overlay all rsPre curves
+    # Main panel: overlay all rest_pre curves
     ax_main = fig.add_subplot(gs[0, :])
     for (pat, phase, band), (lt, rel) in sa_curves.items():
-        if phase != "rsPre":
+        if phase != "rest_pre":
             continue
         ax_main.plot(lt, rel * 100, ls=BAND_LS.get(band, "-"),
                      color=PAT_COLORS[pat], alpha=0.6, lw=1.2,
@@ -663,7 +663,7 @@ if len(sa_curves) > 0:
     ax_main.axhline(0, color="k", ls="-", lw=0.5)
     ax_main.set_xlabel("log₁₀(τ)  [diffusion time]")
     ax_main.set_ylabel("Relative self-return difference (%)\n(epi − non-epi) / mean")
-    ax_main.set_title("ImCoh scale amplification (rsPre)\n"
+    ax_main.set_title("ImCoh scale amplification (rest_pre)\n"
                        "Positive = epi retains more heat", fontsize=11)
     ax_main.legend(fontsize=6, ncol=5, loc="upper left")
 
@@ -671,7 +671,7 @@ if len(sa_curves) > 0:
     for pi, pat in enumerate(PATIENTS[:3]):
         ax = fig.add_subplot(gs[1, pi])
         for band in BANDS:
-            key = (pat, "rsPre", band)
+            key = (pat, "rest_pre", band)
             if key not in sa_curves:
                 continue
             lt, rel = sa_curves[key]
@@ -680,7 +680,7 @@ if len(sa_curves) > 0:
         ax.axhline(0, color="k", ls="-", lw=0.5)
         ax.set_xlabel("log₁₀(τ)")
         ax.set_ylabel("Δ (%)")
-        sub = sadf[(sadf["patient"] == pat) & (sadf["phase"] == "rsPre")]
+        sub = sadf[(sadf["patient"] == pat) & (sadf["phase"] == "rest_pre")]
         if len(sub) > 0:
             ax.set_title(f"{pat}  (mean ρ = {sub['rho'].mean():+.2f})", fontsize=10)
         else:
@@ -858,8 +858,8 @@ R(f"  → {OUT / 'fig5_consensus_strength.pdf'}")
 
 fig, axes = plt.subplots(2, 3, figsize=(15, 9))
 for ki, k in enumerate([5, 10, 20]):  # three representative scales
-    for row, phase_set in enumerate([["rsPre", "rsPost"],
-                                      ["taskLearn", "taskTest"]]):
+    for row, phase_set in enumerate([["rest_pre", "rest_post"],
+                                      ["task_learn", "task_test"]]):
         ax = axes[row, ki]
         # For each band, count patients with enrichment > 1.5
         mat = np.zeros((len(PATIENTS), len(BANDS)))
@@ -960,7 +960,7 @@ for pat in PATIENTS:
     probes = [probe(l) for l in ch]
     probe_labels = np.array(probes)
 
-    for phase in ["rsPre"]:
+    for phase in ["rest_pre"]:
         for band in ["alpha", "beta"]:
             lrg = load_lrg(pat, phase, band)
             if lrg is None:

@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 
+from lrg_eegfc.config.paths import FIGURES_ROOT
+
 from ._common import CliReporter
 
 
@@ -19,7 +21,7 @@ def bundle() -> None:
 @click.option("--output-root", type=click.Path(path_type=Path),
               default=Path("outputs/overleaf"), show_default=True)
 @click.option("--figures-root", type=click.Path(path_type=Path),
-              default=Path("data/figures"), show_default=True)
+              default=FIGURES_ROOT, show_default=True)
 @click.option("--dry-run", is_flag=True, help="Show what would be copied.")
 @click.pass_context
 def overleaf(ctx, patient, output_root, figures_root, dry_run):

@@ -6,6 +6,8 @@ from pathlib import Path
 
 import click
 
+from lrg_eegfc.config.paths import CORR_CACHE, MSC_CACHE, LRG_CACHE, CLEANED_CORR_CACHE
+
 from ._common import patient_options, resolve_patients
 
 
@@ -14,10 +16,10 @@ from ._common import patient_options, resolve_patients
 # ---------------------------------------------------------------------------
 
 _CACHE_ROOTS = {
-    "corr":    Path("data/corr_cache"),
-    "msc":     Path("data/msc_cache"),
-    "lrg":     Path("data/lrg_cache"),
-    "cleaned": Path("data/cleaned_corr_cache"),
+    "corr":    CORR_CACHE,
+    "msc":     MSC_CACHE,
+    "lrg":     LRG_CACHE,
+    "cleaned": CLEANED_CORR_CACHE,
 }
 
 _ALL_TYPES = list(_CACHE_ROOTS.keys())

@@ -21,13 +21,14 @@ import numpy as np
 import pandas as pd
 
 from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, BRAIN_BAND_TEX_DICT, PHASE_LABELS
+from lrg_eegfc.config.paths import FIGURES_ROOT, TABLES_ROOT
 
 # ---------------------------------------------------------------------------
 # Colour palettes (consistent across all figures)
 # ---------------------------------------------------------------------------
 PHASE_COLORS = {
-    "rsPre": "#1f77b4", "taskLearn": "#ff7f0e",
-    "taskTest": "#2ca02c", "rsPost": "#d62728",
+    "rest_pre": "#1f77b4", "task_learn": "#ff7f0e",
+    "task_test": "#2ca02c", "rest_post": "#d62728",
 }
 BAND_COLORS = {
     "delta": "#1b9e77", "theta": "#d95f02", "alpha": "#7570b3",
@@ -831,18 +832,12 @@ FIGURE_TYPES = {
 
 def generate_cross_condition_figure(
     figure_type: str,
-    csv_path: Path = Path("data/tables/mslcd_diagnostics_master.csv"),
-    trajectories_path: Path = Path(
-        "data/tables/mslcd_coarsening_trajectories.npz"
-    ),
-    threshold_path: Path = Path("data/tables/threshold_analysis_Pat02.npz"),
-    output_dir: Path = Path(
-        "data/figures/report_mslcd_section/cross_condition"
-    ),
-    threshold_output_dir: Path = Path(
-        "data/figures/report_mslcd_section/threshold_analysis"
-    ),
-    latex_output: Path = Path("data/tables/mslcd_diagnostics_Pat02.tex"),
+    csv_path: Path = TABLES_ROOT / "mslcd_diagnostics_master.csv",
+    trajectories_path: Path = TABLES_ROOT / "mslcd_coarsening_trajectories.npz",
+    threshold_path: Path = TABLES_ROOT / "threshold_analysis_Pat02.npz",
+    output_dir: Path = FIGURES_ROOT / "report_mslcd_section" / "cross_condition",
+    threshold_output_dir: Path = FIGURES_ROOT / "report_mslcd_section" / "threshold_analysis",
+    latex_output: Path = TABLES_ROOT / "mslcd_diagnostics_Pat02.tex",
     dpi: int = 300,
 ) -> list[Path]:
     """Generate one or all cross-condition figures.

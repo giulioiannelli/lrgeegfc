@@ -18,6 +18,7 @@ from scipy.optimize import linear_sum_assignment
 from scipy.signal import find_peaks
 from scipy.spatial.distance import squareform
 
+from lrg_eegfc.config.paths import MSC_CACHE
 from lrg_eegfc.visuals.lrg import compute_partition_stability_index
 from lrg_eegfc.workflow.msc import load_msc_matrix
 
@@ -447,7 +448,7 @@ def compute_triplet_diagnostics(
     patient: str,
     phase: str,
     band: str,
-    msc_cache: Path = Path("data/msc_cache"),
+    msc_cache: Path = MSC_CACHE,
     nperseg: int = 4096,
     n_tau: int = N_TAU_META,
     verbose: bool = False,
@@ -556,7 +557,7 @@ def compute_threshold_analysis(
     patient: str,
     phase: str,
     bands: list[str],
-    msc_cache: Path = Path("data/msc_cache"),
+    msc_cache: Path = MSC_CACHE,
     nperseg: int = 4096,
     thresholds: list[int] | None = None,
     verbose: bool = False,

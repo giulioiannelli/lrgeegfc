@@ -62,7 +62,7 @@ N_PERMS = 3000  # probe-matched permutation count
 OUT = FIGURES_ROOT / "epileptic_imcoh_deep"
 OUT.mkdir(parents=True, exist_ok=True)
 
-FS_MAP = {"Pat_03": 1024.0}
+from lrg_eegfc.config.const import FS_OVERRIDES as FS_MAP  # canonical
 np.random.seed(42)
 
 PAT_COLORS = {
@@ -374,7 +374,7 @@ for pat in PATIENTS:
     if len(epi_idx) < 2:
         continue
 
-    for phase in ["rsPre", "rsPost"]:
+    for phase in ["rest_pre", "rest_post"]:
         for band in ["alpha", "beta"]:
             lrg = load_lrg_result(pat, phase, band, "imcoh_abs")
             if lrg is None:
@@ -422,7 +422,7 @@ for col, pat in enumerate(PATIENTS):
     if len(epi_idx) < 2:
         continue
 
-    for row_idx, (phase, band) in enumerate([("rsPre", "alpha"), ("rsPre", "beta")]):
+    for row_idx, (phase, band) in enumerate([("rest_pre", "alpha"), ("rest_pre", "beta")]):
         ax = axes[row_idx, col]
         lrg = load_lrg_result(pat, phase, band, "imcoh_abs")
         if lrg is None:
@@ -457,7 +457,7 @@ for col, pat in enumerate(PATIENTS):
             ax.set_xlabel("Ultrametric distance")
         ax.legend(fontsize=6, loc="upper right")
 
-fig.suptitle("A2: Merge-height distributions in ImCoh dendrogram (rsPre)\n"
+fig.suptitle("A2: Merge-height distributions in ImCoh dendrogram (rest_pre)\n"
              "Dashed = median; red left-shifted = epileptic pairs merge earlier",
              fontsize=12)
 fig.tight_layout(rect=[0, 0, 1, 0.90])
@@ -580,7 +580,7 @@ R()
 #  A4 — DENDROGRAM VISUALISATION WITH EPILEPTIC NODES COLOURED
 # ═══════════════════════════════════════════════════════════════════════
 
-R("A4: Dendrograms with epileptic nodes highlighted (rsPre, alpha & beta)")
+R("A4: Dendrograms with epileptic nodes highlighted (rest_pre, alpha & beta)")
 R("-" * 90)
 R()
 
@@ -589,7 +589,7 @@ for pat in PATIENTS:
     N, epi_mask, ch = info["N"], info["epi_mask"], info["ch"]
 
     for band in ["alpha", "beta"]:
-        lrg = load_lrg_result(pat, "rsPre", band, "imcoh_abs")
+        lrg = load_lrg_result(pat, "rest_pre", band, "imcoh_abs")
         if lrg is None:
             continue
 
@@ -623,7 +623,7 @@ for pat in PATIENTS:
                 lbl.set_fontweight("bold")
 
         ax.set_ylabel("Ultrametric distance")
-        ax.set_title(f"{pat} — rsPre {band} — ImCoh LRG dendrogram\n"
+        ax.set_title(f"{pat} — rest_pre {band} — ImCoh LRG dendrogram\n"
                      f"Red labels = epileptic contacts ({len(info['epi_in'])}/{N})",
                      fontsize=11)
         fig.tight_layout()
@@ -931,11 +931,11 @@ for pi in range(len(PATIENTS)):
             ax.text(bi, pi, f"{mat[pi, bi]:.2f}", ha="center", va="center", fontsize=7)
 fig.colorbar(im, ax=ax, shrink=0.8)
 
-# Panel B: three-way comparison for rsPre/alpha
+# Panel B: three-way comparison for rest_pre/alpha
 ax = axes[1]
 for pi, pat in enumerate(PATIENTS):
     sub = edgedf[(edgedf["patient"] == pat) & (edgedf["band"] == "alpha") &
-                 (edgedf["phase"] == "rsPre")]
+                 (edgedf["phase"] == "rest_pre")]
     if len(sub) == 0:
         continue
     vals = [sub["mean_epi_epi"].values[0], sub["mean_cross"].values[0],
@@ -945,7 +945,7 @@ for pi, pat in enumerate(PATIENTS):
 ax.set_xticks([0.24, 1.24, 2.24])
 ax.set_xticklabels(["epi–epi", "epi–non", "non–non"])
 ax.set_ylabel("Mean ImCoh edge weight")
-ax.set_title("Edge weight by group pair\n(rsPre, alpha)", fontsize=10)
+ax.set_title("Edge weight by group pair\n(rest_pre, alpha)", fontsize=10)
 ax.legend(fontsize=8)
 
 fig.suptitle("B7: Intra-epileptic edge strength (ImCoh)", fontsize=12)

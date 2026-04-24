@@ -7,6 +7,15 @@ from pathlib import Path
 
 import click
 
+from lrg_eegfc.config.paths import (
+    CORR_CACHE,
+    MSC_CACHE,
+    LRG_CACHE,
+    SEEG_DATAPATH,
+    MSC_WINDOWS_CACHE,
+    TABLES_ROOT,
+)
+
 from ._common import (
     CliReporter,
     band_phase_options,
@@ -33,7 +42,7 @@ def compute() -> None:
 @compute.command()
 @patient_options()
 @band_phase_options()
-@cache_options("data/corr_cache")
+@cache_options(str(CORR_CACHE))
 @filter_time_option()
 @click.option("--filter-type", type=click.Choice(["abs", "pos", "neg", "none"]),
               default="abs", show_default=True, help="Correlation filter type.")
@@ -101,10 +110,10 @@ def corr(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
 @compute.command()
 @patient_options()
 @band_phase_options()
-@cache_options("data/msc_cache")
+@cache_options(str(MSC_CACHE))
 @filter_time_option()
 @click.option("--sparsify",
-              type=click.Choice(["none", "soft", "fdr", "disparity", "hybrid", "ecm"]),
+              type=click.Choice(["none", "soft", "fdr", "disparity", "hybrid", "ecm", "ecm_adaptive"]),
               default="none", show_default=True, help="Sparsification method.")
 @click.option("--n-surrogates", type=int, default=0, show_default=True,
               help="Number of surrogates (auto-set to 200 if needed).")
@@ -119,12 +128,16 @@ def corr(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
 @click.option("--ecm-alpha", type=float, default=0.05, show_default=True)
 @click.option("--ecm-n-ensemble", type=int, default=100, show_default=True)
 @click.option("--ecm-weight-scale", type=int, default=1000, show_default=True)
+@click.option("--ecm-alpha-min", type=float, default=0.01, show_default=True,
+              help="Lower bound for adaptive ECM alpha search.")
+@click.option("--ecm-alpha-max", type=float, default=0.50, show_default=True,
+              help="Upper bound for adaptive ECM alpha search.")
 @verbose_option()
 @click.pass_context
 def msc(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
         filter_time, sparsify, n_surrogates, nperseg, batch_size, n_workers,
         sample_rate, fdr_q, disparity_alpha, ecm_alpha, ecm_n_ensemble,
-        ecm_weight_scale, verbose):
+        ecm_weight_scale, ecm_alpha_min, ecm_alpha_max, verbose):
     """Compute MSC-based FC matrices."""
     from lrg_eegfc.workflow.msc import compute_msc_for_patient, DEFAULT_MSC_CACHE_ROOT
 
@@ -176,6 +189,8 @@ def msc(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
             ecm_alpha=ecm_alpha,
             ecm_n_ensemble=ecm_n_ensemble,
             ecm_weight_scale=ecm_weight_scale,
+            ecm_alpha_min=ecm_alpha_min,
+            ecm_alpha_max=ecm_alpha_max,
         )
 
         n_ok = sum(
@@ -202,7 +217,7 @@ def msc(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
 @patient_options()
 @band_phase_options()
 @fc_method_option(default="msc")
-@cache_options("data/lrg_cache")
+@cache_options(str(LRG_CACHE))
 @filter_time_option()
 @click.option("--fc-cache-root", type=click.Path(path_type=Path), default=None,
               help="FC cache root (default: auto-detect from fc-method).")
@@ -218,6 +233,13 @@ def lrg(ctx, patients, bands, band, phases, phase, fc_method, cache_root,
         entropy_t2, verbose):
     """Compute LRG ultrametric analysis from cached FC matrices."""
     from lrg_eegfc.workflow.lrg import compute_lrg_for_patient
+    from lrg_eegfc.config.paths import lrg_cache_for
+
+    # Auto-route cache root by fc_method so imcoh_abs / imcoh_sq land under
+    # IMCOH_LRG_CACHE (where the downstream VI / hypothesis scripts read),
+    # unless the user passed an explicit --cache-root.
+    if cache_root == LRG_CACHE:
+        cache_root = lrg_cache_for(fc_method)
 
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     pat_list = resolve_patients(patients)
@@ -273,11 +295,11 @@ def lrg(ctx, patients, bands, band, phases, phase, fc_method, cache_root,
 @patient_options()
 @band_phase_options()
 @click.option("--corr-cache-root", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True,
+              default=CORR_CACHE, show_default=True,
               help="Source correlation cache.")
 @click.option("--overwrite", is_flag=True, help="Recompute even if cached.")
 @click.option("--dataset-root", type=click.Path(path_type=Path),
-              default=Path("data/stereoeeg_patients"), show_default=True)
+              default=SEEG_DATAPATH, show_default=True)
 @click.option("--filter-order", type=int, default=4, show_default=True)
 @click.option("--sample-rate", type=float, default=2048.0, show_default=True)
 @verbose_option()
@@ -339,7 +361,7 @@ def clean(ctx, patients, bands, band, phases, phase, corr_cache_root,
 @patient_options()
 @band_phase_options()
 @fc_method_option(default="msc")
-@cache_options("data/msc_cache_windows")
+@cache_options(str(MSC_WINDOWS_CACHE))
 @filter_time_option()
 @click.option("--window-sec", type=float, default=None,
               help="Window length in seconds (default: auto from band freq).")
@@ -438,7 +460,7 @@ def time_windows(ctx, patients, bands, band, phases, phase, fc_method,
 @band_phase_options()
 @fc_method_option(default="msc")
 @click.option("--lrg-cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @click.option("--output-root", type=click.Path(path_type=Path),
               default=Path("results/reorganization"), show_default=True)
 @click.option("--distance-metric", default="euclidean", show_default=True)
@@ -500,15 +522,15 @@ def reorganization(ctx, patients, bands, band, phases, phase, fc_method,
 @patient_options()
 @band_phase_options()
 @click.option("--msc-cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+              default=MSC_CACHE, show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--n-tau", type=int, default=20, show_default=True,
               help="Number of log-spaced tau for coarsening/metastability.")
 @click.option("--output", type=click.Path(path_type=Path),
-              default=Path("data/tables/mslcd_diagnostics_master.csv"),
+              default=TABLES_ROOT / "mslcd_diagnostics_master.csv",
               show_default=True, help="Output CSV path.")
 @click.option("--trajectories-output", type=click.Path(path_type=Path),
-              default=Path("data/tables/mslcd_coarsening_trajectories.npz"),
+              default=TABLES_ROOT / "mslcd_coarsening_trajectories.npz",
               show_default=True, help="Output NPZ for coarsening trajectories.")
 @verbose_option()
 @click.pass_context
@@ -617,14 +639,14 @@ def diagnostics(ctx, patients, bands, band, phases, phase, msc_cache_root,
 @compute.command("threshold-analysis")
 @click.option("--patient", default="Pat_02", show_default=True,
               help="Patient ID for threshold analysis.")
-@click.option("--phase", default="rsPre", show_default=True,
+@click.option("--phase", default="rest_pre", show_default=True,
               help="Phase for threshold analysis.")
 @band_phase_options()
 @click.option("--msc-cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+              default=MSC_CACHE, show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--output", type=click.Path(path_type=Path),
-              default=Path("data/tables/threshold_analysis_Pat02.npz"),
+              default=TABLES_ROOT / "threshold_analysis_Pat02.npz",
               show_default=True, help="Output NPZ path.")
 @verbose_option()
 @click.pass_context

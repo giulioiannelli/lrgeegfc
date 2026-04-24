@@ -16,6 +16,7 @@ import networkx as nx
 import numpy as np
 
 from lrg_eegfc.config.const import BRAIN_BANDS, DEFAULT_NPERSEG, PHASE_LABELS
+from lrg_eegfc.config.paths import MSC_CACHE, MSC_DEV_CACHE, SEEG_DATAPATH
 from lrg_eegfc.utils.fc.msc import (
     coherence_fc_pipeline,
     surrogate_msc_null,
@@ -24,11 +25,12 @@ from lrg_eegfc.utils.fc.msc import (
     disparity_filter,
     hybrid_sparsify,
     ecm_sparsify,
+    ecm_sparsify_adaptive,
 )
 from lrg_eegfc.utils.io import load_timeseries, load_patient_dataset_robust
 
-DEFAULT_MSC_CACHE_ROOT = Path("data/msc_cache")
-DEFAULT_MSC_DEV_CACHE_ROOT = Path("data/msc_cache_dev")
+DEFAULT_MSC_CACHE_ROOT = MSC_CACHE
+DEFAULT_MSC_DEV_CACHE_ROOT = MSC_DEV_CACHE
 
 __all__ = ["MSCResult", "compute_msc_matrix", "load_msc_matrix", "get_msc_cache_path"]
 
@@ -60,7 +62,8 @@ class MSCResult:
     mean_msc : float
         Mean MSC value (excluding diagonal)
     sparsify : str
-        Sparsification method ("none", "soft", "fdr", "disparity", "hybrid", "ecm")
+        Sparsification method ("none", "soft", "fdr", "disparity", "hybrid",
+        "ecm", "ecm_adaptive")
     n_surrogates : int
         Number of surrogates used (0 if no surrogates needed)
     nperseg : int
@@ -70,11 +73,16 @@ class MSCResult:
     disparity_alpha : float or None
         Disparity alpha level (only for sparsify="disparity" or "hybrid")
     ecm_alpha : float or None
-        ECM significance level (only for sparsify="ecm")
+        ECM significance level (only for sparsify="ecm"; for "ecm_adaptive"
+        this stores the *discovered* alpha)
     ecm_n_ensemble : int or None
-        ECM ensemble size (only for sparsify="ecm")
+        ECM ensemble size (only for sparsify="ecm" or "ecm_adaptive")
     ecm_weight_scale : int or None
-        ECM weight scaling factor (only for sparsify="ecm")
+        ECM weight scaling factor (only for sparsify="ecm" or "ecm_adaptive")
+    ecm_alpha_min : float or None
+        Lower bound of adaptive alpha search (only for sparsify="ecm_adaptive")
+    ecm_alpha_max : float or None
+        Upper bound of adaptive alpha search (only for sparsify="ecm_adaptive")
     """
 
     adjacency_matrix: np.ndarray
@@ -92,6 +100,8 @@ class MSCResult:
     ecm_alpha: Optional[float] = None
     ecm_n_ensemble: Optional[int] = None
     ecm_weight_scale: Optional[int] = None
+    ecm_alpha_min: Optional[float] = None
+    ecm_alpha_max: Optional[float] = None
 
 
 def get_msc_cache_path(
@@ -108,6 +118,8 @@ def get_msc_cache_path(
     ecm_alpha: Optional[float] = None,
     ecm_n_ensemble: Optional[int] = None,
     ecm_weight_scale: Optional[int] = None,
+    ecm_alpha_min: Optional[float] = None,
+    ecm_alpha_max: Optional[float] = None,
 ) -> Path:
     """Get cache file path for MSC matrix.
 
@@ -154,6 +166,8 @@ def get_msc_cache_path(
         suffix = f"sparsify-hybrid_nsurr-{n_surrogates}_alpha-{disparity_alpha}_nperseg-{nperseg}"
     elif sparsify == "ecm":
         suffix = f"sparsify-ecm_alpha-{ecm_alpha}_nens-{ecm_n_ensemble}_wscale-{ecm_weight_scale}_nperseg-{nperseg}"
+    elif sparsify == "ecm_adaptive":
+        suffix = f"sparsify-ecm_adaptive_alpharange-{ecm_alpha_min}-{ecm_alpha_max}_nens-{ecm_n_ensemble}_wscale-{ecm_weight_scale}_nperseg-{nperseg}"
     else:
         suffix = f"sparsify-{sparsify}_nsurr-{n_surrogates}_nperseg-{nperseg}"
 
@@ -177,6 +191,8 @@ def load_msc_matrix(
     ecm_alpha: Optional[float] = None,
     ecm_n_ensemble: Optional[int] = None,
     ecm_weight_scale: Optional[int] = None,
+    ecm_alpha_min: Optional[float] = None,
+    ecm_alpha_max: Optional[float] = None,
 ) -> Optional[np.ndarray]:
     """Load cached MSC matrix if it exists.
 
@@ -212,6 +228,7 @@ def load_msc_matrix(
         fdr_q=fdr_q, disparity_alpha=disparity_alpha,
         ecm_alpha=ecm_alpha, ecm_n_ensemble=ecm_n_ensemble,
         ecm_weight_scale=ecm_weight_scale,
+        ecm_alpha_min=ecm_alpha_min, ecm_alpha_max=ecm_alpha_max,
     )
 
     if cache_path.exists():
@@ -223,7 +240,7 @@ def compute_msc_matrix(
     patient: str,
     phase: str,
     band: str,
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     cache_root: Path = DEFAULT_MSC_CACHE_ROOT,
     *,
     use_cache: bool = True,
@@ -242,6 +259,8 @@ def compute_msc_matrix(
     ecm_alpha: float = 0.05,
     ecm_n_ensemble: int = 100,
     ecm_weight_scale: int = 1000,
+    ecm_alpha_min: float = 0.01,
+    ecm_alpha_max: float = 0.50,
 ) -> MSCResult:
     """Compute MSC-based functional connectivity matrix.
 
@@ -254,7 +273,7 @@ def compute_msc_matrix(
     patient : str
         Patient identifier (e.g., "Pat_02")
     phase : str
-        Recording phase (e.g., "rsPre", "taskLearn")
+        Recording phase (e.g., "rest_pre", "task_learn")
     band : str
         Frequency band (must exist in BRAIN_BANDS)
     dataset_root : Path, optional
@@ -303,7 +322,7 @@ def compute_msc_matrix(
     Examples
     --------
     >>> # Dense MSC (no validation)
-    >>> result = compute_msc_matrix("Pat_02", "rsPre", "beta")
+    >>> result = compute_msc_matrix("Pat_02", "rest_pre", "beta")
     >>> print(result.adjacency_matrix.shape)
     (117, 117)
     >>> print(f"Mean MSC: {result.mean_msc:.4f}")
@@ -312,7 +331,7 @@ def compute_msc_matrix(
     Sparsify: none, Surrogates: 0
 
     >>> # Validated MSC with surrogates
-    >>> result = compute_msc_matrix("Pat_02", "rsPre", "beta",
+    >>> result = compute_msc_matrix("Pat_02", "rest_pre", "beta",
     ...                             sparsify="soft", n_surrogates=200)
     >>> print(f"Sparsify: {result.sparsify}, Surrogates: {result.n_surrogates}")
     Sparsify: soft, Surrogates: 200
@@ -328,14 +347,17 @@ def compute_msc_matrix(
     _NEEDS_SURROGATES = {"soft", "fdr", "hybrid"}
 
     # Check cache
+    _ECM_METHODS = {"ecm", "ecm_adaptive"}
     cache_path = get_msc_cache_path(
         patient, phase, band, cache_root,
         sparsify, n_surrogates, nperseg, filter_time,
         fdr_q=fdr_q if sparsify == "fdr" else None,
         disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
         ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
-        ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
-        ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
+        ecm_n_ensemble=ecm_n_ensemble if sparsify in _ECM_METHODS else None,
+        ecm_weight_scale=ecm_weight_scale if sparsify in _ECM_METHODS else None,
+        ecm_alpha_min=ecm_alpha_min if sparsify == "ecm_adaptive" else None,
+        ecm_alpha_max=ecm_alpha_max if sparsify == "ecm_adaptive" else None,
     )
 
     if use_cache and not overwrite_cache and cache_path.exists():
@@ -365,8 +387,10 @@ def compute_msc_matrix(
             fdr_q=fdr_q if sparsify == "fdr" else None,
             disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
             ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
-            ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
-            ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
+            ecm_n_ensemble=ecm_n_ensemble if sparsify in _ECM_METHODS else None,
+            ecm_weight_scale=ecm_weight_scale if sparsify in _ECM_METHODS else None,
+            ecm_alpha_min=ecm_alpha_min if sparsify == "ecm_adaptive" else None,
+            ecm_alpha_max=ecm_alpha_max if sparsify == "ecm_adaptive" else None,
         )
 
     # Compute MSC from timeseries
@@ -477,6 +501,22 @@ def compute_msc_matrix(
             weight_scale=ecm_weight_scale,
         )
 
+    elif sparsify == "ecm_adaptive":
+        if verbose:
+            print(f"  Applying adaptive ECM filter (alpha_range=[{ecm_alpha_min}, {ecm_alpha_max}], "
+                  f"n_ensemble={ecm_n_ensemble}, scale={ecm_weight_scale})...")
+        adj_matrix, alpha_used = ecm_sparsify_adaptive(
+            dense_msc,
+            alpha_min=ecm_alpha_min,
+            alpha_max=ecm_alpha_max,
+            n_ensemble=ecm_n_ensemble,
+            weight_scale=ecm_weight_scale,
+        )
+        # Store the discovered alpha in ecm_alpha for the result
+        ecm_alpha = alpha_used
+        if verbose:
+            print(f"  Adaptive ECM selected alpha={alpha_used:.4f}")
+
     else:
         adj_matrix = dense_msc
 
@@ -513,9 +553,11 @@ def compute_msc_matrix(
         nperseg=nperseg,
         fdr_q=fdr_q if sparsify == "fdr" else None,
         disparity_alpha=disparity_alpha if sparsify in ("disparity", "hybrid") else None,
-        ecm_alpha=ecm_alpha if sparsify == "ecm" else None,
-        ecm_n_ensemble=ecm_n_ensemble if sparsify == "ecm" else None,
-        ecm_weight_scale=ecm_weight_scale if sparsify == "ecm" else None,
+        ecm_alpha=ecm_alpha if sparsify in _ECM_METHODS else None,
+        ecm_n_ensemble=ecm_n_ensemble if sparsify in _ECM_METHODS else None,
+        ecm_weight_scale=ecm_weight_scale if sparsify in _ECM_METHODS else None,
+        ecm_alpha_min=ecm_alpha_min if sparsify == "ecm_adaptive" else None,
+        ecm_alpha_max=ecm_alpha_max if sparsify == "ecm_adaptive" else None,
     )
 
 
@@ -556,7 +598,7 @@ def compute_msc_for_patient(
     >>> results = compute_msc_for_patient("Pat_02")
     >>>
     >>> # Access specific result
-    >>> beta_rsPre = results["beta"]["rsPre"]
+    >>> beta_rsPre = results["beta"]["rest_pre"]
     >>> print(beta_rsPre.mean_msc)
     """
     if bands is None:

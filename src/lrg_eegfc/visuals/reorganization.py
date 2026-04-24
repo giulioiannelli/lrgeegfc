@@ -1,7 +1,7 @@
 """Phase reorganization visualizations for brain network analysis.
 
 This module provides visualizations for analyzing how brain network structure
-reorganizes across experimental phases (rsPre → taskLearn → taskTest → rsPost).
+reorganizes across experimental phases (rest_pre → task_learn → task_test → rest_post).
 This is used to assess cognitive effects of learning tasks on multiscale
 hierarchical network organization.
 """
@@ -159,7 +159,7 @@ def plot_phase_reorganization(
     fc_method : str
         FC method: "corr" or "msc"
     phases : List[str], optional
-        List of phases (default: ["rsPre", "taskLearn", "taskTest", "rsPost"])
+        List of phases (default: ["rest_pre", "task_learn", "task_test", "rest_post"])
     cache_root : Path, optional
         Root directory for LRG cache
     output_path : Path, optional

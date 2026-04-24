@@ -5,7 +5,7 @@ Three-part test:
   1. Pair-class decomposed disagreement
      At each height h, compute partition disagreement between phase pairs
      restricted to each pair class (epi-epi, non-non, cross, cross-probe-only).
-     H2a_class(h) = d_class(rsPre, rsPost) − d_class(taskTest, rsPost).
+     H2a_class(h) = d_class(rest_pre, rest_post) − d_class(task_test, rest_post).
      Large H2a_non-non + small H2a_epi-epi = epi tissue insulated from
      reorganization.
 
@@ -98,14 +98,14 @@ def stratified_disagreement(labels1, labels2, pair_mask):
 def compute_h2a_stratified(linkages_by_phase, pair_masks):
     """Return dict {class: H2a(h) array} for the given (patient, band)."""
     results = {cls: np.full(len(H_GRID), np.nan) for cls in pair_masks}
-    if "rsPre" not in linkages_by_phase or "rsPost" not in linkages_by_phase \
-            or "taskTest" not in linkages_by_phase:
+    if "rest_pre" not in linkages_by_phase or "rest_post" not in linkages_by_phase \
+            or "task_test" not in linkages_by_phase:
         return results
 
     for ih, h in enumerate(H_GRID):
-        lab_pre = fcluster(linkages_by_phase["rsPre"], t=h, criterion="distance")
-        lab_post = fcluster(linkages_by_phase["rsPost"], t=h, criterion="distance")
-        lab_tt = fcluster(linkages_by_phase["taskTest"], t=h, criterion="distance")
+        lab_pre = fcluster(linkages_by_phase["rest_pre"], t=h, criterion="distance")
+        lab_post = fcluster(linkages_by_phase["rest_post"], t=h, criterion="distance")
+        lab_tt = fcluster(linkages_by_phase["task_test"], t=h, criterion="distance")
 
         for cls, mask in pair_masks.items():
             d_prepost = stratified_disagreement(lab_pre, lab_post, mask)
@@ -244,8 +244,8 @@ for ax, band in zip(axes.flat, BANDS):
         ax.set_ylabel("H2a (disagreement)")
 
 axes[0, 0].legend(fontsize=8, loc="upper right")
-fig.suptitle("H2a = d(rsPre,rsPost) − d(taskTest,rsPost) — stratified by pair class\n"
-             "Positive = rsPost more similar to taskTest than to rsPre on that pair class\n"
+fig.suptitle("H2a = d(rest_pre,rest_post) − d(task_test,rest_post) — stratified by pair class\n"
+             "Positive = rest_post more similar to task_test than to rest_pre on that pair class\n"
              "Mean ± SEM across 5 patients",
              fontsize=12)
 fig.tight_layout(rect=[0, 0, 1, 0.93])

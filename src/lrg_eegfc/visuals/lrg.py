@@ -24,6 +24,7 @@ __all__ = [
     "compute_partition_stability_index",
     "plot_lrg_entropy_curves",
     "plot_lrg_dendrogram",
+    "plot_lrg_dendrogram_shaft_colored",
     "plot_ultrametric_heatmap",
     "plot_lrg_full_panel",
 ]
@@ -423,6 +424,190 @@ def plot_lrg_dendrogram(
     plt.close(fig)
 
     return output_path
+
+
+def _psi_threshold_from_linkage(linkage_matrix, psi_optimal_n, n_nodes,
+                                 fallback_threshold):
+    """Compute the dendrogram cut height for a given n* (mirrors full_panel)."""
+    merge_heights = linkage_matrix[:, 2]
+    if 2 <= psi_optimal_n <= n_nodes:
+        cut_idx = n_nodes - psi_optimal_n
+        if 0 < cut_idx < len(merge_heights):
+            return float((merge_heights[cut_idx - 1] + merge_heights[cut_idx]) / 2)
+        if cut_idx == 0:
+            return float(merge_heights[0] / 2)
+    return float(fallback_threshold)
+
+
+def plot_lrg_dendrogram_shaft_colored(
+    ax,
+    lrg_result,
+    channel_labels: List[str],
+    *,
+    show_psi_cut: bool = True,
+    show_xlabels: bool = True,
+    leaf_font_size: float = 4.0,
+    title: Optional[str] = None,
+    branch_palette: str = "tab10",
+    shaft_palette: str = "tab20",
+    above_threshold_color: str = "0.55",
+    optimal_leaf_order_flag: bool = False,
+    ylim: Optional[tuple] = None,
+    max_n_communities: Optional[int] = None,
+    min_n_communities: Optional[int] = None,
+    yscale: str = "log",
+):
+    """Render an LRG dendrogram on *ax* with two encodings:
+
+    * Leaf tick-labels are coloured by electrode shaft identity
+      (``shaft_palette``).
+    * Branches at-and-below the Ψ-optimal cut are coloured by community
+      using ``branch_palette``; branches above the cut are drawn in
+      ``above_threshold_color``.
+
+    The Y-axis is log-scaled in raw merge-height units; callers may impose
+    a shared limit per column via ``ylim`` so that figures are visually
+    comparable across fc_methods.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes
+    lrg_result : LRGResult
+        Result with ``linkage_matrix`` and ``optimal_threshold``.
+    channel_labels : list of str
+        Labels in the giant-component order used by the linkage matrix.
+        Length must equal ``lrg_result.n_nodes``.
+    show_psi_cut : bool
+        Draw a horizontal dashed line at the Ψ-optimal threshold.
+    show_xlabels : bool
+        Whether to render leaf tick labels.
+    leaf_font_size : float
+        Font size of leaf tick labels.
+    title : str, optional
+        Panel title.
+    branch_palette : str
+        Matplotlib colormap name used to colour communities.
+    shaft_palette : str
+        Matplotlib colormap name used to colour leaves by shaft.
+    above_threshold_color : str
+        Colour for branches above the Ψ cut.
+    optimal_leaf_order_flag : bool
+        Apply ``scipy.cluster.hierarchy.optimal_leaf_ordering``.
+    ylim : (low, high), optional
+        Y-axis limits (raw merge heights). If None, derived from the
+        linkage matrix with log padding.
+
+    Returns
+    -------
+    dict with keys: ``psi_n``, ``psi_threshold``, ``leaves``, ``dendro``.
+    """
+    from scipy.cluster import hierarchy
+    from lrg_eegfc.utils.probe import extract_probe_labels
+
+    Z = lrg_result.linkage_matrix
+    n_nodes = lrg_result.n_nodes
+
+    if len(channel_labels) != n_nodes:
+        if len(channel_labels) < n_nodes:
+            raise ValueError(
+                f"channel_labels has {len(channel_labels)} entries but "
+                f"linkage matrix expects {n_nodes} leaves."
+            )
+        channel_labels = list(channel_labels[:n_nodes])
+    else:
+        channel_labels = list(channel_labels)
+
+    if optimal_leaf_order_flag:
+        try:
+            Z = optimal_leaf_ordering(Z, lrg_result.ultrametric_matrix)
+        except Exception:
+            pass
+
+    psi_values, psi_n_communities = compute_partition_stability_index(Z)
+    if psi_values.size > 0:
+        mask = np.ones_like(psi_n_communities, dtype=bool)
+        if max_n_communities is not None:
+            mask &= psi_n_communities <= max_n_communities
+        if min_n_communities is not None:
+            mask &= psi_n_communities >= min_n_communities
+        if mask.any():
+            psi_n = _find_psi_optimal_partition(
+                psi_values[mask], psi_n_communities[mask]
+            )
+        else:
+            psi_n = _find_psi_optimal_partition(psi_values, psi_n_communities)
+    else:
+        psi_n = max(2, int(np.unique(channel_labels).size // 2))
+    psi_threshold = _psi_threshold_from_linkage(
+        Z, psi_n, n_nodes, lrg_result.optimal_threshold,
+    )
+
+    # Branch palette (cycled across communities at the cut)
+    n_colors = max(min(psi_n + 2, 20), 3)
+    palette = [plt.matplotlib.colors.to_hex(c)
+               for c in plt.get_cmap(branch_palette)(np.linspace(0, 1, n_colors))]
+    hierarchy.set_link_color_palette(palette)
+
+    dendro = dendrogram(
+        Z,
+        ax=ax,
+        labels=channel_labels,
+        no_labels=not show_xlabels,
+        color_threshold=psi_threshold,
+        above_threshold_color=above_threshold_color,
+        leaf_font_size=leaf_font_size,
+    )
+
+    # Recolour leaf tick labels by shaft
+    if show_xlabels:
+        probe_ids_full = extract_probe_labels(channel_labels)
+        unique_probes = sorted(set(probe_ids_full))
+        shaft_cmap = plt.get_cmap(shaft_palette, max(len(unique_probes), 1))
+        shaft_color = {p: shaft_cmap(i) for i, p in enumerate(unique_probes)}
+        leaf_order = dendro["leaves"]
+        ordered_probes = [probe_ids_full[i] for i in leaf_order]
+        for tick_label, probe in zip(ax.get_xticklabels(), ordered_probes):
+            tick_label.set_color(shaft_color[probe])
+
+    # Y axis: log scale on raw merge heights — same recipe as
+    # gen_phase_reorg_figures.py / wp1_figures.py (the canonical "good"
+    # dendrogram style). Tight padding: 0.8× smallest, 1.05× largest.
+    merge_heights = Z[:, 2]
+    pos_heights = merge_heights[merge_heights > 0]
+    if ylim is None:
+        if pos_heights.size:
+            if yscale == "log":
+                ax.set_ylim(pos_heights[0] * 0.8, merge_heights[-1] * 1.05)
+            else:
+                span = merge_heights[-1] - pos_heights[0]
+                pad = 0.03 * span
+                ax.set_ylim(max(0.0, pos_heights[0] - pad),
+                            merge_heights[-1] + pad)
+    else:
+        ax.set_ylim(*ylim)
+    ax.set_yscale(yscale)
+
+    if show_psi_cut:
+        ax.axhline(
+            psi_threshold,
+            color="black",
+            linestyle="--",
+            linewidth=1.0,
+            alpha=0.7,
+        )
+
+    if title is not None:
+        ax.set_title(title, fontsize=10)
+
+    # Restore default link palette so we don't leak state
+    hierarchy.set_link_color_palette(None)
+
+    return {
+        "psi_n": psi_n,
+        "psi_threshold": psi_threshold,
+        "leaves": dendro["leaves"],
+        "dendro": dendro,
+    }
 
 
 def plot_ultrametric_heatmap(

@@ -14,6 +14,7 @@ import numpy as np
 import scipy.io
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
+from lrg_eegfc.config.paths import MSC_CACHE, SEEG_DATAPATH, FIGURES_ROOT
 from lrg_eegfc.workflow.msc import load_msc_matrix, get_msc_cache_path
 
 __all__ = [
@@ -103,13 +104,13 @@ def plot_msc_and_network(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/msc_cache"),
+    cache_root: Path = MSC_CACHE,
     output_path: Optional[Path] = None,
     sparsify: str = "none",
     n_surrogates: int = 0,
     nperseg: int = 1024,
     figsize: tuple = (16, 8),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
 ) -> Path:
     """Plot MSC matrix and network graph side-by-side.
 
@@ -229,7 +230,7 @@ def plot_msc_and_network(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/msc") / patient
+        output_dir = FIGURES_ROOT / "msc" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         suffix = "dense" if sparsify == "none" else f"validated_nsurr{n_surrogates}"
         output_path = output_dir / f"{band}_{phase}_msc_{suffix}_network.png"
@@ -249,7 +250,7 @@ def plot_msc_comparison_dense_vs_validated(
     phase: str,
     band: str,
     n_surrogates: int = 200,
-    cache_root: Path = Path("data/msc_cache"),
+    cache_root: Path = MSC_CACHE,
     output_path: Optional[Path] = None,
     nperseg: int = 1024,
     figsize: tuple = (18, 6),
@@ -352,7 +353,7 @@ def plot_msc_comparison_dense_vs_validated(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/msc") / patient
+        output_dir = FIGURES_ROOT / "msc" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_msc_comparison_nsurr{n_surrogates}.png"
     else:
@@ -370,11 +371,11 @@ def plot_msc_summary(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/msc_cache"),
+    cache_root: Path = MSC_CACHE,
     output_path: Optional[Path] = None,
     nperseg: int = 1024,
     figsize: tuple = (18, 6),
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
 ) -> Path:
     """Create 3-panel MSC summary visualization.
 
@@ -582,7 +583,7 @@ def plot_msc_summary(
 
     # Generate output path if not provided
     if output_path is None:
-        output_dir = Path("data/figures/msc") / patient
+        output_dir = FIGURES_ROOT / "msc" / patient
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / f"{band}_{phase}_msc_summary.png"
     else:

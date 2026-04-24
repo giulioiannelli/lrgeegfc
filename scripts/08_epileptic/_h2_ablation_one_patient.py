@@ -60,7 +60,7 @@ def compute_vi(lab1, lab2):
 
 
 def h2a_auc_from_linkages(Z_pre, Z_post, Z_tt):
-    """Return integrated positive H2a = d_VI(rsPre,rsPost) - d_VI(taskTest,rsPost)."""
+    """Return integrated positive H2a = d_VI(rest_pre,rest_post) - d_VI(task_test,rest_post)."""
     vals = []
     for h in H_GRID:
         l_pre = fcluster(Z_pre, t=h, criterion="distance")
@@ -95,7 +95,7 @@ def main():
             if lrg is None or lrg.n_nodes != N:
                 continue
             orig[phase] = lrg.linkage_matrix
-        if not all(p in orig for p in ("rsPre", "rsPost", "taskTest")):
+        if not all(p in orig for p in ("rest_pre", "rest_post", "task_test")):
             continue
 
         # Ablated: zero epi-epi entries, recompute LRG per phase (use_cache=False)
@@ -112,11 +112,11 @@ def main():
                 use_cache=False, overwrite_cache=False, verbose=False,
             )
             abl[phase] = res.linkage_matrix
-        if not all(p in abl for p in ("rsPre", "rsPost", "taskTest")):
+        if not all(p in abl for p in ("rest_pre", "rest_post", "task_test")):
             continue
 
-        auc_o, _ = h2a_auc_from_linkages(orig["rsPre"], orig["rsPost"], orig["taskTest"])
-        auc_a, _ = h2a_auc_from_linkages(abl["rsPre"], abl["rsPost"], abl["taskTest"])
+        auc_o, _ = h2a_auc_from_linkages(orig["rest_pre"], orig["rest_post"], orig["task_test"])
+        auc_a, _ = h2a_auc_from_linkages(abl["rest_pre"], abl["rest_post"], abl["task_test"])
 
         rows.append(dict(
             patient=pat, band=band,

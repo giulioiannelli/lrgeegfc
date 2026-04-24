@@ -275,11 +275,11 @@ def compute_lrg_analysis(
     --------
     >>> from lrg_eegfc import compute_corr_matrix, compute_lrg_analysis
     >>> # Get correlation matrix
-    >>> corr_result = compute_corr_matrix("Pat_02", "rsPre", "beta")
+    >>> corr_result = compute_corr_matrix("Pat_02", "rest_pre", "beta")
     >>> # Compute LRG analysis
     >>> lrg_result = compute_lrg_analysis(
     ...     corr_result.adjacency_matrix,
-    ...     "Pat_02", "rsPre", "beta", "corr"
+    ...     "Pat_02", "rest_pre", "beta", "corr"
     ... )
     >>> print(lrg_result.ultrametric_matrix.shape)
     (6786,)  # Condensed form: 117 * 116 / 2 = 6786 unique distances
@@ -449,7 +449,7 @@ def compute_lrg_for_patient(
     >>> lrg_results = compute_lrg_for_patient("Pat_02", "corr")
     >>>
     >>> # Access specific result
-    >>> beta_rsPre_lrg = lrg_results["beta"]["rsPre"]
+    >>> beta_rsPre_lrg = lrg_results["beta"]["rest_pre"]
     >>> print(beta_rsPre_lrg.optimal_threshold)
     """
     if bands is None:

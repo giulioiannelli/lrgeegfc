@@ -2,9 +2,16 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import click
+
+from lrg_eegfc.config.paths import (
+    CORR_CACHE,
+    MSC_CACHE,
+    LRG_CACHE,
+    CLEANED_CORR_CACHE,
+    FIGURES_ROOT,
+    SEEG_DATAPATH,
+)
 
 
 @click.group("config")
@@ -51,17 +58,17 @@ def show() -> None:
 @config.command()
 def paths() -> None:
     """Show data and cache paths and verify they exist."""
-    from lrg_eegfc.config.const import sEEG_DATAPATH, list_patients
+    from lrg_eegfc.config.const import list_patients
 
     _check = lambda p: "ok" if p.exists() else "MISSING"
 
     dirs = {
-        "Raw data":       sEEG_DATAPATH,
-        "Corr cache":     Path("data/corr_cache"),
-        "MSC cache":      Path("data/msc_cache"),
-        "LRG cache":      Path("data/lrg_cache"),
-        "Cleaned cache":  Path("data/cleaned_corr_cache"),
-        "Figures":        Path("data/figures"),
+        "Raw data":       SEEG_DATAPATH,
+        "Corr cache":     CORR_CACHE,
+        "MSC cache":      MSC_CACHE,
+        "LRG cache":      LRG_CACHE,
+        "Cleaned cache":  CLEANED_CORR_CACHE,
+        "Figures":        FIGURES_ROOT,
     }
 
     click.echo("Data paths")
@@ -69,8 +76,8 @@ def paths() -> None:
     for label, path in dirs.items():
         click.echo(f"  {label:16s}  {path}  [{_check(path)}]")
 
-    patients = list_patients(sEEG_DATAPATH)
+    patients = list_patients(SEEG_DATAPATH)
     if patients:
         click.echo(f"\nPatients found ({len(patients)}): {', '.join(patients)}")
     else:
-        click.echo(f"\nNo patients found under {sEEG_DATAPATH}")
+        click.echo(f"\nNo patients found under {SEEG_DATAPATH}")

@@ -16,6 +16,7 @@ import numpy as np
 from lrgsglib.utils.basic.signals import bandpass_sos
 
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.paths import CORR_CACHE, SEEG_DATAPATH
 from lrg_eegfc.utils.fc.corr.base import clean_correlation_matrix
 from lrg_eegfc.utils.fc.corr.thresholds import find_exact_detachment_threshold, find_threshold_jumps
 from lrg_eegfc.utils.io import load_patient_dataset_robust
@@ -82,7 +83,7 @@ def get_cleaned_corr_cache_path(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
 ) -> tuple[Path, Path]:
     """Get cache file paths for cleaned correlation matrix and metadata.
 
@@ -115,7 +116,7 @@ def load_cleaned_corr_matrix(
     patient: str,
     phase: str,
     band: str,
-    cache_root: Path = Path("data/corr_cache"),
+    cache_root: Path = CORR_CACHE,
     load_metadata: bool = False,
 ) -> Optional[np.ndarray] | tuple[Optional[np.ndarray], Optional[Dict]]:
     """Load cached cleaned correlation matrix if it exists.
@@ -173,8 +174,8 @@ def clean_correlation_matrix_full(
     patient: str,
     phase: str,
     band: str,
-    dataset_root: Path = Path("data/stereoeeg_patients"),
-    cache_root: Path = Path("data/corr_cache"),
+    dataset_root: Path = SEEG_DATAPATH,
+    cache_root: Path = CORR_CACHE,
     *,
     filter_order: int = 4,
     sample_rate: float = 2048.0,
@@ -413,8 +414,8 @@ def clean_correlation_matrix_full(
 
 def compute_cleaned_corr_for_patient(
     patient: str,
-    dataset_root: Path = Path("data/stereoeeg_patients"),
-    cache_root: Path = Path("data/corr_cache"),
+    dataset_root: Path = SEEG_DATAPATH,
+    cache_root: Path = CORR_CACHE,
     *,
     bands: Optional[list[str]] = None,
     phases: Optional[list[str]] = None,

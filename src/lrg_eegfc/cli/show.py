@@ -11,6 +11,8 @@ from typing import Optional
 
 import click
 
+from lrg_eegfc.config.paths import CORR_CACHE, MSC_CACHE, LRG_CACHE
+
 from ._common import (
     band_phase_options,
     fc_method_option,
@@ -226,7 +228,7 @@ def _footer(found: int, hint_cmd: str, example_pat: str) -> None:
 @_show_options()
 @band_phase_options()
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True)
+              default=CORR_CACHE, show_default=True)
 @verbose_option()
 @click.pass_context
 def corr(ctx, patients, patient, show_all, band, bands, phase, phases,
@@ -277,7 +279,7 @@ def corr(ctx, patients, patient, show_all, band, bands, phase, phases,
 @click.option("--n-surrogates", type=int, default=0, show_default=True)
 @click.option("--nperseg", type=int, default=4096, show_default=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/msc_cache"), show_default=True)
+              default=MSC_CACHE, show_default=True)
 @verbose_option()
 @click.pass_context
 def msc(ctx, patients, patient, show_all, band, bands, phase, phases,
@@ -332,7 +334,7 @@ def msc(ctx, patients, patient, show_all, band, bands, phase, phases,
 @band_phase_options()
 @fc_method_option(required=True)
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/lrg_cache"), show_default=True)
+              default=LRG_CACHE, show_default=True)
 @verbose_option()
 @click.pass_context
 def lrg(ctx, patients, patient, show_all, band, bands, phase, phases,
@@ -388,7 +390,7 @@ def lrg(ctx, patients, patient, show_all, band, bands, phase, phases,
 @_show_options()
 @band_phase_options()
 @click.option("--cache-root", type=click.Path(path_type=Path),
-              default=Path("data/corr_cache"), show_default=True)
+              default=CORR_CACHE, show_default=True)
 @verbose_option()
 @click.pass_context
 def cleaned(ctx, patients, patient, show_all, band, bands, phase, phases,

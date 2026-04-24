@@ -15,11 +15,12 @@ import numpy as np
 from lrgsglib.utils.basic.signals import bandpass_sos
 
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS
+from lrg_eegfc.config.paths import CORR_CACHE, CORR_DEV_CACHE, SEEG_DATAPATH
 from lrg_eegfc.utils.fc.corr import build_corr_network
 from lrg_eegfc.utils.io import load_timeseries, load_patient_dataset_robust
 
-DEFAULT_CORR_CACHE_ROOT = Path("data/corr_cache")
-DEFAULT_CORR_DEV_CACHE_ROOT = Path("data/corr_cache_dev")
+DEFAULT_CORR_CACHE_ROOT = CORR_CACHE
+DEFAULT_CORR_DEV_CACHE_ROOT = CORR_DEV_CACHE
 
 __all__ = ["CorrResult", "compute_corr_matrix", "load_corr_matrix", "get_corr_cache_path"]
 
@@ -162,7 +163,7 @@ def compute_corr_matrix(
     patient: str,
     phase: str,
     band: str,
-    dataset_root: Path = Path("data/stereoeeg_patients"),
+    dataset_root: Path = SEEG_DATAPATH,
     cache_root: Path = DEFAULT_CORR_CACHE_ROOT,
     *,
     use_cache: bool = True,
@@ -185,7 +186,7 @@ def compute_corr_matrix(
     patient : str
         Patient identifier (e.g., "Pat_02")
     phase : str
-        Recording phase (e.g., "rsPre", "taskLearn")
+        Recording phase (e.g., "rest_pre", "task_learn")
     band : str
         Frequency band (must exist in BRAIN_BANDS)
     dataset_root : Path, optional
@@ -225,14 +226,14 @@ def compute_corr_matrix(
     Examples
     --------
     >>> # Compute correlation for Pat_02, resting pre-task, beta band
-    >>> result = compute_corr_matrix("Pat_02", "rsPre", "beta")
+    >>> result = compute_corr_matrix("Pat_02", "rest_pre", "beta")
     >>> print(result.adjacency_matrix.shape)
     (117, 117)
     >>> print(f"Mean correlation: {result.mean_corr:.4f}")
     Mean correlation: 0.1234
 
     >>> # Force recomputation
-    >>> result = compute_corr_matrix("Pat_02", "rsPre", "beta", overwrite_cache=True)
+    >>> result = compute_corr_matrix("Pat_02", "rest_pre", "beta", overwrite_cache=True)
     """
 
     # Validate band
@@ -381,7 +382,7 @@ def compute_corr_for_patient(
     >>> results = compute_corr_for_patient("Pat_02")
     >>>
     >>> # Access specific result
-    >>> beta_rsPre = results["beta"]["rsPre"]
+    >>> beta_rsPre = results["beta"]["rest_pre"]
     >>> print(beta_rsPre.mean_corr)
     """
     if bands is None:
