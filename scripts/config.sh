@@ -6,12 +6,16 @@
 
 # Test mode defaults (single case for quick validation)
 TEST_PATIENT="Pat_03"
-TEST_PHASE="rsPre"
+TEST_PHASE="rest_pre"
 TEST_BAND="beta"
 
-# Batch mode defaults (all patients/phases/bands)
+# Batch mode defaults.
+# BATCH_PATIENTS is intentionally a small smoke-test subset; the full
+# canonical roster (n=10 as of 2026-04-22) is auto-detected by
+# list_patients() in config/const.py and used by the CLI when
+# --patients is omitted.
 BATCH_PATIENTS=(Pat_02 Pat_03)
-BATCH_PHASES=(rsPre taskLearn taskTest rsPost)
+BATCH_PHASES=(rest_pre task_learn task_test rest_post)
 BATCH_BANDS=(delta theta alpha beta low_gamma high_gamma)
 
 # FC method choices

@@ -5,11 +5,11 @@
 # Run individual pipeline steps with test or batch mode
 #
 # Usage:
-#   # Quick test (single case: Pat_03/rsPre/beta)
+#   # Quick test (single case: Pat_03/rest_pre/beta)
 #   bash scripts/run_step.sh --test --step 5b
 #
 #   # Test with custom parameters
-#   bash scripts/run_step.sh --test --step 7 --patient Pat_02 --phase taskLearn --band alpha
+#   bash scripts/run_step.sh --test --step 7 --patient Pat_02 --phase task_learn --band alpha
 #
 #   # Run step in batch mode (all bands/phases for a patient)
 #   bash scripts/run_step.sh --step 9 --patient Pat_03 --fc-method corr
@@ -149,122 +149,122 @@ START_TIME=$(date +%s)
 run_step_1() {
   echo -e "${BLUE}[Step 1]${NC} Computing correlation matrices..."
   if [ "$TEST_MODE" = true ]; then
-    python src/compute_corr_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
+    python scripts/py/compute_corr_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
   else
-    python src/compute_corr_matrices.py --patient "$PATIENT" --verbose
+    python scripts/py/compute_corr_matrices.py --patient "$PATIENT" --verbose
   fi
 }
 
 run_step_2() {
   echo -e "${BLUE}[Step 2]${NC} Cleaning correlation matrices..."
   if [ "$TEST_MODE" = true ]; then
-    python src/clean_correlation_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
+    python scripts/py/clean_correlation_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
   else
-    python src/clean_correlation_matrices.py --patient "$PATIENT" --verbose
+    python scripts/py/clean_correlation_matrices.py --patient "$PATIENT" --verbose
   fi
 }
 
 run_step_3() {
   echo -e "${BLUE}[Step 3]${NC} Visualizing correlations..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_correlation.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --plot-type summary --verbose
+    python scripts/py/visualize_correlation.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --plot-type summary --verbose
   else
-    python src/visualize_correlation.py --patient "$PATIENT" --batch --plot-type summary --verbose
+    python scripts/py/visualize_correlation.py --patient "$PATIENT" --batch --plot-type summary --verbose
   fi
 }
 
 run_step_5() {
   echo -e "${BLUE}[Step 5]${NC} Computing MSC matrices..."
   if [ "$TEST_MODE" = true ]; then
-    python src/compute_msc_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
+    python scripts/py/compute_msc_matrices.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
   else
-    python src/compute_msc_matrices.py --patient "$PATIENT" --verbose
+    python scripts/py/compute_msc_matrices.py --patient "$PATIENT" --verbose
   fi
 }
 
 run_step_5b() {
   echo -e "${BLUE}[Step 5b]${NC} Visualizing MSC (summary)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_msc.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --plot-type summary --verbose
+    python scripts/py/visualize_msc.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --plot-type summary --verbose
   else
-    python src/visualize_msc.py --patient "$PATIENT" --batch --plot-type summary --verbose
+    python scripts/py/visualize_msc.py --patient "$PATIENT" --batch --plot-type summary --verbose
   fi
 }
 
 run_step_5c() {
   echo -e "${BLUE}[Step 5c]${NC} Visualizing FC comparison (Corr vs MSC)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_comparison.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
+    python scripts/py/visualize_comparison.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --verbose
   else
-    python src/visualize_comparison.py --patient "$PATIENT" --batch --verbose
+    python scripts/py/visualize_comparison.py --patient "$PATIENT" --batch --verbose
   fi
 }
 
 run_step_6() {
   echo -e "${BLUE}[Step 6]${NC} Comparing FC methods (distance metrics)..."
-  python src/compare_fc_methods.py --patient "$PATIENT" --verbose
+  python scripts/py/compare_fc_methods.py --patient "$PATIENT" --verbose
 }
 
 run_step_7() {
   echo -e "${BLUE}[Step 7]${NC} Computing LRG analysis (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/compute_lrg_analysis.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
+    python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
   else
-    python src/compute_lrg_analysis.py --patient "$PATIENT" --fc-method "$FC_METHOD" --verbose
+    python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --fc-method "$FC_METHOD" --verbose
   fi
 }
 
 run_step_8() {
   echo -e "${BLUE}[Step 8]${NC} Computing LRG analysis (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/compute_lrg_analysis.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
+    python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
   else
-    python src/compute_lrg_analysis.py --patient "$PATIENT" --fc-method "$FC_METHOD" --verbose
+    python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --fc-method "$FC_METHOD" --verbose
   fi
 }
 
 run_step_9() {
   echo -e "${BLUE}[Step 9]${NC} Visualizing LRG (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_lrg.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --plot-type full --verbose
+    python scripts/py/visualize_lrg.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --plot-type full --verbose
   else
-    python src/visualize_lrg.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type full --verbose
+    python scripts/py/visualize_lrg.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type full --verbose
   fi
 }
 
 run_step_10() {
   echo -e "${BLUE}[Step 10]${NC} Visualizing LRG (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_lrg.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --plot-type full --verbose
+    python scripts/py/visualize_lrg.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --plot-type full --verbose
   else
-    python src/visualize_lrg.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type full --verbose
+    python scripts/py/visualize_lrg.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type full --verbose
   fi
 }
 
 run_step_11() {
   echo -e "${BLUE}[Step 11]${NC} Visualizing phase reorganization (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_phase_reorganization.py --patient "$PATIENT" --band "$BAND" --fc-method "$FC_METHOD" --plot-type all --verbose
+    python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --band "$BAND" --fc-method "$FC_METHOD" --plot-type all --verbose
   else
-    python src/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type all --verbose
+    python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type all --verbose
   fi
 }
 
 run_step_12() {
   echo -e "${BLUE}[Step 12]${NC} Visualizing phase reorganization (FC method: $FC_METHOD)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_phase_reorganization.py --patient "$PATIENT" --band "$BAND" --fc-method "$FC_METHOD" --plot-type all --verbose
+    python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --band "$BAND" --fc-method "$FC_METHOD" --plot-type all --verbose
   else
-    python src/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type all --verbose
+    python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --plot-type all --verbose
   fi
 }
 
 run_step_meta() {
   echo -e "${BLUE}[Step meta]${NC} Visualizing metastable nodes (Sankey)..."
   if [ "$TEST_MODE" = true ]; then
-    python src/visualize_metastable.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
+    python scripts/py/visualize_metastable.py --patient "$PATIENT" --phase "$PHASE" --band "$BAND" --fc-method "$FC_METHOD" --verbose
   else
-    python src/visualize_metastable.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --verbose
+    python scripts/py/visualize_metastable.py --patient "$PATIENT" --fc-method "$FC_METHOD" --batch --verbose
   fi
 }
 

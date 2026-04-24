@@ -44,9 +44,9 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Available patients and phases
-PATIENTS=(Pat_02 Pat_03)
-PHASES=(rsPre taskLearn taskTest rsPost)
+# Available patients and phases (full canonical roster as of 2026-04-22).
+PATIENTS=(Pat_02 Pat_03 Pat_05 Pat_06 Pat_07 Pat_08 Pat_10 Pat_13 Pat_14 Pat_15)
+PHASES=(rest_pre task_learn task_test rest_post)
 
 echo -e "${BLUE}=================================${NC}"
 echo -e "${BLUE}LRG EEG FC Analysis Pipeline${NC}"
@@ -71,7 +71,7 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 1: Compute correlation matrices
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[1/12]${NC} Computing correlation matrices..."
-  if python src/compute_corr_matrices.py --patient "$PATIENT" --verbose; then
+  if python scripts/py/compute_corr_matrices.py --patient "$PATIENT" --verbose; then
     echo -e "${GREEN}✓${NC} Correlation matrices computed"
   else
     echo -e "${RED}✗${NC} Failed to compute correlation matrices for $PATIENT"
@@ -82,7 +82,7 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 2: Clean correlation matrices
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[2/12]${NC} Cleaning correlation matrices (Marchenko-Pastur)..."
-  if python src/clean_correlation_matrices.py --patient "$PATIENT" --verbose; then
+  if python scripts/py/clean_correlation_matrices.py --patient "$PATIENT" --verbose; then
     echo -e "${GREEN}✓${NC} Correlation matrices cleaned"
   else
     echo -e "${RED}✗${NC} Failed to clean correlation matrices for $PATIENT"
@@ -92,7 +92,7 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 3: Generate visualizations (uncleaned)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[3/12]${NC} Generating unified visualizations (uncleaned matrices)..."
-  if python src/visualize_correlation.py --patient "$PATIENT" --batch --plot-type summary --verbose; then
+  if python scripts/py/visualize_correlation.py --patient "$PATIENT" --batch --plot-type summary --verbose; then
     echo -e "${GREEN}✓${NC} Summary visualizations generated"
   else
     echo -e "${RED}✗${NC} Failed to generate summary visualizations for $PATIENT"
@@ -107,8 +107,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 5: Compute MSC matrices (if available)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[5/12]${NC} Computing MSC matrices..."
-  if [ -f "src/compute_msc_matrices.py" ]; then
-    if python src/compute_msc_matrices.py --patient "$PATIENT" --verbose 2>/dev/null; then
+  if [ -f "scripts/py/compute_msc_matrices.py" ]; then
+    if python scripts/py/compute_msc_matrices.py --patient "$PATIENT" --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} MSC matrices computed"
     else
       echo -e "${YELLOW}⚠${NC} MSC computation skipped or failed for $PATIENT"
@@ -121,8 +121,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 5b: Generate MSC summary visualizations (if available)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[5b/8]${NC} Generating MSC summary visualizations..."
-  if [ -f "src/visualize_msc.py" ]; then
-    if python src/visualize_msc.py --patient "$PATIENT" --batch --plot-type summary --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_msc.py" ]; then
+    if python scripts/py/visualize_msc.py --patient "$PATIENT" --batch --plot-type summary --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} MSC summary visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} MSC visualization skipped or failed for $PATIENT"
@@ -135,8 +135,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 5c: Generate FC comparison visualizations (Correlation vs MSC)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[5c/10]${NC} Generating FC comparison visualizations..."
-  if [ -f "src/visualize_comparison.py" ]; then
-    if python src/visualize_comparison.py --patient "$PATIENT" --batch --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_comparison.py" ]; then
+    if python scripts/py/visualize_comparison.py --patient "$PATIENT" --batch --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} FC comparison visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} FC comparison visualization skipped or failed for $PATIENT"
@@ -149,8 +149,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 6: Compare FC methods (if available)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[6/12]${NC} Comparing FC methods..."
-  if [ -f "src/compare_fc_methods.py" ]; then
-    if python src/compare_fc_methods.py --patient "$PATIENT" --verbose 2>/dev/null; then
+  if [ -f "scripts/py/compare_fc_methods.py" ]; then
+    if python scripts/py/compare_fc_methods.py --patient "$PATIENT" --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} FC methods compared"
     else
       echo -e "${YELLOW}⚠${NC} FC comparison skipped or failed for $PATIENT"
@@ -163,8 +163,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 7: Compute LRG analysis (Correlation-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[7/12]${NC} Computing LRG analysis (Correlation)..."
-  if [ -f "src/compute_lrg_analysis.py" ]; then
-    if python src/compute_lrg_analysis.py --patient "$PATIENT" --fc-method corr --verbose 2>/dev/null; then
+  if [ -f "scripts/py/compute_lrg_analysis.py" ]; then
+    if python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --fc-method corr --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} Correlation LRG analysis computed"
     else
       echo -e "${YELLOW}⚠${NC} Correlation LRG analysis skipped or failed for $PATIENT"
@@ -177,8 +177,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 8: Compute LRG analysis (MSC-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[8/12]${NC} Computing LRG analysis (MSC)..."
-  if [ -f "src/compute_lrg_analysis.py" ]; then
-    if python src/compute_lrg_analysis.py --patient "$PATIENT" --fc-method msc --verbose 2>/dev/null; then
+  if [ -f "scripts/py/compute_lrg_analysis.py" ]; then
+    if python scripts/py/compute_lrg_analysis.py --patient "$PATIENT" --fc-method msc --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} MSC LRG analysis computed"
     else
       echo -e "${YELLOW}⚠${NC} MSC LRG analysis skipped or failed for $PATIENT"
@@ -189,8 +189,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 9: Generate LRG visualizations (Correlation-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[9/12]${NC} Generating LRG visualizations (Correlation)..."
-  if [ -f "src/visualize_lrg.py" ]; then
-    if python src/visualize_lrg.py --patient "$PATIENT" --fc-method corr --batch --plot-type full --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_lrg.py" ]; then
+    if python scripts/py/visualize_lrg.py --patient "$PATIENT" --fc-method corr --batch --plot-type full --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} Correlation LRG visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} Correlation LRG visualization skipped or failed for $PATIENT"
@@ -203,8 +203,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 10: Generate LRG visualizations (MSC-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[10/12]${NC} Generating LRG visualizations (MSC)..."
-  if [ -f "src/visualize_lrg.py" ]; then
-    if python src/visualize_lrg.py --patient "$PATIENT" --fc-method msc --batch --plot-type full --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_lrg.py" ]; then
+    if python scripts/py/visualize_lrg.py --patient "$PATIENT" --fc-method msc --batch --plot-type full --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} MSC LRG visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} MSC LRG visualization skipped or failed for $PATIENT"
@@ -215,8 +215,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 11: Generate phase reorganization visualizations (Correlation-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[11/12]${NC} Generating phase reorganization visualizations (Correlation)..."
-  if [ -f "src/visualize_phase_reorganization.py" ]; then
-    if python src/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method corr --batch --plot-type all --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_phase_reorganization.py" ]; then
+    if python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method corr --batch --plot-type all --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} Correlation phase reorganization visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} Correlation phase reorganization visualization skipped or failed for $PATIENT"
@@ -229,8 +229,8 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 12: Generate phase reorganization visualizations (MSC-based)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[12/13]${NC} Generating phase reorganization visualizations (MSC)..."
-  if [ -f "src/visualize_phase_reorganization.py" ]; then
-    if python src/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method msc --batch --plot-type all --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_phase_reorganization.py" ]; then
+    if python scripts/py/visualize_phase_reorganization.py --patient "$PATIENT" --fc-method msc --batch --plot-type all --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} MSC phase reorganization visualizations generated"
     else
       echo -e "${YELLOW}⚠${NC} MSC phase reorganization visualization skipped or failed for $PATIENT"
@@ -241,13 +241,13 @@ for PATIENT in "${PATIENTS[@]}"; do
   # Step 13: Metastable nodes visualization (Sankey)
   # -------------------------------------------------------------------------
   echo -e "${BLUE}[13/13]${NC} Generating metastable nodes visualizations (Sankey)..."
-  if [ -f "src/visualize_metastable.py" ]; then
-    if python src/visualize_metastable.py --patient "$PATIENT" --fc-method corr --batch --verbose 2>/dev/null; then
+  if [ -f "scripts/py/visualize_metastable.py" ]; then
+    if python scripts/py/visualize_metastable.py --patient "$PATIENT" --fc-method corr --batch --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} Metastable visualizations (corr) generated"
     else
       echo -e "${YELLOW}⚠${NC} Metastable visualization skipped or failed (corr) for $PATIENT"
     fi
-    if python src/visualize_metastable.py --patient "$PATIENT" --fc-method msc --batch --verbose 2>/dev/null; then
+    if python scripts/py/visualize_metastable.py --patient "$PATIENT" --fc-method msc --batch --verbose 2>/dev/null; then
       echo -e "${GREEN}✓${NC} Metastable visualizations (msc) generated"
     else
       echo -e "${YELLOW}⚠${NC} Metastable visualization skipped or failed (msc) for $PATIENT"
