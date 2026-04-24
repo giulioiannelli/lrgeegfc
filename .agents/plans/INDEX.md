@@ -1,3 +1,13 @@
+---
+name: index
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Plans Index
 
 Start here: `.agents/START_HERE.md`

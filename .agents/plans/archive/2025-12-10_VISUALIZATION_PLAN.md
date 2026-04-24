@@ -1,3 +1,13 @@
+---
+name: visualization-plan
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Visualization and Cleaning Pipeline Implementation Plan
 
 ## Overview

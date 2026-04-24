@@ -1,3 +1,13 @@
+---
+name: caching-guide
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Caching Guide (LRG EEG FC)
 
 This guide explains how cached outputs are produced, located, and reused.

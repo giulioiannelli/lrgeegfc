@@ -1,3 +1,13 @@
+---
+name: stage-00-notebook-consolidation
+type: plan
+era: IMCOH_SQ
+status: dead
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 00 - Notebook consolidation
 
 ## Goals

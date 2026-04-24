@@ -1,3 +1,13 @@
+---
+name: agent-tasks
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Agent Task Reference
 
 Common tasks agents should know how to perform autonomously.

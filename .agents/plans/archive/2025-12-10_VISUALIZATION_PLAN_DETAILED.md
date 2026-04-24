@@ -1,3 +1,13 @@
+---
+name: visualization-plan-detailed
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Detailed Implementation Plan: Phases 3-7
 
 This document provides comprehensive implementation details for the remaining phases of the visualization pipeline.

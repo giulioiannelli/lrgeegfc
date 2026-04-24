@@ -1,3 +1,13 @@
+---
+name: lrg-params
+type: plan
+era: IMCOH_SQ
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # LRG Parameters (2026-01-10)
 
 This file records the current LRG defaults and where they are defined.

@@ -1,3 +1,13 @@
+---
+name: start-here
+type: guide
+era: COHORT_N9
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Start Here
 
 This file is the entry point for agents. It points to the current state of

@@ -1,3 +1,13 @@
+---
+name: h1-h4-vi-results-post-reset
+type: report
+era: COHORT_N9
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # H1-H4 on VI(k): post-ImCoh-reset authoritative results
 
 **FC method:** `imcoh_abs` = <|ImCoh|>_f (Nolte-2004 signed ImCoh with abs-then-band-average per frequency bin; Jensen's inequality ordering respected).

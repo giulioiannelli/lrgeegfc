@@ -1,3 +1,13 @@
+---
+name: data-inventory
+type: plan
+era: IMCOH_SQ
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Data Inventory Report (2026-01-10)
 
 This report summarizes the output of `src/inspect_patient_data.py` for the

@@ -1,3 +1,13 @@
+---
+name: h2-metrics
+type: guide
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Multiscale task-trace metrics: VI, ρ, Δρ
 
 This guide explains the three quantitative metrics used to detect

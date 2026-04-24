@@ -1,3 +1,13 @@
+---
+name: analysis-commands
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Complete Analysis Command List
 
 Run these commands in sequence to perform the full analysis pipeline for all patients (Pat_02, Pat_03, Pat_05, Pat_07, Pat_08).

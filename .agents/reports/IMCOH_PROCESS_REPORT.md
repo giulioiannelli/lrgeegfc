@@ -1,3 +1,13 @@
+---
+name: imcoh-process-report
+type: report
+era: IMCOH_SQ
+status: superseded
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 > **⚠ QUANTITATIVE_STALE (2026-04-15)** — numbers in this report were
 > computed under the pre-reset ImCoh mislabelling (stored `|ImCoh|²`
 > under the name `imcoh`). Qualitative conclusions survive (rankings

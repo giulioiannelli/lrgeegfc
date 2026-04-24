@@ -1,3 +1,13 @@
+---
+name: phase2-progress
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-30
+updated: 2026-04-24
+pointers: []
+---
+
 # Phase 2: Notebook Migration - COMPLETE
 **Date:** 2025-12-11
 **Status:** 3 of 3 priority notebooks migrated

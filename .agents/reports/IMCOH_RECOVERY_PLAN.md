@@ -1,3 +1,13 @@
+---
+name: imcoh-recovery-plan
+type: plan
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # ImCoh Recovery Plan — draft for user review
 
 **Status:** draft — do not execute until user approves. Author: Claude Code session 2026-04-15.

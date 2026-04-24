@@ -1,3 +1,13 @@
+---
+name: reorg-and-overleaf-plan
+type: plan
+era: IMCOH_SQ
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Repo reorg + pipeline prep + Overleaf bundle
 
 Note: superseded by the stage plans in `.agents/plans/active/`.

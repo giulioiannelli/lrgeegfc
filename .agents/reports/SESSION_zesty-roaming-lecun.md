@@ -1,3 +1,13 @@
+---
+name: session-zesty-roaming-lecun
+type: report
+era: IMCOH_SQ
+status: dead
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Session: reorganize-data-scripts-config
 
 **Date:** 2026-03-31 to 2026-04-13

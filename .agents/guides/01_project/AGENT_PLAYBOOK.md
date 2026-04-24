@@ -1,3 +1,13 @@
+---
+name: agent-playbook
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Agent Playbook: How to Work Here
 
 ## Session Kick-off

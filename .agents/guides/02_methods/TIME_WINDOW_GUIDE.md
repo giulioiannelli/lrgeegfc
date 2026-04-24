@@ -1,3 +1,13 @@
+---
+name: time-window-guide
+type: guide
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Time-Window Guide (Stage S)
 
 This guide defines the time-window analysis defaults and how to cache and

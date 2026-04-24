@@ -1,3 +1,13 @@
+---
+name: checkpoint-visualization-implementation
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Visualization Implementation Checkpoint
 
 **Date:** 2025-12-10

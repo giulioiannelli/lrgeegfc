@@ -1,3 +1,13 @@
+---
+name: msc-validation-pipeline
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-09
+updated: 2026-04-24
+pointers: []
+---
+
 # MSC Validation Pipeline Guide
 
 This guide explains the surrogate-based validation pipeline for MSC (Magnitude-Squared Coherence) functional connectivity networks.

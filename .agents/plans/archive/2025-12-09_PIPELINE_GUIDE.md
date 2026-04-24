@@ -1,3 +1,13 @@
+---
+name: pipeline-guide
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-09
+updated: 2026-04-24
+pointers: []
+---
+
 # Complete Analysis Pipeline Guide
 
 This guide walks through the complete functional connectivity analysis pipeline from raw EEG data to network comparisons.

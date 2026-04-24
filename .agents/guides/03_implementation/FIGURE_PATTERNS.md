@@ -1,3 +1,13 @@
+---
+name: figure-patterns
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Figure Patterns Guide
 
 Templates and patterns for generating publication-quality figures.

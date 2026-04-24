@@ -1,3 +1,13 @@
+---
+name: data-layout
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Data Layout & `lrg-eegfc data normalize`
 
 Canonical specification of how raw sEEG patient data is organized on disk,

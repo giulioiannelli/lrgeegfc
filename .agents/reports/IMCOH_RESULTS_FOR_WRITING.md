@@ -1,3 +1,13 @@
+---
+name: imcoh-results-for-writing
+type: report
+era: IMCOH_ABS
+status: superseded
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 > **⚠ SUPERSEDED (2026-04-24)** — This document was the writing-agent
 > handoff for the n=5 / n=7 / pre-cohort-expansion phase of the project.
 > It has been **superseded** by

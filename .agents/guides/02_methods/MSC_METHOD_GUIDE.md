@@ -1,3 +1,13 @@
+---
+name: msc-method-guide
+type: guide
+era: MSC
+status: superseded
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # MSC Method Guide
 
 > **WARNING: MSC is contaminated by volume conduction.**

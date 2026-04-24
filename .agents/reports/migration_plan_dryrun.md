@@ -1,3 +1,13 @@
+---
+name: migration-plan-dryrun
+type: plan
+era: COHORT_N9
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Patient layout normalization plan
 
 ## Pat_02

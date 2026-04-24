@@ -1,3 +1,13 @@
+---
+name: probe-bias-guide
+type: guide
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Same-Probe MSC Bias — Critical Guide
 
 ## The Problem

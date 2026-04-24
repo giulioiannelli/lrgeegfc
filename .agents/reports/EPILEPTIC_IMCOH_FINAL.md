@@ -1,3 +1,13 @@
+---
+name: epileptic-imcoh-final
+type: report
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Epileptic-zone signature in |ImCoh|-LRG — Final consolidated results
 
 **Status:** validated 2026-04-15/18 on `imcoh_abs` (post-reset).

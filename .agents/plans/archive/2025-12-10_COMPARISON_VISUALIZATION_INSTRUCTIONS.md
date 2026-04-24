@@ -1,3 +1,13 @@
+---
+name: comparison-visualization-instructions
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Instructions: Implement Comparison Visualizations for FC Methods
 
 **Date:** 2025-12-10

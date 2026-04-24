@@ -1,3 +1,13 @@
+---
+name: stage-02-fc-msc-corr
+type: plan
+era: MSC
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 02 - FC matrices (MSC + correlation)
 
 ## Goals

@@ -1,3 +1,13 @@
+---
+name: multiscale-task-trace-for-writing
+type: report
+era: COHORT_N9
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Multiscale Task Trace — Writing Agent Handoff (n=9)
 
 > **Status (2026-04-24):** Results computed on the 10-patient sEEG

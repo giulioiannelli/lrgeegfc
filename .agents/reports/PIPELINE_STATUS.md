@@ -1,3 +1,13 @@
+---
+name: pipeline-status
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Pipeline Status — post-ImCoh-reset era index
 
 **Last updated:** 2026-04-24 (H2 reorganization + n=10 cohort).
@@ -40,6 +50,8 @@ hallucinations from citing old numbers as if they were current.
 | Cohort finalized (n=10) + H2 reorganization | 2026-04-24 | Pat_10 channel drop, Pat_13 rest_pre replaced, Pat_14 task_test excluded; H2c + H2d added as primary; H2a demoted (fails FDR at n=9) |
 | H2 audit pass (H2a′ + H2e)                   | 2026-04-24+ | Directed conditional-entropy test (H2a′) on existing LRG caches: fails k-averaged FDR m=6; α passes cluster-perm at k=2-4 (p=0.050★); δ/β/γ_h trend correctly at p≈0.07 — supplementary. Split-half drift noise-floor (H2e) run on rest phases only with halved `nperseg`; results under `data/reports/imcoh_vi/h2e_split_half.{md,csv}` and `.agents/guides/02_methods/H2_METRICS.md` §2a. `conditional_entropy` added to `src/lrg_eegfc/utils/metrics/vi.py`. |
 | Topology & robustness audit                   | 2026-04-24++ | Added H2-RAW (Spearman on raw D), H2-FROB (Frobenius ratio), H2-TOPO (tree bipartition overlap). **All "rpost closer to task than rpre" tests fail at every metric**, confirming the trace is a residual/conditional signal not a global geometry shift. H1-topo passes 6/6 bands and H3-topo passes 5/6 — β strongest, γ_h weakest — giving a multiscale band-heterogeneity anchor independent of ρ. |ImCoh|² LRG comparison: band ranking essentially identical to |ImCoh| — FC metric is not the bottleneck. Noise-sensitivity diagnostic: ρ survives 5% FC perturbation at ρ_noise≈0.9, cross-phase ρ≈0.48 is signal not noise; but ρ is only modestly correlated with bipartition overlap (Spearman 0.31). Scripts: `h2_raw_matrix_correlation.py`, `h2_frobenius_ratio.py`, `h2_topology_directed.py`, `diag_noise_sensitivity.py`, `diag_topology_vs_rho.py`. |
+| Stage 1 simple-first rerun (14 scalars)        | 2026-04-24+++ | Rerun of 14 MSC-era tree-comparison scalars (CophPearson/Spearman, BakersGamma, NormL1/L2 on ultrametric, TopK5/10/20 merges, WeightedARI coarse/fine, MeanARI, WeightedVI coarse/fine, MeanVI) under `imcoh_abs` at n=9. **None meet pre-reg criterion** (β AND γ_l q<0.05, ≥7/9 positive, θ/α null, rb(β)-rb(θ)≥0.5). Best metrics reach 2/4 criteria. **Key finding**: β-only directional signal is present (NormL1_Ult, NormL2_Ult: β p=0.033 pre-FDR, 7/9, rb=+0.69; MeanARI, WeightARI_Fine: β p=0.04-0.05, 8/9, rb=+0.64); γ_l does NOT behave as hypothesized (rb often negative). Paper's "β AND γ_l" hypothesis only half-supported at single-scalar resolution. Scripts: `scripts/01_compute/stage0b_dmax_stability.py`, `scripts/01_compute/stage1_14metrics_rerun.py`. Catalog: `data/reports/imcoh_vi/stage0a_metric_catalog.md`. Outputs: `data/reports/imcoh_vi/stage1_14metrics_{rerun.md,raw.csv,contrast.csv,stats.csv,verdict.csv}` + figures. dmax diagnostic: LRG ultrametric saturates at ≈0.99 so `h_rel` cuts are comparable without renormalization. **Next**: Stage 2 literature search for tree-similarity scalars combining heights + topology (the 14 lack this category). |
+| Stage 2/3 KC + MC + wRF tree-distance tests   | 2026-04-24++++ | Implemented Kendall-Colijn (5 λ blends topology↔heights), Matching Cluster (unweighted + weighted), weighted Robinson-Foulds. `src/lrg_eegfc/utils/metrics/tree_distance.py` + `scripts/01_compute/stage3_tree_distance.py`. Also installed `dendropy 5.0.8` via pip into `lapbrain` for wRF cross-checking. **None of the 8 variants meet pre-reg**; best at 2/4 same as Stage 1. **Key diagnostic — KC(λ)**: β−θ rank-biserial separation grows from 0.09 (λ=0 topology only) to 1.46 (λ=1 heights only). At pure topology (λ=0), θ actually goes in the wrong direction (rb_θ=+0.38). At pure heights, θ is strongly negative (rb_θ=−0.82) and β is positive (rb_β=+0.64). **Scalar task-trace signal is HEIGHTS-DRIVEN, not topology-driven.** Secondary: wRF picks up an unexpected δ-band signal (rb=+0.82, 7/9 positive, p=0.014 pre-FDR, q=0.085). Stage 2 menu: `.agents/reports/stage2_literature_menu.md`. Stage 3 outputs: `data/reports/imcoh_vi/stage3_tree_distance.{md,_stats.csv,_verdict.csv,_raw.csv,_contrast.csv}` + figures incl. `kc_lambda.pdf`. **Consequence for Stage 4**: the originally-planned topology-based band×scale map is unlikely to rescue β (topology is null); Stage 4 must be redesigned — either scale-resolved heights (H2c-refinement) or hybrid heights+topology per cell. User decision pending. |
 
 
 

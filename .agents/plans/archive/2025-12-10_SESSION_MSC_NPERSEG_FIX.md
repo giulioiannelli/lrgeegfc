@@ -1,3 +1,13 @@
+---
+name: session-msc-nperseg-fix
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Session: MSC nperseg Parameter Fix and Visualization Plan
 
 **Date:** 2025-12-10

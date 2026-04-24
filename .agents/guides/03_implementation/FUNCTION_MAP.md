@@ -1,3 +1,13 @@
+---
+name: function-map
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Function Map - lrg_eegfc Package
 
 Quick reference for all public functions organized by module.

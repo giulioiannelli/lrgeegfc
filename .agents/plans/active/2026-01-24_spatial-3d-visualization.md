@@ -1,3 +1,13 @@
+---
+name: spatial-3d-visualization
+type: plan
+era: IMCOH_SQ
+status: dead
+created: 2026-01-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan: 3D Spatial Brain Network Visualization
 
 ## Goal

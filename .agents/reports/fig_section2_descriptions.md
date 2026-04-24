@@ -1,3 +1,13 @@
+---
+name: fig-section2-descriptions
+type: report
+era: IMCOH_SQ
+status: superseded
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 > **⚠ SUPERSEDED (2026-04-24)** — Figure descriptions in this document
 > correspond to the n=5 era of Section 2 (MSC → ImCoh transition narrative)
 > and predate the 2026-04-15 ImCoh reset. The current canonical handoff

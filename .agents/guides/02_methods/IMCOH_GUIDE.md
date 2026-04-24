@@ -1,3 +1,13 @@
+---
+name: imcoh-guide
+type: guide
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # ImCoh (Imaginary Part of Coherency) Guide
 
 ## Why MSC Is Contaminated

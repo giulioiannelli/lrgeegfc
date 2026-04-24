@@ -1,3 +1,13 @@
+---
+name: structural-refactor-plan
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Structural Refactor Plan — 2025-12-11
 Goal: polish structure and make constraints obvious to future agents (documentation + code hygiene), without breaking the existing cached workflows or visualization flow.
 

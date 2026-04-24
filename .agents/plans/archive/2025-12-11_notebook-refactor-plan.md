@@ -1,3 +1,13 @@
+---
+name: notebook-refactor-plan
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Notebook Refactoring Plan
 **Date:** 2025-12-11
 **Project:** LRG EEG Functional Connectivity

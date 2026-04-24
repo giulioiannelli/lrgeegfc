@@ -1,3 +1,13 @@
+---
+name: cli-reference
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # CLI Reference: lrg-eegfc
 
 The `lrg-eegfc` command-line tool provides unified access to the full analysis

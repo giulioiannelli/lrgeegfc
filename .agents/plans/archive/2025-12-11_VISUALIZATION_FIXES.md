@@ -1,3 +1,13 @@
+---
+name: visualization-fixes
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Visualization Pipeline Fixes
 
 ## Summary

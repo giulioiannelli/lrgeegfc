@@ -1,3 +1,13 @@
+---
+name: imcoh-reset-report
+type: report
+era: IMCOH_ABS
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # ImCoh Framework Reset — Full Report for Writing Agent
 
 **Date:** 2026-04-15

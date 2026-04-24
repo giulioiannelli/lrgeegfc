@@ -1,3 +1,13 @@
+---
+name: readme
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Agent Guide: LRG EEG Functional Connectivity
 
 This is the canonical guidance for coding agents working in this repository.

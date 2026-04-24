@@ -1,3 +1,13 @@
+---
+name: writing-agent-briefing
+type: report
+era: IMCOH_SQ
+status: superseded
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 > **⚠ QUANTITATIVE_STALE (2026-04-15)** — every numerical value in this
 > document was computed under the pre-reset mislabelling, in which
 > `fc_method="imcoh"` actually stored `|ImCoh|²`. After the 2026-04-15
