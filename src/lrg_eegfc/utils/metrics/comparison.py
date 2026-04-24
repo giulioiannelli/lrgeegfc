@@ -28,7 +28,7 @@ def compute_phase_distance_matrix(
     Parameters
     ----------
     phase_labels : list of str
-        List of phase names (e.g., ['rsPre', 'taskLearn', 'taskTest', 'rsPost'])
+        List of phase names (e.g., ['rest_pre', 'task_learn', 'task_test', 'rest_post'])
     compute_fn : callable
         Function that takes two phase names (str, str) and returns a distance (float)
         Example: lambda pi, pj: ultrametric_matrix_distance(U[pi], U[pj])
@@ -48,11 +48,11 @@ def compute_phase_distance_matrix(
     --------
     >>> from lrgsglib.utils.basic.linalg import ultrametric_matrix_distance
     >>> # Assume U is dict mapping phase -> ultrametric matrix
-    >>> phases = ['rsPre', 'taskLearn', 'taskTest', 'rsPost']
+    >>> phases = ['rest_pre', 'task_learn', 'task_test', 'rest_post']
     >>> def dist_fn(pi, pj):
     ...     return ultrametric_matrix_distance(U[pi], U[pj], metric='euclidean')
     >>> dm = compute_phase_distance_matrix(phases, dist_fn)
-    >>> print(f"Distance rsPre->taskLearn: {dm[0, 1]:.3f}")
+    >>> print(f"Distance rest_pre->task_learn: {dm[0, 1]:.3f}")
 
     Notes
     -----

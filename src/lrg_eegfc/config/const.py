@@ -18,6 +18,8 @@ __all__ = [
     'PATIENTS_LIST',
     'list_patients',
     'PHASE_LABELS',
+    'PHASE_SUBDIR',
+    'PATIENT_CHANNEL_DROP',
     'PATIENTS_4PHASE',
     'PHASE_SHORT_LABELS',
     'ALL_PHASE_PAIRS',
@@ -95,19 +97,60 @@ class _LazyPatientsList(list):
 #: Patients available in the LRG EEG-FC dataset (lazy-loaded).
 PATIENTS_LIST: List[str] = _LazyPatientsList()
 #: Recording phases expected in the publicly shared SEEG datasets.
-PHASE_LABELS: Tuple[str, ...] = ('rsPre', 'taskLearn', 'taskTest', 'rsPost')
-#: Patients with all 4 recording phases (excludes Pat_06 missing task phases).
-PATIENTS_4PHASE: List[str] = ["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"]
+#: Canonical snake_case names matching the on-disk filenames under
+#: ``resting/{rest_pre,rest_post}.mat`` and ``task/{task_learn,task_test}.mat``.
+PHASE_LABELS: Tuple[str, ...] = ('rest_pre', 'task_learn', 'task_test', 'rest_post')
+#: Map phase → subdirectory under the per-patient root. Mirrors the canonical
+#: layout enforced by ``lrg-eegfc data normalize``.
+PHASE_SUBDIR: Dict[str, str] = {
+    "rest_pre":  "resting",
+    "rest_post": "resting",
+    "task_learn": "task",
+    "task_test":  "task",
+}
+
+#: Per-patient channel drops applied at load time to reconcile heterogeneous
+#: channel counts across phases.  Keys: patient id.  Values: dict mapping
+#: phase name → 0-based row indices to delete from the ``Data`` matrix of
+#: ``channel_labels.csv`` (row indices are relative to the *full* 116-row
+#: channel_labels.csv; after dropping them the remaining rows are the
+#: canonical channel set for that patient across every phase).
+#:
+#: A special key ``"__labels__"`` under each patient lists the label-row
+#: indices to drop from ``channel_labels.csv`` and the implant CSV so that
+#: per-phase Data (post-drop) lines up with the metadata row-by-row.
+#:
+#: Pat_10 background (2026-04-23): the vendor shipped resting recordings
+#: with 113 channels but task recordings with 116.  Monotonic-constrained
+#: exhaustive channel-fingerprint matching (multi-band power + std) on
+#: rest_pre vs task_learn AND rest_post vs task_test independently
+#: identified task rows [53, 54, 55] as the task-only extras.  Labels at
+#: those indices: ``['f  3,G2', 'c  3,G2', 'o  1,G2']`` (lowercase-probe
+#: contacts not present in the resting-state probe set).  Both tasks have
+#: those three rows dropped at load so Pat_10 is consistently 113-channel.
+PATIENT_CHANNEL_DROP: Dict[str, Dict[str, List[int]]] = {
+    "Pat_10": {
+        "task_learn": [53, 54, 55],
+        "task_test":  [53, 54, 55],
+        "__labels__": [53, 54, 55],
+    },
+}
+#: Patients with all 4 recording phases. As of 2026-04-22 the full n=10
+#: roster has canonical resting + task recordings; Pat_06 was re-completed.
+PATIENTS_4PHASE: List[str] = [
+    "Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
+    "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15",
+]
 #: Short labels for phases (useful for compact figure annotations).
 PHASE_SHORT_LABELS: Dict[str, str] = {
-    "rsPre": "Pre", "taskLearn": "TL", "taskTest": "TT", "rsPost": "Post",
+    "rest_pre": "Pre", "task_learn": "TL", "task_test": "TT", "rest_post": "Post",
 }
 #: All ordered pairs of phases (6 combinations).
 ALL_PHASE_PAIRS: List[Tuple[str, str]] = list(combinations(PHASE_LABELS, 2))
 #: Resting-state phases.
-REST_PHASES: frozenset = frozenset({"rsPre", "rsPost"})
+REST_PHASES: frozenset = frozenset({"rest_pre", "rest_post"})
 #: Task phases.
-TASK_PHASES: frozenset = frozenset({"taskLearn", "taskTest"})
+TASK_PHASES: frozenset = frozenset({"task_learn", "task_test"})
 
 
 def classify_pair(p1: str, p2: str) -> str:
@@ -181,6 +224,18 @@ DEFAULT_WELCH_SEGMENT_SEC: float = 2.0
 DEFAULT_NPERSEG: int = 4096
 #: Default sampling rate when `fs` is missing from metadata
 DEFAULT_SAMPLE_RATE: float = 2048.0
+
+#: Per-patient sampling-rate overrides — only deviations from
+#: :data:`DEFAULT_SAMPLE_RATE` need to be listed. This is the single
+#: source of truth for the project; every script/workflow needing a
+#: patient's sampling rate should look it up here rather than redefine a
+#: local ``FS_MAP``. Consumers typically do
+#: ``fs = FS_OVERRIDES.get(patient, DEFAULT_SAMPLE_RATE)``.
+#:
+#: History: Pat_03 was the only patient recorded at 1024 Hz (all others
+#: at 2048 Hz); see :file:`.agents/guides/03_implementation/DATA_LAYOUT.md`
+#: §6 for the full per-patient audit.
+FS_OVERRIDES: Dict[str, float] = {"Pat_03": 1024.0}
 
 
 def nperseg_for_fs(fs: float) -> int:

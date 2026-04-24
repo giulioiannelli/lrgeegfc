@@ -105,11 +105,11 @@ def compare_ultrametric_matrices(
     --------
     >>> from lrg_eegfc import compute_lrg_analysis, compute_corr_matrix, compute_msc_matrix
     >>> # Get FC matrices
-    >>> corr = compute_corr_matrix("Pat_02", "rsPre", "beta")
-    >>> msc = compute_msc_matrix("Pat_02", "rsPre", "beta")
+    >>> corr = compute_corr_matrix("Pat_02", "rest_pre", "beta")
+    >>> msc = compute_msc_matrix("Pat_02", "rest_pre", "beta")
     >>> # Compute LRG
-    >>> lrg_corr = compute_lrg_analysis(corr.adjacency_matrix, "Pat_02", "rsPre", "beta", "corr")
-    >>> lrg_msc = compute_lrg_analysis(msc.adjacency_matrix, "Pat_02", "rsPre", "beta", "msc")
+    >>> lrg_corr = compute_lrg_analysis(corr.adjacency_matrix, "Pat_02", "rest_pre", "beta", "corr")
+    >>> lrg_msc = compute_lrg_analysis(msc.adjacency_matrix, "Pat_02", "rest_pre", "beta", "msc")
     >>> # Compare
     >>> comparison = compare_ultrametric_matrices(
     ...     lrg_corr.ultrametric_matrix,
@@ -207,8 +207,8 @@ def compare_fc_methods(
 
     Examples
     --------
-    >>> comparison = compare_fc_methods("Pat_02", "rsPre", "beta")
-    >>> comparison = compare_fc_methods("Pat_02", "rsPre", "beta", "msc", "imcoh")
+    >>> comparison = compare_fc_methods("Pat_02", "rest_pre", "beta")
+    >>> comparison = compare_fc_methods("Pat_02", "rest_pre", "beta", "msc", "imcoh")
     """
     from lrg_eegfc.workflow.lrg import load_lrg_result
 
@@ -238,16 +238,16 @@ def compare_phases(
 ) -> Optional[UltrametricComparison]:
     """Compare two phases for same patient/band/method.
 
-    Useful for analyzing memory effects (e.g., rsPre vs rsPost).
+    Useful for analyzing memory effects (e.g., rest_pre vs rest_post).
 
     Parameters
     ----------
     patient : str
         Patient identifier
     phase_1 : str
-        First recording phase (e.g., "rsPre")
+        First recording phase (e.g., "rest_pre")
     phase_2 : str
-        Second recording phase (e.g., "rsPost")
+        Second recording phase (e.g., "rest_post")
     band : str
         Frequency band
     fc_method : str
@@ -263,7 +263,7 @@ def compare_phases(
     Examples
     --------
     >>> # Compare pre vs post resting state
-    >>> comparison = compare_phases("Pat_02", "rsPre", "rsPost", "beta", "corr")
+    >>> comparison = compare_phases("Pat_02", "rest_pre", "rest_post", "beta", "corr")
     >>> if comparison:
     ...     print(f"Pre-Post distance: {comparison.matrix_distance:.4f}")
     """
@@ -308,7 +308,7 @@ def aggregate_comparisons(
     >>> # Compare MSC vs corr for all bands
     >>> comparisons = []
     >>> for band in BRAIN_BANDS:
-    ...     comp = compare_fc_methods("Pat_02", "rsPre", band)
+    ...     comp = compare_fc_methods("Pat_02", "rest_pre", band)
     ...     if comp:
     ...         comparisons.append(comp)
     >>> df = aggregate_comparisons(comparisons)
@@ -433,7 +433,7 @@ def batch_compare_phases(
     Examples
     --------
     >>> # Compare pre vs post for memory effects
-    >>> phase_pairs = [("rsPre", "rsPost"), ("taskLearn", "taskTest")]
+    >>> phase_pairs = [("rest_pre", "rest_post"), ("task_learn", "task_test")]
     >>> df = batch_compare_phases(
     ...     ["Pat_02", "Pat_03"],
     ...     phase_pairs,

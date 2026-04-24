@@ -9,12 +9,37 @@ from pathlib import Path
 from typing import List, Tuple, Dict, Any
 from scipy.io import loadmat
 
-from lrg_eegfc.config.const import PARAMETER_KEYS, PHASE_LABELS, sEEG_DATAPATH, list_patients
+from lrg_eegfc.config.const import (
+    PARAMETER_KEYS,
+    PHASE_LABELS,
+    PHASE_SUBDIR,
+    sEEG_DATAPATH,
+    list_patients,
+)
 
 __all__ = [
     "load_mat_pat_data",
-    "load_data_dict"
+    "load_data_dict",
+    "phase_mat_path",
 ]
+
+
+def phase_mat_path(mat_path: Path, patient: str, phase: str) -> Path:
+    """Resolve the canonical ``.mat`` path for a ``(patient, phase)``.
+
+    The canonical layout places resting-state recordings under ``resting/``
+    and task recordings under ``task/`` (see
+    ``.agents/guides/03_implementation/DATA_LAYOUT.md``). This helper maps
+    a snake_case phase name to its subdirectory so callers don't hardcode
+    the layout.
+    """
+    subdir = PHASE_SUBDIR.get(phase)
+    if subdir is None:
+        raise KeyError(
+            f"Unknown phase {phase!r}; expected one of {sorted(PHASE_SUBDIR)}"
+        )
+    return mat_path / patient / subdir / f"{phase}.mat"
+
 
 def load_mat_pat_data(
     patient: str,
@@ -32,7 +57,8 @@ def load_mat_pat_data(
     patient : str
         Patient identifier, matching a subdirectory under `mat_path`.
     phase : str
-        Phase name (e.g., "rsPre", "taskTest"). The file is `{phase}.mat`.
+        Phase name (e.g., "rest_pre", "task_test"). Resolved against the
+        canonical per-patient layout via :func:`phase_mat_path`.
     mat_path : Path
         Base directory containing per-patient subdirectories with `.mat` files.
 
@@ -43,7 +69,7 @@ def load_mat_pat_data(
         schema (e.g., may include "Data" and "Parameters").
     """
 
-    path = mat_path / patient / f"{phase}.mat"
+    path = phase_mat_path(mat_path, patient, phase)
     try:
         return loadmat(str(path))
     except Exception as exc:  # noqa: BLE001 - broad fallback is intentional
@@ -100,8 +126,13 @@ def load_data_dict(
         patnum = int(pat.split('_')[-1])
         patpath = mat_path / pat
 
-        # Merge channel labels with implant coordinates.
-        ch_dat = pd.read_csv(patpath / f"Implant_pat_{patnum}.csv")
+        # Merge channel labels with implant coordinates. Canonical filename
+        # is the lowercase zero-padded form; fall back to the legacy mixed-case
+        # name for safety during the transition.
+        implant_csv = patpath / f"implant_pat_{patnum:02d}.csv"
+        if not implant_csv.exists():
+            implant_csv = patpath / f"Implant_pat_{patnum:02d}.csv"
+        ch_dat = pd.read_csv(implant_csv)
         ch_names = pd.read_csv(patpath / "channel_labels.csv")
         merged = ch_names.merge(ch_dat, on="label", how="left")
 

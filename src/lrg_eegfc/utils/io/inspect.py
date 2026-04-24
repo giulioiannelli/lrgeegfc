@@ -11,7 +11,7 @@ import numpy as np
 from scipy.io import loadmat
 import h5py
 
-from ...config.const import PHASE_LABELS
+from ...config.const import PHASE_LABELS, PHASE_SUBDIR
 
 
 def inspect_mat_file(mat_path: Path) -> Dict:
@@ -173,9 +173,13 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
         result['issues'].append(f'Directory {patient_dir} does not exist')
         return result
 
-    # Check phase files
+    # Check phase files (canonical resting/ + task/ layout).
     for phase in PHASE_LABELS:
-        mat_file = patient_dir / f'{phase}.mat'
+        subdir = PHASE_SUBDIR.get(phase)
+        if subdir is None:
+            result['issues'].append(f'{phase}: unknown phase name')
+            continue
+        mat_file = patient_dir / subdir / f'{phase}.mat'
         phase_result = inspect_mat_file(mat_file)
         result['phases'][phase] = phase_result
 
@@ -196,20 +200,19 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
         patnum = None
 
     if patnum is None:
-        implant_csv = patient_dir / f'Implant_{patient}.csv'
-        implant_xlsx = patient_dir / f'Implant_{patient}.xlsx'
+        implant_csv = patient_dir / f'implant_{patient.lower()}.csv'
+        implant_xlsx = patient_dir / 'implant' / f'implant_{patient.lower()}.xlsx'
     else:
-        implant_csv = patient_dir / f'Implant_pat_{patnum:02d}.csv'
-        implant_xlsx = patient_dir / f'Implant_pat_{patnum:02d}.xlsx'
+        implant_csv = patient_dir / f'implant_pat_{patnum:02d}.csv'
+        implant_xlsx = patient_dir / 'implant' / f'implant_pat_{patnum:02d}.xlsx'
 
     metadata_files = {
         'channel_labels_csv': patient_dir / 'channel_labels.csv',
-        'channel_labels_txt': patient_dir / 'channel_labels.txt',
-        'channel_names_mat': patient_dir / 'ChannelNames.mat',
         'implant_csv': implant_csv,
         'implant_xlsx': implant_xlsx,
-        'implant_csv_alt': patient_dir / f'Implant_{patient.lower()}.csv',
-        'implant_xlsx_alt': patient_dir / f'Implant_{patient.lower()}.xlsx',
+        # Legacy fallbacks kept for backward compatibility during the transition.
+        'implant_csv_legacy': patient_dir / f'Implant_pat_{patnum:02d}.csv' if patnum is not None else patient_dir / f'Implant_{patient}.csv',
+        'implant_xlsx_legacy': patient_dir / f'Implant_pat_{patnum:02d}.xlsx' if patnum is not None else patient_dir / f'Implant_{patient}.xlsx',
     }
 
     for name, path in metadata_files.items():
@@ -218,14 +221,11 @@ def inspect_patient(patient: str, root_path: Path) -> Dict:
             'path': str(path) if path.exists() else None,
         }
 
-    # Check if any channel labels exist
-    has_channel_labels = any(
-        result['metadata_files'][k]['exists']
-        for k in ['channel_labels_csv', 'channel_labels_txt', 'channel_names_mat']
-    )
+    # Canonical layout has a single `channel_labels.csv`.
+    has_channel_labels = result['metadata_files']['channel_labels_csv']['exists']
     result['has_channel_labels'] = has_channel_labels
     if not has_channel_labels:
-        result['issues'].append('No channel label files found')
+        result['issues'].append('No channel_labels.csv found')
 
     has_implant = any(
         info['exists']

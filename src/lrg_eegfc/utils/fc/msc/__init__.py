@@ -25,6 +25,10 @@ from .sparsify import (
     disparity_filter,
     hybrid_sparsify,
     ecm_sparsify,
+    ecm_sparsify_adaptive,
+    zero_same_probe_edges,
+    rescale_same_probe_edges,
+    distance_regression_rescale,
 )
 from .surrogates import surrogate_msc_null
 
@@ -38,7 +42,11 @@ __all__ = [
     'disparity_filter',
     'hybrid_sparsify',
     'ecm_sparsify',
+    'ecm_sparsify_adaptive',
     'surrogate_msc_null',
+    'zero_same_probe_edges',
+    'rescale_same_probe_edges',
+    'distance_regression_rescale',
 ]
 
 
@@ -60,6 +68,9 @@ def coherence_fc_pipeline(
     ecm_alpha: float = 0.05,
     ecm_n_ensemble: int = 100,
     ecm_weight_scale: int = 1000,
+    ecm_alpha_min: float = 0.01,
+    ecm_alpha_max: float = 0.50,
+    metric: str = "msc",
 ) -> Dict[str, NDArray]:
     """
     Coherence-based functional connectivity pipeline.
@@ -158,7 +169,7 @@ def coherence_fc_pipeline(
     if verbose:
         print(f"  [1/5] Band validation: {time.time() - t0:.3f}s")
 
-    # Step 1: Compute magnitude-squared coherence using Welch's method
+    # Step 1: Compute coherence metric using Welch's method
     t0 = time.time()
     freqs, Coh = compute_msc_welch(
         X,
@@ -166,9 +177,10 @@ def coherence_fc_pipeline(
         nperseg=nperseg,
         noverlap=noverlap,
         batch_size=batch_size,
+        metric=metric,
     )
     if verbose:
-        print(f"  [2/5] MSC computation (Welch): {time.time() - t0:.3f}s")
+        print(f"  [2/5] {metric.upper()} computation (Welch): {time.time() - t0:.3f}s")
 
     # Step 2: Band average
     t0 = time.time()
@@ -206,6 +218,22 @@ def coherence_fc_pipeline(
         if verbose:
             print(f"  [4/5] ECM filter (alpha={ecm_alpha}, n_ensemble={ecm_n_ensemble}): {time.time() - t0:.3f}s")
 
+    elif sparsify == "ecm_adaptive":
+        adjacency_matrices = {}
+        for band_name in bands:
+            A, alpha_used = ecm_sparsify_adaptive(
+                W_bands[band_name],
+                alpha_min=ecm_alpha_min,
+                alpha_max=ecm_alpha_max,
+                n_ensemble=ecm_n_ensemble,
+                weight_scale=ecm_weight_scale,
+            )
+            adjacency_matrices[band_name] = A
+            if verbose:
+                print(f"    {band_name}: adaptive alpha={alpha_used:.4f}")
+        if verbose:
+            print(f"  [4/5] Adaptive ECM filter (range=[{ecm_alpha_min}, {ecm_alpha_max}]): {time.time() - t0:.3f}s")
+
     elif sparsify in _NEEDS_SURROGATES:
         if n_surrogates > 0:
             t_surr = time.time()
@@ -235,7 +263,7 @@ def coherence_fc_pipeline(
             if verbose:
                 print(f"  [4/5] Sparsification (skipped, n_surrogates=0): {time.time() - t0:.3f}s")
     else:
-        valid = ", ".join(sorted(["none", "soft", "fdr", "disparity", "hybrid", "ecm"]))
+        valid = ", ".join(sorted(["none", "soft", "fdr", "disparity", "hybrid", "ecm", "ecm_adaptive"]))
         raise ValueError(f"Unknown sparsify method: {sparsify!r}. Valid: {valid}")
 
     # Zero diagonal if requested

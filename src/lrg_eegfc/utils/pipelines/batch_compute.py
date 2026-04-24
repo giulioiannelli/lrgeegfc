@@ -7,6 +7,7 @@ from typing import List, Optional
 from lrg_eegfc.workflow.msc import compute_msc_for_patient
 from lrg_eegfc.workflow.corr import compute_corr_for_patient
 from lrg_eegfc.config.const import BRAIN_BANDS, PHASE_LABELS, list_patients
+from lrg_eegfc.config.paths import SEEG_DATAPATH
 
 __all__ = ["compute_all_matrices", "main"]
 
@@ -31,8 +32,11 @@ def compute_all_matrices(
         'total_msc', 'total_corr'
     """
     if patients is None:
-        detected = list_patients(Path("data/stereoeeg_patients"))
-        patients = detected or ["Pat_02", "Pat_03", "Pat_05", "Pat_08"]
+        detected = list_patients(SEEG_DATAPATH)
+        patients = detected or [
+            "Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
+            "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15",
+        ]
 
     print("Computing all MSC and Correlation matrices...")
     print("=" * 70)
@@ -110,7 +114,10 @@ def main() -> int:
         "--patients",
         nargs="+",
         default=None,
-        help="Patient IDs to process (default: Pat_02 Pat_03 Pat_05 Pat_08)"
+        help=(
+            "Patient IDs to process (default: auto-detect via list_patients(); "
+            "falls back to the full n=10 canonical roster if auto-detect is empty)"
+        ),
     )
     parser.add_argument(
         "--verbose",

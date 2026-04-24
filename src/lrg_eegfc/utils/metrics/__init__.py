@@ -1,5 +1,6 @@
 """Metrics and comparison utilities."""
 
+from .vi import compute_vi, conditional_entropy
 from .comparison import (
     compute_phase_distance_matrix,
     compute_cross_patient_consistency,
@@ -24,6 +25,8 @@ from .reorganization import (
 )
 
 __all__ = [
+    "compute_vi",
+    "conditional_entropy",
     "compute_phase_distance_matrix",
     "compute_cross_patient_consistency",
     "rank_distance_measures",

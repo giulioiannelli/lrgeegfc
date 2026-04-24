@@ -25,6 +25,10 @@ __all__ = [
     'disparity_filter',
     'hybrid_sparsify',
     'ecm_sparsify',
+    'ecm_sparsify_adaptive',
+    'zero_same_probe_edges',
+    'rescale_same_probe_edges',
+    'distance_regression_rescale',
 ]
 
 
@@ -424,3 +428,336 @@ def ecm_sparsify(
 
     np.fill_diagonal(A, 0.0)
     return A
+
+
+# ---------------------------------------------------------------------------
+# Method 6: Adaptive ECM (binary search for connected graph)
+# ---------------------------------------------------------------------------
+
+def ecm_sparsify_adaptive(
+    W: NDArray,
+    alpha_min: float = 0.01,
+    alpha_max: float = 0.50,
+    tol: float = 0.01,
+    n_ensemble: int = 100,
+    weight_scale: int = 1000,
+) -> tuple[NDArray, float]:
+    """Adaptive CReMa: find smallest alpha that keeps the graph connected.
+
+    Fits the CReMa maximum-entropy null model **once**, computes per-edge
+    z-scores, then performs a binary search over the significance level
+    ``alpha`` to find the most conservative (smallest) value that still
+    produces a connected graph.
+
+    Parameters
+    ----------
+    W : NDArray
+        Weighted adjacency matrix of shape (N, N).  Must be non-negative
+        and symmetric.  Typically a dense MSC matrix with values in [0, 1].
+    alpha_min : float, optional
+        Lower bound of the alpha search range (default: 0.01).
+    alpha_max : float, optional
+        Upper bound of the alpha search range (default: 0.50).
+    tol : float, optional
+        Precision of the binary search -- stops when the search interval
+        is narrower than *tol* (default: 0.01).
+    n_ensemble : int, optional
+        Number of weighted graphs sampled from the CReMa ensemble
+        (default: 100).
+    weight_scale : int, optional
+        Scaling factor to convert float weights to integers, since the CReMa
+        model requires integer-valued adjacency matrices (default: 1000).
+
+    Returns
+    -------
+    A : NDArray
+        Sparsified adjacency matrix of shape (N, N).  Significant edges
+        keep their **original** (unscaled) weight; all others are zero.
+    alpha_used : float
+        The alpha value selected by the binary search.  This is the smallest
+        alpha (most conservative) in the search range that yields a connected
+        graph.  If even ``alpha_max`` does not produce a connected graph,
+        ``alpha_max`` is returned with the best (most edges) result.
+
+    Notes
+    -----
+    The expensive CReMa model fitting and ensemble sampling are performed
+    only once.  The binary search varies only the z-score significance
+    threshold ``z_threshold = norm.ppf(1 - alpha)``, which is instantaneous.
+
+    See :func:`ecm_sparsify` for details on the CReMa model and z-score
+    computation.
+
+    References
+    ----------
+    Squartini, T. & Garlaschelli, D.  "Analytical maximum-likelihood method
+    to detect patterns in real networks."  *New J. Phys.* **13**, 083001 (2011).
+    """
+    import networkx as nx
+    from NEMtropy import UndirectedGraph
+    from scipy.stats import norm
+
+    N = W.shape[0]
+    W_pos = np.maximum(W, 0.0).copy()
+    np.fill_diagonal(W_pos, 0.0)
+
+    # Bail out early if the graph is empty
+    if W_pos.max() == 0.0:
+        return np.zeros_like(W), alpha_max
+
+    # Scale to integers (CReMa requires integer weights)
+    W_int = np.round(W_pos * weight_scale).astype(int)
+
+    # ---- Fit CReMa model ONCE (expensive) ----
+    G = UndirectedGraph(adjacency=W_int)
+    G.solve_tool(model="crema", method="newton")
+
+    # Sample weighted ensemble
+    triu_i, triu_j = np.triu_indices(N, k=1)
+    n_edges = len(triu_i)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        G.ensemble_sampler(n=n_ensemble, output_dir=tmpdir + "/", cpu_n=1)
+
+        files = sorted(
+            f for f in os.listdir(tmpdir)
+            if f.endswith(".txt")
+        )
+        ensemble_weights = np.zeros((len(files), n_edges))
+        for k, fname in enumerate(files):
+            data = np.loadtxt(os.path.join(tmpdir, fname))
+            sources = data[:, 0].astype(int)
+            targets = data[:, 1].astype(int)
+            weights = data[:, 2]
+            A_sample = np.zeros((N, N))
+            A_sample[sources, targets] = weights
+            A_sample[targets, sources] = weights
+            ensemble_weights[k] = A_sample[triu_i, triu_j]
+
+    # ---- Compute z-scores ONCE ----
+    obs = W_int[triu_i, triu_j].astype(float)
+    null_mean = ensemble_weights.mean(axis=0)
+    null_std = ensemble_weights.std(axis=0, ddof=1)
+
+    with np.errstate(divide="ignore", invalid="ignore"):
+        z = (obs - null_mean) / null_std
+    z = np.nan_to_num(z, nan=0.0, posinf=np.inf, neginf=-np.inf)
+
+    # ---- Helper: build matrix from z-threshold ----
+    def _build_matrix(alpha: float) -> NDArray:
+        z_threshold = norm.ppf(1.0 - alpha)
+        significant = z > z_threshold
+        A = np.zeros_like(W)
+        sig_i = triu_i[significant]
+        sig_j = triu_j[significant]
+        A[sig_i, sig_j] = W[sig_i, sig_j]
+        A[sig_j, sig_i] = W[sig_j, sig_i]
+        np.fill_diagonal(A, 0.0)
+        return A
+
+    def _is_connected(A: NDArray) -> bool:
+        graph = nx.from_numpy_array(A)
+        return nx.is_connected(graph)
+
+    # ---- Binary search: smallest alpha that keeps graph connected ----
+    lo, hi = alpha_min, alpha_max
+
+    # Check if alpha_max gives a connected graph; if not, extend upward
+    A_max = _build_matrix(hi)
+    if not _is_connected(A_max):
+        # Extend search: try larger alpha values up to 0.99
+        for alpha_ext in np.arange(hi + 0.05, 1.0, 0.05):
+            A_ext = _build_matrix(alpha_ext)
+            if _is_connected(A_ext):
+                hi = alpha_ext
+                A_max = A_ext
+                break
+        else:
+            # Even alpha~0.99 doesn't connect; return best effort
+            return A_max, hi
+
+    # Check if alpha_min already works
+    A_min = _build_matrix(lo)
+    if _is_connected(A_min):
+        return A_min, lo
+
+    # Binary search
+    while (hi - lo) > tol:
+        mid = (lo + hi) / 2.0
+        A_mid = _build_matrix(mid)
+        if _is_connected(A_mid):
+            hi = mid  # try smaller alpha (more conservative)
+        else:
+            lo = mid  # need larger alpha (more permissive)
+
+    # Use hi (guaranteed connected from the search invariant)
+    A_final = _build_matrix(hi)
+    return A_final, hi
+
+
+# ---------------------------------------------------------------------------
+# Probe-aware edge processing (same-probe MSC bias correction)
+# ---------------------------------------------------------------------------
+
+import re
+from typing import List, Optional
+
+
+def _build_probe_mask(channel_labels: List[str]) -> NDArray:
+    """Build boolean mask where True = both contacts on the same probe.
+
+    Delegates to :func:`lrg_eegfc.utils.probe.build_probe_mask`.
+    """
+    from lrg_eegfc.utils.probe import build_probe_mask
+
+    mask = build_probe_mask(channel_labels)
+    # Restore diagonal=True for backward compat with callers that
+    # explicitly fill_diagonal(mask, False) themselves.
+    np.fill_diagonal(mask, True)
+    return mask
+
+
+def zero_same_probe_edges(
+    W: NDArray,
+    channel_labels: List[str],
+) -> NDArray:
+    """Zero out edges between contacts on the same probe.
+
+    Parameters
+    ----------
+    W : NDArray, shape (N, N)
+        Adjacency matrix (e.g., MSC).
+    channel_labels : list of str
+        Channel labels, length N.
+
+    Returns
+    -------
+    NDArray, shape (N, N)
+        Copy of *W* with same-probe entries set to zero.
+    """
+    A = W.copy()
+    mask = _build_probe_mask(channel_labels)
+    A[mask] = 0.0
+    np.fill_diagonal(A, 0.0)
+    return A
+
+
+def rescale_same_probe_edges(
+    W: NDArray,
+    channel_labels: List[str],
+) -> NDArray:
+    """Rescale within-probe MSC to match the cross-probe distribution.
+
+    For each same-probe edge, its percentile rank within the same-probe
+    distribution is computed, then mapped to the corresponding value in
+    the cross-probe distribution.  This preserves relative ordering
+    within probes while removing the systematic inflation.
+
+    Parameters
+    ----------
+    W : NDArray, shape (N, N)
+        Symmetric adjacency matrix.
+    channel_labels : list of str
+        Channel labels, length N.
+
+    Returns
+    -------
+    NDArray, shape (N, N)
+        Copy of *W* with same-probe edges rescaled.
+    """
+    A = W.copy()
+    np.fill_diagonal(A, 0.0)
+    mask = _build_probe_mask(channel_labels)
+    np.fill_diagonal(mask, False)
+
+    sp_vals = A[mask]
+    cp_vals = A[~mask & ~np.eye(len(A), dtype=bool)]
+
+    if len(sp_vals) == 0 or len(cp_vals) == 0:
+        return A
+
+    sp_sorted = np.sort(sp_vals)
+    cp_sorted = np.sort(cp_vals)
+
+    # For each same-probe value, find its percentile in same-probe dist,
+    # then map to the cross-probe value at that percentile
+    sp_ranks = np.searchsorted(sp_sorted, sp_vals, side="right")
+    sp_percentiles = sp_ranks / len(sp_sorted)
+
+    # Map percentiles to cross-probe values
+    cp_indices = np.clip(
+        (sp_percentiles * len(cp_sorted)).astype(int),
+        0,
+        len(cp_sorted) - 1,
+    )
+    remapped = cp_sorted[cp_indices]
+
+    A[mask] = 0.0
+    # Fill back symmetrically
+    idx = np.where(mask)
+    A[idx] = remapped
+    # Ensure symmetry
+    A = (A + A.T) / 2.0
+    np.fill_diagonal(A, 0.0)
+    return A
+
+
+def distance_regression_rescale(
+    W: NDArray,
+    channel_labels: List[str],
+    coordinates: NDArray,
+) -> NDArray:
+    """Rescale edges by regressing out the distance effect.
+
+    Fits a linear model ``MSC ~ β₀ + β₁ · distance`` using all edges,
+    then returns residuals shifted so the minimum is zero.  Edges that
+    are strong *after* accounting for distance are genuinely coupled;
+    within-probe edges that are only strong because of proximity become
+    near-zero.
+
+    Parameters
+    ----------
+    W : NDArray, shape (N, N)
+        Symmetric adjacency matrix.
+    channel_labels : list of str
+        Channel labels, length N (unused but kept for interface consistency).
+    coordinates : NDArray, shape (N, 3)
+        MNI coordinates for each channel.
+
+    Returns
+    -------
+    NDArray, shape (N, N)
+        Residual adjacency matrix (non-negative, symmetric).
+    """
+    N = W.shape[0]
+    A = W.copy()
+    np.fill_diagonal(A, 0.0)
+
+    # Compute pairwise Euclidean distance
+    diff = coordinates[:, None, :] - coordinates[None, :, :]
+    dist_mat = np.sqrt((diff ** 2).sum(axis=2))
+
+    # Extract upper triangle (avoid double-counting)
+    triu_idx = np.triu_indices(N, k=1)
+    msc_flat = A[triu_idx]
+    dist_flat = dist_mat[triu_idx]
+
+    # Linear regression: MSC = a + b * distance
+    valid = dist_flat > 0
+    if valid.sum() < 10:
+        return A  # not enough data
+
+    X = np.column_stack([np.ones(valid.sum()), dist_flat[valid]])
+    y = msc_flat[valid]
+    beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
+
+    # Predicted MSC from distance alone
+    predicted = beta[0] + beta[1] * dist_mat
+
+    # Residual = observed - predicted
+    residual = A - predicted
+    residual = np.maximum(residual, 0.0)  # no negative edges
+    residual = (residual + residual.T) / 2.0
+    np.fill_diagonal(residual, 0.0)
+
+    return residual

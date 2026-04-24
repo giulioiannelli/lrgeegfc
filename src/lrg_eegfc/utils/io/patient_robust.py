@@ -16,7 +16,9 @@ import pandas as pd
 from scipy.io import loadmat
 import h5py
 
-from ...config.const import DEFAULT_SAMPLE_RATE, PHASE_LABELS
+from ...config.const import DEFAULT_SAMPLE_RATE, PATIENT_CHANNEL_DROP, PHASE_LABELS
+from ...config.paths import SEEG_DATAPATH
+from .loaders import phase_mat_path
 
 __all__ = ["PatientRecording", "load_timeseries_robust", "load_patient_dataset_robust"]
 
@@ -181,7 +183,7 @@ def _extract_parameters_h5py(mat: h5py.File) -> Dict[str, object]:
 def load_timeseries_robust(
     patient: str,
     phase: str,
-    root_path: Path = Path("data/stereoeeg_patients"),
+    root_path: Path = SEEG_DATAPATH,
     transpose_if_needed: bool = True,
 ) -> np.ndarray:
     """Robustly load timeseries data with automatic format detection.
@@ -198,7 +200,7 @@ def load_timeseries_robust(
     patient : str
         Patient identifier (e.g., "Pat_02")
     phase : str
-        Recording phase (e.g., "rsPre")
+        Recording phase (e.g., "rest_pre")
     root_path : Path, optional
         Root directory containing patient subdirectories
     transpose_if_needed : bool, optional
@@ -217,10 +219,17 @@ def load_timeseries_robust(
     ValueError
         If data cannot be extracted from the file
     """
-    mat_path = root_path / patient / f"{phase}.mat"
+    mat_path = phase_mat_path(root_path, patient, phase)
 
     if not mat_path.exists():
         raise FileNotFoundError(f"File not found: {mat_path}")
+
+    def _apply_drop(d: np.ndarray) -> np.ndarray:
+        drops = PATIENT_CHANNEL_DROP.get(patient, {}).get(phase, [])
+        if not drops:
+            return d
+        keep = [i for i in range(d.shape[0]) if i not in set(drops)]
+        return d[keep, :]
 
     # Try scipy first
     mat = _try_load_mat_scipy(mat_path)
@@ -231,7 +240,7 @@ def load_timeseries_robust(
             if transpose_if_needed and data.shape[0] > data.shape[1]:
                 logger.warning(f"{patient}/{phase}: Transposing data from {data.shape} to {data.T.shape}")
                 data = data.T
-            return data
+            return _apply_drop(data)
 
     # Try h5py
     mat_h5 = _try_load_mat_h5py(mat_path)
@@ -243,7 +252,7 @@ def load_timeseries_robust(
                 if transpose_if_needed and data.shape[0] > data.shape[1]:
                     logger.warning(f"{patient}/{phase}: Transposing data from {data.shape} to {data.T.shape}")
                     data = data.T
-                return data
+                return _apply_drop(data)
         finally:
             mat_h5.close()
 
@@ -256,7 +265,7 @@ def load_timeseries_robust(
 
 def load_patient_metadata_robust(
     patient: str,
-    root_path: Path = Path("data/stereoeeg_patients"),
+    root_path: Path = SEEG_DATAPATH,
 ) -> Optional[pd.DataFrame]:
     """Load patient metadata (channel labels, coordinates, etc.).
 
@@ -280,12 +289,18 @@ def load_patient_metadata_robust(
         Returns None if no metadata files found.
     """
     patient_dir = root_path / patient
+    label_drops = PATIENT_CHANNEL_DROP.get(patient, {}).get("__labels__", [])
+
+    def _apply_label_drop(df: pd.DataFrame) -> pd.DataFrame:
+        if label_drops:
+            df = df.drop(index=list(label_drops)).reset_index(drop=True)
+        return df
 
     # Try channel_labels.csv
     csv_path = patient_dir / "channel_labels.csv"
     if csv_path.exists():
         try:
-            df = pd.read_csv(csv_path)
+            df = _apply_label_drop(pd.read_csv(csv_path))
             logger.info(f"{patient}: Loaded channel labels from CSV ({len(df)} channels)")
             return df
         except Exception as e:
@@ -295,7 +310,7 @@ def load_patient_metadata_robust(
     implant_csv = patient_dir / f"Implant_{patient.lower()}.csv"
     if implant_csv.exists():
         try:
-            df = pd.read_csv(implant_csv)
+            df = _apply_label_drop(pd.read_csv(implant_csv))
             logger.info(f"{patient}: Loaded metadata from Implant CSV ({len(df)} channels)")
             return df
         except Exception as e:
@@ -309,7 +324,7 @@ def load_patient_metadata_robust(
             if 'ChannelNames' in mat:
                 names = mat['ChannelNames'][0]
                 labels = [str(n[0]) if isinstance(n, np.ndarray) else str(n) for n in names]
-                df = pd.DataFrame({'label': labels})
+                df = _apply_label_drop(pd.DataFrame({'label': labels}))
                 logger.info(f"{patient}: Loaded channel names from MAT ({len(df)} channels)")
                 return df
         except Exception as e:
@@ -321,7 +336,7 @@ def load_patient_metadata_robust(
 
 def load_patient_dataset_robust(
     patient: str,
-    root_path: Path = Path("data/stereoeeg_patients"),
+    root_path: Path = SEEG_DATAPATH,
     phases: Iterable[str] = PHASE_LABELS,
 ) -> Dict[str, PatientRecording]:
     """Load all phases for a patient with robust error handling.
@@ -352,7 +367,11 @@ def load_patient_dataset_robust(
     for phase in phases:
         try:
             # Load timeseries
-            mat_path = root_path / patient / f"{phase}.mat"
+            try:
+                mat_path = phase_mat_path(root_path, patient, phase)
+            except KeyError:
+                logger.warning(f"{patient}/{phase}: Unknown phase name, skipping")
+                continue
             if not mat_path.exists():
                 logger.warning(f"{patient}/{phase}: File not found, skipping")
                 continue

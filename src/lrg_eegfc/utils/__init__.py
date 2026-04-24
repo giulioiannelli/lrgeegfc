@@ -10,6 +10,14 @@ from .io import (
 )
 from .fc.corr import *  # noqa: F401,F403
 from .fc.msc import *  # noqa: F401,F403
+from .probe import (  # noqa: F401
+    probe_from_label,
+    extract_probe_labels,
+    build_probe_mask,
+    compute_probe_weight_ratio,
+    compute_community_probe_enrichment,
+    compute_enrichment_vs_scale,
+)
 from .lrg.hierarchical import (  # noqa: F401
     compute_optimal_clusters_auto,
     compute_cluster_statistics,

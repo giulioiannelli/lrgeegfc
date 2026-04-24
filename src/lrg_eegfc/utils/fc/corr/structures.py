@@ -40,7 +40,7 @@ def compute_structures_for_single(
         Patient identifier present in ``data_dict`` and (optionally)
         ``int_label_map``.
     phase : str
-        Phase label to process (e.g., ``"rsPre"``, ``"taskLearn"``).
+        Phase label to process (e.g., ``"rest_pre"``, ``"task_learn"``).
     band : str
         Frequency band key (must exist in ``BRAIN_BANDS``).
     int_label_map : dict, optional
