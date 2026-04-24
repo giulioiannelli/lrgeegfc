@@ -1,3 +1,13 @@
+---
+name: data-status-report
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-09
+updated: 2026-04-24
+pointers: []
+---
+
 # Patient Data Status Report
 
 Generated: 2025-12-09

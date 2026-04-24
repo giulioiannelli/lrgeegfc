@@ -1,3 +1,13 @@
+---
+name: mi-vs-coherence-correlation-benchmark
+type: plan
+era: MSC
+status: superseded
+created: 2025-11-25
+updated: 2026-04-24
+pointers: []
+---
+
 # Analysis: MI vs Coherence vs Correlation for Ultra-Long SEEG FC
 
 ## Executive Summary

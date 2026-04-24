@@ -1,3 +1,13 @@
+---
+name: start-here
+type: guide
+era: COHORT_N9
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Start Here
 
 This file is the entry point for agents. It points to the current state of
@@ -13,33 +23,33 @@ numerical results.
   convention of the Nolte 2004 imaginary coherency). Volume-conduction
   immune. MSC is retained as a method baseline only; don't use it for the
   current hypotheses.
-- **Canonical report for the writing agent**: `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md`.
-  Supersedes `IMCOH_RESULTS_FOR_WRITING.md` (n=5 era, flagged stale).
+- **Canonical report for the writing agent**: `.agents/reports/2026-04-24_multiscale-task-trace.md`.
+  Supersedes `2026-04-24_imcoh-results-for-writing.md` (n=5 era, flagged stale).
 
 ## Where to begin
 
 1. **If you are writing a paper section**: read
-   `.agents/reports/MULTISCALE_TASK_TRACE_FOR_WRITING.md` first. Cross-reference
-   with `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md` for the canonical
+   `.agents/reports/2026-04-24_multiscale-task-trace.md` first. Cross-reference
+   with `.agents/reports/2026-04-24_h1-h4-vi-results.md` for the canonical
    H1/H2a/H2b/H3/H4 table at n=9/10.
 2. **If you are analyzing new data**: read
-   `.agents/guides/01_project/AGENT_PLAYBOOK.md` for the session workflow,
-   then `.agents/guides/03_implementation/DATA_LAYOUT.md` for per-patient
+   `.agents/guides/01_project/agent-playbook.md` for the session workflow,
+   then `.agents/guides/03_implementation/data-layout.md` for per-patient
    quirks (Pat_03 outlier, Pat_10 channel drop, Pat_13/14 phase-gap notes).
 3. **If you are adding a method**: read
-   `.agents/guides/02_methods/IMCOH_GUIDE.md` for the FC metric,
-   `.agents/guides/02_methods/PROBE_BIAS_GUIDE.md` for the volume-conduction
+   `.agents/guides/02_methods/imcoh-guide.md` for the FC metric,
+   `.agents/guides/02_methods/probe-bias-guide.md` for the volume-conduction
    bias that motivated the MSC → ImCoh switch, and
-   `.agents/reports/PIPELINE_STATUS.md` for the era index flagging which
+   `.agents/reports/2026-04-24_pipeline-status.md` for the era index flagging which
    artefacts are current vs superseded.
 
 ## Quick references
 
 - `.agents/guides/INDEX.md` — full guide index
-- `.agents/guides/03_implementation/CLI_REFERENCE.md` — `lrg-eegfc` CLI
-- `.agents/guides/03_implementation/FUNCTION_MAP.md` — function lookup
-- `.agents/guides/03_implementation/CACHING_GUIDE.md` — cache layout
-- `.agents/guides/03_implementation/FIGURE_PATTERNS.md` — plot templates
+- `.agents/guides/03_implementation/cli-reference.md` — `lrg-eegfc` CLI
+- `.agents/guides/03_implementation/function-map.md` — function lookup
+- `.agents/guides/03_implementation/caching-guide.md` — cache layout
+- `.agents/guides/03_implementation/figure-patterns.md` — plot templates
 
 ## Notebook header (required)
 

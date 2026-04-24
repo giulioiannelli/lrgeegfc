@@ -1,3 +1,13 @@
+---
+name: refactor-plan-updated
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Notebook Refactoring Plan (UPDATED)
 **Date:** 2025-12-11
 **Status:** Ready to implement

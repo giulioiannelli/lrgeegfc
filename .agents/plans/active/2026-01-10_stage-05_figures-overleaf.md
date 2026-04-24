@@ -1,3 +1,13 @@
+---
+name: stage-05-figures-overleaf
+type: plan
+era: MSC
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 05 - Figures and Overleaf bundle
 
 ## Goals
@@ -13,7 +23,7 @@
 - Visualization functions currently live under `visuals/` (kept at top level).
 - Time-window scripts added: `src/compute_time_windows.py`,
   `src/visualize_time_windows.py`.
-- Time-window guide added: `.agents/guides/TIME_WINDOW_GUIDE.md`.
+- Time-window guide added: `.agents/guides/time-window-guide.md`.
 - Stage 05 notebooks created for legacy figure prototypes:
   - `ipynb/05_figures/01_timeseries_emd_singlepat.ipynb`
   - `ipynb/05_figures/02_corr_networks_per_band_singlepat.ipynb`
@@ -133,7 +143,7 @@ S) Time-window analysis + entropy animation
   - Minimum segments: 20 (reduce window length if needed)
 - Compute target: new script `src/compute_time_windows.py` (writes window caches)
 - Visualization target: new script `src/visualize_time_windows.py`
-- Documentation target: `.agents/guides/TIME_WINDOW_GUIDE.md`
+- Documentation target: `.agents/guides/time-window-guide.md`
 - Single-case notebooks added:
   - `ipynb/01_preprocessing/02_time_window_split_singlepat.ipynb`
   - `ipynb/01_preprocessing/03_time_window_corr_singlepat.ipynb`

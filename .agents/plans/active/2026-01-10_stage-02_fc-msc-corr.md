@@ -1,3 +1,13 @@
+---
+name: stage-02-fc-msc-corr
+type: plan
+era: MSC
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 02 - FC matrices (MSC + correlation)
 
 ## Goals
@@ -18,7 +28,7 @@
 - Sanity check showed MSC cache names include `sparsify-*` and `nperseg-*`
   (e.g., `*_msc_sparsify-none_nperseg-1024.npy`); loader defaults must match.
  - Parameter summary draft created (`2026-01-10_fc_params.md`).
- - MSC method guide drafted (`.agents/guides/MSC_METHOD_GUIDE.md`).
+ - MSC method guide drafted (`.agents/guides/msc-method-guide.md`).
  - Stage 02 legacy notebooks consolidated into updated single-case notebooks.
 
 ## Tasks
@@ -62,7 +72,7 @@
 - Do not add hard timeouts; use small inputs instead.
 
 6) MSC methodology section (documentation)
-- Create `.agents/guides/MSC_METHOD_GUIDE.md` with:
+- Create `.agents/guides/msc-method-guide.md` with:
   - Rationale: MSC variance depends on Welch segment count, not MP.
   - Window-length rule: min cycles at lowest band frequency.
   - Default `nperseg`/overlap and dev vs full settings.
@@ -89,7 +99,7 @@
 ## Suggested files
 - `.agents/plans/active/2026-01-10_fc_params.md`
 - `tests/test_msc_surrogates_scaling.py`
-- `.agents/guides/MSC_METHOD_GUIDE.md`
+- `.agents/guides/msc-method-guide.md`
 
 ## Exit criteria
 - MSC matrices cached under `data/msc_cache/Pat_XX/` for dev scope.

@@ -1,3 +1,13 @@
+---
+name: claude-restart-log
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-10
+updated: 2026-04-24
+pointers: []
+---
+
 ════════════════════════════════════════════════════════════════════════════════════════════ Conversation compacted · ctrl+o for history ═════════════════════════════════════════════════════════════════════════════════════════════
   ⎿  Read NEXT_SESSION_START_HERE.md (238 lines)
   ⎿  Referenced file VISUALIZATION_PLAN_DETAILED.md

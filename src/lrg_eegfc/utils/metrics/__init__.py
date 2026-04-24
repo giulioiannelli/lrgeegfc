@@ -23,6 +23,26 @@ from .reorganization import (
     compute_cluster_swap_matrix,
     compute_ari_matrix,
 )
+from .tree import (
+    dmax_from_Z,
+    tree_internal_nodes,
+    jaccard_leafsets,
+    h_log_grid,
+    fcluster_at_h_rel,
+)
+from .tree_distance import (
+    kc_vectors,
+    kc_distance,
+    matching_cluster_distance,
+    weighted_rf_distance,
+)
+from .hypothesis import (
+    wilcoxon_z,
+    rank_biserial,
+    boot_ci_mean,
+    bh_fdr,
+    cluster_stats,
+)
 
 __all__ = [
     "compute_vi",
@@ -43,4 +63,18 @@ __all__ = [
     "cluster_swap_coefficient",
     "compute_cluster_swap_matrix",
     "compute_ari_matrix",
+    "dmax_from_Z",
+    "tree_internal_nodes",
+    "jaccard_leafsets",
+    "h_log_grid",
+    "fcluster_at_h_rel",
+    "kc_vectors",
+    "kc_distance",
+    "matching_cluster_distance",
+    "weighted_rf_distance",
+    "wilcoxon_z",
+    "rank_biserial",
+    "boot_ci_mean",
+    "bh_fdr",
+    "cluster_stats",
 ]

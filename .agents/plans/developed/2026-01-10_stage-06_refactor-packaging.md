@@ -1,3 +1,13 @@
+---
+name: stage-06-refactor-packaging
+type: plan
+era: MSC
+status: dead
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 06 - Refactor and packaging
 
 ## Goals

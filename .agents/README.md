@@ -1,3 +1,13 @@
+---
+name: readme
+type: guide
+era: CROSS_ERA
+status: current
+created: 2026-04-24
+updated: 2026-04-24
+pointers: []
+---
+
 # Agent Guide: LRG EEG Functional Connectivity
 
 This is the canonical guidance for coding agents working in this repository.
@@ -5,10 +15,10 @@ Root `AGENTS.md` and `CLAUDE.md` should remain identical and point here.
 Start with `.agents/START_HERE.md`, then use `.agents/plans/INDEX.md`.
 
 > **Before citing any number or re-running any script, read
-> `.agents/reports/PIPELINE_STATUS.md` — it is the era index that tags
+> `.agents/reports/2026-04-24_pipeline-status.md` — it is the era index that tags
 > every artefact as current (`imcoh_abs` post-reset), superseded
 > (|ImCoh|² or MSC era), or dead-end. The current H1-H4 VI(k) results
-> live in `.agents/reports/H1_H4_VI_RESULTS_POST_RESET.md`.**
+> live in `.agents/reports/2026-04-24_h1-h4-vi-results.md`.**
 
 ---
 
@@ -53,7 +63,7 @@ those networks with Laplacian Renormalization Group (LRG) methods:
 
 **ImCoh (Imaginary Coherence)** is the preferred FC method for community-level
 analysis — it eliminates volume conduction bias that contaminates MSC.
-See `.agents/guides/IMCOH_GUIDE.md`.
+See `.agents/guides/imcoh-guide.md`.
 
 ## Source of truth
 

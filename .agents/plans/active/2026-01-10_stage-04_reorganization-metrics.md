@@ -1,3 +1,13 @@
+---
+name: stage-04-reorganization-metrics
+type: plan
+era: IMCOH_SQ
+status: superseded
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 04 - Reorganization metrics
 
 ## Goals

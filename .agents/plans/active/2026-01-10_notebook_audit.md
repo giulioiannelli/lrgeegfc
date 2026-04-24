@@ -1,3 +1,13 @@
+---
+name: notebook-audit
+type: plan
+era: IMCOH_SQ
+status: dead
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Notebook Migration Audit (2026-01-10)
 
 Audit scope: `ipynb/90_archive/.old_reviewed` (32 notebooks). This is a

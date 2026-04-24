@@ -1,3 +1,13 @@
+---
+name: stage-00-notebook-consolidation
+type: plan
+era: IMCOH_SQ
+status: dead
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Plan (2026-01-10): Stage 00 - Notebook consolidation
 
 ## Goals
@@ -47,7 +57,7 @@
 ## Compute vs visualize
 - Notebooks are for single-case, cache-driven visualization or quick checks.
 - Heavy computation should move into `src/` scripts and write caches.
-- Notebook cells should use the load-first pattern from `CACHING_GUIDE.md`.
+- Notebook cells should use the load-first pattern from `caching-guide.md`.
 
 ## Deliverables
 - Updated `ipynb/INDEX.md` with tags and migration notes.

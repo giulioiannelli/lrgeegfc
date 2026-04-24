@@ -1,3 +1,13 @@
+---
+name: refactor-decisions
+type: plan
+era: MSC
+status: dead
+created: 2026-01-10
+updated: 2026-04-24
+pointers: []
+---
+
 # Refactor Decisions (2026-01-10)
 
 ## Canonical modules

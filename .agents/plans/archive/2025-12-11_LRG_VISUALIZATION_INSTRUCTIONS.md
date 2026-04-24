@@ -1,3 +1,13 @@
+---
+name: lrg-visualization-instructions
+type: plan
+era: MSC
+status: superseded
+created: 2025-12-11
+updated: 2026-04-24
+pointers: []
+---
+
 # Instructions: Implement LRG Analysis Visualizations
 
 **Date:** 2025-12-11
