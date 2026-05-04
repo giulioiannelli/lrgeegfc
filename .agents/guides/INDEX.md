@@ -38,7 +38,31 @@ Quick-reference index of all agent guides. Start with the category most relevant
 | [cli-reference.md](03_implementation/cli-reference.md) | `lrg-eegfc` command reference and examples |
 | [caching-guide.md](03_implementation/caching-guide.md) | Cache structure, paths, load-first pattern |
 | [function-map.md](03_implementation/function-map.md) | Complete function lookup table by module |
-| [figure-patterns.md](03_implementation/figure-patterns.md) | Figure generation templates and styling |
+| [figure-patterns.md](03_implementation/figure-patterns.md) | Figure generation templates and styling (legacy reference; `05_plotting/` is canonical) |
+
+## 05_plotting/ — Plotting style guide (READ BEFORE PLOTTING)
+
+| Guide | What it covers |
+|-------|---------------|
+| [README.md](05_plotting/README.md) | **Entry point.** Six rules + file map. Read first. |
+| [legends.md](05_plotting/legends.md) | Figure-level legend placement; never per-axis for shared content |
+| [colorbars.md](05_plotting/colorbars.md) | `imshow_colorbar_caxdivider` is the default; per-row colorbars on multi-axis grids |
+| [multi-axis-figures.md](05_plotting/multi-axis-figures.md) | Grid layouts, shared axes, figure-level decoration |
+| [colormaps-and-styles.md](05_plotting/colormaps-and-styles.md) | Colormap conventions + project-wide phase-pair colour code |
+| [library-helpers.md](05_plotting/library-helpers.md) | Index of reusable helpers in `lrgsglib.plotlib` and `lrg_eegfc.visuals`; open coding tasks (helpers worth promoting) |
+| [output-and-rasterization.md](05_plotting/output-and-rasterization.md) | PDF only, full vector — **never rasterise**; watermark/provenance footer is opt-in (`watermark=True`), off by default |
+| [captions.md](05_plotting/captions.md) | How to write a `<figure>.md` caption *when asked* — short, plain language, three blocks |
+| [per-figure-style-sheets/](05_plotting/per-figure-style-sheets/) | One sheet per figure family (heatmap-grid, scatter-with-identity, swarm-or-strip, cohort-conventions) |
+| [fc_templates/](05_plotting/fc_templates/README.md) | **Canonical FC adjacency-matrix templates** (single, row-per-phase, mosaics). Each template = `.md` style sheet + `.py` script producing a vector PDF. Read this folder before any FC heatmap. |
+
+Skill entry point: `/plotguide`. Read this folder before any new figure code.
+
+## task-persistence-investigation/ — Active research question
+
+| Guide | What it covers |
+|-------|---------------|
+| [README.md](task-persistence-investigation/README.md) | **Canonical home for every multiscale measure built to investigate task-induced reorganization in `rest_post`.** All new task-trace tooling MUST land here as a mathematically rigorous scope report (notation → predicates → properties → caveats → pseudocode → visualization → prior-tool connection → open questions) BEFORE any code. |
+| [2026-04-25_module-retention-landscape.md](task-persistence-investigation/2026-04-25_module-retention-landscape.md) | **MRL** — `M̄(b, ξ) ∈ [0, 1]` cohort field counting `task_test` subtrees absent from `rest_pre` and present in `rest_post` (Jaccard match threshold τ). Multiscale, band-specific, no scalar gate. Status: `draft`. |
 
 ## ../reports/ — Investigation results
 

@@ -233,21 +233,22 @@ agent must remember. Keep this table up-to-date.
 | Pat_06 | 2048 Hz | ✓ | **Updated 2026-04-22**: previously missing task phases; now complete with 4-phase + implant. The old `PATIENTS_4PHASE` exclusion comment in `config/const.py:99` predates this update and should be removed — Pat_06 now belongs in `PATIENTS_4PHASE`. |
 | Pat_07 | 2048 Hz | ✓ | Canonical vintage, no quirks. |
 | Pat_08 | 2048 Hz | ✓ | Canonical vintage, no quirks. |
-| Pat_10 | 2048 Hz | ✓ | Vendor `.mat` naming anomaly: `PRE_STIM_restingPre_Data.mat` lacked the inter-word underscore (vs `PRE_STIM_resting_Pre_Data.mat` for Pat_13/14/15). Resolved by canonical rename. Vendor xlsx at patient root (`Implant_pat_10.xlsx`), not under `Implant_locations/`. **Channel-count mismatch (2026-04-23)**: vendor shipped resting at 113 channels and task at 116 channels. The 3 extra task contacts (task rows `[53, 54, 55]`, labels `f 3,G2` / `c 3,G2` / `o 1,G2`) identified via monotonic-constrained exhaustive search (C(116,3) = 260k combinations, both rest_pre↔task_learn and rest_post↔task_test converged independently). Those rows are dropped at load time via `PATIENT_CHANNEL_DROP` in `config/const.py` → Pat_10 is uniformly 113-channel across all phases. Raw `.mat` files **never modified**. Full rationale in `memory/pat10_channel_mask.md`. |
+| Pat_10 | 2048 Hz | ✓ | **Vendor re-supplied 2026-04-25** with uniform 113-channel data across all 4 phases — the 3 phantom task rows (`f 3,G2`, `c 3,G2`, `o 1,G2` at indices `[53, 54, 55]`) that previously required masking are no longer present. `PATIENT_CHANNEL_DROP` for Pat_10 is now empty in `config/const.py`. New vendor drop follows canonical-vintage naming (`PRE_STIM_resting_Pre_Data.mat` etc., underscore form). Previous canonical preserved as `data/raw/stereoeeg_patients/Pat_10_old/` for audit. Vendor xlsx still at patient root (`Implant_pat_10.xlsx`), not under `Implant_locations/`. Caches built before 2026-04-25 are stale — see `memory/pat10_channel_mask.md` for context. |
 | Pat_13 | 2048 Hz | ✓ | **`rest_pre` replaced 2026-04-23**: original vendor file was neither a valid v5-7 MAT nor valid HDF5 (corrupt). Fresh copy of `PRE_STIM_resting_Pre_Data.mat` obtained from vendor, loads cleanly at 119 channels × 1,341,536 samples. New sha256 recorded in `provenance.md` §"2026-04-23 — rest_pre replacement". Other phases untouched. |
-| Pat_14 | 2048 Hz | ✓ (partial) | Vendor xlsx was already lowercase `implant_pat_14.xlsx` (unusual for this vintage). **`task_test.mat` corrupt at vendor source** — cannot be loaded. Vendor re-supply not yet arranged. **Excluded from all cross-phase analyses that need task_test** (H1, H2a, H2b, H2c target=task_test, H2d). Included where the measure does not need task_test (H3 within/cross, H4 gradient, H2c target=task_learn). See `memory/new_patient_data_integrity.md`. |
+| Pat_14 | 2048 Hz | ✓ | Vendor xlsx was already lowercase `implant_pat_14.xlsx` (unusual for this vintage). **`task_test.mat` was corrupt at original import (2026-04-22)**; **replaced 2026-04-25** with vendor re-supply (`PRE_STIM_task_test_Data.mat` → `task/task_test.mat`, HDF5 v7.3, `Data` shape `(2_373_155, 119)`, sha `37cd45225123d1d9e89924d818dcb1bb4c3e4c1f1f3f4becb9469f5ccec1687b`). Pat_14 was excluded from cross-phase analyses needing `task_test` (H1, H2a, H2b, H2c target=task_test, H2d) prior to that date — artefacts cached before 2026-04-25 reflect the n=9 cohort. See `memory/new_patient_data_integrity.md`. |
 | Pat_15 | 2048 Hz | ✓ | Vendor xlsx was `Implant_locations/implant_CM.xlsx` (patient initials — non-canonical stem). Ownership confirmed by 99.15% channel-label overlap with recording; renamed to `implant_pat_15.xlsx` during migration. |
 
-### Missing-data status (as of 2026-04-24)
+### Missing-data status (as of 2026-04-25)
 
-- **Pat_14 `task_test.mat`**: vendor-corrupt, cannot load. Pat_14 is
-  **excluded from every cross-phase analysis that requires task_test**.
-  Cross-phase cohort is therefore n=9 (Pat_02, 03, 05, 06, 07, 08, 10, 13,
-  15). Pat_14 is still included in tests that do not need task_test (H3
-  within/cross, H4 gradient, H2c target = task_learn).
-- All other patients have full 4-phase coverage. Pat_13 `rest_pre` was
-  corrupt at initial import and was vendor-replaced on 2026-04-23. Pat_06's
-  historical task-phase absence was resolved 2026-04-22.
+- All 10 enrolled patients carry full 4-phase coverage. Pat_14 `task_test`
+  was vendor-replaced on 2026-04-25 (previously corrupt). Pat_13 `rest_pre`
+  was vendor-replaced on 2026-04-23. Pat_06's historical task-phase absence
+  was resolved 2026-04-22.
+- **Cohort note for cached artefacts**: results computed before 2026-04-25
+  ran on the n=9 cross-phase cohort (Pat_02, 03, 05, 06, 07, 08, 10, 13,
+  15) because Pat_14 `task_test` was unavailable. New cross-phase
+  computations can include Pat_14 (n=10). When citing a result, check the
+  era + cohort size before mixing pre- and post-2026-04-25 artefacts.
 
 ### Epileptic-zone annotations (red-font cells in the xlsx)
 

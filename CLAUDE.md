@@ -2,18 +2,21 @@
 
 **Read this first. Everything you need in one screen.**
 
-- **Current era:** `IMCOH_ABS` × `COHORT_N9` (9 patients, locked 2026-04-22).
+- **Current era:** `IMCOH_ABS` × `COHORT_N10` (10 patients; n=9 locked 2026-04-22,
+  Pat_14 restored 2026-04-25 after vendor task_test replacement).
   `imcoh_abs = <|ImCoh|>_f`.
+  Cohort: Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15.
 - **Core scientific question:** does `task_test` leave a band-specific,
   multiscale structural trace in `rest_post` LRG dendrograms that is
-  cohort-wide (≥ 7/9)? Signal is already visible in existing VI(k) /
+  cohort-wide (≥ 8/10)? Signal is already visible in existing VI(k) /
   `h2_partition_multiscale` / `h2d_coactivation_persistence` artifacts —
   surface it, don't re-test.
 - **Start points:**
   - `.agents/START_HERE.md` — current state, 3 entry paths.
-  - `.agents/reports/2026-04-24_pipeline-status.md` — era index.
-  - `.agents/reports/2026-04-24_multiscale-task-trace.md` — writing handoff.
-  - `.agents/era-map.md` — MSC / IMCOH_SQ / IMCOH_ABS / COHORT_N9 landmarks.
+  - `.agents/reports/2026-04-25_task-trace-audit-and-recovery.md` — current writing handoff.
+  - `.agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md` — P/T/R/RA reformalization.
+  - `.agents/reports/2026-04-24_pipeline-status.md` — era index (n=9 snapshot).
+  - `.agents/era-map.md` — MSC / IMCOH_SQ / IMCOH_ABS / COHORT_N9 / COHORT_N10 landmarks.
   - `.agents/diary/` — what happened, day by day.
 
 `CLAUDE.md` and `AGENTS.md` must stay identical.
@@ -32,6 +35,24 @@ when the user requests or something diverges from expectation.
 Head-first is a **summary contract**: the head must accurately
 summarize what follows. A crisp head over a hand-waved body is worse
 than an honest long-form draft.
+
+### Terminology — TRACE / ANCHOR / RESET / EMERGENT (full: `.agents/guides/01_project/terminology.md`)
+
+Use the four-way taxonomy when describing how a module behaves
+across phases. The bare word "persistence" is ambiguous between two
+opposite phenomena (trace vs anchor) and silently flips the reading
+every time.
+
+- **trace** — task reorganized AND change persists into RPost. Our
+  raw-FC `T_d^(d_S) < 0` finding is a **trace**, never bare "persistence".
+- **anchor** — module unchanged across all phases. A "persistent
+  module" in the literature is usually an *anchor*, not a trace.
+- **reset** — task reorganized AND module reverts in RPost (`T_d > 0`).
+- **emergent** — module that did not exist in RPre (LRG / community
+  membership only).
+
+Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
+`n_emergent`. Figure annotations: "trace: N/10", "trace zone".
 
 ### Library-first (full rules: `.agents/guides/04_rules/coding-rules.md`)
 
@@ -59,6 +80,27 @@ than an honest long-form draft.
 - Never pool metrics into a consensus scalar (user forbidden).
 - Never skip frontmatter on a new `.agents/` .md file.
 - Never invent metric names — cite literature or existing code.
+- Never save figures as both PDF and PNG. **PDF only** is the
+  default and only format. PNG is opt-in on explicit user request.
+- Never call `im.set_rasterized(True)`. PDFs are **fully vector**
+  for every artist (FC matrices, audit heatmaps, scatter plots,
+  `pcolormesh`, dendrograms). The earlier "rasterise heavy artists"
+  rule is withdrawn. See `.agents/guides/05_plotting/output-and-rasterization.md`.
+- Never add a grey provenance watermark / footer by default —
+  the file name carries the metadata. Watermark is **opt-in**
+  (`watermark=True` kwarg, or
+  `lrg_eegfc.visuals.layout.add_provenance_footer(fig, label)`).
+- Never label adjacency-matrix axes with "contact" / "channel"
+  — use math `$i$`, `$j$`.
+- Never call our `T_d < 0` finding the bare "persistence" — it is a
+  **trace** (task changed it AND change stuck), distinct from
+  **anchor** (never changed), **reset** (changed and reverted), and
+  **emergent** (never existed before). See terminology guide.
+- Never frame `d_P = 1 − Pearson(triu A_a, triu A_b)` as "volume +
+  topology" or "orthogonal" to `d_S`. It is a magnitude-weighted
+  complement; cohort ρ between `T_d^(d_S)` and `T_d^(d_P)` is
+  0.85–0.95 per band — strongly correlated, not orthogonal. β is the
+  **convergence** cell.
 
 **Always**
 - Always show ≥ 3 patients / bands / phases in published figures.
@@ -70,10 +112,19 @@ than an honest long-form draft.
   `tmin = merge_heights[0]*0.8, tmax = merge_heights[-1]*1.05`.
 - Always zoom nilearn glass-brain panels to electrode bbox.
 - Always flag Pat_03 as 1024 Hz outlier (include, mark distinctly).
-- Always exclude Pat_14 `task_test` (corrupt file).
+- Pat_14 `task_test` was corrupt at original import; **vendor-replaced 2026-04-25** and is now valid. Cross-phase cohort returns to n=10.
 - Always drop Pat_10 task rows `[53, 54, 55]` at load.
 - Always add frontmatter to new `.agents/` .md files.
 - Always write a renormalization-style head before any body.
+- Always file new task-trace / task-persistence investigation tooling
+  under `.agents/guides/task-persistence-investigation/` as a
+  mathematically rigorous scope report **before writing any code**.
+  See that folder's `README.md` for the required structure (notation,
+  predicates, formulas, properties, caveats, pseudocode, prior-tool
+  connection, open questions).
+- Always use the **trace / anchor / reset / emergent** taxonomy when
+  describing module behaviour across phases — never the bare word
+  "persistence". See `.agents/guides/01_project/terminology.md`.
 
 ### Memory meta-rule
 
@@ -103,6 +154,39 @@ Added 2026-04 (reorg):
 - `/diary` — Append a stamped block to today's `.agents/diary/`
 - `/surface <claim>` — Read cached results instead of recomputing
 - `/audit <script>` — Library-reuse check on a script
+- `/plotguide` — Open the plotting style guide before producing or
+  editing a figure. Read `.agents/guides/05_plotting/` first.
+
+### Plotting (READ BEFORE FIGURES)
+
+Single source of truth: [`.agents/guides/05_plotting/`](.agents/guides/05_plotting/README.md).
+
+Six rules at a glance:
+1. **Shared legends → figure-level**, not axis-level. Use
+   `fig.legend(loc="lower center", bbox_to_anchor=(0.5, -0.04),
+   ncol=len(handles), frameon=False)` — or
+   `lrg_eegfc.visuals.layout.figure_legend(...)`.
+2. **Colorbars → `imshow_colorbar_caxdivider`** from
+   `lrgsglib.plotlib`. Never `fig.colorbar` on multi-axis grids.
+3. **Multi-axis layout → figure-level decoration.** Titles, legends,
+   colorbars, shared axis labels go on the *figure*.
+4. **Library-first.** Check `lrgsglib.plotlib` and `lrg_eegfc.visuals`
+   before writing a custom plot helper.
+5. **PDF only, full vector — never rasterise.** No PNG siblings.
+   Do not call `im.set_rasterized(True)` on any artist. Vector is
+   sharper and file sizes for typical FC matrices are small.
+6. **No `fig.suptitle`** on publication figures. Captions go in a
+   sidecar `.md` *only when explicitly asked*; see `captions.md`
+   for the plain-language style.
+7. **No watermark / provenance footer by default.** The file name
+   is the provenance. Watermark is opt-in (`watermark=True` kwarg,
+   or `add_provenance_footer(fig, label)`).
+
+**Per-class templates** (read before writing FC / dendrogram / etc. figures):
+- `.agents/guides/05_plotting/fc_templates/` — FC adjacency matrices
+  (single, row-per-phase, mosaics). Each template = `.md` style sheet
+  + `.py` script. Always check here before plotting a new
+  connectivity / `imcoh_abs` / MSC / `corr` matrix.
 
 ### Figure generation
 
@@ -308,7 +392,8 @@ scripts/
 ├── diary/YYYY-MM-DD.md            # one file per day, append per session
 ├── guides/
 │   ├── 01_project/  02_methods/  03_implementation/
-│   └── 04_rules/                  # renormalization, coding, naming, frontmatter, never/always
+│   ├── 04_rules/                  # renormalization, coding, naming, frontmatter, never/always
+│   └── task-persistence-investigation/   # canonical home for new task-trace measures (scope reports first, code follows)
 ├── plans/{active,developed,archive}/
 └── reports/
     ├── 2026-04-24_*.md            # current
@@ -361,6 +446,7 @@ Groups: `compute` (6), `plot` (16), `show` (4), `data` (4), `cache` (4), `config
 - `.agents/guides/04_rules/never-always-list.md` — enforced preferences
 
 **Methods:**
+- `.agents/guides/02_methods/lrg-framework-guide.md` — **CANONICAL** LRG primitive (formulas, codebase mapping, verification snippets, what the Villegas papers do/don't authorize for our outlier case). Read before touching anything LRG.
 - `.agents/guides/02_methods/imcoh-guide.md` — volume-conduction-immune FC
 - `.agents/guides/02_methods/probe-bias-guide.md` — **CRITICAL** same-probe bias
 - `.agents/guides/02_methods/h2-metrics.md` — H2-family definitions
@@ -378,6 +464,19 @@ Groups: `compute` (6), `plot` (16), `show` (4), `data` (4), `cache` (4), `config
 - `.agents/guides/01_project/agent-playbook.md` — session workflow
 - `.agents/guides/01_project/agent-structure-guide.md` — repo layout
 - `.agents/guides/01_project/agent-tasks.md` — common task patterns
+
+**Task-persistence investigation (the active research question):**
+- `.agents/guides/task-persistence-investigation/README.md` — canonical
+  home for every multiscale measure built to investigate
+  task-induced reorganization in `rest_post`. **All new task-trace
+  tooling MUST land here as a mathematically rigorous scope report
+  before any code is written.** README defines the required structure
+  (notation → predicates → properties → caveats → pseudocode →
+  visualization → connection-to-prior-tools → open-questions).
+- `.agents/guides/task-persistence-investigation/2026-04-25_module-retention-landscape.md` —
+  MRL: `M̄(b, ξ) ∈ [0,1]` cohort field counting `task_test` subtrees
+  absent from `rest_pre` and present in `rest_post` (Jaccard match
+  threshold τ).
 
 **Historical (archive — read for context, don't cite):**
 - `.agents/reports/archive/2026-04/` — pre-reset |ImCoh|² + scalar-session artifacts
