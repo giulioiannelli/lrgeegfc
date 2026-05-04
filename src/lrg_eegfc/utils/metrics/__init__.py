@@ -36,6 +36,17 @@ from .tree_distance import (
     matching_cluster_distance,
     weighted_rf_distance,
 )
+from .functional_tree_distance import (
+    FunctionalTreeDistanceResult,
+    tau_star_from_C,
+    tau_interval,
+    delta_curves,
+    compute_functional_tree_distance,
+)
+from .spatial import (
+    SUMMARY_NAMES as SPATIAL_SUMMARY_NAMES,
+    cluster_spatial_scale,
+)
 from .hypothesis import (
     wilcoxon_z,
     rank_biserial,
@@ -72,6 +83,13 @@ __all__ = [
     "kc_distance",
     "matching_cluster_distance",
     "weighted_rf_distance",
+    "FunctionalTreeDistanceResult",
+    "tau_star_from_C",
+    "tau_interval",
+    "delta_curves",
+    "compute_functional_tree_distance",
+    "SPATIAL_SUMMARY_NAMES",
+    "cluster_spatial_scale",
     "wilcoxon_z",
     "rank_biserial",
     "boot_ci_mean",

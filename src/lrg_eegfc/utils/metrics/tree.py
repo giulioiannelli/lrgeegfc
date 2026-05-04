@@ -21,6 +21,9 @@ __all__ = [
     "jaccard_leafsets",
     "h_log_grid",
     "fcluster_at_h_rel",
+    "simpson_neff",
+    "cluster_size_stats",
+    "partition_vi_on_subset",
 ]
 
 
@@ -98,3 +101,111 @@ def fcluster_at_h_rel(Z: np.ndarray, h_rel: float) -> np.ndarray:
     """
     dmax = dmax_from_Z(Z)
     return fcluster(Z, t=h_rel * dmax, criterion="distance")
+
+
+def simpson_neff(labels: np.ndarray) -> float:
+    """Simpson effective number of clusters: ``1 / Σᵢ pᵢ²``.
+
+    For a flat partition (1-D label vector), ``pᵢ`` is the fraction of
+    elements in cluster ``i``. ``n_eff = N`` when every element is alone;
+    ``n_eff = 1`` when one cluster swallows everything. Used as a k-axis
+    diagnostic — collapses near k=N (singleton domination) or near k=O(1)
+    (giant domination).
+    """
+    labels = np.asarray(labels)
+    if labels.size == 0:
+        return 0.0
+    _, counts = np.unique(labels, return_counts=True)
+    p = counts / counts.sum()
+    s = float((p * p).sum())
+    return 1.0 / s if s > 0 else 0.0
+
+
+def partition_vi_on_subset(labels1: np.ndarray, labels2: np.ndarray,
+                              mask: np.ndarray) -> dict:
+    """VI(P₁|M, P₂|M) — restrict two flat partitions to the leaves in ``mask``.
+
+    Used to test whether a partition-level reorganization claim (whole-brain
+    Δ_VI silent / strong) holds within an anatomically or functionally
+    selected subset of leaves. Composes with any partition source — pass
+    `fcluster(Z, k, 'maxclust')` for a per-k restriction, or
+    `fcluster_at_h_rel(Z, h)` for an h-parametrized one.
+
+    Parameters
+    ----------
+    labels1, labels2
+        Cluster labels for the same N items. The full-tree partitions, not
+        already restricted.
+    mask
+        Boolean (or integer index) array selecting the leaves to keep.
+
+    Returns
+    -------
+    dict with keys
+        ``vi`` — Variation of Information on the restricted labels (nats).
+        ``n_subset`` — number of leaves in the subset (= ``mask.sum()``).
+        ``k1_subset``, ``k2_subset`` — distinct labels seen in the subset.
+        ``n_eff_1``, ``n_eff_2`` — Simpson effective number of clusters
+            in the restricted partitions (giant-component diagnostic).
+        ``max_cluster_fraction_1``, ``max_cluster_fraction_2`` — largest
+            restricted-cluster size / ``n_subset`` (≈1 means the subset
+            has all-collapsed-to-one-cluster, VI is trivially 0).
+    """
+    from .vi import compute_vi  # local import to avoid module-level cycles
+
+    labels1 = np.asarray(labels1)
+    labels2 = np.asarray(labels2)
+    mask = np.asarray(mask)
+    if mask.dtype == bool:
+        sel = mask
+    else:
+        sel = np.zeros(labels1.size, dtype=bool)
+        sel[mask] = True
+    n_subset = int(sel.sum())
+    if n_subset == 0:
+        return {"vi": float("nan"), "n_subset": 0,
+                 "k1_subset": 0, "k2_subset": 0,
+                 "n_eff_1": 0.0, "n_eff_2": 0.0,
+                 "max_cluster_fraction_1": float("nan"),
+                 "max_cluster_fraction_2": float("nan")}
+    sub1 = labels1[sel]
+    sub2 = labels2[sel]
+    return {
+        "vi": float(compute_vi(sub1, sub2)),
+        "n_subset": n_subset,
+        "k1_subset": int(np.unique(sub1).size),
+        "k2_subset": int(np.unique(sub2).size),
+        "n_eff_1": simpson_neff(sub1),
+        "n_eff_2": simpson_neff(sub2),
+        "max_cluster_fraction_1": float(
+            np.unique(sub1, return_counts=True)[1].max() / n_subset),
+        "max_cluster_fraction_2": float(
+            np.unique(sub2, return_counts=True)[1].max() / n_subset),
+    }
+
+
+def cluster_size_stats(labels: np.ndarray) -> dict:
+    """Cluster-size summary for a flat partition.
+
+    Returns ``{n, k, mean_size, max_size, min_size, singleton_fraction,
+    max_cluster_fraction, n_eff}``. ``singleton_fraction`` = fraction of
+    clusters of size 1, ``max_cluster_fraction`` = ``max|C| / N``.
+    """
+    labels = np.asarray(labels)
+    n = int(labels.size)
+    if n == 0:
+        return {"n": 0, "k": 0, "mean_size": 0.0, "max_size": 0,
+                "min_size": 0, "singleton_fraction": 0.0,
+                "max_cluster_fraction": 0.0, "n_eff": 0.0}
+    _, counts = np.unique(labels, return_counts=True)
+    k = int(counts.size)
+    return {
+        "n": n,
+        "k": k,
+        "mean_size": float(counts.mean()),
+        "max_size": int(counts.max()),
+        "min_size": int(counts.min()),
+        "singleton_fraction": float((counts == 1).sum()) / k,
+        "max_cluster_fraction": float(counts.max()) / n,
+        "n_eff": simpson_neff(labels),
+    }
