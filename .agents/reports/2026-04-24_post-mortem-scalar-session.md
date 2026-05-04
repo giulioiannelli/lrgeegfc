@@ -2,16 +2,26 @@
 name: post-mortem-scalar-session
 type: post-mortem
 era: COHORT_N9
-status: current
+status: superseded
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-04-25
+superseded_by: .agents/reports/2026-04-25_task-trace-audit-and-recovery.md
 pointers:
+  - .agents/reports/2026-04-25_task-trace-audit-and-recovery.md
+  - .agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md
   - .agents/reports/2026-04-24_pipeline-status.md
   - .agents/reports/2026-04-24_multiscale-task-trace.md
   - .agents/reports/2026-04-24_h1-h4-vi-results.md
   - .agents/reports/2026-04-24_modular-trace-investigation.md
   - .agents/guides/04_rules/never-always-list.md
 ---
+
+> **Superseded 2026-04-25** by `.agents/reports/2026-04-25_task-trace-audit-and-recovery.md`.
+> The post-mortem's central conclusion ("scalar-gate framing is wrong for
+> this cohort; surface existing multiscale evidence") is **inherited and
+> re-asserted** in the audit-and-recovery handoff. Numbers below remain
+> valid as the n=9 closing of the scalar-gate loop.
+
 
 # Post-mortem — April 2026 scalar-testing session
 

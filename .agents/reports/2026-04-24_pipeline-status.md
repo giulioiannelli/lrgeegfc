@@ -4,13 +4,25 @@ type: guide
 era: CROSS_ERA
 status: current
 created: 2026-04-24
-updated: 2026-04-24
-pointers: []
+updated: 2026-04-26
+pointers:
+  - .agents/reports/2026-04-25_measure-ledger.csv
+  - .agents/reports/2026-04-25_task-trace-audit-and-recovery.md
 ---
 
 # Pipeline Status — post-ImCoh-reset era index
 
-**Last updated:** 2026-04-24 (H2 reorganization + n=10 cohort).
+> **2026-04-26 ledger snapshot.** Per-measure status (current /
+> superseded / archived / scope-only / stale-numeric) is now tracked
+> in `.agents/reports/2026-04-25_measure-ledger.csv` (35 rows). Cohort
+> returned to **n=10** with Pat_14 vendor-replacement; canonical
+> reformalization (P/T/R/RA at leaf-set level) is in
+> `.agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md`.
+> Headline `(band × k)` map at n=10:
+> `data/outputs/figures/section6/task_trace_band_k_n10_imcoh_abs.pdf`.
+
+**Last updated:** 2026-04-26 (n=10 backfill + ledger + task-trace audit).
+2026-04-24 (original): H2 reorganization + n=10 cohort.
 **Canonical FC estimator:** `imcoh_abs` = `<|ImCoh|>_f` (signed Nolte-2004 ImCoh,
 freq-resolved cache, abs-then-band-average at load time).
 **Canonical writing-agent handoff:** `.agents/reports/2026-04-24_multiscale-task-trace.md`.

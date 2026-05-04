@@ -2,11 +2,21 @@
 name: multiscale-task-trace-for-writing
 type: report
 era: COHORT_N9
-status: current
+status: superseded
 created: 2026-04-24
-updated: 2026-04-24
-pointers: []
+updated: 2026-04-25
+superseded_by: .agents/reports/2026-04-25_task-trace-audit-and-recovery.md
+pointers:
+  - .agents/reports/2026-04-25_task-trace-audit-and-recovery.md
+  - .agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md
 ---
+
+> **Superseded 2026-04-25.** Cohort returned to n=10 (Pat_14 vendor-replaced).
+> See `.agents/reports/2026-04-25_task-trace-audit-and-recovery.md` for the
+> current writing handoff and `.agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md`
+> for the reformalised hypothesis. Numbers below remain valid as **n=9 snapshot**
+> but must not be cited as current cohort claims without a same-(band, k) re-eval at n=10.
+
 
 # Multiscale Task Trace — Writing Agent Handoff (n=9)
 
