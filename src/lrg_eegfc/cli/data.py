@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import click
 
+from lrg_eegfc.config.const import DEFAULT_SAMPLE_RATE, FS_OVERRIDES
 from lrg_eegfc.config.paths import SEEG_DATAPATH, LRG_CACHE
 
 from ._common import (
@@ -14,6 +16,29 @@ from ._common import (
     resolve_patients,
     verbose_option,
 )
+
+
+_FS_INFO_RE = re.compile(r"Sampling\s*Rate\s*[-:]\s*([0-9]+)", re.IGNORECASE)
+
+
+def _resolve_fs(patient: str, phases_info: dict, root_path: Path) -> tuple[float, str]:
+    """Pick a single fs to display per patient.
+
+    Probes (in order): .mat ``Parameters.fs`` extracted by ``inspect_patient``,
+    vendor ``.info.txt`` files under ``resting/`` and ``task/``, and finally
+    the canonical config (``FS_OVERRIDES``/``DEFAULT_SAMPLE_RATE``).
+    """
+    for info in phases_info.values():
+        if isinstance(info, dict) and info.get("fs"):
+            return float(info["fs"]), "from .mat"
+    for info_txt in sorted((root_path / patient).rglob("*.info.txt")):
+        try:
+            m = _FS_INFO_RE.search(info_txt.read_text(errors="replace"))
+        except OSError:
+            continue
+        if m:
+            return float(m.group(1)), f"from {info_txt.relative_to(root_path / patient)}"
+    return float(FS_OVERRIDES.get(patient, DEFAULT_SAMPLE_RATE)), "from config (no .mat/.info.txt)"
 
 
 @click.group()
@@ -43,29 +68,30 @@ def inspect(ctx, patients, root_path, verbose):
     if len(pat_list) == 1:
         result = inspect_patient(pat_list[0], root_path)
         if result:
-            click.echo(f"\n{result.get('patient', pat_list[0])}")
             phases_info = result.get("phases", {})
+            fs, fs_src = _resolve_fs(pat_list[0], phases_info, root_path)
+            click.echo(f"\n{result.get('patient', pat_list[0])} (fs={fs:g} Hz [{fs_src}])")
             for phase_name, info in phases_info.items():
                 shape = info.get("data_shape", "?")
-                fs = info.get("fs", "?")
                 fmt = info.get("file_format", "?")
-                click.echo(f"  {phase_name}: shape={shape}, fs={fs} Hz, format={fmt}")
+                click.echo(f"  {phase_name}: shape={shape}, format={fmt}")
         else:
             click.echo(f"  No data found for {pat_list[0]}")
     else:
         results = inspect_all_patients(root_path, pat_list)
-        for pat, pat_result in results.items():
-            click.echo(f"\n{pat}:")
+        for pat, pat_result in results.get("patients", {}).items():
             if pat_result is None:
+                click.echo(f"\n{pat}:")
                 click.echo("  No data found")
                 continue
-            phases_info = pat_result.get("phases", pat_result)
-            if isinstance(phases_info, dict):
-                for phase_name, info in phases_info.items():
-                    if isinstance(info, dict):
-                        shape = info.get("data_shape", "?")
-                        fs = info.get("fs", "?")
-                        click.echo(f"  {phase_name}: shape={shape}, fs={fs}")
+            phases_info = pat_result.get("phases", {}) if isinstance(pat_result, dict) else {}
+            fs, fs_src = _resolve_fs(pat, phases_info, root_path)
+            click.echo(f"\n{pat} (fs={fs:g} Hz [{fs_src}])")
+            for phase_name, info in phases_info.items():
+                if isinstance(info, dict):
+                    shape = info.get("data_shape", "?")
+                    fmt = info.get("file_format", "?")
+                    click.echo(f"  {phase_name}: shape={shape}, format={fmt}")
 
 
 # ---------------------------------------------------------------------------

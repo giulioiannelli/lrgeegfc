@@ -120,21 +120,15 @@ PHASE_SUBDIR: Dict[str, str] = {
 #: indices to drop from ``channel_labels.csv`` and the implant CSV so that
 #: per-phase Data (post-drop) lines up with the metadata row-by-row.
 #:
-#: Pat_10 background (2026-04-23): the vendor shipped resting recordings
-#: with 113 channels but task recordings with 116.  Monotonic-constrained
-#: exhaustive channel-fingerprint matching (multi-band power + std) on
-#: rest_pre vs task_learn AND rest_post vs task_test independently
-#: identified task rows [53, 54, 55] as the task-only extras.  Labels at
-#: those indices: ``['f  3,G2', 'c  3,G2', 'o  1,G2']`` (lowercase-probe
-#: contacts not present in the resting-state probe set).  Both tasks have
-#: those three rows dropped at load so Pat_10 is consistently 113-channel.
-PATIENT_CHANNEL_DROP: Dict[str, Dict[str, List[int]]] = {
-    "Pat_10": {
-        "task_learn": [53, 54, 55],
-        "task_test":  [53, 54, 55],
-        "__labels__": [53, 54, 55],
-    },
-}
+#: Pat_10 history: vendor originally shipped resting at 113 ch and task at
+#: 116 ch (2026-04-22 import). The 3 task-only extras at rows [53, 54, 55]
+#: (labels ``['f  3,G2', 'c  3,G2', 'o  1,G2']``) were inferred via
+#: monotonic-constrained channel-fingerprint matching on rest↔task power
+#: and previously dropped at load. **Vendor re-supplied uniform 113-channel
+#: data on 2026-04-25**, so the mask is no longer needed: the new files
+#: ship without the 3 phantom rows. The mapping is intentionally left empty
+#: so future per-patient drops can re-use this hook.
+PATIENT_CHANNEL_DROP: Dict[str, Dict[str, List[int]]] = {}
 #: Patients with all 4 recording phases. As of 2026-04-22 the full n=10
 #: roster has canonical resting + task recordings; Pat_06 was re-completed.
 PATIENTS_4PHASE: List[str] = [

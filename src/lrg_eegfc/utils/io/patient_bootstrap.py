@@ -437,17 +437,19 @@ def build_provenance(plan: MigrationPlan) -> str:
         vendor_map[rel_dst] = rel_src
 
     # 2. Recover any previously-recorded vendor names so we don't lose them
-    #    on idempotent re-runs.
+    #    on idempotent re-runs. Covers both .mat phase files and the implant
+    #    .xlsx — if the previous provenance.md already carried a vendor path,
+    #    keep it across re-runs even when the file is now in canonical form.
     old_prov = plan.patient_dir / "provenance.md"
     if old_prov.exists():
         for line in old_prov.read_text().splitlines():
             # Rows look like: | `resting/rest_pre.mat` | `...` | `...` |
             if line.startswith("| `") and line.count("|") >= 4:
                 parts = [c.strip().strip("`") for c in line.strip("|").split("|")]
-                if len(parts) >= 2 and parts[0].endswith(".mat"):
+                if len(parts) >= 2 and (parts[0].endswith(".mat") or parts[0].endswith(".xlsx")):
                     if parts[0] not in vendor_map or vendor_map[parts[0]].startswith("resting/") \
                             or vendor_map[parts[0]].startswith("task/"):
-                        if parts[1] and parts[1] not in ("vendor filename", "(unknown)"):
+                        if parts[1] and parts[1] != "vendor filename" and not parts[1].startswith("("):
                             vendor_map.setdefault(parts[0], parts[1])
 
     # 3. Discover every canonical .mat + the implant xlsx currently on disk.
