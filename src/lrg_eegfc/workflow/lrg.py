@@ -86,6 +86,15 @@ class LRGResult:
         Functional connectivity method ("msc" or "corr")
     n_nodes : int
         Number of nodes in giant component
+    eigenvalues : np.ndarray, optional
+        Laplacian eigenvalues, shape (n_nodes,), ascending order. None for
+        legacy caches written before 2026-04-29; recompute by re-caching.
+    eigenvectors : np.ndarray, optional
+        Laplacian eigenvectors, shape (n_nodes, n_nodes), columns are
+        unit-norm modes ordered to match `eigenvalues`. v_1 is the trivial
+        constant mode (λ_1 = 0); subspace probes use v_2…v_{k+1}. Spectral
+        identity: ``V @ diag(eigenvalues) @ V.T ≈ L̂`` to float tolerance.
+        None for legacy caches.
     """
 
     ultrametric_matrix: np.ndarray
@@ -99,6 +108,8 @@ class LRGResult:
     band: str
     fc_method: str
     n_nodes: int
+    eigenvalues: Optional[np.ndarray] = None
+    eigenvectors: Optional[np.ndarray] = None
 
 
 def get_lrg_cache_path(
@@ -190,6 +201,9 @@ def load_lrg_result(
 
     if cache_path.exists():
         data = np.load(cache_path)
+        keys = set(data.files)
+        eigenvalues = data["eigenvalues"] if "eigenvalues" in keys else None
+        eigenvectors = data["eigenvectors"] if "eigenvectors" in keys else None
         return LRGResult(
             ultrametric_matrix=data["ultrametric_matrix"],
             linkage_matrix=data["linkage_matrix"],
@@ -202,6 +216,8 @@ def load_lrg_result(
             band=str(data["band"]),
             fc_method=str(data["fc_method"]),
             n_nodes=int(data["n_nodes"]),
+            eigenvalues=eigenvalues,
+            eigenvectors=eigenvectors,
         )
     return None
 
@@ -341,7 +357,11 @@ def compute_lrg_analysis(
     # Compute Laplacian properties and ultrametric distances
     if verbose:
         print(f"  Computing Laplacian properties and ultrametric distances...")
-    _, _, _, Trho, _ = compute_laplacian_properties(giant)
+    spectrum, L, _, Trho, _ = compute_laplacian_properties(giant)
+
+    # Eigendecomposition of L̂ (real symmetric) for spectral subspace probes.
+    # eigh returns ascending eigenvalues; columns of eigvecs are eigenvectors.
+    eigenvalues, eigenvectors = np.linalg.eigh(np.asarray(L))
 
     # Convert to distance matrix (condensed form)
     dists = squareform(Trho)
@@ -375,6 +395,8 @@ def compute_lrg_analysis(
         band=band,
         fc_method=fc_method,
         n_nodes=n_nodes,
+        eigenvalues=np.asarray(eigenvalues, dtype=np.float64),
+        eigenvectors=np.asarray(eigenvectors, dtype=np.float64),
     )
 
     # Cache result. Write only when caller wants it persisted:
@@ -400,6 +422,8 @@ def compute_lrg_analysis(
             band=result.band,
             fc_method=result.fc_method,
             n_nodes=result.n_nodes,
+            eigenvalues=result.eigenvalues,
+            eigenvectors=result.eigenvectors,
         )
     elif verbose:
         print(f"  Skipping cache write (use_cache={use_cache}, "

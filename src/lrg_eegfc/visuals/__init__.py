@@ -27,6 +27,13 @@ from .spatial import (
     view_brain_connectome,
     plot_brain_connectome,
 )
+from .fc_templates import (
+    plot_fc_adjacency,
+    plot_fc_adjacency_row,
+    plot_fc_adjacency_grid,
+    fc_method_colorbar_label,
+    probe_groups,
+)
 
 __all__ = [
     # Correlation visualizations
@@ -53,4 +60,10 @@ __all__ = [
     # Brain connectome visualizations (nilearn)
     "view_brain_connectome",
     "plot_brain_connectome",
+    # FC adjacency-matrix templates
+    "plot_fc_adjacency",
+    "plot_fc_adjacency_row",
+    "plot_fc_adjacency_grid",
+    "fc_method_colorbar_label",
+    "probe_groups",
 ]
