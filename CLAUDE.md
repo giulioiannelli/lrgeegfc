@@ -291,7 +291,8 @@ Full layout + vendor → canonical mapping + per-patient quirks:
    move_to_root(pathname="lrgeegfc")
    ```
 3. **Per-patient quirks** in [`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md) §6.
-   Cohort locked at n=9 on 2026-04-22 (Pat_02, 03, 05, 06, 07, 08, 10, 13, 15).
+   Cohort locked at n=10 on 2026-04-25 (Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15)
+   after Pat_14 vendor `task_test` replacement; n=9 snapshot 2026-04-22.
 4. **Pat_03 outlier (negative control):** 1024 Hz (others 2048 Hz). MSC 3× higher.
    Include in analyses, mark distinctly in figures, report values separately.
 5. **Same-probe MSC bias:** contacts on the same sEEG probe have trivially
