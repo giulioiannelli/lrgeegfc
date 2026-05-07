@@ -358,8 +358,18 @@ def render_showcase(cls: str, patient: str, band: str) -> dict:
 
     perm, n_block = class_block_order(cls, modules, n)
 
-    vmin = min(np.min(D_by_phase[ph][D_by_phase[ph] > 0]) for ph in PHASES)
-    vmax = max(np.max(D_by_phase[ph]) for ph in PHASES)
+    # Joint percentile clip across the three phases for visual contrast.
+    # Off-diagonal only; D-hat blows up where K(tau) ~ 0 (near-disconnected
+    # pairs in fully-connected weighted graphs), so the raw min/max wastes
+    # the colormap on extreme tail values.
+    pooled = []
+    for ph in PHASES:
+        D = D_by_phase[ph]
+        offdiag = D[~np.eye(n, dtype=bool)]
+        pooled.append(offdiag)
+    pooled = np.concatenate(pooled)
+    vmin = float(np.percentile(pooled, 5.0))
+    vmax = float(np.percentile(pooled, 95.0))
 
     fig = plt.figure(figsize=(7.6, 5.0))
     gs = fig.add_gridspec(
