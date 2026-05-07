@@ -25,6 +25,10 @@ numerical results.
   current hypotheses.
 - **Canonical report for the writing agent**: `.agents/reports/2026-04-24_multiscale-task-trace.md`.
   Supersedes `2026-04-24_imcoh-results-for-writing.md` (n=5 era, flagged stale).
+- **Crystallized results (2026-04-29 → 2026-05-05)**:
+  - **Result 1**: `.agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md` — raw-FC β-band trace at the substrate level (7/10, controlled).
+  - **Result 2**: `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` — LRG-layer β-band trace (10/10 vs within-baseline null on KC λ=0/0.5/1 + D-rank d_F, joint Bonferroni m=27/39 surviving). **The load-bearing Section-5 finding.**
+  - Section-5 measure index: `data/reports/section_5_lrg_trace/README.md`.
 
 ## Where to begin
 
