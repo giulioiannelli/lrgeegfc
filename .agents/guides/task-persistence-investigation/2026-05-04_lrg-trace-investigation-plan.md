@@ -4,7 +4,7 @@ type: scope
 era: COHORT_N10
 status: draft
 created: 2026-05-04
-updated: 2026-05-04
+updated: 2026-05-06
 pointers:
   - .agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md
   - .agents/reports/2026-04-28_raw-fc-phase-distance-verdict.md
@@ -15,6 +15,7 @@ pointers:
   - .agents/guides/task-persistence-investigation/2026-04-29_cohort-coverage-matrix.md
   - .agents/guides/task-persistence-investigation/2026-04-25_cbr-investigation.md
   - .agents/guides/task-persistence-investigation/2026-04-26_multiscale-partition-coherence.md
+  - .agents/guides/task-persistence-investigation/2026-05-06_rf-k-multiscale-measure.md
   - data/audit/raw_fc_phase_distance/final_verdict_table_with_controls.csv
   - data/audit/raw_fc_phase_distance/Td_per_patient_per_band.csv
 ---
@@ -70,7 +71,7 @@ Section 5 inherits the cohort-coverage-matrix's seven-rung decomposition of the 
 |:---:|:---|:---|:---|
 | L1 | D(τ), ρ(τ) (matrix-level) | CTM (continuous trace matrix); raw-FC d_S/d_P/d_F at substrate level (Section 4) | matrix-level Part-2 candidate; substrate analogue is Section 4's headline |
 | L3 | T(τ) (tree-distance) | KC distance with λ-blend (`tree_distance.kc_distance`); FTD (`functional_tree_distance`, integrated over τ — shelved) | tree-distance triangle Part-2 candidate; FTD already negative |
-| L4 | T(τ) (subtree-leafset) | Trace-Modules (audit_15, strict J=0.9, cohort-null); MRL (audit_07, superseded); Consensus-subtree (scope only) | enumeration probe; null at strict gate, secondary at relaxed gates |
+| L4 | T(τ) (subtree-leafset) | Trace-Modules (audit_15, strict J=0.9, cohort-null); MRL (audit_07, superseded); Consensus-subtree (scope only); **RF(k) clade persistence (new 2026-05-06)** | enumeration probe; null at strict gate, secondary at relaxed gates; RF(k) is the multiscale-honest extension of L4 (clade match across k cuts at threshold θ ∈ {0.70, 0.85}) |
 | L5(k) | T(τ) (integer-k flat partition) | VI(k) full profile (`compute_imcoh_vi.py`); ΔVI(k) multiscale heatmap (`h2_partition_multiscale_raw.csv`) | partition-based Part-2 candidate as multiscale band × k heatmap |
 | L5(h_rel) | T(τ) (fractional-depth partition) | ΔVI(h_rel) (`dvi_hrel_n10_imcoh_abs.csv`) | partition-based Part-2 secondary; partition-resolution-locked for δ |
 | L6 | T(τ) (per-leaf cophenetic vector) | Cohesion-CBR (audit_12), CNP (audit_13) | localization Part-3 primary |
@@ -106,6 +107,7 @@ Each row carries: scope-report file (under `.agents/guides/task-persistence-inve
 | **VI(k) full profile** | `2026-04-24_h1-h4-vi-results.md` (canonical results); decision-rules L5(k) | `compute_imcoh_vi.py` (batch) ✓ | `data/reports/imcoh_vi/{vi_raw_profiles.csv, hypothesis_contrasts.csv, h2_partition_multiscale_raw.csv}` | dendrograms, fcluster at every k | VI per phase-pair per (p, b, k); ΔVI(k) | per-(b, k) cohort frac_pos | k-resolved | **Active** — only surviving cohort partition probe (α p=0.008, β p=0.014 under H2c continuous controls); recast as triangle in Part 2 |
 | **VI(h_rel) full profile** | decision-rules L5(h_rel) | `compute_imcoh_vi.py` ✓ | `data/audit/dvi_split_baseline/dvi_hrel_n10_imcoh_abs.csv` | fcluster_at_h_rel | ΔVI(h_rel) per (p, b, h_rel) | per-(b, h_rel) cohort frac_pos | h_rel grid | **Active** — partition-resolution-locked vs L5(k) for δ (per decision-rules) |
 | **Cohort coverage matrix** (integrator) | `2026-04-29_cohort-coverage-matrix.md` | `audit_18_cohort_coverage_matrix.py` (TBD per rebuild plan §10 step 3) | `data/audit/cohort_coverage_matrix/{cohort_coverage_matrix_n10_imcoh_abs.csv, triangulation_n10_imcoh_abs.csv}` | all rungs above | per-cell V(b, r), per-band T(b) | meta | multi-rung | **In progress** — v1.2 covers L1/L4/L4_aux/L5_k/L5_hrel/L6/L7; L3 deferred (KC λ-sensitivity TBD) |
+| **RF(k) clade persistence** | `2026-05-06_rf-k-multiscale-measure.md` | `audit_48 / 48b / 48c / 48d` (implemented) | `data/reports/section_5_lrg_trace/14_rf_clade_persistence/` | dendrograms, fcluster at every k, leaf-set Jaccard | hard / soft / strict 4-mode | per-band cohort `n_trace`, soft passes BH at α + β | k-resolved | **Parked 2026-05-07** — Jaccard size-sensitivity prevents clean graded-trace detection; KC λ=0 + audit_47-50 cover the same question more cleanly. Output kept on disk as strict-identity sensitivity check. |
 
 ### 1.3 Literature-only probes (not yet implemented)
 
@@ -128,7 +130,7 @@ These are candidates that the Part-1 review must consider but that no script in 
 
 ### 1.4 Selection for Part 2
 
-**Part-2 candidate slate (5 probes; one per family + the partition heatmap as a result per se):**
+**Part-2 candidate slate (5 probes after RF parked 2026-05-07; one per family + the partition heatmap as a result per se):**
 
 | family | probe | rationale |
 |:---:|:---|:---|
@@ -137,6 +139,7 @@ These are candidates that the Part-1 review must consider but that no script in 
 | spectral on L̂ | **Top-k eigenspace overlap as a triangle** T_E1(p, b, k) = d_chord(V^TT, V^RPost; k) − d_chord(V^RPre, V^TT; k) at k ∈ {3, 5, 8, 13} | recast E1 audit's pairwise frac_pos into the triangle direction; the triangle has not been computed and may surface structure pairwise missed |
 | tree-distance | **KC distance λ-blend triangle** T_KC(p, b, λ) = d_KC(λ; T^TT, T^RPost) − d_KC(λ; T^RPre, T^TT) at λ ∈ {0, 0.25, 0.5, 0.75, 1.0} | new; library exists; per the decision-rules L3 spec |
 | partition (T) | **VI(k) multiscale band × k heatmap** T_VI(p, b, k) = VI(c^TT, c^RPost; k) − VI(c^RPre, c^TT; k) per (p, b, k); reported as per-patient heatmap + cohort `n_trace(b, k)` heatmap, no integration over k | the only surviving cohort partition probe at controlled n=10; framed as a Section-5 result per se; same-k cross-patient comparison flagged as a dirty operation but historically load-bearing |
+| clade-set (T) | ~~**RF(k) clade persistence**~~ — **PARKED 2026-05-07** | scope `2026-05-06_rf-k-multiscale-measure.md`; Jaccard's size-sensitivity prevents clean detection of graded reorganization. KC λ=0 + audit_47-50 KC module-view family cover the same scientific question more cleanly. Numbers documented (16/13/32/48 trace/reset/persist/rearrange/60 cells) but probe set aside. |
 
 **Out of Part 2 (negative or shelved):**
 - FTD integrated form — already shelved with documented numbers; Part 1 row is sufficient; Part 5 cites the negative.
@@ -151,7 +154,7 @@ These are candidates that the Part-1 review must consider but that no script in 
 
 ## Part 2 — Empirical pilot of the global per-band trace measure
 
-**Each of the five Part-1 candidate probes is run on the n=10 |ImCoh|_abs cohort at τ = 1/λ_max for all six bands and recast into the T_LRG triangle form. The per-(patient, band) distribution is reported alongside the per-band cohort scalar — no probe is collapsed to a cohort scalar without showing the underlying patient distribution. Each probe's per-band output is rendered side-by-side against the substrate d_S verdict. The probe that produces the cleanest cohort verdict on β + low_γ + α + δ AND either tightens α's drift caveat, raises δ above noise, or surfaces θ / high_γ structure the substrate missed becomes the headline; this selection is empirical and not pre-committed.**
+**Each of the six Part-1 candidate probes is run on the n=10 |ImCoh|_abs cohort at τ = 1/λ_max for all six bands and recast into the T_LRG triangle form. The per-(patient, band) distribution is reported alongside the per-band cohort scalar — no probe is collapsed to a cohort scalar without showing the underlying patient distribution. Each probe's per-band output is rendered side-by-side against the substrate d_S verdict. The probe that produces the cleanest cohort verdict on β + low_γ + α + δ AND either tightens α's drift caveat, raises δ above noise, or surfaces θ / high_γ structure the substrate missed becomes the headline; this selection is empirical and not pre-committed.**
 
 ### 2.1 Triangle definition
 
@@ -261,6 +264,47 @@ n_trace(b, k) = |{p : T_VI(p, b, k) < 0}|
 
 **Reading rule.** Vertical band of red on the cohort heatmap at a specific k = many patients trace at the same scale = the manuscript's "k-locked trace" claim for that band. Diffuse red across most of the k-axis = scale-coherent trace (better story). Red-to-blue transition along k = scale-specific reorganization (band-band difference is informative).
 
+#### 2.2.6 RF(k) clade persistence triangle — PARKED 2026-05-07
+
+> **Parked.** RF (hard threshold + soft mean-J + strict 4-mode per-clade
+> taxonomy) is set aside as a Section-5 measure; not in the manuscript.
+> The Jaccard-based formulation has structural size-sensitivity issues
+> that prevent it from cleanly capturing graded clade reorganization.
+> KC λ=0 (audit_36 + audit_46) and the audit_47-50 KC module-view family
+> (`2026-05-07_kc-{trace-network,reset,rearrangement,anchor}-modules.md`)
+> handle the same scientific question more cleanly. RF outputs remain
+> on disk at `data/reports/section_5_lrg_trace/14_rf_clade_persistence/`
+> for reproducibility. Full reasoning at
+> `.agents/reports/2026-05-07_rf-clade-persistence-cohort-verdict.md`.
+> The original spec is preserved below for the record.
+
+**What it computes.** For each (p, b, φ), cut the dendrogram T^φ at every meaningful k ∈ {2, …, N−5} via `lrg_eegfc.utils.metrics.tree.fcluster_at_h_rel` (or `scipy.cluster.hierarchy.fcluster(Z, k, criterion='maxclust')`) to get the clade set C^φ(k) = {leaf-descendant set of each cluster}. For two phases φ_A, φ_B at cut level k, define the clade persistence rate:
+```
+P(φ_A, φ_B; k) = (1 / |C^φ_A(k)|) · |{C ∈ C^φ_A(k) : max_{C' ∈ C^φ_B(k)} Jaccard(C, C') ≥ θ}|
+```
+with θ ∈ {0.70, 0.85}. The triangle scalar at cut level k:
+```
+T_RF(k; p, b) = P(TT, RPost; k) − P(RPre, TT; k)
+```
+**Sign convention is opposite to KC/VI/Grassmann triangles**: T_RF > 0 = trace direction (more clades persist from task into rest_post than from rest_pre into task). The cohort scalar at the band level is the mean across the meaningful k range:
+```
+T_RF^cohort(p, b) = mean_{k ∈ [2, N−5]} T_RF(k; p, b)
+```
+Lower bound k=1 (root cut) excluded — both trees have one all-leaves clade; persistence is trivially 100%. Upper bound k > N−5 excluded — singleton-dominated; Jaccard becomes degenerate.
+
+**Why it earns its place.** Reads strictly topology at the clade-set level, complementary to KC λ=0 (which reads graded common-ancestor depth shifts at the leaf-pair level): KC penalizes a one-leaf shift in a clade by changing one pair's depth slightly; RF(k) under threshold θ either tolerates the shift fully (Jaccard ≥ θ) or rejects it fully. Mechanistic reading is the cleanest in Section 5: persistent clades are subnetworks identified as coherent communication units at both phases — the trace is a "preserved communication branch" across the rest-task-rest sequence.
+
+**Compute scaffold.** New script `scripts/01_compute/audit/audit_48_rf_k_clade_persistence.py`. Loads dendrograms via `lrg_eegfc.workflow.lrg.load_lrg_result`, calls `tree.tree_internal_nodes` for clade enumeration at each k, calls `tree.jaccard_leafsets` for matching, calls `lrg_eegfc.utils.metrics.hypothesis.wilcoxon_z` for cohort statistics, calls `bh_fdr` at m=6. Re-uses `_load_baseline_halves` pattern from existing within-baseline-null scripts (e.g. `audit_46_kc_section5_controls.py`) for the rsPre split-half null T_RF^null. ~120 lines.
+
+**Output.**
+- `data/reports/section_5_lrg_trace/14_rf_clade_persistence/tables/Td_per_patient_per_band.csv` — rows = (patient, band, threshold), columns = (T_RF_cohort, T_RF_per_k as compact JSON, k_range_used, n_clades_total).
+- `data/reports/section_5_lrg_trace/14_rf_clade_persistence/tables/cohort_summary.csv` — rows = (band, threshold), columns = (T_RF_median, n_trace, wilcoxon_p_oneside, BH_q_within_m6, pat03_dropout_p, null_paired_p).
+- `data/reports/section_5_lrg_trace/14_rf_clade_persistence/figures/rf_k_cohort_heatmap.pdf` — cohort heatmap of `n_trace(k) / 10` across (band, k) cells at θ=0.70 and θ=0.85 (two stacked panels), analogous to the §2.2.5 VI(k) cohort heatmap.
+
+**Controls.** Two control regimes parallel to CTM: (1) Pat_03 dropout — recompute T_RF^cohort restricting to nine patients; (2) within-baseline-null — clade persistence between rsPre split halves (rsPre_A vs rsPre_B) serves as the drift floor; compare T_RF^real − T_RF^null cohort-wide via paired Wilcoxon. If both controls survive at uncorrected p < 0.05 with within-probe BH-FDR at m=6, RF(k) becomes a controlled cohort claim alongside CTM. If only the absolute Wilcoxon survives, RF(k) sits as a multiscale companion at the same level as VI(k) and Grassmann.
+
+**Reading rule.** If RF(k) converges with VI(k), Grassmann, and CTM on α/β/low_γ as the trace bands (positive T_RF^cohort under at least one threshold), the convergence strengthens the multiscale companion narrative with a fourth independent probe asking the cleanest mechanistic "preserved communication branch" question. If RF(k) does not converge, this is itself a finding — clade persistence is not the right level of abstraction for what KC/VI/CTM are detecting, and the manuscript text records the disagreement-bearing band(s).
+
 ### 2.3 Per-band side-by-side comparison
 
 For each candidate probe, emit one row per band with columns:
@@ -274,12 +318,12 @@ For each candidate probe, emit one row per band with columns:
 | high_γ | 5/10 | _ | borderline | _ | _ |
 | θ | 3/10 | _ | drift-only | _ | _ |
 
-Across the five probes, this generates 5 × 6 = 30 cells of LRG verdict + delta. The pattern across the table feeds Part 5's selection rule.
+Across the six probes, this generates 6 × 6 = 36 cells of LRG verdict + delta. The pattern across the table feeds Part 5's selection rule.
 
 ### 2.4 Figures emitted by Part 2
 
 - **Per-patient T_LRG box-plots per probe.** One PDF per probe. 6 panels (bands), y-axis T_LRG, points = patients, box = cohort. Substrate d_S T_d cohort overlaid as a dashed line for visual comparison.
-- **Probe × band cohort scalar table.** One PDF table-figure with 5 rows (probes) × 6 columns (bands), cell = `n_trace / 10`, color-coded to substrate verdict alignment (green = matches or sharpens, yellow = matches with delta ±1, red = disagrees by ≥2).
+- **Probe × band cohort scalar table.** One PDF table-figure with 6 rows (probes) × 6 columns (bands), cell = `n_trace / 10`, color-coded to substrate verdict alignment (green = matches or sharpens, yellow = matches with delta ±1, red = disagrees by ≥2).
 - **VI(k) cohort heatmap** (above).
 - **VI(k) per-patient heatmaps** (above).
 
@@ -391,6 +435,7 @@ For the headline global probe selected by Part 2's pre-registered rule (§2.5), 
 - **If headline = E1 Grassmann triangle:** the per-pair quantity is undefined (Grassmann distance is a global property of an eigenspace pair; it cannot be decomposed into per-pair contributions). In this case, fall back to the second-place probe in Part 2's selection rule for the per-pair role. (This is a documented limitation of the spectral family.)
 - **If headline = KC λ-blend triangle:** at λ=0, per-pair contribution is the per-pair difference of m vectors (path-length between the two leaves through the tree); at λ=1, per-pair difference of M vectors. Pick the λ that produced the cleanest cohort verdict in §2.2.4.
 - **If headline = VI(k) heatmap:** VI is a partition-level statistic; per-pair decomposition is via mutual-information per pair-ish, but the natural per-pair object here is the same-cluster indicator `1[c^φ(i) = c^φ(j)]`. The Hamming difference of these indicators across phase pairs is a per-pair triangle. (Used only if VI(k) becomes the headline — which is unlikely given the heatmap is a result-per-se, not a competitor.)
+- **If headline = RF(k) clade persistence:** RF(k) is a clade-set-level statistic; per-pair decomposition is the same-clade indicator `1[clade^φ_k(i) = clade^φ_k(j)]` at each cut level k, summed over the meaningful k range. The triangle at the per-pair level is the count of cut levels where (i, j) sits together in φ=TT and φ=RPost minus the count where they sit together in φ=RPre and φ=TT. Equivalent to VI(k) per-pair indicator aggregated over k under a specific weighting. Used only if RF(k) becomes the headline.
 
 **Output.** Per-(p, b) `pair_contributions_lrg.npz` keyed by `(i, j)` carrying `T_LRG_pair`. Roughly 10 patients × 6 bands × O(N²)≈O(10⁴) pairs per cell ≈ 600k pair-rows total. Compute trivial.
 
@@ -472,7 +517,7 @@ Disagreements are reported, not hidden. The interpretation rules:
 The actual recommendation requires the per-band tables from Parts 2–4. The decision framework is pre-registered here:
 
 #### Global probe selection
-1. Apply §2.5 selection rule: among the five candidate probes from Part 1, pick the one that (a) matches substrate d_S verdict on β/α/low_γ/δ within ±1 patient, (b) controls the most cells against probe-matched within-baseline null, (c) tightens at least one of α drift / δ noise-floor / θ-or-high_γ recovery.
+1. Apply §2.5 selection rule: among the six candidate probes from Part 1, pick the one that (a) matches substrate d_S verdict on β/α/low_γ/δ within ±1 patient, (b) controls the most cells against probe-matched within-baseline null, (c) tightens at least one of α drift / δ noise-floor / θ-or-high_γ recovery.
 2. If two probes tie on (a)+(b), break ties by (c) priority order: α drift tighten > δ raise to controlled > θ recovery > high_γ recovery > cleanest visual story.
 3. The headline global probe must be cited with: per-band T_LRG cohort scalar table, per-patient T_LRG box-plot figure, side-by-side comparison to substrate d_S, and an explicit statement of how it agrees with / sharpens / contradicts the substrate verdict per band.
 
@@ -521,7 +566,7 @@ To be explicit about scope:
 
 When this plan transitions from `status: draft` to `status: current`, the following must be in place:
 
-- All five Part-2 audit scripts (`audit_32` VI heatmap, `audit_33` CTM triangle, `audit_35` D-rank, `audit_36` KC λ-blend, `audit_37` Grassmann) implemented and producing CSV outputs at the paths listed.
+- All five Part-2 audit scripts (`audit_32` VI heatmap, `audit_33` CTM triangle, `audit_35` D-rank, `audit_36` KC λ-blend, `audit_37` Grassmann) implemented and producing CSV outputs at the paths listed. (RF — `audit_48 / 48b / 48c / 48d` — parked 2026-05-07; numbers on disk but not in headline.)
 - The two Part-3 audit scripts (`audit_38` Cohesion-CBR rest_pre, `audit_39` triplet-consensus) plus the MSPC re-mining script (`audit_34`) implemented.
 - The Part-4 cross-validation script (`audit_40`) implemented and producing the per-band agreement matrix.
 - The figures listed in §2.4, §3.4, §3.5, §4.5 produced as PDFs at the paths listed.
