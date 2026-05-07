@@ -34,6 +34,25 @@ from .fc_templates import (
     fc_method_colorbar_label,
     probe_groups,
 )
+from .network_templates import (
+    plot_fc_network,
+    plot_fc_network_row,
+    plot_fc_network_grid,
+    plot_fc_network_lrg,
+    plot_layout_gallery,
+    compute_layout,
+    LAYOUT_REGISTRY,
+    DEFAULT_GALLERY,
+    draw_gamma_edges,
+    draw_nodes,
+    shaft_colors,
+    community_colors,
+    load_probe_labels,
+    nx_to_gt,
+    matrix_to_gt,
+    SAME_PROBE_RGB,
+    CROSS_PROBE_RGB,
+)
 
 __all__ = [
     # Correlation visualizations
@@ -66,4 +85,22 @@ __all__ = [
     "plot_fc_adjacency_grid",
     "fc_method_colorbar_label",
     "probe_groups",
+    # Network-drawing templates
+    "plot_fc_network",
+    "plot_fc_network_row",
+    "plot_fc_network_grid",
+    "plot_fc_network_lrg",
+    "plot_layout_gallery",
+    "compute_layout",
+    "LAYOUT_REGISTRY",
+    "DEFAULT_GALLERY",
+    "draw_gamma_edges",
+    "draw_nodes",
+    "shaft_colors",
+    "community_colors",
+    "load_probe_labels",
+    "nx_to_gt",
+    "matrix_to_gt",
+    "SAME_PROBE_RGB",
+    "CROSS_PROBE_RGB",
 ]

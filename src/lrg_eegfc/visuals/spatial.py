@@ -87,7 +87,9 @@ def load_spatial_metadata(
         patnum = int(patient.split("_")[-1])
     except ValueError:
         patnum = 0
-    implant_csv = patient_path / f"Implant_pat_{patnum:02d}.csv"
+    implant_csv = patient_path / f"implant_pat_{patnum:02d}.csv"
+    if not implant_csv.exists():
+        implant_csv = patient_path / f"Implant_pat_{patnum:02d}.csv"
 
     channel_labels_csv = patient_path / "channel_labels.csv"
 

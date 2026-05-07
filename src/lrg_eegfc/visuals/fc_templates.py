@@ -45,6 +45,74 @@ _PROBE_RE = re.compile(r"^([A-Za-z]+)")
 # Empirical: 4% size + ~2% pad-equivalent on a 2.4-inch panel.
 _ROW_CB_FRAC = 0.06
 
+
+def _apply_factored_sci_format(clb, *, axis_orientation: str = "vertical") -> None:
+    """Replace cb tick labels with mantissas + a single ``× 10ⁿ`` at the
+    cb edge.
+
+    Why this exists: matplotlib's default ``LogNorm`` cb on a narrow
+    dynamic range labels every minor tick inline as ``2 × 10⁻²``,
+    ``5 × 10⁻²``, …  Each label repeats the order of magnitude, takes
+    too much room, and dwarfs the major-tick labels of neighbour cbs
+    that span a wider range.  This helper picks 3 log-spaced ticks,
+    formats them as bare mantissas (``1``, ``3``, ``9``), and emits
+    one common ``× 10ⁿ`` at the right (vertical cb) or above the
+    rightmost edge (horizontal cb).
+
+    No-op when ``vmax`` falls in matplotlib's "natural" range
+    (``10⁻² ≤ vmax < 10³``) — there the default formatter is fine.
+    """
+    import math
+    vmin, vmax = clb.mappable.get_clim()
+    if vmin is None or vmax is None or vmax <= 0 or vmin >= vmax:
+        return
+    oom = math.floor(math.log10(vmax))
+    # Factor whenever the log range spans less than one decade.  That
+    # is the regime where matplotlib's default ``LogFormatter`` falls
+    # back to inline minor-tick labels (``2 × 10⁻²``, ``5 × 10⁻²``,
+    # …); a single ``× 10ⁿ`` offset reads better.  Above one decade
+    # the default formatter already shows clean ``10ⁿ`` major-tick
+    # labels — leave it alone.
+    log_range = math.log10(vmax) - math.log10(max(vmin, vmax * 1e-12))
+    # 1.5 decades is the empirical break-even: below this matplotlib's
+    # default fits at most 1–2 ``10ⁿ`` major ticks and pads with inline
+    # ``2 × 10ⁿ`` minor labels.  Above 1.5 decades we have ≥2 clean
+    # powers of 10 and the default formatter wins.
+    if log_range >= 1.5:
+        return
+    log_min = math.log10(max(vmin, vmax * 1e-3))
+    log_max = math.log10(vmax)
+    log_ticks = np.linspace(log_min, log_max, 3)
+    tick_vals = [10.0 ** lt for lt in log_ticks]
+    clb.set_ticks(tick_vals)
+
+    def _fmt(v: float) -> str:
+        m = v / 10.0 ** oom
+        if abs(m - round(m)) < 0.05:
+            return f"{int(round(m))}"
+        return f"{m:.1f}"
+
+    clb.set_ticklabels([_fmt(v) for v in tick_vals])
+    clb.ax.minorticks_off()
+
+    label = rf"$\times 10^{{{oom}}}$"
+    if axis_orientation == "horizontal":
+        # Above-right of the cb gradient (uses the spacer row in
+        # per_col grid mode; for free-standing cbs it overlaps the
+        # cb's host axis only marginally).
+        clb.ax.text(
+            1.0, 1.4, label,
+            transform=clb.ax.transAxes,
+            ha="right", va="bottom", fontsize=7,
+        )
+    else:
+        # Just above the top of a vertical cb.
+        clb.ax.text(
+            0.5, 1.04, label,
+            transform=clb.ax.transAxes,
+            ha="center", va="bottom", fontsize=7,
+        )
+
 # Templates use ``{band}`` as the trailing-subscript placeholder.  When
 # ``band`` is provided, it is replaced by the LaTeX band glyph
 # (`\beta`, `\alpha`, …) from ``BRAIN_BAND_TEX_DICT``; when absent, it
@@ -314,6 +382,7 @@ def plot_fc_adjacency(
         if colorbar_label:
             clb.set_label(colorbar_label, fontsize=8)
         clb.ax.tick_params(labelsize=6)
+        _apply_factored_sci_format(clb, axis_orientation="vertical")
 
     return fig, ax, im
 
@@ -458,6 +527,7 @@ def plot_fc_adjacency_row(
         if cb_label:
             clb.set_label(cb_label, fontsize=8)
         clb.ax.tick_params(labelsize=6)
+        _apply_factored_sci_format(clb, axis_orientation="vertical")
 
     return fig, axes
 
@@ -582,15 +652,22 @@ def plot_fc_adjacency_grid(
         get_vmax = lambda i, j: col_vmax[j]  # noqa: E731
 
     # Gridspec: extra row or col reserved for the colorbar(s).
-    cb_frac = 0.06
+    # ``per_col`` adds a *spacer row* above the cb row so the bottom
+    # panel's x-tick labels + "probe" axis label clear the cb
+    # gradient.  In ``chnames`` mode that decoration occupies ~30%
+    # of a panel height, so ``spacer_frac`` must be at least that.
+    cb_frac = 0.07
+    spacer_frac = 0.32
     if colorbar_mode in ("shared", "per_row"):
         gs_rows, gs_cols = n_rows, n_cols + 1
         width_ratios = [1.0] * n_cols + [cb_frac]
         height_ratios = [1.0] * n_rows
+        cb_row_idx = None
     else:  # per_col
-        gs_rows, gs_cols = n_rows + 1, n_cols
+        gs_rows, gs_cols = n_rows + 2, n_cols
         width_ratios = [1.0] * n_cols
-        height_ratios = [1.0] * n_rows + [cb_frac]
+        height_ratios = [1.0] * n_rows + [spacer_frac, cb_frac]
+        cb_row_idx = -1
 
     fig_w = panel_size * sum(width_ratios) + 1.0  # row-title margin
     fig_h = panel_size * sum(height_ratios) + 0.7  # col-title margin
@@ -679,12 +756,13 @@ def plot_fc_adjacency_grid(
     #     the fixed band glyph; otherwise ``_f``).
     #   - per_col mode: each col's cb gets its own label (analogous).
     if colorbar_mode == "shared" and last_im_global is not None:
-        cb_ax = fig.add_subplot(gs[:, -1])
+        cb_ax = fig.add_subplot(gs[:n_rows, -1])
         clb = plt.colorbar(last_im_global, cax=cb_ax)
         cb_label = fc_method_colorbar_label(fc_method, band=band)
         if cb_label:
             clb.set_label(cb_label, fontsize=8)
         clb.ax.tick_params(labelsize=6)
+        _apply_factored_sci_format(clb, axis_orientation="vertical")
     elif colorbar_mode == "per_row":
         for i in range(n_rows):
             if last_im_per_row[i] is None:
@@ -695,11 +773,12 @@ def plot_fc_adjacency_grid(
             lbl = fc_method_colorbar_label(fc_method, band=_band_for_row(i))
             if lbl:
                 clb.set_label(lbl, fontsize=8)
+            _apply_factored_sci_format(clb, axis_orientation="vertical")
     elif colorbar_mode == "per_col":
         for j in range(n_cols):
             if last_im_per_col[j] is None:
                 continue
-            cb_ax = fig.add_subplot(gs[-1, j])
+            cb_ax = fig.add_subplot(gs[cb_row_idx, j])
             clb = plt.colorbar(
                 last_im_per_col[j], cax=cb_ax, orientation="horizontal",
             )
@@ -707,5 +786,6 @@ def plot_fc_adjacency_grid(
             lbl = fc_method_colorbar_label(fc_method, band=_band_for_col(j))
             if lbl:
                 clb.set_label(lbl, fontsize=8)
+            _apply_factored_sci_format(clb, axis_orientation="horizontal")
 
     return fig, axarr
