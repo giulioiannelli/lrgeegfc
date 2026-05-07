@@ -105,6 +105,7 @@ before writing new code from scratch.**
 | If the request is about… | Go to |
 |---|---|
 | FC / adjacency / connectivity matrix / `imcoh_abs` / MSC / correlation matrix | [`fc_templates/`](fc_templates/README.md) |
+| Network drawing / graph layout / spring/KK/SFDP / connectome / LRG-seeded | [`network_templates/`](network_templates/README.md) |
 | (more classes coming: LRG dendrograms, distance heatmaps, swarms…) | per-figure-style-sheets/ for now |
 
 ## Library files agents should know about
