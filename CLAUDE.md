@@ -92,15 +92,36 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   `lrg_eegfc.visuals.layout.add_provenance_footer(fig, label)`).
 - Never label adjacency-matrix axes with "contact" / "channel"
   — use math `$i$`, `$j$`.
-- Never call our `T_d < 0` finding the bare "persistence" — it is a
-  **trace** (task changed it AND change stuck), distinct from
-  **anchor** (never changed), **reset** (changed and reverted), and
-  **emergent** (never existed before). See terminology guide.
+- Don't confuse the four cross-phase phenomena. **Trace** = task
+  changed it AND change stuck (our `T_d < 0` finding). **Anchor** =
+  never changed. **Reset** = changed and reverted. **Emergent** =
+  never existed before. Use the explicit taxonomy in cross-phase
+  taxonomy tables, mixed-band paragraphs, and any context where the
+  reader could otherwise read the wrong phenomenon. In unambiguous
+  task-trace sections (e.g. β results subsection) bare "persistence"
+  is acceptable (softened 2026-05-18). See terminology guide.
 - Never frame `d_P = 1 − Pearson(triu A_a, triu A_b)` as "volume +
   topology" or "orthogonal" to `d_S`. It is a magnitude-weighted
   complement; cohort ρ between `T_d^(d_S)` and `T_d^(d_P)` is
   0.85–0.95 per band — strongly correlated, not orthogonal. β is the
   **convergence** cell.
+- **Never present any FC-derived cohort claim without first running
+  a strength-preserving matched-strength surrogate null.** Within-
+  baseline split-half / drift / sampling-jitter nulls are exploratory
+  diagnostics, not verification. KC β 10/10 / q=0.006 within-baseline
+  headline collapsed on 2026-05-11 because matched-strength reproduced
+  ≈50% of the observed tree-distance shift. Matched-strength is the
+  *minimum* null required for any cohort-level claim built on a
+  connectivity matrix. See `audit_65_kc_matched_strength_verdict.md`,
+  `feedback_matched_strength_mandatory.md`.
+- **Never produce sycophantic answers or confidence laundering.**
+  Default posture is brutal scientific honesty: critical questioning
+  of every methodology in play. If a result depends on a control that
+  hasn't been run, say so on the first line. If a null is weaker than
+  the alternative explanations require, say so. An honest verdict
+  of "currently unverified" is preferred over a confident headline
+  that gets retracted three iterations later. See
+  `feedback_brutal_honesty_no_sycophancy.md`.
 
 **Always**
 - Always show ≥ 3 patients / bands / phases in published figures.
@@ -111,7 +132,25 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
 - Always set dendrogram y-limits as
   `tmin = merge_heights[0]*0.8, tmax = merge_heights[-1]*1.05`.
 - Always zoom nilearn glass-brain panels to electrode bbox.
-- Always flag Pat_03 as 1024 Hz outlier (include, mark distinctly).
+- Pat_03 is acquired at 1024 Hz (others at 2048 Hz). Sampling-rate
+  handling is **config-level only** (`nperseg_for_fs(fs)`, `FS_OVERRIDES`
+  in `config/const.py`). Do **not** treat Pat_03 as an outlier, do
+  **not** run Pat_03-dropout sensitivity tests, do **not** mark it
+  distinctly in figures, do **not** report values separately. Pat_03
+  is a full cohort member at n = 10. (Updated 2026-05-18 — the previous
+  "1024 Hz outlier / negative control" framing was retired; the
+  sampling-rate difference is absorbed at the config layer and does not
+  propagate to analysis-level treatment.)
+- **Patient-dropout policy: don't drop patients.** Default cohort is
+  the full `n = 10`. Two narrow exceptions only: (a) a single
+  cohort-level anti-aligned patient at the probe under test, biology-
+  driven (canonical: Pat_15 at β LRG, right-hemisphere-only implant);
+  (b) genuinely problematic data (vendor corruption, sampling-rate
+  handled at config layer — none currently active). Retired dropouts:
+  Pat_03 (1024 Hz "outlier"; retired 2026-05-18 am), Pat_07 (substrate
+  marginal anti, solidly pro at LRG; retired 2026-05-18 pm), and the
+  legacy `n=8` "pro-cohort restriction" replaced by LRG-native `n=9`
+  (drop Pat_15 only). See `feedback_no_patient_dropout.md`.
 - Pat_14 `task_test` was corrupt at original import; **vendor-replaced 2026-04-25** and is now valid. Cross-phase cohort returns to n=10.
 - Always drop Pat_10 task rows `[53, 54, 55]` at load.
 - Always add frontmatter to new `.agents/` .md files.
@@ -122,9 +161,28 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   See that folder's `README.md` for the required structure (notation,
   predicates, formulas, properties, caveats, pseudocode, prior-tool
   connection, open questions).
-- Always use the **trace / anchor / reset / emergent** taxonomy when
-  describing module behaviour across phases — never the bare word
-  "persistence". See `.agents/guides/01_project/terminology.md`.
+- Always use the **trace / anchor / reset / emergent** taxonomy
+  where cross-phase ambiguity matters (taxonomy tables, mixed-band
+  paragraphs, cross-phase summary captions, variable names like
+  `n_trace` not `n_persist`). In unambiguous task-trace contexts
+  bare "persistence" is acceptable (softened 2026-05-18 — the
+  taxonomy is the disambiguation tool, not a vocabulary ban). See
+  `.agents/guides/01_project/terminology.md`.
+- **Always open any new test / null / methodology with a 5-point
+  critical preamble** (script docstring or scope doc, before any code):
+  (1) the claim, (2) the null, (3) the strongest plausible alternative
+  the null *should* control for, (4) whether the null actually
+  controls for it — by mechanism, not vibes, including what it
+  *cannot* reject, (5) what would falsify the claim and which
+  limitations remain. The point: catch the KC-style mistake at the
+  design stage, before two weeks of figures sit on a null that
+  doesn't reach the relevant alternative. See
+  `feedback_critical_null_preamble.md`.
+- **Always state limitations of unverified methods in the first
+  paragraph** of any writeup. Any measure not yet matched-strength
+  tested is marked **"unverified"** in writeups, memory, and chat,
+  and cannot be cited as the load-bearing claim until that control
+  is run.
 
 ### Memory meta-rule
 
@@ -161,13 +219,17 @@ Added 2026-04 (reorg):
 
 Single source of truth: [`.agents/guides/05_plotting/`](.agents/guides/05_plotting/README.md).
 
-Six rules at a glance:
+Eight rules at a glance:
 1. **Shared legends → figure-level**, not axis-level. Use
    `fig.legend(loc="lower center", bbox_to_anchor=(0.5, -0.04),
    ncol=len(handles), frameon=False)` — or
    `lrg_eegfc.visuals.layout.figure_legend(...)`.
 2. **Colorbars → `imshow_colorbar_caxdivider`** from
    `lrgsglib.plotlib`. Never `fig.colorbar` on multi-axis grids.
+   For LogNorm colorbars end with
+   `_apply_factored_sci_format(clb, axis_orientation=...)` (from
+   `lrg_eegfc.visuals.fc_templates`) — kills inline `2 × 10ⁿ`
+   mantissa labels in both <1.5-decade and ≥1.5-decade regimes.
 3. **Multi-axis layout → figure-level decoration.** Titles, legends,
    colorbars, shared axis labels go on the *figure*.
 4. **Library-first.** Check `lrgsglib.plotlib` and `lrg_eegfc.visuals`
@@ -181,6 +243,13 @@ Six rules at a glance:
 7. **No watermark / provenance footer by default.** The file name
    is the provenance. Watermark is opt-in (`watermark=True` kwarg,
    or `add_provenance_footer(fig, label)`).
+8. **Activate the project mplstyle** at the top of every figure
+   script:
+   `from lrg_eegfc.visuals.styles import use_lrg_style; use_lrg_style()`.
+   Single source: `src/lrg_eegfc/visuals/styles/lrg_eegfc.mplstyle`
+   (font sizes, tick widths, `pdf.fonttype=42` TrueType embed).
+   For one-off overrides use `with rc_context({...}):` — never edit
+   the mplstyle for a single figure.
 
 **Per-class templates** (read before writing FC / dendrogram / etc. figures):
 - `.agents/guides/05_plotting/fc_templates/` — FC adjacency matrices
@@ -293,8 +362,10 @@ Full layout + vendor → canonical mapping + per-patient quirks:
 3. **Per-patient quirks** in [`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md) §6.
    Cohort locked at n=10 on 2026-04-25 (Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15)
    after Pat_14 vendor `task_test` replacement; n=9 snapshot 2026-04-22.
-4. **Pat_03 outlier (negative control):** 1024 Hz (others 2048 Hz). MSC 3× higher.
-   Include in analyses, mark distinctly in figures, report values separately.
+4. **Pat_03 sampling rate:** 1024 Hz (others 2048 Hz). Handled at the
+   config layer via `nperseg_for_fs(fs)` and `FS_OVERRIDES` in
+   `config/const.py`. Pat_03 is a full cohort member; do not treat as
+   outlier and do not run dropout sensitivity tests. (Updated 2026-05-18.)
 5. **Same-probe MSC bias:** contacts on the same sEEG probe have trivially
    high MSC (2–8× higher). Dominates LRG community structure at coarse
    scales. Any community-level analysis must verify after zeroing same-probe

@@ -32,38 +32,36 @@ pointers: []
 
 ## Patient Inclusion / Exclusion
 
+**Cohort (locked 2026-04-25, n = 10):** Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15.
+
 | Patient | fs (Hz) | Phases available | Status |
 |---------|---------|-----------------|--------|
-| Pat_02 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
-| Pat_03 | **1024** | rest_pre, task_learn, task_test, rest_post | **EXCLUDED** — see below |
-| Pat_05 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
-| Pat_06 | 2048 | rest_pre, rest_post only (no task) | excluded from task analyses |
-| Pat_07 | 2048 | rest_pre, task_learn, rest_post (no task_test) | **included** (task_learn only) |
-| Pat_08 | 2048 | rest_pre, task_learn, task_test, rest_post | **included** |
+| Pat_02 | 2048 | rest_pre, task_learn, task_test, rest_post | included |
+| Pat_03 | **1024** | rest_pre, task_learn, task_test, rest_post | included |
+| Pat_05 | 2048 | rest_pre, task_learn, task_test, rest_post | included |
+| Pat_06 | 2048 | rest_pre, task_learn, task_test, rest_post | included (data-layout §6: phases backfilled 2026-04-22) |
+| Pat_07 | 2048 | rest_pre, task_learn, task_test, rest_post | included |
+| Pat_08 | 2048 | rest_pre, task_learn, task_test, rest_post | included |
+| Pat_10 | 2048 | rest_pre, task_learn, task_test, rest_post | included (task rows [53, 54, 55] dropped at load) |
+| Pat_13 | 2048 | rest_pre, task_learn, task_test, rest_post | included (rest_pre vendor-replaced 2026-04-23) |
+| Pat_14 | 2048 | rest_pre, task_learn, task_test, rest_post | included (task_test vendor-replaced 2026-04-25) |
+| Pat_15 | 2048 | rest_pre, task_learn, task_test, rest_post | included |
 
-### Pat_03 exclusion rationale
+### Pat_03 sampling-rate handling (NOT exclusion)
 
-Pat_03 is excluded from all final group-level analyses because:
+Pat_03 is acquired at 1024 Hz (every other patient at 2048 Hz). The
+sampling-rate difference is absorbed **at the config layer only** —
+`nperseg_for_fs(fs)` returns `nperseg = 2048` for Pat_03 versus
+`nperseg = 4096` for the 2048 Hz patients, so the Welch-segment
+duration (≈ 2 seconds) is the same. `FS_OVERRIDES` in
+`config/const.py` pins Pat_03's `fs = 1024`.
 
-1. **Different sampling rate (1024 Hz vs 2048 Hz):** MSC estimation is frequency-dependent.
-   The coherence null distribution, surrogate thresholds, and frequency resolution all
-   depend on fs. Cross-comparing MSC matrices computed at different sampling rates is
-   not methodologically sound.
-2. **Abnormally dense FC:** Pat_03's mean MSC coherence is 3× higher than any other patient
-   (0.177 vs 0.064), with near-zero sparsity after soft thresholding. This holds regardless
-   of nperseg correction (nperseg=2048 at 1024 Hz gives the same values as nperseg=4096).
-3. **Unstable LRG hierarchies:** The dense FC produces hierarchies that drift randomly across
-   phases rather than retaining structured reorganization patterns. Pat_03's rest_post drifts
-   in a third direction (not toward task, not staying at rest_pre).
-
-Pat_03 is kept in ALL analyses as a **negative control / documented outlier**. When
-Pat_03 diverges from the group pattern, this is expected and validates the method's
-sensitivity to data quality. Always include Pat_03 in figures (marked distinctly) and
-report its values separately.
-
-Standard patient list: `["Pat_02", "Pat_03", "Pat_05", "Pat_07", "Pat_08"]`.
-For analyses requiring all 4 phases: `["Pat_02", "Pat_03", "Pat_05", "Pat_08"]`.
-When reporting group statistics, report both with and without Pat_03 where relevant.
+**At the analysis level, Pat_03 is identical to every other cohort
+member.** There is no separate patient list, no dropout sensitivity
+test, no figure marker distinguishing Pat_03, no "report values
+separately" rule. The previous "EXCLUDED / negative control / 3×
+denser FC" framing was retired on 2026-05-18; the sampling-rate
+difference does not propagate beyond the config layer.
 
 ### nperseg and sampling rate
 

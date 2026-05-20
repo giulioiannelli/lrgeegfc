@@ -19,7 +19,7 @@ pointers:
 source of truth for plot style, layout, colorbars, legends, fonts, and
 file output in the `lrgeegfc` repo.
 
-## TL;DR — seven rules
+## TL;DR — eight rules
 
 1. **Shared legends → figure-level, not axis-level.** Use
    `fig.legend(loc="lower center", bbox_to_anchor=(0.5, -0.02),
@@ -52,6 +52,16 @@ file output in the `lrgeegfc` repo.
    (or call `add_provenance_footer(fig, ...)`) when the figure will
    be detached from its file name. The file name itself is the
    provenance.
+8. **Activate the project mplstyle.** Call
+   `from lrg_eegfc.visuals.styles import use_lrg_style; use_lrg_style()`
+   at the top of every figure script (after imports, before the first
+   `subplots`). It pins font sizes, tick widths, and `pdf.fonttype=42`
+   (TrueType-embedded PDFs). Single source:
+   [`src/lrg_eegfc/visuals/styles/lrg_eegfc.mplstyle`](../../../src/lrg_eegfc/visuals/styles/lrg_eegfc.mplstyle).
+   Do not redefine these defaults inline; do not edit the mplstyle for
+   one-off needs (use `with rc_context({...}):` instead). For LogNorm
+   colorbars, end with `_apply_factored_sci_format(clb, ...)` — see
+   [`colormaps-and-styles.md`](colormaps-and-styles.md#lognorm-colorbar-tick-policy).
 
 ## File map
 
