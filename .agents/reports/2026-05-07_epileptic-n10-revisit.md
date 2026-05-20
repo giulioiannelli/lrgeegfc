@@ -379,6 +379,34 @@ layer (which has no notion of subtree).
   is a per-measure-significant finding; for a manuscript claim it
   needs explicit caveat.
 
+**Direction A follow-up (2026-05-08): band-resolved cross-phase
+phenomenology.** The induced-subtree analysis at
+[`.agents/reports/2026-05-08_direction-a-induced-subtree.md`](2026-05-08_direction-a-induced-subtree.md)
+reveals a structured per-band signature on the epi-induced subtree
+(scope at
+[`.agents/guides/task-persistence-investigation/2026-05-08_epi-cross-phase-rigidity.md`](../guides/task-persistence-investigation/2026-05-08_epi-cross-phase-rigidity.md)).
+Three regularities pass the IQR > 20% × |median| floor:
+
+| (band, λ) | direction | %IQR | reading |
+|---|---|---|---|
+| **δ / λ=1** | **RESET (7/9)** | **75%** | strongest cohort effect — epi heights at slow rhythm shift in task and revert |
+| **β / λ=1** | **RESET (6/9)** | **43%** | epi heights reset at the same band where the global cohort network TRACES (Result 2) — band-specific functional dissociation |
+| **α / λ=0, 0.5** | **TRACE (5/9, 5/9)** | **55%, 58%** | α-topology of the epi sub-network reorganises and persists |
+
+The β-dissociation is the new theoretical headline: the global β
+trace (Result 2, 10/10 patients) is carried by the *non-epi* part
+of the network — within the epi sub-network at β/λ=1, the heights
+revert. Direct testable consequence: subtracting the epi nodes from
+the global tree should sharpen the Section 5 β trace.
+
+The fig_05 α-topology cell (8/9 p=0.006 under pair-mask) attenuates
+to 5/9 trace under the induced subtree (still trace direction at
+55% of IQR). The γ_l/λ=1 cell replicates identically (7/9 in both
+operationalisations, small amplitude). The cross-probe δ-enrichment
+headline (1.55×, edge magnitude) is unaffected — it is the
+*magnitude* of the coupling and lives at a different layer than
+the cross-phase signature.
+
 ---
 
 ## Bottleneck and downstream
@@ -440,3 +468,105 @@ trace pattern in α-topology (8/9 patients, p=0.006) and γ_l-heights
 trace at the global network level. The β finding from the n=5 era is
 retired; the n=9 picture is a δ-broadband edge-magnitude story plus
 a localized α/γ_l hierarchical reorganization story.
+
+---
+
+## Audience verdict — for an epilepsy reader
+
+**The δ-band cross-probe finding is a confirmation, not a discovery.**
+Slow / delta hypersynchrony in and around the epileptogenic zone is
+already a well-established marker (Bartolomei, Wendling, Spencer et
+al., two decades of literature). A 1.5× cross-probe ratio is real but
+unremarkable in effect size, and the band (δ) is exactly the band the
+literature already flags. We have not added a new phenomenon.
+
+What this report contributes is methodologically tighter rather than
+phenomenologically new:
+
+- **Volume-conduction-immune by construction.** |ImCoh| (Nolte 2004
+  phase-lag suppression) kills the zero-lag confound that affects
+  scalp EEG / MEG studies; we further restrict to *cross-probe* pairs
+  in sEEG, eliminating the same-electrode-shaft confound. So the
+  same δ phenomenon is shown with two layers of confound control on
+  top of what the field usually has.
+- **Direct intracranial cohort, n=9.** Most prior literature is scalp
+  EEG / MEG; sEEG cohorts are typically 5–10. We confirm the slow-band
+  hypersynchrony marker at the upper end of that range with a
+  reproducible pipeline.
+- **A useful sanity check for the methods paper.** If the LRG framework
+  is published as a tool, this finding is the "method recovers known
+  epilepsy biology" check that reviewers ask for. It belongs in a
+  short section, not a headline.
+
+What this is **not**:
+
+- Not a clinical biomarker. Effect size 1.5×, per-patient
+  heterogeneity high.
+- Not a multi-hop information-shortcut story. The LRG ρ̂ at τ_max
+  passes the raw |ImCoh| ratio through unchanged; the τ-sweep
+  monotonically decays to 1. No τ regime where epi-tissue acts as a
+  network shortcut.
+- Not an LRG-specific result. The dendrogram MRCA tightness (fig_04)
+  and the dendrogram-based view (fig_06) are consistent with the same
+  δ-coupling story viewed through a clustering lens — they confirm
+  but do not add an independent signal.
+- Not Bonferroni-surviving against Section-5 joint corrections. The
+  α/topology epi-subtree trace (p=0.006) and γ_l/heights (p=0.037)
+  survive within-panel BH-FDR but would not survive joint correction
+  against the Section-5 controls (m=42–48).
+
+**One-line for an epilepsy talk or paper paragraph**:
+
+> *"We confirm, with intracranial sEEG recordings and a
+> volume-conduction-immune connectivity measure, that epileptic
+> contacts on different probes are about 1.5× more strongly coupled
+> in the delta band than non-epileptic contacts (n=9, p<10⁻⁴). The
+> renormalised heat-kernel communicability passes this raw enrichment
+> through unchanged; LRG does not reveal an additional multi-hop
+> information-shortcut beyond what local edge magnitudes already say."*
+
+---
+
+## Forward look — what would be a real finding?
+
+**The LRG framework has communication-path information that current
+epilepsy literature has not exploited. Four directions could yield
+something genuinely new (full scope and decision rules in
+[`.agents/plans/active/2026-05-08_lrg-epilepsy-research-directions.md`](../plans/active/2026-05-08_lrg-epilepsy-research-directions.md)).**
+
+Ranked by expected novelty × feasibility:
+
+1. **Cross-phase rigidity of the epileptic sub-network**
+   ("are epi nodes anchors while the rest of the brain traces?").
+   Restrict the Section-5 trace / anchor / reset / emergent taxonomy
+   to epi-induced leaf sets. Tests an intuitive but rarely-tested
+   hypothesis (epileptic networks are pathologically rigid across
+   cognitive states). **Strongest** because it leverages our unique
+   3-phase setup (rest_pre / task / rest_post) which is rare in the
+   epilepsy literature.
+
+2. **Virtual resection in LRG ρ̂ at the task-emergent scale**.
+   Compute global and pair-wise communicability before vs after
+   removing the epi set, at τ where the cohort dendrogram structure
+   stabilizes. Predicts which patients have epi-as-critical-relay vs
+   epi-as-redundant. Connects directly to surgical-outcome literature
+   (Kini 2019, Sinha 2017, Jirsa 2017) but uses path-integrated ρ̂
+   instead of raw FC.
+
+3. **Eigenmode localization on the epi set** (inverse participation
+   ratio of L̂ eigenmodes restricted to epi nodes). Borrows from
+   solid-state physics (Anderson localisation). If specific modes are
+   sharply localised on the epi set at characteristic eigenvalues,
+   that is a fundamentally new descriptor of the epileptic network's
+   communication structure. Does not require cross-phase data.
+
+4. **ρ̂-leakage → propagation-zone candidates**. For each non-epi
+   node, what fraction of its total communicability flows into the
+   epi set? Identifies non-epi nodes most coupled to the epileptic
+   network — candidate Propagation Zone (PZ) nodes (Bartolomei
+   sEEG-PZ literature). Per-patient figure with anatomical
+   localisation. Most clinically interpretable.
+
+The δ cross-probe finding survives any of these as the "known-biology
+sanity check"; the four directions are layered on top, not
+replacements for it.
