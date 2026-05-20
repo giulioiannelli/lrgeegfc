@@ -261,53 +261,35 @@ def probe_boundaries(sorted_probes: Sequence[str]) -> list[int]:
 # Same-probe block outlines on heatmaps
 # ---------------------------------------------------------------------------
 
+from lrg_eegfc.visuals.fc_templates import (
+    draw_probe_outlines as _lib_draw_probe_outlines,
+)
+
+
 def draw_probe_outlines(
     ax,
     channel_labels: Sequence[str],
     sort_idx: NDArray | None = None,
-    color: str = "#FFD600",
+    color: str = "cyan",
     lw: float = 1.0,
     alpha: float = 0.8,
 ):
-    """Draw thin rectangles around same-probe blocks on a matrix heatmap.
+    """Backwards-compatible thin wrapper.
 
-    Parameters
-    ----------
-    ax : matplotlib Axes
-        The axes containing an imshow heatmap.
-    channel_labels : sequence of str
-        Channel labels (in the original order of the matrix).
-    sort_idx : NDArray, optional
-        If the matrix was reordered via ``mat[sort_idx][:, sort_idx]``,
-        provide the sort indices so outlines match.
-    color : str
-        Outline color (default yellow).
-    lw : float
-        Line width.
-    alpha : float
-        Transparency.
+    Promoted to :func:`lrg_eegfc.visuals.draw_probe_outlines` on
+    2026-05-10 (second-caller rule). New scripts should import the
+    library version directly:
+
+        from lrg_eegfc.visuals import draw_probe_outlines
+
+    The wrapper preserves the original positional ``sort_idx`` for
+    legacy callers in this folder.
     """
-    from matplotlib.patches import Rectangle
-
-    probes = extract_probe_labels(channel_labels)
-    if sort_idx is not None:
-        probes = [probes[i] for i in sort_idx]
-
-    N = len(probes)
-    i = 0
-    while i < N:
-        j = i + 1
-        while j < N and probes[j] == probes[i]:
-            j += 1
-        size = j - i
-        if size > 1:
-            rect = Rectangle(
-                (i - 0.5, i - 0.5), size, size,
-                fill=False, edgecolor=color, linewidth=lw, alpha=alpha,
-                zorder=10,
-            )
-            ax.add_patch(rect)
-        i = j
+    _lib_draw_probe_outlines(
+        ax, channel_labels,
+        sort_idx=sort_idx,
+        color=color, lw=lw, alpha=alpha,
+    )
 
 
 # ---------------------------------------------------------------------------
