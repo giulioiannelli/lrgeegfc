@@ -27,6 +27,17 @@ import numpy as np
 import pandas as pd
 from scipy.cluster.hierarchy import dendrogram
 
+# Centralized font sizing — change here, propagates everywhere.
+# (Per-call fontsize=... overrides still take precedence if needed.)
+plt.rcParams.update({
+    "font.size": 12,
+    "axes.labelsize": 14,
+    "axes.titlesize": 14,
+    "xtick.labelsize": 12,
+    "ytick.labelsize": 12,
+    "legend.fontsize": 12,
+})
+
 from lrg_eegfc.utils.scripting import setup_script_env
 
 ROOT = setup_script_env()
@@ -82,12 +93,15 @@ def redo1_psi_irrelevance() -> None:
     rep_pat, rep_band, rep_phase = "Pat_02", "beta", "rest_pre"
     res = load_lrg_result(rep_pat, rep_phase, rep_band, fc_method="imcoh_abs")
     Z = np.asarray(res.linkage_matrix)
-    heights = np.sort(Z[:, 2])
+    # Top-down indexing (Villegas convention): n=0 is the first cut from the
+    # root (largest merge), n=N-2 is the last (smallest leaf-pair merge), so
+    # the first Ψ peak corresponds to the highest cut in the dendrogram.
+    heights = np.sort(Z[:, 2])[::-1]
     n = len(heights)
     psi = np.zeros(n - 1)
     for i in range(n - 1):
         if heights[i] > 0 and heights[i + 1] > 0:
-            psi[i] = n * (np.log10(heights[i + 1]) - np.log10(heights[i]))
+            psi[i] = n * (np.log10(heights[i]) - np.log10(heights[i + 1]))
     argmax_n = int(np.argmax(psi))
     cut_h = float(np.sqrt(heights[argmax_n] * heights[argmax_n + 1]))
 
@@ -114,11 +128,12 @@ def redo1_psi_irrelevance() -> None:
     )
     ax_d.axhline(cut_h, color="#c0392b", lw=1.2, ls="--",
                  label=f"Ψ-best cut h = {cut_h:.3f}")
-    ax_d.set_yscale("log")
-    tmin = max(heights[0] * 0.8, 1e-6)
-    tmax = heights[-1] * 1.05
+    h_min = float(heights[-1])  # smallest merge (bottom of tree)
+    h_max = float(heights[0])   # largest merge (root)
+    tmin = 0.0
+    tmax = h_max * 1.05
     ax_d.set_ylim(tmin, tmax)
-    ax_d.set_ylabel("merge height (log)")
+    ax_d.set_ylabel("merge height")
 
     n_leaves = len(dd["leaves"])
     ax_d.set_xlim(0, 10 * n_leaves)
@@ -147,11 +162,11 @@ def redo1_psi_irrelevance() -> None:
     leaves_in_order = dd["leaves"]
 
     # Force a draw so transforms are valid, then measure a probe label's
-    # display-pixel height and convert it to a multiplicative log-y factor
-    # (constant across the log axis: a fixed pixel height → fixed log-delta).
+    # display-pixel height and convert it to an additive linear-y offset
+    # (constant across the linear axis: a fixed pixel height → fixed Δy).
     fig.canvas.draw()
     renderer = fig.canvas.get_renderer()
-    y_probe = float(np.sqrt(tmin * tmax))
+    y_probe = 0.5 * (tmin + tmax)
     probe = ax_d.text(
         5.0, y_probe, "Wg99", fontsize=DEND_LABEL_FONTSIZE, ha="center",
         va="center",
@@ -163,11 +178,10 @@ def redo1_psi_irrelevance() -> None:
     _, y_top_data = inv.transform((0, bb_px.y1))
     _, y_bot_data = inv.transform((0, bb_px.y0))
     probe.remove()
-    # On a log axis, a fixed display-pixel height corresponds to a fixed
-    # multiplicative factor between data values. Raise it to the configured
-    # number of label-heights to keep the drop in display (visual) units,
-    # independent of where on the log axis we are.
-    label_drop_factor = float((y_bot_data / y_top_data) ** DEND_LABEL_DROP_HEIGHTS)
+    # On a linear axis, a fixed display-pixel height corresponds to a fixed
+    # additive Δ in data units. Multiply by the configured number of
+    # label-heights to keep the drop in display (visual) units.
+    label_drop_delta = float((y_top_data - y_bot_data) * DEND_LABEL_DROP_HEIGHTS)
 
     prev_y_parent = None
     prev_dropped = False
@@ -178,7 +192,7 @@ def redo1_psi_irrelevance() -> None:
                 and y_parent == prev_y_parent
                 and not prev_dropped)
         y_high = y_parent * DEND_LABEL_Y_FRAC
-        y_text = y_high * label_drop_factor if drop else y_high
+        y_text = (y_high - label_drop_delta) if drop else y_high
         label = leaf_labels[leaf_idx] if leaf_idx < len(leaf_labels) else str(leaf_idx)
         ax_d.text(
             x_leaf, y_text, label, rotation=0, ha="center", va="center",
@@ -189,30 +203,25 @@ def redo1_psi_irrelevance() -> None:
         prev_y_parent = y_parent
         prev_dropped = drop
 
-    ax_d.legend(fontsize=8, loc="upper left", frameon=False)
+    ax_d.legend(loc="upper right", frameon=False)
 
     idx = np.arange(n)
-    line_h, = ax_h.semilogy(idx, heights, color="#1f4e79", lw=1.4,
-                            label=r"merge height $t_n$")
+    line_h, = ax_h.plot(idx, heights, color="#1f4e79", lw=1.4,
+                        label=r"merge height $t_n$")
     ax_h.axvline(argmax_n, color="#c0392b", lw=0.7, ls=":")
-    ax_h.set_xlabel("merge index $n$")
-    ax_h.set_ylabel(r"merge height $t_n$ (log)", color="#1f4e79")
+    ax_h.set_xlabel("merge index $n$ (top-down: $n=0$ is the root cut)")
+    ax_h.set_ylabel(r"merge height $t_n$", color="#1f4e79")
     ax_h.tick_params(axis="y", labelcolor="#1f4e79")
+    ax_h.set_ylim(0.0, h_max * 1.05)
 
     line_p, = ax_p.plot(np.arange(n - 1), psi, color="#c0392b", lw=1.0,
                         label=r"$\Psi(n)$")
     psi_max = float(np.max(psi))
     ax_p.scatter([argmax_n], [psi[argmax_n]], color="#c0392b", s=30, zorder=5)
-    ax_p.text(0.97, 0.95,
-              f"argmax $n$ = {argmax_n} (of $N-2$ = {n - 2})",
-              ha="right", va="top", fontsize=8, color="#c0392b",
-              transform=ax_p.transAxes,
-              bbox=dict(facecolor="white", edgecolor="none", alpha=0.85, pad=2))
-    ax_p.set_ylabel(r"$\Psi(n) = N\,[\log_{10} t_{n+1} - \log_{10} t_n]$",
+    ax_p.set_ylabel(r"$\Psi(n) = N\,[\log_{10} t_n - \log_{10} t_{n+1}]$",
                     color="#c0392b")
     ax_p.tick_params(axis="y", labelcolor="#c0392b")
-    ax_h.legend(handles=[line_h, line_p], loc="upper left", fontsize=8,
-                frameon=False)
+    ax_h.legend(handles=[line_h, line_p], loc="upper center", frameon=False)
 
     fig.savefig(FIG / "psi_irrelevance.pdf", bbox_inches="tight")
     plt.close(fig)
@@ -234,67 +243,117 @@ def redo2_psi_boundary_audit() -> tuple[int, int, float]:
                     rows.append({
                         "patient": pat, "band": band, "phase": phi,
                         "argmax_n": np.nan, "N_leaves": np.nan,
-                        "psi_max": np.nan, "boundary_flag": np.nan,
+                        "psi_max": np.nan, "argmax_position_class": "",
                         "error": str(e),
                     })
                     continue
-                heights = np.sort(Z[:, 2])
+                # Top-down (descending) convention: n=0 = root cut,
+                # n=N-3 = leaf-pair cut. Matches redo1_psi_irrelevance.
+                heights = np.sort(Z[:, 2])[::-1]
                 N = len(heights) + 1  # number of leaves
                 n_psi = len(heights) - 1  # Ψ defined for n in [0, N-3]
                 psi = np.zeros(n_psi)
                 for i in range(n_psi):
                     if heights[i] > 0 and heights[i + 1] > 0:
-                        psi[i] = N * (np.log10(heights[i + 1]) - np.log10(heights[i]))
+                        psi[i] = N * (np.log10(heights[i]) - np.log10(heights[i + 1]))
                 am = int(np.argmax(psi)) if len(psi) else -1
-                # boundary def: n ≤ 2 or n ≥ N − 3
-                is_boundary = (am <= 2) or (am >= (N - 3))
+                if am == 0:
+                    cls = "top_cut"
+                elif am == n_psi - 1:
+                    cls = "bottom_cut"
+                else:
+                    cls = "interior"
                 rows.append({
                     "patient": pat, "band": band, "phase": phi,
                     "argmax_n": am, "N_leaves": N,
                     "psi_max": float(psi[am]) if len(psi) else np.nan,
-                    "boundary_flag": int(is_boundary),
+                    "argmax_position_class": cls,
                     "error": "",
                 })
     df = pd.DataFrame(rows)
-    df.to_csv(TBL / "psi_boundary_audit.csv", index=False)
+    df.to_csv(TBL / "psi_argmax_pinning.csv", index=False)
 
-    valid = df["boundary_flag"].notna()
+    valid = df["argmax_position_class"].isin(["top_cut", "bottom_cut", "interior"])
     n_total = int(valid.sum())
-    n_boundary = int(df.loc[valid, "boundary_flag"].sum())
-    pct = 100.0 * n_boundary / n_total if n_total else float("nan")
+    n_top = int((df["argmax_position_class"] == "top_cut").sum())
+    n_bottom = int((df["argmax_position_class"] == "bottom_cut").sum())
+    n_interior = int((df["argmax_position_class"] == "interior").sum())
+    n_pinned = n_top + n_bottom
+    pct = 100.0 * n_pinned / n_total if n_total else float("nan")
 
-    # Per-band & per-patient summaries
-    by_band = (
-        df[valid].groupby("band")["boundary_flag"].agg(
-            n_cells="count", n_boundary="sum",
-        ).reset_index()
-    )
-    by_band["pct_boundary"] = 100.0 * by_band["n_boundary"] / by_band["n_cells"]
-    by_band.to_csv(TBL / "psi_boundary_by_band.csv", index=False)
+    # Per-band & per-patient summaries (per-class counts)
+    def class_counts(group_col: str) -> pd.DataFrame:
+        sub = df[valid].copy()
+        ct = sub.groupby([group_col, "argmax_position_class"]).size().unstack(fill_value=0)
+        for col in ("top_cut", "bottom_cut", "interior"):
+            if col not in ct.columns:
+                ct[col] = 0
+        ct = ct[["top_cut", "bottom_cut", "interior"]]
+        ct["n_cells"] = ct.sum(axis=1)
+        ct["pct_pinned"] = 100.0 * (ct["top_cut"] + ct["bottom_cut"]) / ct["n_cells"]
+        return ct.reset_index()
 
-    by_pat = (
-        df[valid].groupby("patient")["boundary_flag"].agg(
-            n_cells="count", n_boundary="sum",
-        ).reset_index()
-    )
-    by_pat["pct_boundary"] = 100.0 * by_pat["n_boundary"] / by_pat["n_cells"]
-    by_pat.to_csv(TBL / "psi_boundary_by_patient.csv", index=False)
+    by_band = class_counts("band")
+    by_band.to_csv(TBL / "psi_argmax_pinning_by_band.csv", index=False)
+    by_pat = class_counts("patient")
+    by_pat.to_csv(TBL / "psi_argmax_pinning_by_patient.csv", index=False)
 
-    # Histogram of normalized argmax_n positions
-    fig, ax = plt.subplots(figsize=(7.5, 4.0))
+    # Histogram: integer-resolution distribution of argmax_n folded onto
+    # distance-from-nearest-extremum, stacked by which extremum is nearer
+    # (top = root cut at n=0; bottom = leaf-pair cut at n=N-3). Cells with
+    # argmax beyond the window are summarized in a deep-interior badge.
     sub = df[valid].copy()
-    sub["argmax_norm"] = sub["argmax_n"] / (sub["N_leaves"] - 2)
-    ax.hist(sub["argmax_norm"].values, bins=40, color="#c0392b", alpha=0.7,
-            edgecolor="#444")
-    ax.axvspan(0.0, 2.0 / sub["N_leaves"].median(), color="#c0392b", alpha=0.10)
-    ax.axvspan(1.0 - 2.0 / sub["N_leaves"].median(), 1.0, color="#c0392b", alpha=0.10)
-    ax.set_xlabel(r"normalized argmax position $n / (N-2)$")
-    ax.set_ylabel("# (patient, band, phase) cells")
+    am_all = sub["argmax_n"].astype(int).values
+    N_arr = sub["N_leaves"].astype(int).values
+    top_dist = am_all
+    bot_dist = (N_arr - 3) - am_all
+    nearer_top = top_dist <= bot_dist
+    min_dist = np.where(nearer_top, top_dist, bot_dist)
+
+    WINDOW = 12
+    mask_in = min_dist <= WINDOW
+    top_d = min_dist[nearer_top & mask_in]
+    bot_d = min_dist[(~nearer_top) & mask_in]
+    n_top0 = int(np.sum(nearer_top & (min_dist == 0)))
+    n_bot0 = int(np.sum((~nearer_top) & (min_dist == 0)))
+    n_deep = int((min_dist > WINDOW).sum())
+
+    fig, ax = plt.subplots(figsize=(8.0, 4.5))
+    bins = np.arange(-0.5, WINDOW + 1.5)
+    ax.hist(
+        [top_d, bot_d], bins=bins, stacked=True,
+        color=["#5B7CE0", "#c0392b"],
+        label=[r"nearer root cut ($n=0$): "f"{int((nearer_top).sum())}",
+               r"nearer leaf-pair cut ($n=N-3$): "f"{int((~nearer_top).sum())}"],
+        edgecolor="white", linewidth=0.7,
+    )
+    # Annotate the d=0 split
+    ax.annotate(f"{n_top0} | {n_bot0}", xy=(0, n_top0 + n_bot0),
+                xytext=(0, n_top0 + n_bot0 + 4), ha="center",
+                fontsize=11, color="#222")
+
+    ax.set_xlim(-0.5, WINDOW + 0.5)
+    ax.set_xticks(range(0, WINDOW + 1))
+    ax.set_xlabel(r"$d$ = distance of argmax from nearest extremum"
+                  " (merge indices)")
+    ax.set_ylabel(f"# cells (of {len(sub)})")
+    ax.legend(frameon=False, loc="upper right")
+
+    if n_deep:
+        ax.text(WINDOW * 0.62, ax.get_ylim()[1] * 0.55,
+                f"$d > {WINDOW}$: {n_deep} cell"
+                + ("s" if n_deep != 1 else ""),
+                fontsize=11, color="#444",
+                bbox=dict(facecolor="white", edgecolor="#888",
+                          boxstyle="round,pad=0.35"))
     fig.tight_layout()
     fig.savefig(FIG / "psi_argmax_histogram.pdf", bbox_inches="tight")
+    fig.savefig(FIG / "psi_argmax_histogram.png", bbox_inches="tight", dpi=200)
     plt.close(fig)
-    print(f"[redo2] {n_boundary}/{n_total} cells boundary-pinned ({pct:.1f}%)")
-    return n_boundary, n_total, pct
+    print(f"[redo2] {n_pinned}/{n_total} cells pinned at boundary "
+          f"(top_cut={n_top}, bottom_cut={n_bottom}, interior={n_interior}) "
+          f"[{pct:.1f}% pinned]")
+    return n_pinned, n_total, pct
 
 
 # ===================================================================
@@ -397,11 +456,14 @@ def redo3_kc_decomposition() -> None:
     x = np.arange(len(R))
     w = 0.36
     band_list = list(R["band"])
-    # β bars in red; rest muted blue/orange
-    col_lam0 = ["#c0392b" if b == "beta" else "#a8c2dc" for b in band_list]
-    col_lam1 = ["#c0392b" if b == "beta" else "#e6c79a" for b in band_list]
-    edge_lam0 = ["#7d1a0e" if b == "beta" else "#3a5e7e" for b in band_list]
-    edge_lam1 = ["#7d1a0e" if b == "beta" else "#9a7434" for b in band_list]
+    # Color each bar by its own per-(band, λ) significance: red if p ≤ 0.05,
+    # otherwise the steel-blue (λ=0) / warm-rust (λ=1) Tableau pair.
+    p_top_by = {row["band"]: float(row["p_topology"]) for _, row in R.iterrows()}
+    p_h_by = {row["band"]: float(row["p_heights"]) for _, row in R.iterrows()}
+    col_lam0 = ["#c0392b" if p_top_by[b] <= 0.05 else "#4C72B0" for b in band_list]
+    col_lam1 = ["#c0392b" if p_h_by[b] <= 0.05 else "#DD8452" for b in band_list]
+    edge_lam0 = ["#7d1a0e" if p_top_by[b] <= 0.05 else "#2F4A78" for b in band_list]
+    edge_lam1 = ["#7d1a0e" if p_h_by[b] <= 0.05 else "#9C5B36" for b in band_list]
     bars0 = ax_r.bar(x - w / 2, R["n_trace_lam0"], width=w,
                      color=col_lam0, edgecolor=edge_lam0, lw=0.8,
                      label=r"$\lambda=0$ (topology)")
@@ -424,14 +486,12 @@ def redo3_kc_decomposition() -> None:
                   str(int(v)), ha="center", va="bottom", fontsize=8.5,
                   color="0.15")
 
-    # Significance asterisks above β bars
-    if j_beta is not None:
-        p_top_beta = float(R[R["band"] == "beta"]["p_topology"].iloc[0])
-        p_h_beta = float(R[R["band"] == "beta"]["p_heights"].iloc[0])
-        for off, p in [(-w / 2, p_top_beta), (+w / 2, p_h_beta)]:
+    # Significance asterisks above every bar with p ≤ 0.05.
+    for j, b in enumerate(band_list):
+        for off, p in [(-w / 2, p_top_by[b]), (+w / 2, p_h_by[b])]:
             stars = asterisks(p)
             if stars:
-                ax_r.text(j_beta + off, 9.5, stars, ha="center", va="bottom",
+                ax_r.text(j + off, 9.5, stars, ha="center", va="bottom",
                           fontsize=12, fontweight="bold", color="#7d1a0e")
 
     ax_r.set_xticks(x)
@@ -444,21 +504,24 @@ def redo3_kc_decomposition() -> None:
     ax_r.spines[["top", "right"]].set_visible(False)
     ax_r.tick_params(axis="x", which="both", length=0)
 
-    # Legend for marker sig (panel a only)
+    # Marker-significance legend, vertical column inside the left panel.
+    # Placed above the "topology only" corner label in the empty SE region.
     handles = [
-        mlines.Line2D([], [], marker="o", linestyle="None", markersize=10,
+        mlines.Line2D([], [], marker="o", linestyle="None", markersize=9,
                       markerfacecolor="#c0392b", markeredgecolor="#c0392b",
-                      label=r"filled: $p \leq 0.05$ at $\lambda=0$ or $1$"),
-        mlines.Line2D([], [], marker="o", linestyle="None", markersize=10,
+                      label=r"$p \leq 0.05$"),
+        mlines.Line2D([], [], marker="o", linestyle="None", markersize=9,
                       markerfacecolor="white", markeredgecolor="#444",
-                      label=r"hollow: $p > 0.05$"),
-        mlines.Line2D([], [], marker="o", linestyle="None", markersize=12,
+                      label=r"$p > 0.05$"),
+        mlines.Line2D([], [], marker="o", linestyle="None", markersize=13,
                       markerfacecolor="#888", markeredgecolor="#444",
-                      label=r"size $\propto -\log_{10} p_{\min}$"),
+                      label=r"$\propto -\log_{10} p_{\min}$"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.30, -0.02),
-               ncol=3, frameon=False, fontsize=9)
-    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    ax.legend(handles=handles, loc="lower right",
+              bbox_to_anchor=(1.0, 0.08),
+              frameon=False, ncol=1,
+              handletextpad=0.5, labelspacing=0.6)
+    fig.tight_layout()
     fig.savefig(FIG / "kc_decomposition.pdf", bbox_inches="tight")
     plt.close(fig)
     print("[redo3] wrote kc_decomposition.pdf")
