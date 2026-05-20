@@ -33,6 +33,7 @@ from .fc_templates import (
     plot_fc_adjacency_grid,
     fc_method_colorbar_label,
     probe_groups,
+    draw_probe_outlines,
 )
 from .network_templates import (
     plot_fc_network,
@@ -85,6 +86,7 @@ __all__ = [
     "plot_fc_adjacency_grid",
     "fc_method_colorbar_label",
     "probe_groups",
+    "draw_probe_outlines",
     # Network-drawing templates
     "plot_fc_network",
     "plot_fc_network_row",

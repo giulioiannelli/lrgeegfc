@@ -23,10 +23,38 @@ __all__ = [
     "load_patient_metadata",
     "load_patient_dataset",
     "load_dataset",
+    "load_channel_labels",
     "load_epileptic_nodes",
     "bipolar_rereference",
     "parse_seeg_label",
 ]
+
+
+def load_channel_labels(
+    patient: str,
+    root_path: Path | str = SEEG_DATAPATH,
+) -> list[str]:
+    """Return cleaned channel labels for ``patient`` (matches FC-matrix ordering).
+
+    Reads ``<root>/<patient>/channel_labels.csv``; tolerates an optional
+    quoted ``"label"`` header, ``,G2`` reference suffixes, surrounding
+    quotes, and intra-label whitespace ("``A 1``" → "``A1``"). Returns
+    one entry per recorded channel in the same order used everywhere
+    else in the pipeline (FC matrices, LRG eigenvectors, anatomy CSVs).
+
+    Promoted to library 2026-05-08 — there were ≥ 9 private copies
+    across scripts/ before this; new callers should import this
+    instead of re-implementing.
+    """
+    csv_path = Path(root_path) / patient / "channel_labels.csv"
+    with open(csv_path) as fh:
+        first = fh.readline().strip().strip('"').strip("'")
+    skip = 1 if first.lower() == "label" else 0
+    df = pd.read_csv(csv_path, header=None, skiprows=skip)
+    return [
+        str(x).strip('"').split(",")[0].strip().replace(" ", "")
+        for x in df.iloc[:, 0]
+    ]
 
 
 @dataclass

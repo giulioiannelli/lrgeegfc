@@ -54,6 +54,13 @@ from .hypothesis import (
     bh_fdr,
     cluster_stats,
 )
+from .spectral import (
+    principal_angles,
+    chordal_distance,
+    chordal_from_angles,
+    grassmann_to_coord_subspace,
+    chordal_full_vs_resect,
+)
 
 __all__ = [
     "compute_vi",
@@ -95,4 +102,9 @@ __all__ = [
     "boot_ci_mean",
     "bh_fdr",
     "cluster_stats",
+    "principal_angles",
+    "chordal_distance",
+    "chordal_from_angles",
+    "grassmann_to_coord_subspace",
+    "chordal_full_vs_resect",
 ]

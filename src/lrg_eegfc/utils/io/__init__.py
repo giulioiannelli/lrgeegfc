@@ -5,6 +5,7 @@ from .loaders import load_data_dict, load_mat_pat_data
 from .patient import (
     PatientRecording,
     bipolar_rereference,
+    load_channel_labels,
     load_dataset,
     load_epileptic_nodes,
     load_patient_dataset,
@@ -28,6 +29,7 @@ __all__ = [
     "load_mat_pat_data",
     "PatientRecording",
     "bipolar_rereference",
+    "load_channel_labels",
     "load_dataset",
     "load_epileptic_nodes",
     "load_patient_dataset",

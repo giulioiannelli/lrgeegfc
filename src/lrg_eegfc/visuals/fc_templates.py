@@ -22,6 +22,7 @@ import numpy as np
 from matplotlib.colors import LogNorm
 
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
+from lrg_eegfc.utils.probe import probe_from_label
 from lrgsglib.plotlib.colorbars import imshow_colorbar_caxdivider
 
 
@@ -47,37 +48,29 @@ _ROW_CB_FRAC = 0.06
 
 
 def _apply_factored_sci_format(clb, *, axis_orientation: str = "vertical") -> None:
-    """Replace cb tick labels with mantissas + a single ``× 10ⁿ`` at the
-    cb edge.
+    """Clean LogNorm colorbar ticks: never inline ``2 × 10ⁿ`` minor labels.
 
-    Why this exists: matplotlib's default ``LogNorm`` cb on a narrow
-    dynamic range labels every minor tick inline as ``2 × 10⁻²``,
-    ``5 × 10⁻²``, …  Each label repeats the order of magnitude, takes
-    too much room, and dwarfs the major-tick labels of neighbour cbs
-    that span a wider range.  This helper picks 3 log-spaced ticks,
-    formats them as bare mantissas (``1``, ``3``, ``9``), and emits
-    one common ``× 10ⁿ`` at the right (vertical cb) or above the
-    rightmost edge (horizontal cb).
+    Two regimes:
 
-    No-op when ``vmax`` falls in matplotlib's "natural" range
-    (``10⁻² ≤ vmax < 10³``) — there the default formatter is fine.
+    - **< 1.5 decade span** — replace cb tick labels with 3 mantissas
+      (``1, 3, 9``) and emit a single ``× 10ⁿ`` above the cb. Matplotlib's
+      default would otherwise crowd inline ``2 × 10⁻²``, ``5 × 10⁻²``
+      labels that repeat the order of magnitude.
+    - **≥ 1.5 decade span** — keep the default ``10ⁿ`` major-tick labels,
+      but force the minor formatter to ``NullFormatter`` so the inline
+      ``2 × 10ⁿ`` mantissa labels never appear.
     """
     import math
+    from matplotlib.ticker import NullFormatter
     vmin, vmax = clb.mappable.get_clim()
     if vmin is None or vmax is None or vmax <= 0 or vmin >= vmax:
         return
+    minor_axis = (
+        clb.ax.xaxis if axis_orientation == "horizontal" else clb.ax.yaxis
+    )
+    minor_axis.set_minor_formatter(NullFormatter())
     oom = math.floor(math.log10(vmax))
-    # Factor whenever the log range spans less than one decade.  That
-    # is the regime where matplotlib's default ``LogFormatter`` falls
-    # back to inline minor-tick labels (``2 × 10⁻²``, ``5 × 10⁻²``,
-    # …); a single ``× 10ⁿ`` offset reads better.  Above one decade
-    # the default formatter already shows clean ``10ⁿ`` major-tick
-    # labels — leave it alone.
     log_range = math.log10(vmax) - math.log10(max(vmin, vmax * 1e-12))
-    # 1.5 decades is the empirical break-even: below this matplotlib's
-    # default fits at most 1–2 ``10ⁿ`` major ticks and pads with inline
-    # ``2 × 10ⁿ`` minor labels.  Above 1.5 decades we have ≥2 clean
-    # powers of 10 and the default formatter wins.
     if log_range >= 1.5:
         return
     log_min = math.log10(max(vmin, vmax * 1e-3))
@@ -177,6 +170,63 @@ def probe_groups(
     return groups
 
 
+def draw_probe_outlines(
+    ax,
+    channel_labels: Sequence[str],
+    *,
+    sort_idx: Optional[Sequence[int]] = None,
+    color: str = "cyan",
+    lw: float = 1.0,
+    alpha: float = 0.8,
+    min_size: int = 2,
+) -> None:
+    """Draw thin border-only rectangles around same-probe diagonal blocks.
+
+    Used as an overlay on FC / distance imshow panels to mark the
+    "same-probe" blocks that sit on the diagonal — i.e. groups of
+    consecutive contacts sharing the same probe prefix (``A``, ``B``, …).
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        Axis containing the imshow heatmap. Rectangles are added in
+        data coordinates so they align with the matrix cells.
+    channel_labels : sequence of str
+        Raw channel labels in the *original* (pre-sort) order of the
+        matrix (e.g. as loaded from ``channel_labels.csv``).
+    sort_idx : sequence of int, optional
+        If the matrix was reordered via ``mat[sort_idx][:, sort_idx]``,
+        pass the same indices so the outlines follow the new order.
+    color, lw, alpha : matplotlib styling for the rectangle borders.
+    min_size : int, default 2
+        Skip probe blocks of fewer than ``min_size`` contacts (single
+        contacts are not visible as a square anyway).
+
+    Promoted from ``scripts/01_compute/figures_for_notes/_shared.py``
+    on the second caller per the library-first rule.
+    """
+    from matplotlib.patches import Rectangle
+
+    probes = [probe_from_label(l) for l in channel_labels]
+    if sort_idx is not None:
+        probes = [probes[i] for i in sort_idx]
+
+    n = len(probes)
+    i = 0
+    while i < n:
+        j = i + 1
+        while j < n and probes[j] == probes[i]:
+            j += 1
+        size = j - i
+        if size >= min_size:
+            ax.add_patch(Rectangle(
+                (i - 0.5, i - 0.5), size, size,
+                fill=False, edgecolor=color, linewidth=lw, alpha=alpha,
+                zorder=10,
+            ))
+        i = j
+
+
 def _is_first_col(ax) -> bool:
     """Return True when the axis sits in the first column of its gridspec.
 
@@ -255,15 +305,16 @@ def _apply_tick_labels(
             ax.tick_params(axis="x", which="both",
                            bottom=False, labelbottom=False)
 
-        # Y ticks/labels only on the leftmost col.  Explicit
-        # ``set_yticklabels`` overrides ``sharey``, so we must gate.
+        # Y ticks/labels only on the leftmost col.  With ``sharey=True``
+        # all panels share the same y-axis, so calling ``set_yticks([])``
+        # on a non-leftmost panel wipes the probe ticks set by the
+        # leftmost panel — we just hide labels via tick_params instead.
         if is_leftmost:
             ax.set_yticks(major)
             ax.set_yticklabels(labels, fontsize=7)
             ax.set_yticks(boundaries, minor=True)
             ax.set_ylabel("probe", fontsize=8)
         else:
-            ax.set_yticks([])
             ax.tick_params(axis="y", which="both",
                            left=False, labelleft=False)
 
@@ -277,7 +328,7 @@ def plot_fc_adjacency(
     M: np.ndarray,
     *,
     ax=None,
-    cmap: str = "magma",
+    cmap: Optional[str] = None,
     vmin: Optional[float] = 0.0,
     vmax: Optional[float] = None,
     zero_diagonal: bool = True,
@@ -398,7 +449,7 @@ def plot_fc_adjacency_row(
     channel_labels: Optional[Sequence[str]] = None,
     log_scale: bool = False,
     shared_scale: bool = True,
-    cmap: str = "magma",
+    cmap: Optional[str] = None,
     panel_size: float = 2.4,
     fig=None,
     axes=None,
@@ -550,7 +601,7 @@ def plot_fc_adjacency_grid(
     channel_labels_per_row: Optional[Sequence[Sequence[str]]] = None,
     log_scale: bool = True,
     colorbar_mode: _ColorbarMode = "shared",
-    cmap: str = "magma",
+    cmap: Optional[str] = None,
     panel_size: float = 2.0,
     wspace: float = 0.05,
     hspace: float = 0.08,

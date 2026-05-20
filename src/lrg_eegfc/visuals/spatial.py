@@ -386,42 +386,72 @@ def _estimate_mni_transform(coords: np.ndarray, metadata: pd.DataFrame) -> np.nd
                 native_coords_matched.append(working_coords[idx])
                 mni_coords_matched.append(MNI_REGION_COORDS[region])
 
-    # Calculate translation offset
-    if len(native_coords_matched) >= 3:
-        native_arr = np.array(native_coords_matched)
-        mni_arr = np.array(mni_coords_matched)
-        # Use median to reduce effect of outliers
-        translation = np.median(mni_arr - native_arr, axis=0)
-    else:
-        # Fallback: use hemisphere-based heuristic
-        if "Desikan-Killany" in metadata.columns:
-            atlas = metadata["Desikan-Killany"].dropna().astype(str)
-            lh_count = sum("lh" in a or "Left" in a for a in atlas)
-            rh_count = sum("rh" in a or "Right" in a for a in atlas)
-            is_bilateral = lh_count > 10 and rh_count > 10
-            is_predominantly_left = lh_count > rh_count
+    # Affine least-squares fit when enough anchors exist (per-axis scale + shift
+    # corrects for native frames that differ from MNI by more than a translation).
+    # Falls back to median translation, then to a centroid-heuristic.
+    mni_coords = None
+    if len(native_coords_matched) >= 6:
+        native_arr = np.array(native_coords_matched, dtype=float)
+        mni_arr = np.array(mni_coords_matched, dtype=float)
+        # Per-axis diagonal affine: mni_k = s_k * native_k + b_k.
+        # Less expressive than a full 3×4 affine (no rotation/shear), but robust
+        # because the anchors per region are coincident in MNI — a 12-parameter
+        # fit would over-rotate. Diagonal is the right model for sEEG.
+        scales = np.empty(3)
+        shifts = np.empty(3)
+        for k in range(3):
+            A = np.column_stack([native_arr[:, k], np.ones(len(native_arr))])
+            sol, *_ = np.linalg.lstsq(A, mni_arr[:, k], rcond=None)
+            scales[k], shifts[k] = sol
+        # Sanity: scale should be ≈ ±1 within ~30%; reject if degenerate.
+        if np.all(np.abs(scales) > 0.4) and np.all(np.abs(scales) < 2.5):
+            mni_coords = working_coords * scales + shifts
+
+    if mni_coords is None:
+        if len(native_coords_matched) >= 3:
+            native_arr = np.array(native_coords_matched)
+            mni_arr = np.array(mni_coords_matched)
+            translation = np.median(mni_arr - native_arr, axis=0)
         else:
-            is_bilateral = False
-            is_predominantly_left = working_coords[:, 0].mean() < 0
+            if "Desikan-Killany" in metadata.columns:
+                atlas = metadata["Desikan-Killany"].dropna().astype(str)
+                lh_count = sum("lh" in a or "Left" in a for a in atlas)
+                rh_count = sum("rh" in a or "Right" in a for a in atlas)
+                is_bilateral = lh_count > 10 and rh_count > 10
+                is_predominantly_left = lh_count > rh_count
+            else:
+                is_bilateral = False
+                is_predominantly_left = working_coords[:, 0].mean() < 0
+            centroid = working_coords.mean(axis=0)
+            if is_bilateral:
+                target_centroid = np.array([0.0, -20.0, 10.0])
+            elif is_predominantly_left:
+                target_centroid = np.array([-35.0, -20.0, 10.0])
+            else:
+                target_centroid = np.array([35.0, -20.0, 10.0])
+            translation = target_centroid - centroid
+        mni_coords = working_coords + translation
 
-        centroid = working_coords.mean(axis=0)
+    # Clamp to brain-hull MNI bounds (slightly tighter than before).
+    mni_coords[:, 0] = np.clip(mni_coords[:, 0], -72, 72)
+    mni_coords[:, 1] = np.clip(mni_coords[:, 1], -105, 70)
+    mni_coords[:, 2] = np.clip(mni_coords[:, 2], -50, 80)
 
-        if is_bilateral:
-            target_centroid = np.array([0.0, -20.0, 10.0])
-        elif is_predominantly_left:
-            target_centroid = np.array([-35.0, -20.0, 10.0])
-        else:
-            target_centroid = np.array([35.0, -20.0, 10.0])
-
-        translation = target_centroid - centroid
-
-    # Apply translation
-    mni_coords = working_coords + translation
-
-    # Clamp to reasonable MNI bounds
-    mni_coords[:, 0] = np.clip(mni_coords[:, 0], -75, 75)  # X: left-right
-    mni_coords[:, 1] = np.clip(mni_coords[:, 1], -110, 75)  # Y: posterior-anterior
-    mni_coords[:, 2] = np.clip(mni_coords[:, 2], -60, 85)  # Z: inferior-superior
+    # Ellipsoidal cap: pull any contact outside a brain-shaped envelope back to
+    # its surface along the radial direction from the brain centre.  Box-clip
+    # alone leaves contacts at the cube corners that the MNI152 mesh does not
+    # cover; the ellipsoid is the right brain approximation for 3-D glass-brain
+    # rendering.
+    centre = np.array([0.0, -15.0, 10.0])
+    semi = np.array([66.0, 84.0, 56.0])  # M-L, A-P, S-I half-extents
+    inset = 0.95  # pull projected contacts slightly inside the surface
+    rel = (mni_coords - centre) / semi
+    r = np.linalg.norm(rel, axis=1)
+    outside = r > 1.0
+    if outside.any():
+        mni_coords[outside] = (
+            centre + (mni_coords[outside] - centre) * (inset / r[outside, None])
+        )
 
     return mni_coords
 

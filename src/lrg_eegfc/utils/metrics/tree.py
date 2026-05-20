@@ -9,10 +9,11 @@ the h-parametrized multiscale landscape (`h2_partition_multiscale_h`). See
 """
 from __future__ import annotations
 
-from typing import Iterable
+from typing import Iterable, Sequence
 
 import numpy as np
-from scipy.cluster.hierarchy import fcluster, to_tree
+from scipy.cluster.hierarchy import cophenet, fcluster, linkage, to_tree
+from scipy.spatial.distance import squareform
 
 
 __all__ = [
@@ -24,7 +25,51 @@ __all__ = [
     "simpson_neff",
     "cluster_size_stats",
     "partition_vi_on_subset",
+    "induced_linkage",
 ]
+
+
+def induced_linkage(Z: np.ndarray, leaf_indices: Sequence[int],
+                    method: str = "average") -> np.ndarray:
+    """Linkage matrix of the dendrogram induced on a leaf subset.
+
+    Given a scipy linkage matrix ``Z`` over leaves ``0..n-1`` and a subset
+    ``leaf_indices ⊆ {0..n-1}`` of size ``k ≥ 2``, returns the linkage
+    matrix of the induced subtree on those leaves — i.e. the dendrogram
+    restricted to ``leaf_indices`` after pruning non-included leaves and
+    contracting degree-2 internal nodes.
+
+    Implementation: restricts the cophenetic distance matrix of ``Z`` to
+    the chosen leaves and re-runs ``scipy.cluster.hierarchy.linkage`` on
+    the condensed sub-matrix. For UPGMA (``method='average'``), the
+    cophenetic-restriction approach is exact: every MRCA height in the
+    induced tree equals the original MRCA height, because cophenetic
+    distance ``d(i,j)`` IS the merge height of the MRCA of ``(i, j)``.
+
+    Parameters
+    ----------
+    Z : np.ndarray, shape (n-1, 4)
+        Linkage matrix over leaves ``0..n-1``.
+    leaf_indices : sequence of int
+        Leaves to keep, indices into ``0..n-1``. Order is preserved
+        in the output: leaf ``i`` of the induced linkage corresponds
+        to ``leaf_indices[i]`` of the original tree.
+    method : str, default ``"average"``
+        Linkage method. Must match the method used to build ``Z`` for
+        exact MRCA-height preservation.
+
+    Returns
+    -------
+    Z_sub : np.ndarray, shape (k-1, 4)
+        Linkage matrix of the induced subtree.
+    """
+    leaves = np.asarray(leaf_indices, dtype=int)
+    if leaves.size < 2:
+        raise ValueError(f"induced_linkage requires |leaf_indices| ≥ 2; got {leaves.size}")
+    coph = squareform(cophenet(Z))
+    sub = coph[np.ix_(leaves, leaves)]
+    sub_condensed = squareform(sub, checks=False)
+    return linkage(sub_condensed, method=method)
 
 
 def dmax_from_Z(Z: np.ndarray) -> float:
