@@ -71,7 +71,7 @@ from scipy.spatial.distance import squareform
 from scipy.stats import hypergeom
 
 from lrg_eegfc.utils.io.patient import load_epileptic_nodes
-from lrg_eegfc.utils.io.regions import load_channel_regions
+from lrg_eegfc.utils.io.regions import load_channel_regions, _normalise_label
 from lrg_eegfc.utils.scripting import setup_script_env
 
 ROOT = setup_script_env()
@@ -276,8 +276,9 @@ def run_band(band: str, n_surrogates: int, epi_x: bool, out_dir: Path,
         obs = load_obs_pair_shifts(pat, band)
         regions_df = load_channel_regions(pat)
         if epi_x:
-            epi = load_epileptic_nodes(pat)
-            keep_mask = ~np.isin(np.arange(len(regions_df)), np.asarray(list(epi)))
+            epi = set(load_epileptic_nodes(pat))
+            channel_labels = [_normalise_label(l) for l in regions_df["label_raw"]]
+            keep_mask = np.array([l not in epi for l in channel_labels], dtype=bool)
             pair_keep = keep_mask[obs["iu_i"]] & keep_mask[obs["iu_j"]]
         else:
             pair_keep = np.ones_like(obs["iu_i"], dtype=bool)
@@ -352,8 +353,9 @@ def run_band(band: str, n_surrogates: int, epi_x: bool, out_dir: Path,
         obs = load_obs_pair_shifts(pat, band)
         regions_df = load_channel_regions(pat)
         if epi_x:
-            epi = load_epileptic_nodes(pat)
-            keep_mask = ~np.isin(np.arange(len(regions_df)), np.asarray(list(epi)))
+            epi = set(load_epileptic_nodes(pat))
+            channel_labels = [_normalise_label(l) for l in regions_df["label_raw"]]
+            keep_mask = np.array([l not in epi for l in channel_labels], dtype=bool)
             pair_keep = keep_mask[obs["iu_i"]] & keep_mask[obs["iu_j"]]
         else:
             pair_keep = np.ones_like(obs["iu_i"], dtype=bool)

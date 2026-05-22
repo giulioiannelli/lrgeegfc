@@ -19,7 +19,7 @@ verdict_layers:
   grassmann: no_trace (cluster-extent permutation p=0.159, audit_70; 4-cell observed run at k=11..14 within null distribution)
   rho_split_coph_epi_excluded: strengthens_decisively (audit_68; ratio 8.3× → 27.7×, n_above 5/10 → 7/10, p .002 → .014, identifies α as non-epi-cortex phenomenon)
   anatomy_cophenet: strong_localized (11 named DK regions A1+A3 join; bilateral cingulate + parahippocampal + medial OFC + caudal middle frontal + postcentral + precuneus + superior parietal; audit_71 2026-05-19)
-  anatomy_cophenet_epi_excluded: identical_to_full (11/11 named regions reproduce under C5 epi-X — confirms α anatomy is non-epi-cortex driven; audit_71 --epi-x 2026-05-19)
+  anatomy_cophenet_epi_excluded: 9_of_11_reproduce_2_drop (audit_71 --epi-x rerun 2026-05-22 after patching a silent no-op bug in the original --epi-x branch; lh-caudal-middle-frontal drops at A1 marginal q_BH=0.051; rh-medial-orbitofrontal drops at A2 — z_A2 falls 3.22 → 1.28, revealing an epi-zone-coupled contribution to its full-cohort enrichment; 9 surviving regions include 4 cingulate + lh-parahipp + rh-caudal-MF + rh-postcentral + rh-precuneus + rh-superior-parietal, with lh-rostral-AC strengthening 3.04× → 5.37× and several cingulate regions enrichment-increasing under epi-X)
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts)
@@ -35,6 +35,7 @@ sources:
   - data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv (α raw D sensitivity)
 revision_history:
   - 2026-05-19: initial brief produced from VERDICT_LEDGER.md lockdown
+  - 2026-05-22: corrected anatomy_cophenet_epi_excluded entry + §5 epi-X anatomy section after patching the silent no-op bug in audit_71 --epi-x (np.isin int×str mismatch at lines 278–283 / 354–359); real epi-X result is 9 of 11 regions reproduce, not 11 of 11
 ---
 
 # α band (8–13 Hz) — preprint result report
@@ -213,9 +214,9 @@ The headline three-layer table demonstrates that raw FC (single-pair magnitudes)
 
 α has no contiguous-significant Grassmann window. The 4-cell run at k = 11..14 is within the empirical null (cluster_p = 0.159). Reading: α's reorganization does not project into a coherent rotation of the leading-mode subspace at any `k`. This is what distinguishes α from β: β is multi-probe (both `ρ_split^coph` and Grassmann pass C3 with epi-X strengthening); α is single-probe (`ρ_split^coph` only).
 
-## 5. Anatomical distribution — α cophenet trace is strong-localized to a bilateral cingulate + parahippocampal + parietal cortical network, robust under C5 epi-X
+## 5. Anatomical distribution — α cophenet trace is strong-localized to a bilateral cingulate + parahippocampal + parietal cortical network; 9 of 11 regions reproduce under C5 epi-X
 
-The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 (hypergeometric + matched-strength surrogate, R=200, seed 20260511) at q_BH<0.05 / p_emp<0.05. **Identical region set survives under C5 epi-X exclusion** (11/11 named regions reproduce), confirming the α anatomy is **non-epi-cortex driven** — consistent with the C5-driven strengthening of the trace itself (`locked/VERDICT_LEDGER.md` Decision 1).
+The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 (hypergeometric + matched-strength surrogate, R=200, seed 20260511) at q_BH<0.05 / p_emp<0.05. Under C5 epi-X exclusion **9 of 11 named regions reproduce** at the joint A1+A3 gate, with two named dropouts that carry distinct meaning: left caudal middle frontal gyrus drops at A1 (marginal q_BH=0.051, the weakest of the 11 in full cohort), and **right medial orbitofrontal cortex drops at A2 (matched-strength surrogate z falls from 3.22 to 1.28)** — A1 remains strong, but the matched-strength surrogate no longer separates the residual signal, indicating that the full-cohort rh-medial-OFC enrichment carried a substantial epi-zone-coupled topological component. The 9 surviving regions all maintain or strengthen under epi-X, with **lh-rostral-anterior-cingulate the largest gainer** (enrichment 3.04× → 5.37×, q_BH 4.1e-20 → 1.5e-31). This is consistent with the C5-driven strengthening of the trace itself (`locked/VERDICT_LEDGER.md` Decision 1) and supports reading the α reorganization as a non-epileptic-cortex multiscale phenomenon. The original "11/11 reproduce identically" claim recorded here in the 2026-05-19 lockdown was an artifact of a silent no-op bug in the audit_71 `--epi-x` mask (`np.isin(int_array, str_array)` always-False); the bug was patched and the audit rerun on 2026-05-22 (see `.agents/preprint/directives/writing_directive_2026-05-22_alpha_results_drafting.md` §"Critical issues" → Issue 1 for the bug history and the verified outcome).
 
 Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 entry.
 
@@ -241,13 +242,34 @@ Network anatomy: **bilateral cingulate** (anterior caudal + anterior rostral + r
 
 Source: `data/audit/anatomy_alpha_cophenet/cohort_summary.csv`.
 
-### C5 epi-X anatomy reproduces identically
+### C5 epi-X anatomy: 9 of 11 named regions reproduce (post-patch 2026-05-22)
 
-Re-running the α cophenet anatomy audit with epi-zone contacts removed per patient (`load_epileptic_nodes() × channel_labels.csv`) produces the **identical 11-region set** — same regions, same A1+A3 join, same p_emp ordering. No new region emerges under epi-X exclusion; no region from the full-cohort set drops out.
+Re-running the α cophenet anatomy audit with epi-zone contacts removed per patient (`load_epileptic_nodes() × channel_labels.csv`) yields **9 of 11 named DK regions surviving** the joint A1+A3 gate. The two dropouts:
 
-This is the cleanest possible C5 anatomy reading: the α trace anatomy is **wholly non-epi-cortex**. Combined with the trace-level strengthening under C5 (ratio 8.3× → 27.7×; `locked/VERDICT_LEDGER.md` Decision 1), the α trace is best read as a **physiological cortical reorganization** in a bilateral cingulate + medial-temporal + parietal network, with the epi-zone contacts contributing noise that the C5 exclusion strips off.
+| Dropped region | Full cohort | Epi-X | Reading |
+|---|---|---|---|
+| `ctx-lh-caudalmiddlefrontal` | enr 1.49×, q_BH 1.6e-3, z 3.02, p_emp 0.015 | A1 FAIL: q_BH 5.1e-2 (above 0.05); A3 z 2.32, p_emp 0.020 | Weakest of the 11 in full cohort; marginal statistical fail under the slightly different cohort marginals after epi-X masking. |
+| `ctx-rh-medialorbitofrontal` | enr 1.77×, q_BH 1.1e-16, z 3.22, p_emp 0.005 | A1 still strong (q_BH 3.3e-6); **A3 FAIL: z 1.28, p_emp 0.124** | A2/A3 (matched-strength surrogate) no longer separates the residual rh-medial-OFC signal from matched-strength noise after epi-X. **Biological reading**: a substantial part of the full-cohort medial-OFC enrichment was carried by topology coupled to epi-zone contacts; the matched-strength control correctly strips that contribution. |
 
-Source: `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv`.
+The 9 surviving regions and how they shift under epi-X:
+
+| Region | Full enr | Epi-X enr | Reading |
+|---|---|---|---|
+| `ctx-lh-caudalanteriorcingulate` | 2.06× (q 2.1e-5) | **2.08× (q 2.9e-2)** | stable |
+| `ctx-lh-parahippocampal` | 3.80× (q 1.4e-25) | **3.89× (q 6.6e-25)** | medial-temporal anchor; strengthens slightly |
+| `ctx-lh-rostralanteriorcingulate` | 3.04× (q 4.1e-20) | **5.37× (q 1.5e-31)** | **largest gainer under epi-X** |
+| `ctx-rh-caudalanteriorcingulate` | 2.44× (q 1.8e-8) | **3.31× (q 3.2e-11)** | strengthens |
+| `ctx-rh-caudalmiddlefrontal` | 2.90× (q 3.5e-21) | 2.74× (q 5.2e-17) | mild weakening |
+| `ctx-rh-postcentral` | 3.47× (q 3.8e-65) | **3.66× (q 7.4e-69)** | rock stable; deepest q_BH in the cohort |
+| `ctx-rh-posteriorcingulate` | 1.99× (q 5.9e-10) | 1.93× (q 1.1e-8) | mild weakening |
+| `ctx-rh-precuneus` | 1.47× (q 1.3e-3) | 1.47× (q 1.1e-3) | identical |
+| `ctx-rh-superiorparietal` | 1.64× (q 3.7e-5) | 1.64× (q 3.4e-5) | identical |
+
+Net reading: the 9-region surviving network — **bilateral cingulate (4 regions: lh-/rh-caudal-AC, lh-rostral-AC, rh-posterior-cingulate) + left parahippocampal cortex + right caudal middle frontal gyrus + right postcentral / precuneus / superior parietal** — sees several constituent regions (particularly bilateral cingulate and left parahippocampal cortex) **strengthen** under epi-X. The pattern mirrors the trace-level strengthening (`ρ_split^coph` cohort ratio 8.3× → 27.7× under epi-X; `locked/VERDICT_LEDGER.md` Decision 1) and reads the α reorganization as a **physiological cortical phenomenon, with bilateral cingulate and left medial-temporal cortex as the anatomical core** and a small epi-zone-coupled contribution that explains the rh-medial-OFC dropout under matched-strength.
+
+Source: `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv` (post-patch 2026-05-22; MD5 `199d742b22e00893ff3fbae4623a1b1c`).
+
+**Bug history.** The original `anatomy_alpha_cophenet_epiX/cohort_summary.csv` produced 2026-05-19 was byte-identical to the full-cohort file because `audit_71_anatomy_cophenet.py` had a silent no-op at the `--epi-x` mask: `np.isin(np.arange(len(regions_df)), np.asarray(list(epi)))` compared integer FC-channel indices to the string labels returned by `load_epileptic_nodes()`, returning all-False, so `keep_mask` was always all-True. Patch applied 2026-05-22: replaced the comparison with the label-normalised lookup pattern used by `audit_68_alpha_epi_exclusion.py` (`_normalise_label(label_raw)` from `lrg_eegfc.utils.io.regions`). Sanity-checked against audit_68 (Pat_02 N_epi=14, Pat_13 N_epi=30, Pat_15 N_epi=0). The "11/11 reproduce identically" claim in this brief's 2026-05-19 lockdown originated from the bug — it was never a real measurement. The verified outcome above replaces it.
 
 ### Caveats
 
