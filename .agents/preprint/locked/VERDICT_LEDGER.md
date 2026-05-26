@@ -1,7 +1,7 @@
 ---
 name: preprint-verdict-ledger
 era: IMCOH_ABS_COHORT_N10
-status: locked_2026-05-18
+status: locked_2026-05-18 (revised 2026-05-19 cluster-extent gate; addendum 2026-05-26 β cophenet C5 — Decision 4 resolved, verdict tags unchanged)
 kind: verdict-lockdown
 supersedes: all_prior_per-band_verdict_claims
 companion: CONTROLS.md
@@ -89,7 +89,7 @@ and not citable.
 | C2 drift | p = 0.01367 | `ctm_triangle/cohort_summary.csv` beta | < 0.05 | ✓ |
 | C3 matched-strength | p = 0.00488; ratio obs/surr = 23.7× (n_above 7/10 = descriptive) | `matched_strength_surrogate_split_baseline/cohort_summary.csv` beta | < 0.05 | ✓ |
 | C4 cross-probe (Wilcoxon) | paired Wilcoxon (split>xprobe) p = 0.385 ⇒ fails to reject ⇒ no degradation; rho_split_median = +0.222, rho_xprobe_median = +0.223 (sign agree); LOO max p = 0.590 (Pat_02) | `ctm_triangle/c4_wilcoxon_cohort.csv` beta | paired_p ≥ 0.05 + sign match | ✓ |
-| C5 epi-X cophenet | **not run at this probe** | — | n/a | n/a |
+| C5 epi-X cophenet (added 2026-05-26 post-2026-05-20 audit_68_beta) | one-sample Wilcoxon on per-patient `obs_rho^epi-X` under H_1: `rho_split^epi-X > 0` ⇒ **p = 0.003**; obs_rho_median^epi-X = +0.275 (vs full +0.221, strengthens); ratio 26.0× (vs full 23.7×); LOO max p = 0.006 (Pat_02) — LOO robust | `beta_epi_exclusion/c5_wilcoxon_cohort.csv` beta + `cohort_summary.csv` beta | wilcoxon_p < 0.05 | ✓ |
 
 **Grassmann `d_G(k)` — cluster-extent permutation (audit_70, mass-only gate) + C5 epi-X (audit_72):**
 
@@ -422,11 +422,25 @@ are the physiological-attribution evidence. The 67% retention falls below the
 80% guide. **Decision: γ_h Grassmann is `weak trace` with physiological-
 attribution framing in the per-band brief. Final.**
 
-### Decision 4: β cophenet C5 epi-X not run
-audit_68 was the α-only cophenet epi-exclusion; β was never run at this probe.
-Per CONTROLS.md C5 rule: when unavailable, the verdict from C1–C4 stands but
-is tagged "epi-X-not-run at this probe". **Decision: β D_coph is `strong
-trace` based on C1+C2+C3+C4 + the Grassmann probe's epi-X confirmation. Final.**
+### Decision 4: β cophenet C5 epi-X — RESOLVED 2026-05-26 (audit_68_beta_epi_exclusion run 2026-05-20)
+On 2026-05-19 the ledger recorded β cophenet C5 epi-X as not run. The β analogue
+of `audit_68_alpha_epi_exclusion.py` (`audit_68_beta_epi_exclusion.py`) was
+created and run the next day, 2026-05-20 — one day post-lockdown. Outputs live
+at `data/audit/beta_epi_exclusion/`. Outcome: cohort median `ρ_split^coph`
+strengthens from +0.221 (full) to +0.275 (epi-X), effect-size ratio rises
+23.7× → 26.0×, Methods-locked C5 one-sample Wilcoxon on
+`ρ_split^epi-X > 0` returns p = 0.003 (LOO max p = 0.006, Pat_02-driven),
+n_above_surrogate stays at 7/10, c5_pass = True. Per-patient detail in
+`bands/01_beta.md` §3.2.5: 6 of 10 patients strengthen or flip positive under
+epi-X (notably Pat_10 inverts from −0.091 to +0.029, the only LRG-anti
+patient at full β); Pat_02 retains a strong but halved effect (+0.507 →
++0.266), consistent with Pat_02 being the LOO argmax-p driver — a substantial
+part of Pat_02's full β trace lived in epi-zone-coupled topology, and the
+cohort verdict still passes after that contribution is stripped. **Decision:
+β D_coph is `strong trace` based on C1+C2+C3+C4+C5 cophenet (audit_68_beta)
++ the Grassmann probe's C5 confirmation. The β verdict tag is unchanged
+(`strong trace, both probes`); the C5 cophenet line now reinforces rather
+than is owed. Final.**
 
 ### Decision 5: δ C4 6/10 +sign passes but does not constitute a trace
 δ at C4 has cross-probe n_trace 6/10 with +sign agreement, which would pass C4

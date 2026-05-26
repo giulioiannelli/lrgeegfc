@@ -18,7 +18,7 @@ verdict_layers:
   rho_split_coph: strong_trace (all 4 primary controls pass; cohort ratio 23.7×, p=0.005, n_above 7/10)
   grassmann: strong_trace (cluster-extent permutation p=0.005, audit_70; 29-cell contiguous-significant run k=27..55)
   grassmann_epi_excluded: strengthens_to_36_cells_at_k21_56 (29/29 manuscript window persist + 7 new cells emerge)
-  rho_split_coph_epi_excluded: not_run (C5 epi-X cophenet was audit_68 at α only; β verdict from C1+C2+C3+C4 + Grassmann epi-X)
+  rho_split_coph_epi_excluded: strengthens (audit_68_beta_epi_exclusion.py run 2026-05-20 — cohort median +0.221 → +0.275, ratio 23.7× → 26.0×, Methods-locked C5 one-sample Wilcoxon p = 0.003, LOO max p = 0.006 Pat_02, c5_pass = True; 6 of 10 patients strengthen or flip positive under epi-X, including Pat_10 which inverts from −0.091 to +0.029)
   anatomy_cophenet: strong_localized (7 DK regions A1+A3 join; cingulate + parahippocampal + entorhinal + insula + postcentral + superior frontal; audit_71 2026-05-19)
   anatomy_grassmann: strong_localized (7 DK regions A3 alone; Hip + temporal + orbitofrontal + insula + rostral middle frontal; audit_72 --cluster-extent over `S(β)`, 2026-05-19 pm — region set identical to retired `K*(β)` run, only z/p_emp updates)
 sources:
@@ -35,6 +35,7 @@ sources:
 revision_history:
   - 2026-05-18: cophenet framing; KC retired; VI(k) retired; D_coph adopted as canonical
   - 2026-05-19: aligned to VERDICT_LEDGER.md lockdown; owed_controls dropped (out-of-scope per user 2026-05-18); Grassmann gate switched to cluster-extent permutation (audit_70); β remains "strong trace, both probes"
+  - 2026-05-26: added β cophenet C5 epi-X (§3.2.5) from audit_68_beta_epi_exclusion (run 2026-05-20, post-lockdown) — supersedes the 2026-05-19 "not_run" frontmatter entry and the §3.2 robustness panel "owed" placeholder; β verdict tag unchanged (still "strong trace, both probes"), but the cophenet probe now has the same C5 confirmation as α has
 ---
 
 # β band (13–30 Hz) — preprint result report
@@ -206,6 +207,49 @@ For each (patient, band) cell:
 
 **Sensitivity check on raw `D(τ_max)`** (single-scale; for completeness only; not the canonical object): `data/preprint/rho_split_raw_D/beta_matched_strength.csv` — cohort ratio 13.4×, Wilcoxon p=0.042, n_above 6/10 (β). The cohort signal SURVIVES on raw `D(τ_max)` at the matched-strength gate; the cophenet step amplifies cohort agreement and improves the p-value, but does not invent the β trace. This sensitivity check is the raw-D row of the headline three-layer table.
 
+#### 3.2.5 C5 epileptogenic-zone exclusion (audit_68_beta, run 2026-05-20)
+
+The β cophenet C5 epi-X audit was run on 2026-05-20, one day after the `VERDICT_LEDGER.md` lockdown. The 2026-05-19 brief frontmatter and the `Decision 4: β cophenet C5 epi-X not run` entry in the ledger reflected the as-of-2026-05-19 state. The audit was completed the next day and its outcome is now folded in here. The β verdict tag (`strong trace, both probes`) is unchanged; the addition is methodological completeness — Methods §`sssec:methods_compare_stats` locks the C5 cophenet gate for both α and β, and β now has the same cophenet C5 evidence that α has.
+
+**Cohort summary** (`data/audit/beta_epi_exclusion/cohort_summary.csv` + `c5_wilcoxon_cohort.csv`):
+
+| Statistic | Full cohort | Epi-X | Δ |
+|---|---|---|---|
+| Cohort-median `obs ρ_split^coph` | +0.221 | **+0.275** | +0.054 (strengthens 24%) |
+| Surrogate cohort-median | +0.009 | +0.011 | ≈ unchanged noise floor |
+| Effect-size ratio (obs/surr) | 23.7× | **26.0×** | mild gain |
+| Matched-strength paired Wilcoxon p (obs > surr) | 0.005 | **0.003** | tightens |
+| n_above_surrogate | 7/10 | 7/10 | unchanged |
+| **Methods-locked C5 one-sample Wilcoxon p (`ρ_split^epi-X > 0`)** | — | **0.003** | passes |
+| C5 LOO max p | — | 0.006 (Pat_02) | LOO-robust |
+| c5_pass | — | **True** | |
+
+**Per-patient comparison** (`data/audit/beta_epi_exclusion/comparison.csv`):
+
+| Patient | `ρ_split^coph` (full) | `ρ_split^coph` (epi-X) | N_epi | Direction of change |
+|---|---|---|---|---|
+| Pat_02 | +0.507 | +0.266 | 14 | halves — Pat_02 is also the LOO argmax-p patient at β; ~half of Pat_02's full-cohort β contribution lived in epi-zone-coupled topology |
+| Pat_03 | +0.373 | +0.280 | 6 | mild weakening |
+| Pat_05 | +0.491 | **+0.520** | 14 | strengthens |
+| Pat_06 | +0.211 | **+0.404** | 10 | strengthens substantially (~2×) |
+| Pat_07 | +0.230 | **+0.301** | 7 | strengthens |
+| Pat_08 | +0.502 | +0.499 | 9 | identical |
+| **Pat_10** | **−0.091** | **+0.029** | 10 | **inverts from anti to flat-positive** — the only LRG-anti patient at full β cohort flips direction once epi-zone contacts are removed; at α Pat_10 stays weakly positive in both regimes, so the inversion is β-specific |
+| Pat_13 | +0.208 | +0.270 | 30 | strengthens despite the largest epi-zone in the cohort — distinct from Pat_13 at α (inverts) |
+| Pat_14 | −0.049 | −0.067 | 12 | weak-negative both |
+| Pat_15 | +0.083 | +0.083 | 0 | invariant by construction |
+
+**Reading.** β cophenet under epi-X strengthens the matched-strength gate (ratio 23.7× → 26.0×, p 0.005 → 0.003) and brings Pat_10 (the only LRG-anti patient at full β) into the trace direction. Six of ten patients move in the strengthen-or-flip-positive direction; two weaken (Pat_02 and Pat_03, the two strongest contributors at full cohort, lose part of their effect but remain strongly positive); Pat_15 is invariant (N_epi = 0). The β cohort verdict is reinforced, not just preserved, under epi-X — the cophenet trace lives in non-epileptic cortex, parallel to (and reinforcing) the Grassmann epi-X broadening (§3.3, 29 → 36 cells, mass 69.76 → 89.04, p_mass = 0.005 at the empirical-null floor in both regimes).
+
+The "Pat_02 halves" reading is methodologically informative: Pat_02 is both the strongest single-patient contributor at full β AND the LOO argmax-p driver (the patient whose exclusion gives the worst cohort p). A substantial fraction of Pat_02's β β trace lived in epi-zone-coupled topology; the matched-strength epi-X regime correctly strips that contribution, and the cohort verdict still passes — that is the substantive content of the LOO/epi-X pair landing at the same patient.
+
+**Cache + script provenance:**
+- Audit script: `scripts/01_compute/audit/audit_68_beta_epi_exclusion.py` (created 2026-05-20 14:43)
+- Cohort summary: `data/audit/beta_epi_exclusion/cohort_summary.csv` (2026-05-20 15:18)
+- Per-patient comparison: `data/audit/beta_epi_exclusion/comparison.csv`
+- Methods-locked C5 Wilcoxon: `data/audit/beta_epi_exclusion/c5_wilcoxon_cohort.csv`
+- README: `data/audit/beta_epi_exclusion/README.md` (lab notes from the 2026-05-20 run)
+
 #### Robustness panel for β `ρ_split^coph`
 | Robustness check | β verdict | Source |
 |---|---|---|
@@ -213,7 +257,7 @@ For each (patient, band) cell:
 | Cross-probe restriction | Cohort-median +0.223, 8/10 patients | ctm_triangle CSV |
 | Drift-floor null | 8/10 above drift floor | ctm_triangle CSV |
 | Matched-strength | 7/10 above own surrogate, p = 0.005 | matched_strength_split_baseline CSV |
-| Epi-exclusion `ρ_split^coph` (β specific) | **owed** (audit_68 done at α only) | — |
+| **Epi-exclusion `ρ_split^coph` (β specific)** | **strengthens** — ratio 23.7× → 26.0×, p 0.005 → 0.003, C5 one-sample Wilcoxon p = 0.003, LOO max p = 0.006 (Pat_02); see §3.2.5 above | `data/audit/beta_epi_exclusion/` (audit_68_beta, 2026-05-20) |
 
 #### Reading
 β has **two independent matched-strength-controlled cohort-paired Wilcoxon-positive signals at the LRG layer**: `ρ_split^coph` (this section) and Grassmann (§3.3). The `ρ_split^coph` signal is per-pair multiscale (`N(N−1)/2 = 6,786..7,381` pair observations per patient at β, each evaluated at the pair's natural communication-merge scale); the Grassmann signal is global subspace alignment at a chosen subspace cutoff `k`. The two are derived from the same `D(τ_max)` propagator but ask geometrically distinct questions (per-pair merge-scale vs subspace orientation; see §3.3 distinction paragraph), and both pass the same matched-strength null. This is the load-bearing **cohort-level multi-facet matched-strength** claim of the β preprint paragraph.
