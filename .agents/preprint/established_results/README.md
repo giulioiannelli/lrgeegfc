@@ -1,75 +1,46 @@
 ---
 name: established-results-folder-readme
 era: IMCOH_ABS_COHORT_N10
-status: current
+status: historical-stub
+status_updated: 2026-05-28
 kind: index
-scope: frozen verdict results with full computation provenance for preprint
+scope: aspirational frozen-claims system; superseded in practice by bands/ briefs + locked/ ledgers
 ---
 
-# `.agents/preprint/established_results/` — frozen-verdict provenance
+# `.agents/preprint/established_results/` — historical methodology Q&A
 
-Every numerical claim that appears in the preprint manuscript must have one file in this folder. The file freezes:
+> **Note (2026-05-28).** This folder was designed as a frozen-claim
+> provenance system (one .md per number in the preprint, with full
+> reproducible computation chain). In practice the **bands/** briefs and
+> **locked/** ledgers absorbed that role — every number in the manuscript
+> is now traceable via `band brief → CSV row → audit script` without
+> needing a separate established-results file per claim.
+>
+> The folder is kept as a **historical methodology Q&A archive** for
+> open-question files (e.g., `00_open_methodology_question_lrg_D_convention.md`
+> which is `status: withdrawn` and documents the Pipeline-1-vs-Pipeline-2
+> cophenet normalization episode). The aspirational example list that
+> previously appeared here (`beta_rho_split_within_baseline.md`,
+> `beta_rho_split_matched_strength.md`, `beta_grassmann_window.md`,
+> `beta_grassmann_epi_X.md`) **was never populated** and is dropped
+> because those numbers live in `bands/01_beta.md` + the locked CSVs.
+>
+> Live source of truth for verdict-bearing numbers: `bands/<band>.md`
+> brief + `locked/VERDICT_LEDGER.md` + `locked/ANATOMY_LEDGER.md` +
+> the `data/audit/*/cohort_summary.csv` row each cites.
 
-1. **The claim** — the exact sentence + the band/cohort/probe it applies to.
-2. **The number(s)** — to full precision; rounded forms used in the preprint are derived and explicitly noted.
-3. **The full computation chain** — every script, cache, parameter, seed, and FC method needed to reproduce the number from raw time series, in order.
-4. **The status** — `established` / `provisional` / `open_question` / `withdrawn`.
-5. **The verification trail** — what diagnostic was run, on what date, by what means.
+## Current contents
 
-If a claim cannot be filed here cleanly, it cannot go in the preprint.
-
-## Status taxonomy
-
-- **`established`** — number reproduces deterministically from the documented chain. Verified against at least two independent reads (e.g., CSV column + hand-recomputation).
-- **`provisional`** — number is consistent with the documented chain but has not been fully re-verified, or an owed control is pending. Time-stamped and tracked.
-- **`open_question`** — the number's underlying methodology has an ambiguity that must be resolved before the claim can be filed as established. Files prefixed `00_open_methodology_question_*` document these.
-- **`withdrawn`** — was claimed, is no longer claimed. Kept for archaeology; never deleted.
-
-## File naming
-
-```
-<band>_<probe>_<short_description>.md
-```
-
-Examples:
-- `beta_rho_split_within_baseline.md` — the +0.222 / 8/10 / p=0.005 claim
-- `beta_rho_split_matched_strength.md` — the 23.7× / 7/10 / p=0.005 claim
-- `beta_grassmann_window.md` — the k=27..55 / 29 contiguous cells claim
-- `beta_grassmann_epi_X.md` — the 29/29 retention claim
-- `00_open_methodology_question_<name>.md` — methodology questions blocking establishment of a claim
-
-## Required frontmatter
-
-```yaml
----
-name: <slug>
-era: IMCOH_ABS_COHORT_N10
-status: established | provisional | open_question | withdrawn
-kind: verdict | open_question
-band: <band>
-probe: <substrate | kc | rho_split | grassmann | anatomy | other>
-claim_sentence: "<short verbatim claim as it appears or will appear in the preprint>"
-number_canonical: "<exact value with units, no rounding>"
-number_preprint_form: "<value as cited in the preprint, with rounding>"
-computation_chain:
-  - script: <relative path>
-    inputs: [<cache path>, <CSV path>]
-    parameters: {seed: N, nperseg: N, ...}
-    output: <cache/CSV path>
-verified_by:
-  - {date: YYYY-MM-DD, method: <CSV row | hand-recompute | rerun | other>, by: <agent | user>}
----
-```
-
-## The discipline
-
-- **No discrepancy gets accepted as a 'small difference'.** If two pipelines produce different numbers for the same claimed statistic, that goes here as an `open_question` until reconciled.
-- **No claim graduates to `established` without an independent verification** beyond the original computing script (hand-recompute, alternative pipeline, etc.).
-- **Owed controls block establishment.** A claim with an owed control sits as `provisional` until the control runs.
-- **Withdrawn claims stay filed.** Never delete; mark `withdrawn` with a one-line reason and a pointer to the replacement.
+- `00_open_methodology_question_lrg_D_convention.md` — `status: withdrawn`.
+  Documents the resolved Pipeline-1 (normalized cophenet) vs Pipeline-2
+  (unnormalized cophenet) discrepancy at β ρ_split^coph. The cohort
+  verdict is invariant to the within-patient monotone D rescaling;
+  Pipeline-1 (normalized) is the locked convention.
 
 ## Cross-references
 
 - `.agents/preprint/README.md` — top-level preprint folder index
-- `.agents/preprint/bands/01_beta.md` — β band preprint result report (this folder's files supersede any inline numbers in that report if they ever drift)
-- `.agents/guides/04_rules/never-always-list.md` — rule list including `no_hardcoded_test_thresholds`, `matched_strength_mandatory`, `brutal_honesty_no_sycophancy`
+- `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdicts + decisions log
+- `.agents/preprint/locked/ANATOMY_LEDGER.md` — locked anatomy verdicts
+- `.agents/preprint/bands/` — per-band briefs (the live verdict source)
+- `.agents/preprint/METHODS_AUDIT_ISSUES.md` — live methods-section audit items

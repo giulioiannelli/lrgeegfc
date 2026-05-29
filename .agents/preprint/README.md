@@ -44,7 +44,10 @@ one — the default).
 
 ### Methods directive
 - [`methods/methods_revision_2026-05-18_cophenet.md`](methods/methods_revision_2026-05-18_cophenet.md) — binding methods directive (KC retired, VI(k) retired, τ-sweep retired, `D_coph` adopted as canonical per-pair object).
-- [`methods/methods_grassmann_cluster_extent.md`](methods/methods_grassmann_cluster_extent.md) — locked Grassmann probe methodology (subspace `U_k`, chordal distance, per-`k` Wilcoxon, cluster-extent permutation null with co-primary `LR` and cluster-mass statistics, disjunctive verdict gate). **Defines the k-independent band-level scalar `T_G^*(band) = Σ_{k ∈ C*} (−log10 p_k)`** that the manuscript reports for the Grassmann probe.
+- [`methods/methods_grassmann_cluster_extent.md`](methods/methods_grassmann_cluster_extent.md) — locked Grassmann probe methodology (subspace `U_k`, chordal distance, per-`k` Wilcoxon, cluster-extent permutation null, Decision-8 mass-only gate + Decision-12 LOO precondition). **Defines the k-independent band-level scalar `T_G^*(b)` normalized to `[0,1]` per C1** that the manuscript reports for the Grassmann probe.
+- [`methods/methods_section_review_2026-05-19.md`](methods/methods_section_review_2026-05-19.md) — historical methods-section review (`status: mostly_superseded`; live items now in `METHODS_AUDIT_ISSUES.md`).
+- [`methods/methods_neurophysiological_interpretation_2026-05-26.md`](methods/methods_neurophysiological_interpretation_2026-05-26.md) — band-by-band neurophysiological reading of each verdict (mechanism candidates, what "trace" / "no trace" mean at each frequency band).
+- [`METHODS_AUDIT_ISSUES.md`](METHODS_AUDIT_ISSUES.md) — live methods-section audit issues + C1 normalization lock + cascade tracking (2026-05-20+).
 
 ## Naming convention
 
@@ -54,7 +57,7 @@ one — the default).
 |---|---|---|---|
 | `bands/01_beta.md` | β (13–30 Hz) | strong trace, both probes | strong localized, both probes |
 | `bands/02_alpha.md` | α (8–13 Hz) | strong trace, only D_coph | strong localized (epi-X identical) |
-| `bands/03_gammalow.md` | γ_low (30–80 Hz) | weak trace, only Grassmann | strong localized (temporal-cortex) |
+| `bands/03_gammalow.md` | γ_low (30–80 Hz) | strong trace, only Grassmann | strong localized (occipito-temporal + frontal + medial-OFC) |
 | `bands/04_theta.md` | θ (4–8 Hz) | no trace | n/a |
 | `bands/05_gammah.md` | γ_high (80–300 Hz) | no trace | n/a |
 | `bands/06_delta.md` | δ (0.53–4 Hz) | weak trace, only Grassmann | strong localized (full ≠ epi-X) |

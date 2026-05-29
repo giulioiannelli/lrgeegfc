@@ -287,7 +287,7 @@ reorganizes" reading and to localize what the trace actually is.
 - Rearrangement scope: `.agents/guides/task-persistence-investigation/2026-05-07_kc-rearrangement-modules.md`
 - Anchor scope: `.agents/guides/task-persistence-investigation/2026-05-07_kc-anchor-modules.md`
 - Terminology guide: `.agents/guides/01_project/terminology.md`
-- §5.2 KC scalar trace: `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md`
+- §5.2 KC scalar trace: `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md`
 
 ### Audit scripts and outputs
 

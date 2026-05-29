@@ -4,7 +4,7 @@ type: guide
 era: CROSS_ERA
 status: current
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-05-28
 pointers: []
 ---
 
@@ -51,6 +51,17 @@ All cache directories live under `data/cache/` (symlinked from old flat layout):
 | Surrogate validation | `data/cache/surrogate_validation/` | `SURROGATE_VALIDATION_CACHE` |
 | Bipolar (experimental) | `data/cache/bipolar/` | `BIPOLAR_CACHE` |
 | Rescaled (experimental) | `data/cache/rescaled/` | `RESCALED_CACHE` |
+| Matched-strength surrogate (LRG) | `data/cache/matched_strength_surrogate_lrg/Pat_XX/` | n/a (audit_65/66/70 outputs) |
+| Matched-strength + epi excluded (LRG) | `data/cache/matched_strength_surrogate_epi_excluded_lrg/Pat_XX/` | n/a (audit_67) |
+| Matched-strength per pair | `data/cache/matched_strength_per_pair/` | n/a |
+| ImCoh halves (split-half FC) | `data/cache/imcoh_halves_fc/` | n/a |
+| ImCoh LRG halves | `data/cache/imcoh_lrg_halves/` | n/a |
+| Spectral percentile (eigenvalue bins) | `data/cache/spectral_pctl/` | n/a |
+
+(The last six are written by audit scripts under `01_compute/audit/`,
+not by the CLI, so they don't have first-class `config.paths`
+constants yet. Load them via the explicit cache paths the audit
+scripts use.)
 
 Reports and investigation outputs live under `data/reports/`:
 

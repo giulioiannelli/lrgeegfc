@@ -35,6 +35,14 @@ as its second use.
    from `lrg_eegfc.config`. Never hardcode.
 6. **Frontmatter on every new `.agents/` .md** — schema in
    `frontmatter-schema.md`.
+7. **Library names are general, not local-scope.** Module + function
+   names under `src/lrg_eegfc/` NEVER reference manuscript-local
+   tokens (`section3`, `figureN`, `preprint`, `chapter`, `H2c`, etc.).
+   They reflect general graph / network / statistics / I/O concepts
+   (`network_layouts`, `network_drawing`, `tree_metrics`,
+   `surrogate_helpers`, `patient_io`). A helper used by Section-3
+   figures today must be importable from Section-7 figures tomorrow
+   without renaming. Locked 2026-05-28.
 
 ## Tests
 

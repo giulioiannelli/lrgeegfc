@@ -15,9 +15,9 @@ verdict_tag: "strong trace, only D_coph"
 verdict_source: VERDICT_LEDGER.md (locked 2026-05-18, revised 2026-05-19)
 verdict_layers:
   substrate_rank: trace_direction (raw FC ρ_split^raw matched-strength p=0.014 at 8/10 cohort — strongest substrate signal of any band)
-  rho_split_coph: strong_trace (all 4 primary controls pass: C1 p=.010, C2 p=.007, C3 p=.002 ratio 8.3×, C4 8/10; full-cohort n_above_surrogate 5/10 borderline reclassified strong by C5)
+  rho_split_coph: strong_trace (anchored at C3 alone: paired Wilcoxon p=0.002 ratio 8.3×; C1 p=.010, C2 p=.007, C4 paired-Wilcoxon non-degradation all pass at full cohort; per-patient n_above_surrogate 5/10 is descriptive auxiliary statistic, NOT a verdict modifier — patient-count thresholds retired 2026-05-19, reaffirmed 2026-05-28)
   grassmann: no_trace (cluster-extent permutation p=0.159, audit_70; 4-cell observed run at k=11..14 within null distribution)
-  rho_split_coph_epi_excluded: strengthens_decisively (audit_68; ratio 8.3× → 27.7×, n_above 5/10 → 7/10, p .002 → .014, identifies α as non-epi-cortex phenomenon)
+  rho_split_coph_epi_excluded: secondary_mechanistic_observation (audit_68; ratio strengthens 8.3× → 27.7×, p stays significant at .014, Wilcoxon-on-epi-X p=0.0098 — supportive of non-epi-cortex contribution but NOT a verdict-promoter per amended Decision 10 / Decision 1 retraction, 2026-05-28)
   anatomy_cophenet: strong_localized (11 named DK regions A1+A3 join; bilateral cingulate + parahippocampal + medial OFC + caudal middle frontal + postcentral + precuneus + superior parietal; audit_71 2026-05-19)
   anatomy_cophenet_epi_excluded: 9_of_11_reproduce_2_drop (audit_71 --epi-x rerun 2026-05-22 after patching a silent no-op bug in the original --epi-x branch; lh-caudal-middle-frontal drops at A1 marginal q_BH=0.051; rh-medial-orbitofrontal drops at A2 — z_A2 falls 3.22 → 1.28, revealing an epi-zone-coupled contribution to its full-cohort enrichment; 9 surviving regions include 4 cingulate + lh-parahipp + rh-caudal-MF + rh-postcentral + rh-precuneus + rh-superior-parietal, with lh-rostral-AC strengthening 3.04× → 5.37× and several cingulate regions enrichment-increasing under epi-X)
 sources:
@@ -36,36 +36,39 @@ sources:
 revision_history:
   - 2026-05-19: initial brief produced from VERDICT_LEDGER.md lockdown
   - 2026-05-22: corrected anatomy_cophenet_epi_excluded entry + §5 epi-X anatomy section after patching the silent no-op bug in audit_71 --epi-x (np.isin int×str mismatch at lines 278–283 / 354–359); real epi-X result is 9 of 11 regions reproduce, not 11 of 11
+  - 2026-05-28: stripped the C5 epi-X "5/10 → 7/10 rescue" narrative throughout per user directive; α verdict tag preserved at "strong trace, only D_coph" because C3 paired Wilcoxon p=0.00195 already passes at full cohort under the locked Wilcoxon-as-gate rule; C5 epi-X reframed as secondary mechanistic observation (not verdict-promoter) per amended Decision 10 + retracted Decision 1
 ---
 
 # α band (8–13 Hz) — preprint result report
 
 ## Head
 
-α carries a **per-pair multiscale trace** via the cophenetic communication distance `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))` that **strengthens decisively under epileptogenic-zone exclusion**. At the full n=10 cohort, all four primary controls pass: split-baseline C1 p=0.010, drift-floor C2 p=0.007, matched-strength surrogate C3 p=0.002 (effect-size ratio 8.3×), cross-probe C4 +sign at 8/10. Per-patient agreement at the C3 surrogate is borderline 5/10. C5 epi-X reclassifies the borderline decisively: ratio jumps to **27.7×**, cohort agreement to **7/10**, p stays significant at 0.014, with Pat_03/05/07/10 strengthening and Pat_13 — the patient with the largest epi-zone (N_epi = 30/119) — inverting from +0.028 to −0.171. The Grassmann subspace probe finds **no significant contiguous window** (cluster-extent permutation p = 0.159, audit_70; 4-cell observed run at k = 11..14 within the null distribution, null 95th percentile = 6.0). Verdict from `locked/VERDICT_LEDGER.md`: **`strong trace, only D_coph`** — α reorganization is a **non-epileptic-cortex per-pair multiscale phenomenon** that the full-cohort C3 underdetects because epi-zone patients dilute the cohort signal.
+α carries a **per-pair multiscale trace** via the cophenetic communication distance `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))`. At the full n=10 cohort, all four primary controls pass: split-baseline C1 p=0.010, drift-floor C2 p=0.007, matched-strength surrogate C3 paired Wilcoxon **p=0.002** (effect-size ratio 8.3×), cross-probe C4 paired-Wilcoxon non-degradation. The α verdict is anchored at C3 alone under the locked Wilcoxon-as-gate rule (per-patient `n_above_surrogate` = 5/10 is a descriptive cohort-agreement statistic, NOT a verdict modifier; patient-count thresholds were retired 2026-05-19). The Grassmann subspace probe finds **no significant contiguous window** (cluster-extent permutation p = 0.159, audit_70; 4-cell observed run at k = 11..14 within the null distribution, null 95th percentile = 6.0). Verdict from `locked/VERDICT_LEDGER.md`: **`strong trace, only D_coph`**.
+
+**Secondary mechanistic observation (C5 epi-X, audit_68).** Under epi-zone exclusion the α effect-size ratio strengthens 8.3× → **27.7×** and the one-sample Wilcoxon on per-patient `obs_rho^epi-X > 0` clears at p = 0.0098 (LOO max p = 0.0195 Pat_03). Per-patient Δρ: Pat_03/05/07/10 strengthen; Pat_13 — the patient with the largest epi-zone burden (N_epi = 30/119) — inverts from +0.028 to −0.171; Pat_06/08/14 weaken mildly but stay positive. This is consistent with α-relevant non-epi cortex carrying the trace, but per amended Decision 10 + retracted Decision 1 (2026-05-28) C5 is **never a verdict-promoter** — the α verdict was already strong at C3 alone.
 
 ## Headline three-layer cohort table (α-band row, copied from `locked/VERDICT_LEDGER.md`)
 
 ```
 Layer                                       α (full n=10)
 -------------------------------------      ---------------------
-Raw FC          ρ_split^raw  (audit_67)    8/10 p=.014  (strongest substrate of any band)
-Raw D(τ_max)    ρ_split      (preprint_05) 7/10 p=.042  (ratio 11.4×)
-Cophenet D_coph ρ_split^coph (audit_63)    5/10 p=.002  (ratio 8.3×)   ← borderline at full cohort
-Cophenet D_coph ρ_split^coph (audit_68, C5 epi-X)   7/10 p=.014  (ratio 27.7×) ← strong under epi-X
+Raw FC          ρ_split^raw  (audit_67)    p=.014, 8/10  (strongest substrate of any band)
+Raw D(τ_max)    ρ_split      (preprint_05) p=.042, 7/10  (ratio 11.4×)
+Cophenet D_coph ρ_split^coph (audit_63)    p=.002, 5/10  (ratio 8.3×)   ← verdict gate (Wilcoxon)
+Cophenet D_coph ρ_split^coph (audit_68, C5 epi-X)   p=.0098, ratio 27.7× ← secondary mechanistic observation
 ```
 
-Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`, `data/audit/alpha_epi_exclusion/cohort_summary.csv`. n=10 full / n=10 epi-X (per-patient N_epi varies; see §6).
+Wilcoxon p-values are the verdict gate at each layer; the `N/10` per-patient counts are descriptive auxiliary statistics. Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`, `data/audit/alpha_epi_exclusion/cohort_summary.csv`. n=10 full / n=10 epi-X (per-patient N_epi varies; see §6).
 
-α has the **strongest substrate signal of any band** (raw FC 8/10 p=.014, the only "separated" band on `raw_fc_matched_strength`). The cophenet step demotes α to 5/10 at full cohort — but C5 epi-X re-promotes it to 7/10 with a 3.4× larger effect size. The interpretation is that the cophenet step is doing real multiscale filtering of the per-pair signal AND that the α reorganization lives in non-epi cortex specifically.
+α has the **strongest substrate signal of any band** (raw FC p=.014, the only "separated" band on `raw_fc_matched_strength`). The cophenetic step preserves a multiscale α trace that passes C3 at p=0.002 with a 8.3× effect-size ratio. Under epi-zone exclusion the ratio strengthens to 27.7×, consistent with α-relevant non-epi cortex carrying the trace — a supportive mechanistic observation, not a verdict-modifier.
 
 ## 1. Scientific claim
 
 **Cohort-level question.** Does the α-band (8–13 Hz) post-task resting state at the LRG-CTM layer sit closer to the task state than the pre-task resting state does, in the cophenetic communication geometry of `|ImCoh|`-derived FC matrices?
 
-**Refined biological claim.** α-band cortical coupling reorganizes during the task and the reorganization is retained in the per-pair cophenetic multiscale geometry but **not** in the leading-mode subspace structure. The retention is biologically specific to **non-epileptogenic cortex**: epi-zone exclusion (audit_68) strengthens the cohort effect by ~3.4× and adds two patients to the trace direction. The reorganization is per-pair multiscale (cophenet merges integrate `N−1` dendrogram scales) and **single-facet** (Grassmann `d_G(k)` is silent — the slowest non-trivial subspace modes do not rotate at α).
+**Refined biological claim.** α-band cortical coupling reorganizes during the task and the reorganization is retained in the per-pair cophenetic multiscale geometry but **not** in the leading-mode subspace structure. The reorganization is per-pair multiscale (cophenet merges integrate `N−1` dendrogram scales) and **single-aspect** (Grassmann `d_G(k)` is silent — the slowest non-trivial subspace modes do not rotate at α). Mechanistic adjunct (not a verdict-bearing claim): C5 epi-zone exclusion strengthens the cohort effect by ~3.4× in effect-size ratio, consistent with the trace being carried by non-epileptogenic cortex.
 
-**Falsification budget.** The claim fails if any of: (a) `ρ_split^coph` cohort-paired Wilcoxon p ≥ 0.05 at C3 (matched-strength); (b) cross-probe restriction (C4) flips sign or drops below 6/10 cohort agreement; (c) C5 epi-X *weakens* (rather than strengthens) the cohort signal; (d) per-patient C5 differences are dominated by a single patient (would need a leave-one-out sensitivity to rule out — see §7).
+**Falsification budget.** The claim fails if any of the primary controls fail: (a) `ρ_split^coph` cohort-paired Wilcoxon p ≥ 0.05 at C3 (matched-strength); (b) cross-probe C4 paired Wilcoxon rejects (`split > xprobe` significant degradation) or sign mismatch; (c) LOO max-p at C3 exceeds 0.05 (Decision 11 robustness). C5 epi-X is a secondary mechanistic observation per amended Decision 10 — it is not a primary falsifier of the α verdict.
 
 ## 2. Cohort, substrate, and library entry points
 
@@ -82,7 +85,7 @@ lrg = load_lrg_result(patient="Pat_02", phase="rest_pre", band="alpha", fc_metho
 
 ## 3. The two LRG probes — methodology, results, and provenance
 
-### 3.1 Per-pair multiscale correlation on `D_coph` — **LOAD-BEARING for α**
+### 3.1 Per-pair multiscale correlation on `D_coph` — **PRIMARY FINDING for α**
 
 #### What `D_coph` is and why it is the per-pair multiscale object
 `D_coph_ij = h(LCA_L(i, j))` is the merge height in the UPGMA dendrogram of `D(τ_max) = 1/ρ̂(τ_max)` at which contacts `i` and `j` first coalesce. The cophenetic image of a hierarchical clustering is ultrametric by construction, and each entry reads the intrinsic communication-coalescence scale of that pair. Because our `|ImCoh|` Laplacian spectrum is continuous (no gap-induced crossover scales), the dendrogram's `N−1` merge heights replace the spectral-gap scale identification of [Villegas 2025]; `D_coph` is therefore the natural multiscale per-pair carrier in this regime. See `methods/methods_revision_2026-05-18_cophenet.md` for the full justification.
@@ -113,13 +116,13 @@ lrg = load_lrg_result(patient="Pat_02", phase="rest_pre", band="alpha", fc_metho
 | C3 surr median (median over surrogate medians) | +0.0128 | same |
 | C3 ratio obs/surr | **8.25×** | derived |
 | C3 paired Wilcoxon z / p | 54.0 / **0.00195** | same |
-| C3 n_above_surrogate (per-patient) | **5/10** | same — *borderline; resolved by C5 below* |
+| C3 n_above_surrogate (per-patient) | 5/10 | same — descriptive auxiliary statistic only |
 | C4 cross-probe rho_xprobe | +0.105 | `ctm_triangle/cohort_summary.csv` alpha |
 | C4 n_trace_xprobe | 8/10 (+sign matches +0.115) | same |
 
-All 4 primary controls (C1/C2/C3/C4 Wilcoxons) pass at p < 0.05. The only borderline at full cohort is the **per-patient** count at C3 (5/10 — equal split). Per CLAUDE.md `feedback_no_hardcoded_test_thresholds.md`, the Wilcoxon test IS the gate; the count is a cohort-agreement gradation that C5 epi-X resolves.
+All 4 primary controls (C1/C2/C3/C4 Wilcoxons) pass at p < 0.05. Per CLAUDE.md `feedback_no_hardcoded_test_thresholds.md` + `feedback_patient_counts_never_the_gate.md`, the Wilcoxon test IS the gate; per-patient counts are descriptive auxiliary statistics and never modify the verdict.
 
-#### C5 epi-zone exclusion (audit_68 — the decisive sensitivity for α)
+#### C5 epi-zone exclusion (audit_68 — secondary mechanistic observation, per amended Decision 10)
 
 | Statistic | Full cohort | Epi-X cohort | Δ |
 |---|---|---|---|
@@ -129,7 +132,7 @@ All 4 primary controls (C1/C2/C3/C4 Wilcoxons) pass at p < 0.05. The only border
 | Wilcoxon paired z / p | 54 / 0.00195 | 49 / **0.01367** | p widens (smaller per-patient N) but stays < 0.05 |
 | n_above_surrogate | 5/10 | **7/10** | +2 patients |
 
-Under C5 epi-X the trace **strengthens decisively** — ratio more than triples, two more patients move above their own surrogate, p stays significant. Source: `alpha_epi_exclusion/cohort_summary.csv`.
+Under C5 epi-X the effect-size ratio strengthens ~3.4× and the Wilcoxon stays significant; the per-patient `n_above_surrogate` count increases from 5/10 to 7/10 (descriptive only). This is supportive of α reorganization being carried by non-epileptogenic cortex. **Per amended Decision 10 (2026-05-28) and retracted Decision 1, the C5 strengthening is a secondary mechanistic observation and not a verdict-promoter.** The α verdict is anchored at C3 alone. Source: `alpha_epi_exclusion/cohort_summary.csv`.
 
 #### Per-patient C5 epi-X comparison (`alpha_epi_exclusion/comparison.csv`)
 
@@ -149,7 +152,7 @@ Under C5 epi-X the trace **strengthens decisively** — ratio more than triples,
 Read: under C5 epi-X, three patients move into the + trace direction (Pat_05, Pat_07, Pat_10), one patient inverts (Pat_13 — the only patient with N_epi ≥ 30, ~25% of contacts), the four already strongly positive (Pat_03, Pat_06, Pat_08, Pat_14) stay strongly positive with mild weakening, and Pat_15 (zero epi nodes) is invariant by construction. The cohort signal becomes more uniform and stronger under C5.
 
 #### Reading
-α `ρ_split^coph` passes all 4 primary controls at full cohort with a borderline per-patient agreement at C3. C5 epi-X strengthens the effect size by ~3.4× and brings cohort agreement to 7/10. The 5/10 → 7/10 + ratio 8.3× → 27.7× transition under C5 is **decisive evidence that α is a non-epi-cortex per-pair phenomenon**, not a marginal full-cohort effect.
+α `ρ_split^coph` passes all 4 primary controls at full cohort, with C3 paired Wilcoxon p = 0.00195 the verdict gate. The per-patient C3 `n_above_surrogate` = 5/10 is a descriptive cohort-agreement statistic and does not modify the verdict (patient-count thresholds were retired 2026-05-19). Under C5 epi-X the effect strengthens ~3.4× in ratio, consistent with α reorganization being carried by non-epileptogenic cortex — a mechanistic observation that supports the biological interpretation without being a verdict-promoter.
 
 #### Cache + script provenance
 - Full cohort: `audit_63_split_baseline_surrogate.py` → `data/audit/matched_strength_surrogate_split_baseline/`
@@ -160,7 +163,7 @@ Read: under C5 epi-X, three patients move into the + trace direction (Pat_05, Pa
 ### 3.2 Global subspace rotation: Grassmann chordal distance `d_G(k)` — **no trace at α**
 
 #### What `d_G(k)` reads vs what `ρ_split^coph` reads
-`d_G(k)` is the chordal Grassmann distance between leading-`k`-dimensional Laplacian eigenmode subspaces of two phases (`d_G² = k − ‖A^T B‖_F²` with A, B = N×k orthonormal eigenvector matrices, skipping the trivial mode). It reads **whether the slow-diffusion subspace rotates** between phases, at a chosen `k`. The per-pair `ρ_split^coph` and the Grassmann `d_G(k)` are not derivable from each other and read structurally distinct facets of the same propagator.
+`d_G(k)` is the chordal Grassmann distance between leading-`k`-dimensional Laplacian eigenmode subspaces of two phases (`d_G² = k − ‖A^T B‖_F²` with A, B = N×k orthonormal eigenvector matrices, skipping the trivial mode). It reads **whether the slow-diffusion subspace rotates** between phases, at a chosen `k`. The per-pair `ρ_split^coph` and the Grassmann `d_G(k)` are not derivable from each other and read structurally distinct aspects of the same propagator.
 
 #### Critical preamble (5-point)
 1. **Claim.** `T_G(k) = d_G(taskT, rsPost; k) − d_G(rsPre_A, taskT; k) < 0` at cohort level for some contiguous window of `k`.
@@ -183,11 +186,12 @@ Read: under C5 epi-X, three patients move into the + trace direction (Pat_05, Pa
 | Cluster-extent null mean LR | 2.09 | `grassmann_cluster_extent/cohort_summary.csv` alpha |
 | Cluster-extent null 95th LR | 6.0 | same |
 | Cluster-extent null max LR | 12 | same |
-| Observed cluster mass (Σ −log10p) | 7.98 | same |
-| Null mean cluster mass | 3.72 | same |
-| Null 95th cluster mass | 10.66 | same |
-| **cluster_p_longest_run** | **0.1592** | same |
-| **cluster_p_cluster_mass** | 0.0995 | same |
+| Observed cluster mass `T_G^*` (raw Σ −log10p) | 7.98 | same |
+| Observed `T_G^*` (normalized per C1) | **0.0312** (raw / 255.65, n_k=111, R=200) | same |
+| Null mean cluster mass | 7.35 (post-fix all-clusters) | same |
+| Null 95th cluster mass | 21.26 (post-fix) | same |
+| **cluster_p_longest_run (descriptive)** | 0.1592 | same |
+| **cluster_p_mass (Decision-8 gate)** | **0.3482** | same — no trace (mass-only gate fails) |
 | C5 epi-X (audit_67): obs longest run | 3 cells | `grassmann_regate_no_filter/contig_summary.csv` audit_67 alpha |
 
 Observed 4-cell longest run is well within the null distribution (null 95th = 6.0; null mean = 2.09). Both cluster-p statistics fail the 0.05 gate; the cluster-mass statistic is right on the boundary (0.0995) but still above. Under C5 epi-X the longest run further shrinks to 3 cells.
@@ -204,11 +208,11 @@ Observed 4-cell longest run is well within the null distribution (null 95th = 6.
 
 ## 4. Multiscale structure of the α trace
 
-### Per-pair multiscale via `D_coph` (load-bearing)
+### Per-pair multiscale via `D_coph` (primary)
 
 The cophenet integrates across `N−1 ≈ 112–121` merge heights per patient. The α `ρ_split^coph` is therefore an integrated multiscale signal at the per-pair level: it cannot be reduced to a single-scale per-pair comparison because the cophenetic image carries each pair to its own coalescence scale.
 
-The headline three-layer table demonstrates that raw FC (single-pair magnitudes) and raw `D(τ_max)` (single-scale propagator distance) both detect α (8/10 and 7/10 respectively, p < 0.05), but the cophenetic step at full cohort *demotes* α to 5/10. Under C5 epi-X the cophenet step *promotes* α back to 7/10 with a 3.4× larger effect size. The interpretation: the multiscale per-pair filter induced by the dendrogram is **selectively retaining the non-epi-cortex component** of the α reorganization while filtering out epi-zone contributions.
+The headline three-layer table shows that raw FC (single-pair magnitudes), raw `D(τ_max)` (single-scale propagator distance), and cophenet `D_coph` all detect the α trace at the Wilcoxon level (p = 0.014 / 0.042 / 0.002 respectively); the descriptive per-patient counts shift from 8/10 → 7/10 → 5/10 across the three layers. Under C5 epi-X the cophenet effect-size ratio strengthens ~3.4× and the per-patient count rises to 7/10 (descriptive only). Reading: the multiscale per-pair filter induced by the dendrogram is **selectively retaining the non-epi-cortex component** of the α reorganization — a mechanistic observation supportive of the cophenet methodology directive, with the C3 Wilcoxon being the verdict gate at each layer.
 
 ### Subspace multiscale via Grassmann `d_G(k)` (silent)
 
@@ -216,7 +220,7 @@ The headline three-layer table demonstrates that raw FC (single-pair magnitudes)
 
 ## 5. Anatomical distribution — α cophenet trace is strong-localized to a bilateral cingulate + parahippocampal + parietal cortical network; 9 of 11 regions reproduce under C5 epi-X
 
-The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 (hypergeometric + matched-strength surrogate, R=200, seed 20260511) at q_BH<0.05 / p_emp<0.05. Under C5 epi-X exclusion **9 of 11 named regions reproduce** at the joint A1+A3 gate, with two named dropouts that carry distinct meaning: left caudal middle frontal gyrus drops at A1 (marginal q_BH=0.051, the weakest of the 11 in full cohort), and **right medial orbitofrontal cortex drops at A2 (matched-strength surrogate z falls from 3.22 to 1.28)** — A1 remains strong, but the matched-strength surrogate no longer separates the residual signal, indicating that the full-cohort rh-medial-OFC enrichment carried a substantial epi-zone-coupled topological component. The 9 surviving regions all maintain or strengthen under epi-X, with **lh-rostral-anterior-cingulate the largest gainer** (enrichment 3.04× → 5.37×, q_BH 4.1e-20 → 1.5e-31). This is consistent with the C5-driven strengthening of the trace itself (`locked/VERDICT_LEDGER.md` Decision 1) and supports reading the α reorganization as a non-epileptic-cortex multiscale phenomenon. The original "11/11 reproduce identically" claim recorded here in the 2026-05-19 lockdown was an artifact of a silent no-op bug in the audit_71 `--epi-x` mask (`np.isin(int_array, str_array)` always-False); the bug was patched and the audit rerun on 2026-05-22 (see `.agents/preprint/directives/writing_directive_2026-05-22_alpha_results_drafting.md` §"Critical issues" → Issue 1 for the bug history and the verified outcome).
+The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 (hypergeometric + matched-strength surrogate, R=200, seed 20260511) at q_BH<0.05 / p_emp<0.05. Under C5 epi-X exclusion **9 of 11 named regions reproduce** at the joint A1+A3 gate, with two named dropouts that carry distinct meaning: left caudal middle frontal gyrus drops at A1 (marginal q_BH=0.051, the weakest of the 11 in full cohort), and **right medial orbitofrontal cortex drops at A2 (matched-strength surrogate z falls from 3.22 to 1.28)** — A1 remains strong, but the matched-strength surrogate no longer separates the residual signal, indicating that the full-cohort rh-medial-OFC enrichment carried a substantial epi-zone-coupled topological component. The 9 surviving regions all maintain or strengthen under epi-X, with **lh-rostral-anterior-cingulate the largest gainer** (enrichment 3.04× → 5.37×, q_BH 4.1e-20 → 1.5e-31). This is consistent with the C5 effect-size strengthening at the cohort level (mechanistic observation per amended Decision 10 / retracted Decision 1, 2026-05-28) and supports reading the α reorganization as a non-epileptic-cortex multiscale phenomenon. The original "11/11 reproduce identically" claim recorded here in the 2026-05-19 lockdown was an artifact of a silent no-op bug in the audit_71 `--epi-x` mask (`np.isin(int_array, str_array)` always-False); the bug was patched and the audit rerun on 2026-05-22 (see `.agents/preprint/directives/writing_directive_2026-05-22_alpha_results_drafting.md` §"Critical issues" → Issue 1 for the bug history and the verified outcome).
 
 Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 entry.
 
@@ -265,7 +269,7 @@ The 9 surviving regions and how they shift under epi-X:
 | `ctx-rh-precuneus` | 1.47× (q 1.3e-3) | 1.47× (q 1.1e-3) | identical |
 | `ctx-rh-superiorparietal` | 1.64× (q 3.7e-5) | 1.64× (q 3.4e-5) | identical |
 
-Net reading: the 9-region surviving network — **bilateral cingulate (4 regions: lh-/rh-caudal-AC, lh-rostral-AC, rh-posterior-cingulate) + left parahippocampal cortex + right caudal middle frontal gyrus + right postcentral / precuneus / superior parietal** — sees several constituent regions (particularly bilateral cingulate and left parahippocampal cortex) **strengthen** under epi-X. The pattern mirrors the trace-level strengthening (`ρ_split^coph` cohort ratio 8.3× → 27.7× under epi-X; `locked/VERDICT_LEDGER.md` Decision 1) and reads the α reorganization as a **physiological cortical phenomenon, with bilateral cingulate and left medial-temporal cortex as the anatomical core** and a small epi-zone-coupled contribution that explains the rh-medial-OFC dropout under matched-strength.
+Net reading: the 9-region surviving network — **bilateral cingulate (4 regions: lh-/rh-caudal-AC, lh-rostral-AC, rh-posterior-cingulate) + left parahippocampal cortex + right caudal middle frontal gyrus + right postcentral / precuneus / superior parietal** — sees several constituent regions (particularly bilateral cingulate and left parahippocampal cortex) **strengthen** under epi-X. The pattern mirrors the cohort effect-size strengthening (`ρ_split^coph` cohort ratio 8.3× → 27.7× under epi-X — secondary mechanistic observation, not a verdict-promoter) and reads the α reorganization as a **physiological cortical phenomenon, with bilateral cingulate and left medial-temporal cortex as the anatomical core** and a small epi-zone-coupled contribution that explains the rh-medial-OFC dropout under matched-strength.
 
 Source: `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv` (post-patch 2026-05-22; MD5 `199d742b22e00893ff3fbae4623a1b1c`).
 
@@ -288,7 +292,7 @@ Source: `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv` (post-patch 
 
 ## 6. Patient-by-patient reading
 
-### α `ρ_split^coph` per-patient signs across the load-bearing probe
+### α `ρ_split^coph` per-patient signs across the primary probe
 
 The full table is in §3.1 above (the C5 epi-X comparison). Summary at the cohort level:
 
@@ -306,38 +310,38 @@ The full table is in §3.1 above (the C5 epi-X comparison). Summary at the cohor
 |---|---|---|
 | C1 within-rsPre split-half null | ✓ 8/10 cohort, p = 0.010 | `ctm_triangle/cohort_summary.csv` alpha |
 | C2 drift-floor `ρ_split > ρ_drift` | ✓ 8/10 above drift, p = 0.007 | same |
-| C3 matched-strength surrogate `ρ_split^coph` | ✓ ratio 8.3×, 5/10, p = 0.002 | `matched_strength_surrogate_split_baseline` alpha |
+| C3 matched-strength surrogate `ρ_split^coph` | ✓ paired Wilcoxon p = 0.002 (verdict gate); ratio 8.3×; per-patient 5/10 descriptive | `matched_strength_surrogate_split_baseline` alpha |
 | C3 matched-strength surrogate Grassmann | ✗ cluster_p = 0.159 (no trace) | `grassmann_cluster_extent` alpha |
-| C4 cross-probe restriction | ✓ +0.105, 8/10 +sign | `ctm_triangle` alpha (rho_xprobe column) |
-| C5 epi-X `ρ_split^coph` | ✓✓ **strengthens 8.3× → 27.7× / 5/10 → 7/10 / p = .014** | `alpha_epi_exclusion/cohort_summary.csv` |
-| C5 epi-X Grassmann | (n/a; Grassmann has no trace) | `grassmann_regate_no_filter` audit_67 alpha |
-| Pat_13 leave-one-out under C5 | sensitive — Pat_13 inverts under epi-X; cohort verdict robust because the other 9 patients carry the signal | `alpha_epi_exclusion/comparison.csv` |
-| Cross-probe restriction (C4) | preserves sign + cohort majority | `ctm_triangle` |
-| Three-layer cohort table (raw FC / raw D / cophenet ± epi-X) | cophenet at full cohort underdetects α; C5 reveals it as non-epi-cortex phenomenon | headline section above |
+| C4 cross-probe restriction | ✓ +0.105, paired-Wilcoxon non-degradation; descriptive 8/10 +sign | `ctm_triangle` alpha (rho_xprobe column) |
+| C5 epi-X `ρ_split^coph` (secondary mechanistic) | Wilcoxon-on-epi-X p = 0.0098; ratio strengthens 8.3× → 27.7×; **not verdict-promoter** per amended Decision 10 | `alpha_epi_exclusion/cohort_summary.csv` |
+| C5 epi-X Grassmann | (n/a; Grassmann has no trace at α) | `grassmann_regate_no_filter` audit_67 alpha |
+| Pat_13 leave-one-out under C5 | Pat_13 inverts under epi-X — mechanistically consistent with the largest epi-zone fraction; descriptive only | `alpha_epi_exclusion/comparison.csv` |
+| Cross-probe restriction (C4) | preserves sign | `ctm_triangle` |
+| Three-layer cohort table (raw FC / raw D / cophenet) | all three layers pass C3 at Wilcoxon; cophenet C5 epi-X strengthens the ratio, supportive non-epi-cortex reading | headline section above |
 
 ## 8. Sensitivity panel under the locked 5-control battery
 
-Per `locked/VERDICT_LEDGER.md` Decision 1 (logged 2026-05-18), the α C3 borderline (5/10 per-patient cohort agreement) was resolved by C5 epi-X (7/10 + 27.7× ratio). **The verdict for α is `strong trace, only D_coph`. No further sensitivity tests are owed.**
+The α verdict is anchored at C3 paired Wilcoxon p = 0.00195 alone (locked Wilcoxon-as-gate rule; patient-count thresholds retired 2026-05-19, reaffirmed 2026-05-28). C5 epi-X is reported as a secondary mechanistic observation per amended Decision 10 + retracted Decision 1. **The verdict for α is `strong trace, only D_coph` based on C1–C4 at full cohort.**
 
 | Control | α status | Notes |
 |---|---|---|
 | C1 split | ✓ p = 0.010 | passes |
 | C2 drift | ✓ p = 0.007 | passes |
-| C3 matched-strength (cophenet) | ✓ p = 0.002 | passes; per-patient 5/10 (borderline → resolved by C5) |
+| C3 matched-strength (cophenet) | ✓ paired Wilcoxon p = 0.002 | verdict gate; per-patient 5/10 descriptive only |
 | C3 matched-strength (Grassmann) | ✗ cluster_p = 0.159 | Grassmann probe inactive at α |
-| C4 cross-probe | ✓ 8/10 +sign | passes |
-| C5 epi-X (cophenet) | ✓ strengthens (audit_68) | resolves the C3 borderline |
-| C5 epi-X (Grassmann) | ✗ further shrinks to 3 cells | confirms no Grassmann trace |
+| C4 cross-probe (paired Wilcoxon) | ✓ non-degradation | passes |
+| C5 epi-X (cophenet) | secondary mechanistic observation (audit_68) | ratio strengthens 3.4×; supportive of non-epi-cortex contribution; not verdict-promoter |
+| C5 epi-X (Grassmann) | (n/a; Grassmann has no trace at α) | confirms no Grassmann trace |
 
 ## 9. Interpretation
 
 **Neuroscientific framing.** α (8–13 Hz) is the canonical posterior/attentional rhythm and the dominant inter-areal coupling band at rest in human iEEG (Spaak et al. 2012; Mathewson 2011; Klimesch 2012). A non-epileptic-cortex α trace at the LRG-CTM layer is consistent with **attentional-state carryover** from task into post-task rest, specifically in the per-pair cophenetic communication geometry rather than in the slow-subspace structure.
 
-**Why per-pair only (not Grassmann).** β (13–30 Hz) carries both `ρ_split^coph` and Grassmann subspace traces (multi-facet). α carries only the per-pair multiscale signature. The interpretation is that the α reorganization is **distributed across the cophenetic merge-height continuum** without producing a coherent rotation of the slow-mode subspace at any single `k`. Mechanistically this is consistent with a wide-band, per-pair coupling re-weighting that does not concentrate in the slowest few diffusion modes — distinct from β, where the reorganization rotates a 29-mode subspace.
+**Why per-pair only (not Grassmann).** β (13–30 Hz) carries both `ρ_split^coph` and Grassmann subspace traces (multi-aspect). α carries only the per-pair multiscale signature. The interpretation is that the α reorganization is **distributed across the cophenetic merge-height continuum** without producing a coherent rotation of the slow-mode subspace at any single `k`. Mechanistically this is consistent with a wide-band, per-pair coupling re-weighting that does not concentrate in the slowest few diffusion modes — distinct from β, where the reorganization rotates a 29-mode subspace.
 
-**Why epi-zone exclusion strengthens α.** Pat_13 has the largest fraction of epileptogenic contacts (30/119 ≈ 25%). Removing them reveals that α retention is a **non-epi-cortex phenomenon hidden by the epi zone in three patients** (Pat_05, Pat_07, Pat_10 move from marginal-positive to clearly-positive under C5) and **inverted** in Pat_13 (whose epi-zone is large enough that its α coupling dominates the residual signal). β's Grassmann epi-X also strengthens, but at α the effect is concentrated in the per-pair cophenet probe.
+**Why epi-zone exclusion strengthens α (mechanistic observation).** Pat_13 has the largest fraction of epileptogenic contacts (30/119 ≈ 25%). Under C5 epi-X, three patients (Pat_05, Pat_07, Pat_10) move from marginal-positive to clearly-positive, while Pat_13 inverts (whose epi-zone is large enough that its α coupling dominates the residual signal). β's Grassmann under C5 also strengthens; at α the C5 effect is concentrated in the per-pair cophenet probe. This pattern is consistent with α reorganization being carried by non-epileptogenic cortex — supportive narrative, not a verdict-modifier.
 
-**The role of the cophenet step at α.** Raw FC and raw `D(τ_max)` both detect α at 7–8/10. The cophenetic step at full cohort *demotes* α to 5/10 — but the same cophenetic step under C5 *promotes* α to 7/10. The cophenet is therefore acting as a **multiscale + spatial-purity filter**: it integrates across merge heights AND, when combined with C5 epi-X, isolates the non-pathological component of the α reorganization. This is a strong endorsement of the methodology directive's framing of cophenet as a multiscale-resolution operator.
+**The role of the cophenet step at α.** Raw FC and raw `D(τ_max)` both detect α at the Wilcoxon level. The cophenetic step also passes C3 at p = 0.002 (verdict gate; descriptive per-patient count drops 8/10 → 7/10 → 5/10 across the three layers as the metric becomes more multiscale-aggregative). Under C5 epi-X the cophenet ratio strengthens 3.4×, supportive of cophenet acting as a multiscale + spatial-purity filter that selectively retains the non-pathological component of the α reorganization. This is a mechanistic endorsement of the methodology directive's framing of cophenet as a multiscale-resolution operator.
 
 ## 10. Source-of-truth references
 
@@ -379,6 +383,6 @@ This brief freezes the α verdict for the preprint manuscript under the 2026-05-
 
 1. **α figures** — produce F1 (4-control panel for `ρ_split^coph` + C5 epi-X), F2 (Grassmann `T_G(k)` cohort cells highlighting the empirical null), F3 (per-patient Δ_task vs Δ_rest scatter on `D_coph` for representative patients), and the per-patient C5 epi-X waterfall plot from §6. Output at `data/preprint/figures/alpha/`.
 2. **No anatomy audit owed at α** under the locked battery. If a Desikan–Killiany enrichment is wanted as a descriptive supplement, the β anatomy pipeline (`audit_64`) can be re-pointed at α.
-3. **No further sensitivity tests owed.** The C5 epi-X audit (audit_68) resolves the only borderline (5/10 → 7/10 cohort agreement at C3) per VERDICT_LEDGER.md Decision 1.
+3. **No further sensitivity tests owed.** The α verdict is anchored at C3 paired Wilcoxon p = 0.00195 alone under the locked Wilcoxon-as-gate rule; the C5 epi-X audit (audit_68) provides supportive mechanistic context (non-epi-cortex contribution) per amended Decision 10.
 
-Verdict ready for writing-agent handoff: **`strong trace, only D_coph`**. The headline story is the C5 epi-X reclassification — α reorganization is a non-epi-cortex per-pair multiscale phenomenon.
+Verdict ready for writing-agent handoff: **`strong trace, only D_coph`**, anchored at C3. The mechanistic narrative — α reorganization as a non-epileptogenic-cortex per-pair multiscale phenomenon — is supported by C5 but is not the primary verdict claim.

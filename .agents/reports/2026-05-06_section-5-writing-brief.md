@@ -6,7 +6,7 @@ status: current
 created: 2026-05-06
 updated: 2026-05-06
 pointers:
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - .agents/reports/2026-05-05_section-5-manuscript-draft.md
   - .agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md
   - data/reports/section_5_lrg_trace/README.md
@@ -25,7 +25,7 @@ read-order + final framing decisions + do/don't claims + provenance.
 ## 0. Read order (do not skip)
 
 1. **Plain-language synthesis (start here):**
-   `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` —
+   `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md` —
    "In plain words" section first, then the technical evidence chain.
 2. **Drop-in manuscript prose (already written, edit-don't-redraft):**
    `.agents/reports/2026-05-05_section-5-manuscript-draft.md` — six

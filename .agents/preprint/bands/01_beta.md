@@ -42,7 +42,7 @@ revision_history:
 
 ## Head
 
-β is the **only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes** — the per-pair multiscale **cophenetic communication distance** `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))` (cohort-paired Wilcoxon p = 0.005, effect-size ratio 23.7×, 7/10 patients above own surrogate; passes C1 split p=0.005, C2 drift p=0.014, C3 matched-strength p=0.005, C4 cross-probe 8/10) and the Grassmann chordal distance `d_G(k)` on the leading-k Laplacian eigenmode subspaces (cluster-extent permutation p = 0.005, audit_70; 29 contiguous matched-strength-significant k cells at k ∈ [27, 55], **strengthening to 36 cells at k ∈ [21, 56] under epileptic-zone exclusion**, 29/29 of the manuscript-window cells persist + 7 new emerge at lower k). The trace is **localized to a distributed cortical network** (7 DK regions per probe pass A1+A3 join under matched-strength: cingulate + parahippocampal + entorhinal + insula + postcentral + superior frontal on the cophenet probe; Hippocampus + temporal cortex + orbitofrontal + insula + rostral middle frontal on the Grassmann probe; audit_71 + audit_72, 2026-05-19) and **multiscale** (per-pair via cophenetic merge-height integration on `D_coph`; subspace via k-sweep on `U_k` — the two probes read different facets of the same multiscale geometry). Verdict tag from `locked/VERDICT_LEDGER.md`: **`strong trace, both probes`** (locked 2026-05-18, revised 2026-05-19 for cluster-extent gate).
+β is the **only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes** — the per-pair multiscale **cophenetic communication distance** `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))` (cohort-paired Wilcoxon p = 0.005, effect-size ratio 23.7×, 7/10 patients above own surrogate; passes C1 split p=0.005, C2 drift p=0.014, C3 matched-strength p=0.005, C4 cross-probe 8/10) and the Grassmann chordal distance `d_G(k)` on the leading-k Laplacian eigenmode subspaces (cluster-extent permutation p = 0.005, audit_70; 29 contiguous matched-strength-significant k cells at k ∈ [27, 55], **strengthening to 36 cells at k ∈ [21, 56] under epileptic-zone exclusion**, 29/29 of the manuscript-window cells persist + 7 new emerge at lower k). The trace is **localized to a distributed cortical network** (7 DK regions per probe pass A1+A3 join under matched-strength: cingulate + parahippocampal + entorhinal + insula + postcentral + superior frontal on the cophenet probe; Hippocampus + temporal cortex + orbitofrontal + insula + rostral middle frontal on the Grassmann probe; audit_71 + audit_72, 2026-05-19) and **multiscale** (per-pair via cophenetic merge-height integration on `D_coph`; subspace via k-sweep on `U_k` — the two probes read different aspects of the same multiscale geometry). Verdict tag from `locked/VERDICT_LEDGER.md`: **`strong trace, both probes`** (locked 2026-05-18, revised 2026-05-19 for cluster-extent gate).
 
 ## Headline three-layer cohort table
 
@@ -58,13 +58,13 @@ Cophenet D_coph ρ_split^coph (audit_63)    4/10 p=.28    2/10 p=.72     5/10 p=
 
 Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`. n=10, R=200 matched-strength surrogates per cell, seed 20260511.
 
-The cophenet's contribution is **band-resolution at the multiscale level** via dendrogram-induced merge-height integration, **not** amplification of detection. Raw FC already detects everything at the cohort level; cophenet identifies which bands carry the trace at the hierarchical-multiscale level. This three-layer contrast is the load-bearing argument for adopting `D_coph` as the canonical per-pair probe. Methodology directive: `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`.
+The cophenet's contribution is **band-resolution at the multiscale level** via dendrogram-induced merge-height integration, **not** amplification of detection. Raw FC already detects everything at the cohort level; cophenet identifies which bands carry the trace at the hierarchical-multiscale level. This three-layer contrast is the central argument for adopting `D_coph` as the canonical per-pair probe. Methodology directive: `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`.
 
 ## 1. Scientific claim
 
 **Cohort-level question.** Given a four-phase paradigm (`rest_pre` → `task_learn` → `task_test` → `rest_post`), does the post-task resting state at the β band sit closer to the task state than the pre-task resting state does, in the **diffusion communication geometry** induced by the imaginary-coherence functional-connectivity matrices?
 
-**Refined biological claim.** β-band cortical coupling reorganizes during the task and the reorganization is retained into the post-task resting state. The retention is multi-facet (per-pair multiscale cophenetic communication geometry + global leading-mode subspace), multiscale (the cophenet integrates across N−1 dendrogram merge-height scales; Grassmann spans ~30 leading-eigenmode subspace dimensions), distributed across non-epi cortex (no single-region anatomical anchor under multi-region correction).
+**Refined biological claim.** β-band cortical coupling reorganizes during the task and the reorganization is retained into the post-task resting state. The retention is multi-aspect (per-pair multiscale cophenetic communication geometry + global leading-mode subspace), multiscale (the cophenet integrates across N−1 dendrogram merge-height scales; Grassmann spans ~30 leading-eigenmode subspace dimensions), distributed across non-epi cortex (no single-region anatomical anchor under multi-region correction).
 
 **Falsification budget.** The claim fails if any of: (a) `ρ_split^coph` cohort-paired Wilcoxon p ≥ 0.05 against drift floor (within-baseline) or matched-strength surrogate (mandatory control); (b) Grassmann `d_G(k)` cohort-paired Wilcoxon ≥ 0.05 at fewer than 5 contiguous k cells in the manuscript window k=27..55 under matched-strength; (c) epi-zone exclusion collapses ≥ 50% of the Grassmann manuscript-window cells; (d) cohort signal is carried by ≤ 5/10 patients individually above their own surrogate.
 
@@ -260,19 +260,19 @@ The "Pat_02 halves" reading is methodologically informative: Pat_02 is both the 
 | **Epi-exclusion `ρ_split^coph` (β specific)** | **strengthens** — ratio 23.7× → 26.0×, p 0.005 → 0.003, C5 one-sample Wilcoxon p = 0.003, LOO max p = 0.006 (Pat_02); see §3.2.5 above | `data/audit/beta_epi_exclusion/` (audit_68_beta, 2026-05-20) |
 
 #### Reading
-β has **two independent matched-strength-controlled cohort-paired Wilcoxon-positive signals at the LRG layer**: `ρ_split^coph` (this section) and Grassmann (§3.3). The `ρ_split^coph` signal is per-pair multiscale (`N(N−1)/2 = 6,786..7,381` pair observations per patient at β, each evaluated at the pair's natural communication-merge scale); the Grassmann signal is global subspace alignment at a chosen subspace cutoff `k`. The two are derived from the same `D(τ_max)` propagator but ask geometrically distinct questions (per-pair merge-scale vs subspace orientation; see §3.3 distinction paragraph), and both pass the same matched-strength null. This is the load-bearing **cohort-level multi-facet matched-strength** claim of the β preprint paragraph.
+β has **two independent matched-strength-controlled cohort-paired Wilcoxon-positive signals at the LRG layer**: `ρ_split^coph` (this section) and Grassmann (§3.3). The `ρ_split^coph` signal is per-pair multiscale (`N(N−1)/2 = 6,786..7,381` pair observations per patient at β, each evaluated at the pair's natural communication-merge scale); the Grassmann signal is global subspace alignment at a chosen subspace cutoff `k`. The two are derived from the same `D(τ_max)` propagator but ask geometrically distinct questions (per-pair merge-scale vs subspace orientation; see §3.3 distinction paragraph), and both pass the same matched-strength null. This is the central **cohort-level multi-aspect matched-strength** claim of the β preprint paragraph.
 
 #### Cache + script provenance
 | Artifact | Path |
 |---|---|
 | Within-baseline + drift floor + cross-probe | `data/audit/ctm_triangle/{cohort_summary,Td_per_patient_per_band}.csv` |
 | Matched-strength | `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv` |
-| Script (within-baseline) | `scripts/01_compute/audit/audit_*_ctm_triangle.py` |
+| Script (within-baseline) | `scripts/01_compute/audit/audit_33_ctm_triangle.py` |
 | Script (matched-strength) | `scripts/01_compute/audit/audit_63_split_baseline_surrogate.py` |
 | Cache (matched-strength surr eigs) | `data/cache/matched_strength_surrogate_lrg/Pat_NN/beta_{phase}_R200_swap20_seed20260511_imcoh_abs.npz` |
 | Raw D sensitivity script | `scripts/02_preprint/preprint_03_beta_matched_strength_raw_D.py` |
 | All-bands raw D matched-strength | `scripts/02_preprint/preprint_05_allbands_matched_strength_raw_D.py` |
-| Canonical writeup | `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` (pre-cophenet-rename — use cophenet framing instead) |
+| Canonical writeup | `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md` (pre-cophenet-rename — use cophenet framing instead) |
 
 **Note on script hardcoded filter.** `audit_63_split_baseline_surrogate.py:357` has `n_above >= 8` strict gate. To be dropped in `preprint_03_beta_rho_split_coph.py` migration. Numbers in this report are Wilcoxon-only and not affected.
 
@@ -280,7 +280,7 @@ The "Pat_02 halves" reading is methodologically informative: Pat_02 is both the 
 
 #### What `d_G(k)` reads vs what `ρ_split^coph` reads (this distinction is mandatory in the methods write-up)
 
-The Grassmann probe and the per-pair multiscale probe of §3.2 read **distinct facets** of the LRG communication geometry. `ρ_split^coph` operates on the dendrogram-derived per-pair distance `D_coph`: it asks, for each contact pair independently, whether the **scale at which the two contacts coalesce in the communication hierarchy** shifts coherently from task to post-rest. The signal is concentrated **at the per-pair level** and the multiscale character is encoded in the cophenetic merge-heights `D_coph_ij ∈ {h_1, ..., h_{N−1}}` (the values of the per-pair distance are themselves scale assignments). `T_G(k)` instead operates on the leading-`k` eigenmode subspace `U_k`: it asks whether the **k-dimensional subspace spanned by the slowest non-trivial diffusion modes** rotates between task and post-rest, at a chosen subspace cutoff `k`. The signal is concentrated **at the subspace level** and the multiscale character is encoded by sweeping `k`. The two probes are not derivable from each other — `U_k` is not a function of `D_coph` alone, and `D_coph` is not a function of `U_k` alone — and a coordinated trace at both levels indicates that the reorganization is visible *both* in the hierarchical pair-coalescence scale *and* in the slow-mode subspace structure.
+The Grassmann probe and the per-pair multiscale probe of §3.2 read **distinct aspects** of the LRG communication geometry. `ρ_split^coph` operates on the dendrogram-derived per-pair distance `D_coph`: it asks, for each contact pair independently, whether the **scale at which the two contacts coalesce in the communication hierarchy** shifts coherently from task to post-rest. The signal is concentrated **at the per-pair level** and the multiscale character is encoded in the cophenetic merge-heights `D_coph_ij ∈ {h_1, ..., h_{N−1}}` (the values of the per-pair distance are themselves scale assignments). `T_G(k)` instead operates on the leading-`k` eigenmode subspace `U_k`: it asks whether the **k-dimensional subspace spanned by the slowest non-trivial diffusion modes** rotates between task and post-rest, at a chosen subspace cutoff `k`. The signal is concentrated **at the subspace level** and the multiscale character is encoded by sweeping `k`. The two probes are not derivable from each other — `U_k` is not a function of `D_coph` alone, and `D_coph` is not a function of `U_k` alone — and a coordinated trace at both levels indicates that the reorganization is visible *both* in the hierarchical pair-coalescence scale *and* in the slow-mode subspace structure.
 
 #### Critical preamble (5-point)
 1. **Claim.** The `k`-dimensional leading-eigenmode subspace of the Laplacian at rsPost sits closer to the leading-`k` subspace at taskT than the rsPre subspace does to the taskT subspace, for `k` in an intermediate-to-coarse window.
@@ -468,7 +468,7 @@ Earlier versions of this section reported per-region Pat_03 dropout robustness (
 
 ## 6. Patient-by-patient reading
 
-### Per-patient signs across the load-bearing probes at β
+### Per-patient signs across the primary probes at β
 
 The joint signature CSV at `data/audit/grassmann_matched_strength_surrogate/joint_signature.csv` records per-patient direction across `ρ_split^coph` (audit_63) and Grassmann at k=20/60/100 (audit_66) under matched-strength.
 
@@ -519,7 +519,7 @@ What the locked battery says for β:
 | C5 epi-X (Grassmann) | ✓ strengthens 29 → 36 cells | `grassmann_regate_no_filter/contig_summary.csv` audit_67 |
 | C5 epi-X (`ρ_split^coph`) | not run at β (audit_68 = α only) | — |
 
-The anatomy distribution + left-hemisphere correlation (§5) and the patient-by-patient sign panel (§6) remain reported as **descriptive context** that does not gate the verdict. They are reader-aid material for the writing agent, not load-bearing.
+The anatomy distribution + left-hemisphere correlation (§5) and the patient-by-patient sign panel (§6) remain reported as **descriptive context** that does not gate the verdict. They are reader-aid material for the writing agent, not primary.
 
 ## 9. Interpretation
 
@@ -539,7 +539,7 @@ The anatomy distribution + left-hemisphere correlation (§5) and the patient-by-
 - `.agents/reports/2026-05-14_grassmann-epi-exclusion-sensitivity.md` — `audit_67` full report (β 29/29 retention)
 - `.agents/reports/2026-05-11_grassmann-matched-strength-verification.md` — `audit_66` full report (β 40 sig cells)
 - `.agents/reports/2026-05-11_implant-geometry-and-kc-null-verification.md` — `audit_64` + retired KC
-- `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` — pre-cophenet-rename canonical β writeup
+- `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md` — pre-cophenet-rename canonical β writeup
 - `.agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md` — substrate canonical
 
 ### Audit scripts (provenance)
@@ -599,7 +599,7 @@ This report freezes the β verdict for the preprint manuscript under the 2026-05
    - `preprint_03_beta_rho_split_coph.py` ← supersedes audit_63_split_baseline_surrogate.py at β (NOTE renamed `_coph` to make object explicit)
    - `preprint_04_beta_grassmann.py` ← supersedes audit_66_grassmann_matched_strength_surrogate.py at β
    - `preprint_05_beta_grassmann_epi_exclusion.py` ← supersedes audit_67_grassmann_epi_exclusion.py at β
-   - `preprint_06_beta_anatomy.py` ← supersedes audit_*_lrg_localization_anatomy + implant_geometry at β
+   - `preprint_06_beta_anatomy.py` ← supersedes the retired KC-era `audit_71_anatomy_cophenet.py` + `audit_72_anatomy_grassmann.py` at β
    The earlier `preprint_02_beta_kc_strength_proxy.py` is dropped (KC retired). All scripts to drop the in-script `n_below ≥ 8` / `|surr| < 0.05` strict gates; the per-band cohort Wilcoxon (against drift-floor + matched-strength surrogate) is the cohort gate per `feedback_no_hardcoded_test_thresholds.md`. **Cross-band BH-FDR on `ρ_split^coph` (m=6) was also retired 2026-05-20** per `feedback_no_unmotivated_bh_fdr.md` — the per-band controls already gate; cross-band correction added no verdict-level information.
 3. **No owed controls.** The 4-primary + C5-sensitivity battery is locked per `locked/VERDICT_LEDGER.md` (2026-05-18); β verdict is `strong trace, both probes` and does not require further sensitivity runs before submission.
 4. **Move to α band** after β figures stabilize. α is the natural second band: cohort-significant on raw FC (8/10, p=0.014) and on cophenet (5/10, p=0.002), with the per-pair multiscale lens clearly showing the per-band signature.

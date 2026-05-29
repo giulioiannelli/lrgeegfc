@@ -56,7 +56,7 @@ Flag-only. Each entry: location + 1-line problem + 1-line fix direction.
 - **Location**: `sssec:methods_compare_stats`, the "Within-probe-family multiple-comparison correction uses the BH procedure …" sentence in full (both `ρ_split^coph` and `d_S on D_coph` clauses).
 - **Problem (revised 2026-05-20)**: cross-band BH-FDR on `ρ_split^coph` (m=6) is scaffolding without function — each band's verdict is gated by an independent control battery (drift-floor `ρ_drift`, matched-strength surrogate at R=200, cross-probe `ρ_xprobe`, epi-zone exclusion, LOO max-p); the six per-band claims are not a coordinated cross-band family of inference. Cross-band BH on top of per-band matched-strength surrogacy is double-protection against a concern the per-band empirical null already addresses at the per-test level. The `d_S on D_coph` clause has the additional problem of being an undefined symbol in the comparison section (the original B2 scope).
 - **Fix direction (locked, broader than original)**: drop the **entire** cross-band BH-FDR family-size sentence. Replace with one sentence stating that **no cross-band multiple-comparison correction is applied** to either per-pair `ρ_split^coph` or `T_G*` because each band carries its own independent control battery and the per-band verdicts are not a coordinated cross-band claim. Anatomical enrichment under A1 hypergeometric retains BH-FDR across DK regions per (band, probe) because the multi-region family IS the coordinated unit of inference.
-- **Policy**: see `feedback_no_unmotivated_bh_fdr.md` for the three-point check that decides whether any future BH/Bonferroni/Holm correction is load-bearing. Recorded as a "Never" rule in `.agents/guides/04_rules/never-always-list.md`.
+- **Policy**: see `feedback_no_unmotivated_bh_fdr.md` for the three-point check that decides whether any future BH/Bonferroni/Holm correction is decisive. Recorded as a "Never" rule in `.agents/guides/04_rules/never-always-list.md`.
 
 ### B3 — `[xxx?]` placeholder citation
 
@@ -105,7 +105,7 @@ Items where the methods is internally consistent but a reviewer can plausibly as
 
 - **Location**: `sssec:methods_compare_stats`, matched-strength surrogate paragraph.
 - **Gap**: `R = 200` stated without convergence diagnostic.
-- **Integration**: one clause — "`R = 200` is sufficient for the `cluster_p_mass` empirical p-value to resolve below the locked `0.005` floor (`(R+1)^{−1} = 0.005`); cross-checks at `R = 500` for the load-bearing β / γ_l / δ Grassmann bands reproduce the same `cluster_p_mass` floor".
+- **Integration**: one clause — "`R = 200` is sufficient for the `cluster_p_mass` empirical p-value to resolve below the locked `0.005` floor (`(R+1)^{−1} = 0.005`); cross-checks at `R = 500` for the primary β / γ_l / δ Grassmann bands reproduce the same `cluster_p_mass` floor".
 
 ---
 

@@ -4,7 +4,7 @@ type: guide
 era: CROSS_ERA
 status: current
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-05-28
 pointers: []
 ---
 
@@ -55,7 +55,9 @@ lrg-eegfc [--verbose/-v] [--quiet/-q]
 │   ├── lrg                         # LRG ultrametric analysis
 │   ├── clean                       # Marchenko-Pastur spectral cleaning
 │   ├── time-windows                # Sliding-window FC
-│   └── reorganization              # Phase distance metrics
+│   ├── reorganization              # Phase distance metrics
+│   ├── diagnostics                 # MSC diagnostic tables (CSV + NPZ)
+│   └── threshold-analysis          # Patient threshold sweep (dev)
 │
 ├── plot                            # Visualization (reads from cache)
 │   ├── corr                        # Correlation heatmap/network/percolation
@@ -73,7 +75,8 @@ lrg-eegfc [--verbose/-v] [--quiet/-q]
 │   ├── time-windows                # (TODO) Time-window FC panels
 │   ├── reorg-metrics               # Reorganization distance matrices
 │   ├── reorg-summary               # (TODO) Band-level metric summary
-│   └── metric-correlation          # (TODO) Cross-metric agreement
+│   ├── metric-correlation          # (TODO) Cross-metric agreement
+│   └── cross                       # Report figure assembly (CSV + NPZ input)
 │
 ├── show                            # Query cached results (no figures)
 │   ├── corr                        # Correlation matrix stats
@@ -84,6 +87,7 @@ lrg-eegfc [--verbose/-v] [--quiet/-q]
 ├── data                            # Inspection & statistics
 │   ├── inspect                     # Patient data report
 │   ├── stats                       # Aggregate cross-patient stats
+│   ├── normalize                   # Dry-run patient dir layout migration
 │   └── compare                     # FC method comparison (tabular)
 │
 ├── cache                           # Cache management

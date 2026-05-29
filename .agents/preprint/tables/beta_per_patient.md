@@ -6,7 +6,7 @@ kind: table-companion
 date: 2026-05-18
 band: beta
 target: tab:beta_per_patient
-preflight: .agents/preprint/2026-05-18_beta_per_patient_table_preflight.md
+preflight: .agents/preprint/responses/2026-05-18_beta_per_patient_table_preflight.md
 location: .agents/preprint/tables/ (all preprint work lives under .agents/preprint/ per project rule)
 ---
 
@@ -103,7 +103,7 @@ run cited in the text".
   below significance). The Notes column for these two rows reads
   "mixed". Both are LRG-trace under the at-least-one-LRG-bold rule
   (carried by the Grassmann probe). Per `bands/01_beta.md` §3.3,
-  the two LRG probes read different facets of the same geometry,
+  the two LRG probes read different aspects of the same geometry,
   and a patient can carry one without the other.
 
 - **Pat_13** has the highest epi-zone burden (30/119 contacts) but

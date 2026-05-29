@@ -41,8 +41,78 @@ here.
 | `mosaic_band_phase` | 4 phases × 6 bands (one patient) | round_1_iterating | [`mosaic_band_phase.py`](mosaic_band_phase.py) |
 | `mosaic_layout_compare` | every layout side-by-side, one case | round_1_iterating | [`mosaic_layout_compare.py`](mosaic_layout_compare.py) |
 | `lrg_seeded` | LRG-driven layout (gt SFDP / nx KK) | round_1_iterating | [`lrg_seeded.py`](lrg_seeded.py) |
+| `circular_dendrogram_network` | gt curvy chord + full circular-dendrogram overlay | round_1_iterating | [`circular_dendrogram_network.py`](circular_dendrogram_network.py) |
+| `chord_highlighted_edges` | gt curvy chord with highlighted edge subset on a faint background | round_1_iterating | [`chord_highlighted_edges.py`](chord_highlighted_edges.py) |
+| `matrix_plus_network` | FC matrix imshow + network with cmap-linked edges; phases as rows | round_1_iterating | [`matrix_plus_network.py`](matrix_plus_network.py) |
+| `metastable_sankey` | Plotly interactive Sankey of LRG cluster evolution across τ | round_1_iterating | [`metastable_sankey.py`](metastable_sankey.py) |
+| `metastable_sankey_mpl` | matplotlib static-PDF alluvial twin of `metastable_sankey` | round_1_iterating | [`metastable_sankey_mpl.py`](metastable_sankey_mpl.py) |
 
 Generated PDFs go to `data/outputs/figures/network_templates/<template_name>/`.
+
+## Hierarchy-bundled chord family (extracted 2026-05-26 from preprint_07)
+
+The last two templates share a single render pipeline that crystallises
+the two visual primitives in panel (c) of
+``preprint_07_beta_rho_split_figure_test2.py``:
+
+  * `circular_dendrogram_network` — the "backbone" pass: every edge
+    drawn under the canonical same-probe / cross-probe rule, with the
+    full LRG circular dendrogram (every merge in
+    ``lrg.linkage_matrix``) overlaid as radial + arc polylines.  Use
+    when the LRG hierarchy itself is the figure's subject.
+  * `chord_highlighted_edges` — the "highlight" pass: a faint grey
+    "null backbone" of every pair, with user-named highlight classes
+    (colour + per-pair magnitude + width/alpha range) layered on top.
+    Use when a small subset of edges is the figure's subject.
+
+Both call into the same library helpers
+(`build_chord_depth2_layout`, `render_hierarchy_chord`,
+`draw_circular_dendrogram_overlay`, `draw_radial_leaf_labels`) at
+`src/lrg_eegfc/visuals/network_templates.py`.  Picking the right
+template is a choice of subject: hierarchy structure (Template 1) or
+selected edges (Template 2).  Set ``show_dendrogram=True`` on
+Template 2 for a Template-1+2 hybrid when you genuinely need both.
+
+## Matrix + network family (extracted 2026-05-26 from MSC-era presentation_figures)
+
+  * `matrix_plus_network` — matrix imshow on the left + network on the
+    right with edges coloured by the same imshow `cmap + norm`.  Dark
+    cells map to dark edges, bright cells to bright edges — the reader
+    reads both panels in the same colour language.  Phases as rows
+    (``--phases rest_pre rest_post`` reproduces the reference figure
+    layout).  Modular: layout, edge γ-power recipe, coloring mode
+    (`cmap` / `probe` / `shaft` / `signed` / `weight`), node colouring
+    (`shaft` / `community` / `uniform`), backend (NetworkX / graph-tool
+    via the layout name) are independent knobs.  Spring auto-tunes
+    `k = k_base/√N` by default; pass `--spring-k-scale fixed` or
+    `--k <val>` for diagnostic sweeps.
+
+The cmap-linked edge mode is a new `coloring="cmap"` option on
+`draw_gamma_edges` (alongside the existing `probe / shaft / signed /
+weight` modes); pass `cmap=` and `norm=` to lock the network's edges
+to any external imshow scale.
+
+## Sankey / alluvial family (extracted 2026-05-26 from MSC-era `05_metastable_sankey.ipynb`)
+
+  * `metastable_sankey` — interactive Plotly **HTML** Sankey of LRG
+    cluster evolution across a τ-schedule.  Columns = τ values, stacked
+    bars = clusters within a column, ribbons = ``c_t → c_{t+1}``
+    transition counts.  Cluster counts must decrease monotonically for
+    the alluvial to read as hierarchical merging.  Hovering a bar
+    reveals the contact-label list and cluster size.
+  * `metastable_sankey_mpl` — pure-matplotlib **PDF** alluvial twin
+    using cubic-bezier ribbon polygons.  No Plotly, no ``kaleido``, no
+    rasterisation; fully vector at ~20 KB for a 5-column figure.  Use
+    this for paper figures; use the Plotly variant when interactive
+    hover is needed.
+
+Both backends share ``compute_sankey_flows(partitions, tau_values,
+node_labels)`` which returns a ``SankeyFlowData`` dataclass (cluster
+sizes per τ, sources / targets / values, per-bar colours, hover
+strings).  Plotly + matplotlib renderers are thin wrappers around this
+dataclass.  Library lives at
+``src/lrg_eegfc/visuals/metastable.py``.  ``create_sankey_diagram`` is
+preserved as a back-compat shim around the new two-step path.
 
 ## What follows is the original audit + design (kept for reference)
 

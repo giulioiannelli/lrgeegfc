@@ -113,9 +113,10 @@ biological-attribution layer.
 ### Per-probe (D_coph and Grassmann independently)
 
 For **D_coph** (gate via Wilcoxon p):
-- **strong trace** — C3 paired Wilcoxon p < 0.05 AND every applicable primary control passes its own Wilcoxon-based gate (C1 split-vs-zero p<0.05; C2 paired-split-vs-drift p<0.05; C4 paired non-degradation under epi-X-style cross-probe restriction passes per §C4 above; C5 one-sample Wilcoxon under epi-X p<0.05 where the C5 audit has been run for the band).
+- **strong trace** — C3 paired Wilcoxon p < 0.05 AND every applicable PRIMARY control passes its own Wilcoxon-based gate (C1 split-vs-zero p<0.05; C2 paired-split-vs-drift p<0.05; C4 paired non-degradation under epi-X-style cross-probe restriction passes per §C4 above).
 - **weak trace** — C3 passes BUT one applicable primary control's Wilcoxon-based gate fails. The verdict text records which control failed.
 - **no trace** — C3 Wilcoxon p ≥ 0.05. All other controls become moot.
+- **C5 epi-X is SECONDARY** (amended 2026-05-28): C5 is a mechanistic observation documenting whether epi-zone exclusion strengthens or weakens the trace; it is NOT a primary verdict gate for either probe. The earlier "C5 promoted to primary gate" framing (Decision 10, 2026-05-19) is retracted in favor of symmetric treatment with the Grassmann probe under Decision 12 — see VERDICT_LEDGER.md retraction notes for Decision 1 + amended Decision 10.
 - **Cohort-agreement language retired** (2026-05-19): the earlier "borderline ≈5/10 patients" downgrade rule is removed because patient-count thresholds are arbitrary; the relevant question — *"does the per-patient distribution sit on the trace side?"* — is answered by the C3 paired Wilcoxon already. LOO max-p per `feedback_no_single_patient_p_driven.md` is the descriptive sensitivity layer for single-patient leverage.
 
 For **Grassmann** (gate via cluster-extent permutation, audit_70; **mass-only** as of 2026-05-19 Decision 8):

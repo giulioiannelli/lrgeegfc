@@ -1,11 +1,22 @@
 ---
 name: methods-section-review-2026-05-19
 era: IMCOH_ABS_COHORT_N10
-status: open_for_writing_agent
+status: mostly_superseded
+status_updated: 2026-05-28
+superseded_by: METHODS_AUDIT_ISSUES.md
 kind: review-checklist
 scope: factual + consistency review of the draft Methods LaTeX (Welch → ImCoh → LRG → comparison probes → cluster-extent → stats + robustness) against the locked artifacts and the actual code
-companion: methods_revision_2026-05-18_cophenet.md, methods_grassmann_cluster_extent.md, CONTROLS.md, VERDICT_LEDGER.md
+companion: methods_revision_2026-05-18_cophenet.md, methods_grassmann_cluster_extent.md, CONTROLS.md, VERDICT_LEDGER.md, METHODS_AUDIT_ISSUES.md
 ---
+
+> **Note (2026-05-28).** This file is **mostly superseded** by
+> [`METHODS_AUDIT_ISSUES.md`](../METHODS_AUDIT_ISSUES.md), which carries
+> the live methods-section audit items + C1 normalization lock + Decision-12
+> cascade. M1, M4, m6, m9 here are marked RESOLVED/SUPERSEDED inline; the
+> §54-55 "pre-fix vs post-fix" passage has a forward-pointer footnote to
+> the C1 normalized values. Kept verbatim as historical record of the
+> 2026-05-19 review pass — do **not** cite live numbers from this file;
+> route to `METHODS_AUDIT_ISSUES.md` instead.
 
 # Methods section review — what shall be corrected (2026-05-19)
 
@@ -53,6 +64,18 @@ After the fix, γ_l and δ both upgrade weak → strong on the disjunctive
 gate (`cluster_p_mass = 0.005` for both). The pre-fix locked values
 in the manuscript draft (β 52.97, γ_l 19.17, δ 12.78) are obsolete;
 re-run values are β 69.76, γ_l 66.14, δ 38.07.
+
+> **Forward pointer (added 2026-05-28).** Per C1 lock (`METHODS_AUDIT_ISSUES.md:116-129`)
+> these raw values are subsequently normalized to `[0,1]`: β → **0.273**,
+> γ_l → **0.259**, δ → **0.149**. Per Decision-12 cascade
+> (`VERDICT_LEDGER.md:519+`, locked 2026-05-28), δ is **demoted back to
+> "weak"** because full-data LOO max `p_mass = 0.055 (Pat_08)` fails
+> the < 0.05 LOO precondition; the "weak → strong" upgrade above held
+> under Decision 8 mechanical rule but is retracted under Decision 12.
+> γ_l remains strong (LOO 0.040 Pat_05 passes). The raw values quoted
+> above are kept verbatim as historical record of the pre-fix → post-fix
+> formula change; live citations should use normalized + Decision-12
+> verdicts.
 
 **No `min_cluster_size` threshold is added** despite the all-clusters
 sum including isolated significant `k`-cells. The empirical null

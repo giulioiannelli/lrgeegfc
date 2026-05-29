@@ -20,7 +20,7 @@ verdict_layers:
   grassmann: no_trace_borderline (cluster-extent permutation p=0.0547, audit_70; 9-cell observed run at the null 95th percentile = 8.05 — just outside the 0.05 gate)
   grassmann_epi_excluded: shifted_smaller_window (audit_67; 6-cell longest run at k=21..26 plus emergent cells at k=15..18 — descriptive physiological-attribution hint, does NOT change the verdict)
   cluster_extent_revision: "8-cell hardcoded threshold (previous gate) had γ_h passing → revised gate (audit_70 cluster-extent permutation) demotes to no trace (Decision 6, 2026-05-19)"
-  anatomy: not_yet_audited (no γ_h-specific Desikan-Killiany enrichment run; not load-bearing under no-trace verdict)
+  anatomy: not_yet_audited (no γ_h-specific Desikan-Killiany enrichment run; not primary under no-trace verdict)
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts; Decision 6 for γ_h)

@@ -8,8 +8,8 @@ updated: 2026-05-08
 pointers:
   - .agents/reports/2026-05-07_epileptic-n10-revisit.md
   - .agents/reports/2026-05-08_direction-a-induced-subtree.md
-  - .agents/reports/2026-05-08_trace-minus-epi-resection.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-08_trace-minus-epi-resection.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - .agents/guides/01_project/terminology.md
   - .agents/guides/02_methods/lrg-framework-guide.md
   - .agents/plans/active/2026-04-29_eigenvector-direct-pivot-plan.md
@@ -80,7 +80,7 @@ Verdict at
 ### A' — Virtual resection on the LRG tree (audit_56)
 
 `audit_56_trace_minus_epi.py`. Verdict at
-`.agents/reports/2026-05-08_trace-minus-epi-resection.md`:
+`.agents/reports/archive/2026-05/2026-05-08_trace-minus-epi-resection.md`:
 
 - **β trace is non-epi-carried** — robust to resection per-patient,
   cohort Δmed ≤ 0.2 at all three λ values.

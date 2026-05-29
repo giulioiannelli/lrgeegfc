@@ -7,7 +7,7 @@ created: 2026-05-05
 updated: 2026-05-05
 pointers:
   - .agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - data/reports/section_5_lrg_trace/README.md
 ---
 

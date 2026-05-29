@@ -10,7 +10,7 @@ pointers:
   - .agents/guides/task-persistence-investigation/2026-04-29_e1-spectral-subspace-alignment.md
   - .agents/guides/task-persistence-investigation/2026-05-08_epi-eigenmode-localization.md
   - .agents/reports/2026-05-08_direction-a-induced-subtree.md
-  - .agents/reports/2026-05-08_trace-minus-epi-resection.md
+  - .agents/reports/archive/2026-05/2026-05-08_trace-minus-epi-resection.md
   - .agents/guides/02_methods/lrg-framework-guide.md
 ---
 

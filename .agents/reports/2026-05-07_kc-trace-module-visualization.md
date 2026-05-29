@@ -9,7 +9,7 @@ script: scripts/01_compute/audit/audit_47_kc_trace_network_view.py
 output: data/audit/kc_trace_network_view/figures/{patient}__{band}__option_C.pdf
 related:
   - .agents/guides/task-persistence-investigation/2026-04-25_module-retention-landscape.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - data/audit/kc_trace_network_view/trace_subtrees_summary.csv
 ---
 
@@ -278,4 +278,4 @@ visualization's reach, including its principled blind spot (Pat_08).
 - Per-module summary: `data/audit/kc_trace_network_view/trace_subtrees_summary.csv`
 - MRL conceptual basis:
   `.agents/guides/task-persistence-investigation/2026-04-25_module-retention-landscape.md`
-- §5.2 KC scalar trace: `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md`
+- §5.2 KC scalar trace: `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md`

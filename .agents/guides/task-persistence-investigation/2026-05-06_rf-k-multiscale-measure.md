@@ -6,7 +6,7 @@ status: parked
 created: 2026-05-06
 updated: 2026-05-07
 pointers:
-  - .agents/reports/2026-05-06_section-5-critical-review.md
+  - .agents/reports/archive/2026-05/2026-05-06_section-5-critical-review.md
   - .agents/reports/2026-05-07_rf-clade-persistence-cohort-verdict.md
   - .agents/guides/task-persistence-investigation/2026-05-07_kc-anchor-modules.md
   - .agents/guides/task-persistence-investigation/2026-05-07_kc-rearrangement-modules.md

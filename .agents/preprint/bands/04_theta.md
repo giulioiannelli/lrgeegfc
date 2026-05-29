@@ -167,7 +167,7 @@ No θ-specific Desikan-Killiany hypergeometric or implant-geometry analysis exis
 ## 6. Patient-by-patient reading
 
 ### θ `ρ_split^coph` per-patient signs (descriptive)
-From `ctm_triangle/cohort_summary.csv`: cohort median `ρ_split^coph` = −0.049 with 3/10 in + direction. The 7 patients in the − direction form a clear cohort majority against the trace direction. No single-patient analysis is load-bearing here because the cohort signal is itself anti-trace; per-patient inspection would only confirm what the cohort statistic shows.
+From `ctm_triangle/cohort_summary.csv`: cohort median `ρ_split^coph` = −0.049 with 3/10 in + direction. The 7 patients in the − direction form a clear cohort majority against the trace direction. No single-patient analysis is decisive here because the cohort signal is itself anti-trace; per-patient inspection would only confirm what the cohort statistic shows.
 
 ### θ Grassmann subspace trace per-patient (descriptive)
 Per-patient `T_G(k)` at θ shows isolated cells of cohort agreement (e.g., k=7: 3/10 below; k=11..14: 4/10 then 3/10 at the kτ window where it might have been highest), none reaching the contiguous-significant criterion. No mode-by-mode pattern emerges.
@@ -242,7 +242,7 @@ Per-patient `T_G(k)` at θ shows isolated cells of cohort agreement (e.g., k=7: 
 
 This brief freezes the θ `no trace` verdict for the preprint manuscript under the 2026-05-18 / 2026-05-19 lockdown. Next steps:
 
-1. **θ figures (optional)** — θ does not need a dedicated F1–F4 figure suite because its null status is a single-panel statement. If a θ panel is wanted as a companion to the β/α/γ_l positive panels (e.g., in F_cohort_2 cross-band verdict matrix), it can show the four-control failure grid and the Grassmann 5-cell run within the empirical null distribution. No anatomy figure is required.
+1. **θ figures (optional, deferred)** — θ does not need a dedicated F1–F4 figure suite because its null status is a single-panel statement. If a θ panel is wanted as a companion to the β/α/γ_l positive panels (e.g., in a cross-band verdict matrix), it can show the four-control failure grid and the Grassmann 5-cell run within the empirical null distribution. No anatomy figure is required. **Note**: the previously cited `F_cohort_2_verdict_matrix.pdf` cross-band figure is not yet produced — figure scripts deferred per `bands/00_cohort.md:157`. If a θ panel is wanted, scope it as a standalone descriptive supplement, not as part of an unrealised cross-band suite.
 2. **No anatomy audit owed** at θ.
 3. **No further sensitivity tests owed.** The C5 epi-X Grassmann audit (audit_67) confirms no improvement. The cophenet C5 epi-X was not run for θ (audit_68 was α-only) and is not required — the cophenet probe already fails decisively under C1/C2/C3/C4.
 

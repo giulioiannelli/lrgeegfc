@@ -11,13 +11,13 @@ fc_method: imcoh_abs
 tau: 1/lambda_max
 canonical_lrg_object: "D_coph = cophenet(UPGMA(D(tau_max)))"
 canonical_subspace_object: "U_k = span{phi_2, ..., phi_{k+1}}"
-verdict_tag: "weak trace, only Grassmann"
-verdict_source: VERDICT_LEDGER.md (locked 2026-05-18, revised 2026-05-19)
+verdict_tag: "strong trace, only Grassmann"
+verdict_source: VERDICT_LEDGER.md (locked 2026-05-18, revised 2026-05-19 + Decision 12 2026-05-26)
 verdict_layers:
   substrate_rank: trace_direction_borderline (raw FC ρ_split^raw matched-strength p=0.053 at 7/10 cohort; ratio 53.9× but at significance threshold)
   rho_split_coph: no_trace (C3 fails: paired Wilcoxon p=0.116, n_above_surrogate 5/10 — cophenet step demotes the per-pair signal that exists at raw D)
-  grassmann: weak_trace (cluster-extent permutation p=0.0149, audit_70; 13-cell observed run with primary window k=12..23 — above null 95th percentile of 8.0)
-  grassmann_epi_excluded: 10-cell-run-at-shifted-window (audit_67; longest run k=19..28, overlap with full-cohort k=12..23 only at k=19..23 — partial robustness, k-window shifts by ~7 modes)
+  grassmann: strong_trace (cluster-extent permutation cluster_p_mass=0.005 Decision-8 gate, cluster_p_LR=0.015 descriptive co-statistic; audit_70 all-clusters; obs cluster mass 66.14 raw / 0.259 normalized; 13-cell observed run with primary window k=12..23 — above null 95th percentile of 27.24; Decision-12 LOO max p_mass=0.040 Pat_05 passes < 0.05)
+  grassmann_epi_excluded: secondary mechanistic observation (audit_72; raw mass contracts 66.14 → 32.75, p_mass^epi-X = 0.030 cohort gate held; LOO under epi-X max = 0.159 Pat_05 fragile — reported as secondary, not verdict-driver)
   anatomy_grassmann: strong_localized (7 named DK regions A3 alone, A1 sparse; occipital + temporal + frontal + medial-OFC: lateral occipital + cuneus + middle/superior temporal + rostral middle frontal + medial OFC + pars triangularis; audit_72 --cluster-extent under S(γ_l), 2026-05-19 pm — supersedes the retired K*(γ_l) audit which had picked up left fusiform)
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
@@ -32,13 +32,14 @@ sources:
   - data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv (γ_l raw D sensitivity)
 revision_history:
   - 2026-05-19: initial brief produced from VERDICT_LEDGER.md lockdown
+  - 2026-05-26: Decision-12 cascade — γ_l Grassmann verdict upgraded weak → **strong** (all three Decision-12 conditions pass: cluster_p_mass=0.005 < 0.01; cluster_p_LR=0.015 < 0.05; LOO max p_mass=0.040 Pat_05 < 0.05). Gate citation switched from `cluster_p_LR = 0.0149` to `cluster_p_mass = 0.005` (Decision-8 mass-only). Pre-fix raw values 19.17 / 4.72 / 13.96 updated to post-fix all-clusters values 66.14 / 9.04 / 27.24. C5 epi-X reframed as secondary mechanistic observation per Decision 10 (retention rule retired).
 ---
 
 # γ_low band (30–80 Hz) — preprint result report
 
 ## Head
 
-γ_l carries a **whole-network subspace trace** detected by the Grassmann probe under cluster-extent permutation (audit_70 cluster_p = 0.0149) at a 13-cell contiguous-significant window with primary span k=12..23, but **no per-pair cophenet trace** (`ρ_split^coph` C3 paired Wilcoxon p = 0.116, n_above_surrogate 5/10). The cophenet step actively *demotes* the γ_l per-pair signal that exists at the raw-FC and raw-`D(τ_max)` layers (raw FC p=0.053 at 7/10; raw D p=0.032 at 6/10) — the multiscale dendrogram aggregation does not preserve the γ_l per-pair structure. Under C5 epi-X (audit_67), the Grassmann window shrinks from 13 cells to a 10-cell run that **shifts** to k=19..28, overlapping the full-cohort window only at k=19..23 — partial robustness with mode reassignment. Verdict from `locked/VERDICT_LEDGER.md`: **`weak trace, only Grassmann`** — γ_l reorganization lives in the leading-mode subspace at intermediate `k` (a band of roughly 20 slow modes), not in the per-pair cophenet geometry.
+γ_l carries a **whole-network subspace trace** detected by the Grassmann probe under cluster-extent permutation (audit_70 all-clusters `cluster_p_mass = 0.005` Decision-8 gate; `cluster_p_LR = 0.015` as descriptive co-statistic) at a 13-cell contiguous-significant window with primary span k=12..23, but **no per-pair cophenet trace** (`ρ_split^coph` C3 paired Wilcoxon p = 0.116, n_above_surrogate 5/10). The cophenet step actively *demotes* the γ_l per-pair signal that exists at the raw-FC and raw-`D(τ_max)` layers (raw FC p=0.053 at 7/10; raw D p=0.032 at 6/10) — the multiscale dendrogram aggregation does not preserve the γ_l per-pair structure. Full-data LOO max `p_mass = 0.040 (Pat_05)` passes the Decision-12 LOO precondition. Under C5 epi-X (audit_72, secondary mechanistic observation), the Grassmann signal contracts (raw mass 66.14 → 32.75, `p_mass^epi-X = 0.030` cohort gate held; LOO under epi-X max = 0.159 Pat_05 is fragile) — interpreted as γ_l reorganization recruiting cortex that straddles the epi/non-epi boundary, not as falsification. Verdict from `locked/VERDICT_LEDGER.md` (Decision 12 cascade 2026-05-26): **`strong trace, only Grassmann ↑`** — γ_l reorganization lives in the leading-mode subspace at intermediate `k` (a band of roughly 20 slow modes), not in the per-pair cophenet geometry.
 
 ## Headline three-layer cohort table (γ_l-band row, copied from `locked/VERDICT_LEDGER.md`)
 
@@ -48,7 +49,7 @@ Layer                                        γ_l (full n=10)
 Raw FC          ρ_split^raw  (raw_fc_ms)    7/10 p=.053  ratio 53.9×  ← borderline
 Raw D(τ_max)    ρ_split      (preprint_05)  6/10 p=.032  ratio 28.8×  ← passes
 Cophenet D_coph ρ_split^coph (audit_63)     5/10 p=.116  ratio 30.2×  ← FAILS
-Grassmann       d_G(k)       (audit_70)     13-cell run k=12..23, cluster_p = 0.0149  ← weak trace
+Grassmann       d_G(k)       (audit_70)     13-cell run k=12..23, cluster_p_mass = 0.005  ← strong trace ↑ (Decision-12)
 ```
 
 Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`, `data/audit/grassmann_cluster_extent/cohort_summary.csv`.
@@ -61,7 +62,7 @@ Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `dat
 
 **Refined biological claim.** γ_l coupling reorganizes during the task and the reorganization is retained in the **leading Laplacian eigenmode subspace** at intermediate dimensions (roughly k=12..23, a 13-cell contiguous-significant window above the empirical null), but **not** in the per-pair cophenet multiscale geometry. The 13-cell subspace window means roughly 20 slow modes (excluding the trivial first eigenvector) rotate coherently between phases — narrower than β's 29-mode signature and at lower k.
 
-**Falsification budget.** The claim fails if any of: (a) Grassmann cluster-extent permutation p ≥ 0.05 (i.e., 13-cell run within the empirical null distribution from R=200 phantom-surrogate tests); (b) under C5 epi-X (audit_67), the contiguous-significant window collapses to < 80% of original cell count AND the surviving window does not overlap the original at any k. The 67% retention with k-window shift to k=19..28 is the borderline that earns this band **weak** rather than strong (`locked/VERDICT_LEDGER.md` Decision 2).
+**Falsification budget.** Under Decision 12 (locked 2026-05-26), the claim fails if any of: (a) `cluster_p_mass ≥ 0.01` (Decision-8 cluster-mass-null gate); (b) `cluster_p_longest_run ≥ 0.05` (cluster-extent-null co-statistic); (c) full-data LOO max `p_mass ≥ 0.05` (single-patient robustness precondition). At γ_l all three pass: `p_mass = 0.005`, `p_LR = 0.015`, LOO max = 0.040 (Pat_05) — verdict is **strong**. C5 epi-X is a *secondary mechanistic observation*, not a verdict-promoter or demoter per Decision 10 (the prior ≳80% retention rule is retired).
 
 ## 2. Cohort, substrate, and library entry points
 
@@ -120,7 +121,7 @@ This is reinforced by the substrate→raw D→cophenet demotion: raw FC and raw 
 - Within-baseline triangle: `audit_*_ctm_triangle.py` → `data/audit/ctm_triangle/`
 - Object built from `lrg.ultrametric_matrix` field in `data/cache/imcoh_lrg/Pat_NN/low_gamma_{phase}_lrg_imcoh-abs.npz`
 
-### 3.2 Global subspace rotation: Grassmann chordal distance `d_G(k)` — **weak trace at γ_l (LOAD-BEARING)**
+### 3.2 Global subspace rotation: Grassmann chordal distance `d_G(k)` — **strong trace at γ_l ↑ (primary band finding)**
 
 #### What `d_G(k)` reads
 Chordal Grassmann distance between leading-`k`-dimensional Laplacian eigenmode subspaces of two phases (`d_G² = k − ‖A^T B‖_F²` with A, B = N×k orthonormal eigenvector matrices, skipping the trivial mode). Reads whether the slow-diffusion subspace rotates between phases at a chosen `k`.
@@ -148,30 +149,35 @@ Chordal Grassmann distance between leading-`k`-dimensional Laplacian eigenmode s
 | Cluster-extent null median LR | 2.0 | same |
 | Cluster-extent null 95th LR | 8.0 | same |
 | Cluster-extent null max LR | 15 | same |
-| Observed cluster mass (Σ −log10p) | 19.17 | same |
-| Null mean cluster mass | 4.72 | same |
-| Null 95th cluster mass | 13.96 | same |
-| **cluster_p_longest_run** | **0.0149** | same — `weak` gate |
-| **cluster_p_cluster_mass** | 0.0348 | same |
-| C5 epi-X (audit_67): obs longest run | **10 cells at k = 19..28** | `grassmann_epi_exclusion/sensitivity.csv` low_gamma rows k=19..28 (all p < 0.05 under epi-X) |
-| C5 epi-X overlap with full-cohort window | k = 19..23 (5/13 ≈ 42% within-window) | per-k inspection |
+| Observed cluster mass `T_G^*` (raw Σ −log10p) | **66.14** (all-clusters formula, post-2026-05-19-pm fix) | same |
+| Observed `T_G^*` (normalized per C1) | **0.259** (raw / 255.65, n_k=111, R=200) | same |
+| Null mean cluster mass | 9.04 | same |
+| Null 95th cluster mass | 27.24 | same |
+| **cluster_p_mass (Decision-8 gate)** | **0.005** (at empirical floor `1/(R+1)`) | same |
+| cluster_p_longest_run (descriptive co-statistic) | 0.015 | same |
+| **LOO max p_mass (Decision-12 precondition)** | **0.040 (Pat_05)** — passes < 0.05 | same |
+| C5 epi-X (audit_72; secondary): raw mass | 66.14 → **32.75** (contracts ~50%) | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` low_gamma |
+| C5 epi-X cohort gate `p_mass^epi-X` | **0.030** (cohort gate held) | same |
+| C5 epi-X LOO max under epi-X | **0.159 (Pat_05)** — fragile under epi exclusion | same |
+| C5 epi-X obs longest run | **10 cells at k = 19..28** | `grassmann_epi_exclusion/sensitivity.csv` |
+| C5 epi-X overlap with full-cohort window | k = 19..23 (5/13 cells) — descriptive only | per-k inspection |
 
-The observed 13-cell longest run sits between the null 95th percentile (8.0) and the null max (15). Both cluster-p statistics — longest run (0.0149) and cluster mass (0.0348) — fall in [0.01, 0.05). By the locked rule, γ_l Grassmann is **weak trace**.
+The observed 13-cell longest run sits between the null 95th percentile (8.0) and the null max (15). The Decision-8 gate is `cluster_p_mass = 0.005` (at empirical floor) — γ_l clears it at the same strength as β and δ. The cluster-extent co-statistic `cluster_p_LR = 0.015` is also < 0.05. Full-data LOO max `p_mass = 0.040 (Pat_05)` passes the Decision-12 LOO precondition. **By the locked Decision-12 rule, γ_l Grassmann is strong trace ↑.**
 
 #### Secondary clusters
-Beyond the primary k=12..23 window, the per-k cohort Wilcoxon also shows shorter significant clusters at k=26..29 (4 cells), k=31..39 (9 cells), and k=72..76 (5 cells). The 13-cell cluster at k=12..23 is the audit_70 longest-run anchor; the secondary clusters at higher k contribute to the cluster-mass companion statistic (0.0348).
+Beyond the primary k=12..23 window, the per-k cohort Wilcoxon also shows shorter significant clusters at k=26..29 (4 cells), k=31..39 (9 cells), and k=72..76 (5 cells). The 13-cell cluster at k=12..23 is the audit_70 longest-run anchor; the secondary clusters at higher k contribute to the all-clusters cluster-mass statistic `T_G^* = 66.14` (cluster_p_mass = 0.005 at floor).
 
-#### C5 epi-X sensitivity (audit_67)
-Under epi-zone exclusion, the contiguous-significant window shifts:
-- Original full-cohort: k=12..23 (13-cell anchor at p<0.05 gate).
-- Epi-X: k=19..28 (10-cell longest run at p<0.05 gate).
+#### C5 epi-X — secondary mechanistic observation (audit_72)
+Under epi-zone exclusion (treated as a secondary mechanistic observation per Decision 10, **not** a verdict-promoter/demoter):
+- Cohort gate held: `p_mass^epi-X = 0.030 < 0.05` — γ_l signal survives epi exclusion at the cohort level.
+- Raw mass contracts: 66.14 → 32.75 (~50% reduction).
+- LOO under epi-X max: `p_mass^epi-X = 0.159 (Pat_05)` — fragile under the reduced support.
+- Contiguous window shifts: full-cohort k=12..23 (13 cells) → epi-X k=19..28 (10 cells), overlap at k=19..23 (5 cells).
 
-Cell-count retention: 10/13 ≈ 77% (below the 80% guide). Within-window overlap: 5/13 ≈ 42% (the surviving k=19..23 cells). The signal **shifts modes** under epi-X: the lower part of the original window (k=12..18) drops out and a new window opens at k=24..28. This is the `locked/VERDICT_LEDGER.md` Decision 2 reasoning: 77% retention with substantial k-window shift earns `weak` rather than `strong`.
-
-Interpretation: the γ_l Grassmann trace is **partially robust** to epi-zone removal — a 10-cell signal survives — but the *identity* of the modes carrying the trace changes. This is consistent with epi-zone contacts contributing to the lower-k modes of the original signal; without them, the trace re-projects onto slightly higher-k modes.
+**Mechanistic interpretation.** γ_l (30-80 Hz) task-reorganization recruits cortex that straddles the epi/non-epi boundary; some of the γ_l Grassmann signal is carried by contacts that include epi-zone tissue. Removing those contacts reduces the spatial support of the trace, halving the cluster mass and shifting the surviving signal onto slightly faster modes (k=19..28 vs k=12..23). The cohort-level signal survives epi exclusion but with fewer contributing cells, which is what drives the higher LOO under epi-X. **This is interesting biology to discuss, not a falsification of the full-data verdict.** The Decision-8 gate at full data (`p_mass = 0.005`) and Decision-12 LOO precondition (max = 0.040 Pat_05 < 0.05) both hold; the strong-tier verdict stands.
 
 #### Reading
-γ_l Grassmann passes the matched-strength cluster-extent gate at `weak` strength (cluster_p = 0.0149). The 13-cell run at k=12..23 is well above the null mean (2.63) and 95th percentile (8.0), but not in the strong regime (< 0.01). C5 epi-X partial retention (77%, k-window shift) confirms the `weak` reading. γ_l reorganization is detectable at the **leading-mode subspace level** but not at the per-pair multiscale level.
+γ_l Grassmann passes the matched-strength cluster-extent gate at **strong** strength under Decision 12: `cluster_p_mass = 0.005` (Decision-8 gate), `cluster_p_LR = 0.015` (descriptive co-statistic), LOO max `p_mass = 0.040` (Pat_05). The 13-cell run at k=12..23 with all-clusters mass `T_G^* = 66.14` (normalized 0.259) is well above the null mean (9.04) and 95th percentile (27.24). C5 epi-X is reported as a secondary mechanistic observation (signal recruits cortex straddling epi-zone boundary), not as a verdict driver. γ_l reorganization is detectable at the **leading-mode subspace level** but not at the per-pair multiscale level.
 
 #### Cache + script provenance
 - `audit_66_grassmann_matched_strength_surrogate.py` → `data/audit/grassmann_matched_strength_surrogate/`
@@ -187,9 +193,9 @@ The γ_l cophenet probe is silent under C3. The cohort-median `ρ_split^coph` = 
 
 The substrate-to-cophenet demotion is the key methodological observation at γ_l: raw FC passes at borderline (p=0.053), raw D(τ_max) passes cleanly (p=0.032), cophenet fails (p=0.116). The cophenet step is **band-selective in the opposite direction from β**: where β cophenet *amplifies* the substrate signal, γ_l cophenet *dilutes* it. Interpretation: γ_l per-pair structure is concentrated at a single scale (the τ_max scale where raw D detects it) and the multiscale dendrogram aggregation averages it out across `N−1` merge heights.
 
-### Subspace multiscale via Grassmann `d_G(k)` (weak trace)
+### Subspace multiscale via Grassmann `d_G(k)` (strong trace ↑)
 
-The 13-cell contiguous-significant window at k=12..23 with cluster_p = 0.0149 places the γ_l subspace trace squarely in the **mid-k regime**. β's signature is broader (29 cells at k=27..55); α has no Grassmann signal; γ_l sits between, at lower k than β with a narrower window.
+The 13-cell contiguous-significant window at k=12..23 with `cluster_p_mass = 0.005` (gate) places the γ_l subspace trace squarely in the **mid-k regime**. β's signature is broader (29 cells at k=27..55); α has no Grassmann signal; γ_l sits between, at lower k than β with a narrower window.
 
 The k=12..23 range corresponds to roughly modes φ_2, φ_3, …, φ_{24} of the Laplacian — the slowest 20 non-trivial diffusion modes. These are the modes that carry the largest spatial scale information about FC organization (longest mixing times). γ_l reorganization therefore lives in the **macroscopic mode structure** of the brain network, not in pair-level fine structure.
 
@@ -197,7 +203,7 @@ The C5 epi-X shift (k=12..23 → k=19..28) means epi-zone contacts contribute to
 
 ## 5. Anatomical distribution — γ_l Grassmann trace is strong-localized to an occipito-temporal + frontal + medial-OFC network
 
-The γ_l Grassmann trace is **localized to an occipito-temporal + frontal + medial-OFC cortical network** of 7 named DK regions that pass A3 matched-strength surrogacy at p_emp<0.05 / obs_z>2 (R=200, seed 20260511) under the locked all-clusters paradigm. A1 hypergeometric is sparse (top-decile per-patient endpoints yield too few hits for high-power hypergeometric in the Grassmann probe — see `locked/ANATOMY_CONTROLS.md` audit note); the A3 surrogate gate is the load-bearing anatomy control for Grassmann.
+The γ_l Grassmann trace is **localized to an occipito-temporal + frontal + medial-OFC cortical network** of 7 named DK regions that pass A3 matched-strength surrogacy at p_emp<0.05 / obs_z>2 (R=200, seed 20260511) under the locked all-clusters paradigm. A1 hypergeometric is sparse (top-decile per-patient endpoints yield too few hits for high-power hypergeometric in the Grassmann probe — see `locked/ANATOMY_CONTROLS.md` audit note); the A3 surrogate gate is the primary anatomy control for Grassmann.
 
 Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 pm cluster-extent revision.
 
@@ -246,7 +252,7 @@ Under `S(b)`, **fusiform appears nowhere** across the cluster-extent anatomy pan
 
 ### γ_l `ρ_split^coph` per-patient signs (descriptive — probe is silent under C3)
 
-Per-patient rho_split values for γ_l are *not* the load-bearing signal at this band (cophenet C3 fails). For completeness from `ctm_triangle/cohort_summary.csv`:
+Per-patient rho_split values for γ_l are *not* the primary signal at this band (cophenet C3 fails). For completeness from `ctm_triangle/cohort_summary.csv`:
 - Cohort median `ρ_split^coph` = +0.140 (7/10 in + direction by `n_trace_split`)
 - 9/10 above their own drift floor — but only 5/10 above their own matched-strength surrogate
 
@@ -261,10 +267,10 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 | C1 within-rsPre split-half null | ✓ 7/10 cohort, p = 0.032 | `ctm_triangle/cohort_summary.csv` low_gamma |
 | C2 drift-floor `ρ_split > ρ_drift` | ✓ 9/10 above drift, p = 0.010 | same |
 | C3 matched-strength surrogate `ρ_split^coph` | ✗ ratio 30.2×, 5/10, p = 0.116 — **fails** | `matched_strength_surrogate_split_baseline` low_gamma |
-| C3 matched-strength surrogate Grassmann (cluster-extent) | ✓ cluster_p = 0.0149, 13-cell run k=12..23 | `grassmann_cluster_extent` low_gamma |
+| C3 matched-strength surrogate Grassmann (cluster-extent) | ✓ cluster_p_mass = 0.005, cluster_p_LR = 0.015, 13-cell run k=12..23, LOO max p_mass = 0.040 Pat_05 | `grassmann_cluster_extent` low_gamma |
 | C4 cross-probe restriction | ✓ +0.143, 7/10 +sign (matches +0.140) | `ctm_triangle` low_gamma (rho_xprobe column) |
 | C5 epi-X `ρ_split^coph` | **not run** | (audit_68 was α-only) |
-| C5 epi-X Grassmann | ⚠ partial: 10-cell run at shifted window k=19..28 (77% retention, 42% within-window overlap) | `grassmann_epi_exclusion/sensitivity.csv` low_gamma |
+| C5 epi-X Grassmann (secondary observation per Decision 10) | cohort gate held p_mass^epi-X = 0.030; raw mass contracts 66.14 → 32.75; LOO under epi-X 0.159 Pat_05 fragile — mechanistic, not verdict-demoter | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` |
 | Three-layer cohort table (raw FC / raw D / cophenet) | substrate borderline → raw D passes → cophenet demotes — **band-selective opposite of β** | headline section above |
 
 ## 8. Sensitivity panel under the locked 5-control battery
@@ -273,11 +279,11 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 |---|---|---|---|
 | C1 split | ✓ p = 0.032 | n/a (no split-baseline construction for subspace) | C1 specific to cophenet |
 | C2 drift | ✓ p = 0.010 | n/a | C2 specific to cophenet |
-| C3 matched-strength | ✗ p = 0.116 (FAILS) | ✓ cluster_p = 0.0149 (weak) | mandatory; Grassmann replaces 8-cell hardcoded with cluster-extent permutation |
+| C3 matched-strength | ✗ p = 0.116 (FAILS) | ✓ cluster_p_mass = 0.005 (strong ↑) | mandatory; Grassmann uses Decision-8 mass-only gate + Decision-12 LOO precondition |
 | C4 cross-probe | ✓ 7/10 +sign | n/a (subspace not pair-level) | C4 specific to cophenet |
-| C5 epi-X | **not run** (no audit_68 for γ_l cophenet) | ⚠ 77% retention with k-window shift to k=19..28 | sensitivity layer; γ_l Grassmann earns `weak` not `strong` per Decision 2 |
+| C5 epi-X | **not run** (no audit_68 for γ_l cophenet) | cohort gate held p_mass^epi-X = 0.030; mass contracts; LOO under epi-X fragile (Pat_05 = 0.159) — secondary observation per Decision 10 | sensitivity layer; not a verdict-driver |
 
-**Verdict (locked)**: `weak trace, only Grassmann` per `locked/VERDICT_LEDGER.md`. No further sensitivity tests owed under the locked battery. The C5 epi-X cophenet sensitivity at γ_l is *not* part of the locked battery — audit_68 covered α only and extending it to other bands was scoped out per Phase A.
+**Verdict (locked, Decision 12)**: `strong trace, only Grassmann ↑` per `locked/VERDICT_LEDGER.md` (Decision-12 cascade 2026-05-26 — γ_l upgraded from "weak" because all three Decision-12 conditions pass at full data: cluster_p_mass=0.005, cluster_p_LR=0.015, LOO max p_mass=0.040). No further sensitivity tests owed under the locked battery. The C5 epi-X cophenet sensitivity at γ_l is *not* part of the locked battery — audit_68 covered α only.
 
 ## 9. Interpretation
 
@@ -289,13 +295,13 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 
 **Why epi-X shifts the k-window.** Removing epi-zone contacts shrinks the network and shifts the eigenmode indexing. The original k=12..23 modes contain contributions from epi-zone-to-non-epi-zone coupling at the lower k; once epi-zone contacts are removed, the remaining graph's slow modes no longer have the same spatial structure, and the trace re-projects onto slightly higher k (k=19..28). The 42% within-window overlap (k=19..23) is the part of the slow-mode subspace that is **independent** of epi-zone contributions; the rest (k=12..18) is epi-zone-dependent and reorganizes to k=24..28 under exclusion.
 
-**Why γ_l Grassmann is `weak` rather than `strong`.** Three reasons: (i) cluster_p = 0.0149 falls in [0.01, 0.05), the `weak` band by the locked rule; (ii) C5 epi-X retention is 77% in cell count and only 42% in within-window overlap, below the 80% guide for `strong`; (iii) γ_l fails the cophenet probe entirely. The Grassmann signal is real (well above empirical null) but not robust enough across mode identity and per-pair representation to qualify as `strong`.
+**Why γ_l Grassmann is `strong` (Decision-12 cascade, 2026-05-26).** All three Decision-12 conditions pass: (i) `cluster_p_mass = 0.005` clears the Decision-8 < 0.01 threshold (at empirical floor); (ii) `cluster_p_LR = 0.015` clears the < 0.05 co-statistic threshold; (iii) full-data LOO max `p_mass = 0.040` (Pat_05) clears the < 0.05 robustness precondition. γ_l Grassmann nevertheless differs from β in two ways worth flagging in Discussion: the cluster mass `T_G^* = 66.14` (normalized 0.259) is somewhat lower than β's 69.76 (0.273), and the C5 epi-X analysis shows ~50% mass contraction with LOO fragility under epi exclusion — consistent with γ_l reorganization recruiting cortex straddling the epi/non-epi boundary. The strong-tier verdict at full data is unaffected; the C5 contraction is a secondary mechanistic observation per Decision 10.
 
 ## 10. Source-of-truth references
 
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery
-- `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `weak trace, only Grassmann` for γ_l
+- `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `strong trace, only Grassmann ↑` for γ_l (Decision 12 cascade 2026-05-26)
 - `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `.agents/preprint/bands/02_alpha.md` — companion band briefs
 
@@ -325,8 +331,8 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 
 This brief freezes the γ_l verdict for the preprint manuscript under the 2026-05-18 / 2026-05-19 lockdown. Next steps:
 
-1. **γ_l figures** — produce F1 (4-control panel for `ρ_split^coph` showing the C3 failure: cohort medians + per-patient stems for split / drift / matched-strength surrogate / cross-probe), F2 (Grassmann `T_G(k)` cohort cells across k ∈ [2, 112] highlighting the 13-cell window at k=12..23 and the audit_70 empirical null distribution), F3 (per-patient subspace-rotation visualization for k = 17, the within-window k with strongest cohort agreement at 8/10), and F4 (audit_67 epi-X overlay showing the window shift k=12..23 → k=19..28). Output at `data/preprint/figures/gammalow/`.
+1. **γ_l figures** — produce F1 (4-control panel for `ρ_split^coph` showing the C3 failure: cohort medians + per-patient stems for split / drift / matched-strength surrogate / cross-probe), F2 (Grassmann `T_G(k)` cohort cells across k ∈ [2, 112] highlighting the 13-cell window at k=12..23 and the audit_70 empirical null distribution), F3 (per-patient subspace-rotation visualization for k = 17, the within-window k with strongest cohort agreement at 8/10), and F4 (audit_72 c5_wilcoxon overlay showing the secondary epi-X analysis: raw mass contraction 66.14 → 32.75, window shift k=12..23 → k=19..28, LOO under epi-X 0.159 Pat_05). Output at `data/preprint/figures/gammalow/`.
 2. **No anatomy audit owed** at γ_l under the locked battery. A mode-decomposition anatomy analysis (which Desikan-Killiany regions concentrate the k=12..23 eigenmodes) would be a *descriptive supplement*, not a gating control.
-3. **No further sensitivity tests owed.** The C5 epi-X Grassmann audit (audit_67) is the sensitivity layer; cophenet C5 epi-X was not run for γ_l (audit_68 was α-only) and is *not* required under the locked battery — γ_l's verdict (`weak trace, only Grassmann`) is determined by the C3 cophenet failure + Grassmann cluster-extent + C5 partial retention.
+3. **No further sensitivity tests owed.** The C5 epi-X Grassmann audit (audit_72 c5_wilcoxon) is the sensitivity layer; cophenet C5 epi-X was not run for γ_l (audit_68 was α-only) and is *not* required under the locked battery — γ_l's verdict (`strong trace, only Grassmann ↑`) is determined by the C3 cophenet failure + Grassmann Decision-8 mass gate + Decision-12 LOO precondition at full data.
 
-Verdict ready for writing-agent handoff: **`weak trace, only Grassmann`**. The headline story is the **substrate-to-cophenet demotion** (raw FC borderline → raw D passes → cophenet fails, opposite of β's amplification) combined with **subspace-only re-emergence** at mid-k (13 cells at k=12..23 under cluster-extent permutation, with epi-X partial robustness at shifted k=19..28).
+Verdict ready for writing-agent handoff: **`strong trace, only Grassmann ↑`** (Decision-12 cascade 2026-05-26). The headline story is the **substrate-to-cophenet demotion** (raw FC borderline → raw D passes → cophenet fails, opposite of β's amplification) combined with **subspace-only re-emergence** at mid-k (13 cells at k=12..23 under all-clusters cluster-extent permutation, `cluster_p_mass = 0.005`, `T_G^* = 66.14` raw / 0.259 normalized, LOO max p_mass = 0.040 Pat_05). C5 epi-X is a secondary mechanistic observation (mass contracts ~50% under epi exclusion, LOO becomes fragile) reflecting that γ_l reorganization recruits cortex straddling the epi-zone boundary; does not promote or demote the verdict.

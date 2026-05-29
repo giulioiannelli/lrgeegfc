@@ -42,7 +42,7 @@ Cross-cutting fix files (this batch):
 
 ## Master writeups (current, read for context, do not modify)
 
-- `.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` — Result 2 source
+- `.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md` — Result 2 source
 - `.agents/reports/2026-05-07_kc-cross-phase-taxonomy.md` — §5.6 taxonomy source
 - `.agents/reports/2026-05-08_section5_joint_bh.md` — joint-BH family arithmetic
 - `.agents/reports/2026-05-08_section5_5_verify.md` — anatomy m=48 source

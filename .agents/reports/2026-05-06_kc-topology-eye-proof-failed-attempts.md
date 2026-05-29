@@ -5,7 +5,7 @@ era: IMCOH_ABS × COHORT_N10
 status: dead-end
 created: 2026-05-06
 pointers:
-  - .agents/reports/2026-05-06_section-5-critical-review.md
+  - .agents/reports/archive/2026-05/2026-05-06_section-5-critical-review.md
   - data/audit/section5_v2_round3_redo/figures/kc_topology_eye_proof.pdf
   - data/audit/section5_v2_round3_redo/figures/kc_topology_per_pair_signed.pdf
   - data/audit/section5_v2_round3_redo/tables/kc_topology_eye_proof_panel_summary.csv

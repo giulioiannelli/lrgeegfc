@@ -48,7 +48,8 @@ beside them.
 ├── methods/                # long-lived methods companions (one per probe family)
 │   ├── methods_revision_2026-05-18_cophenet.md
 │   ├── methods_grassmann_cluster_extent.md
-│   └── methods_section_review_2026-05-19.md
+│   ├── methods_section_review_2026-05-19.md       # status: mostly_superseded (see METHODS_AUDIT_ISSUES.md)
+│   └── methods_neurophysiological_interpretation_2026-05-26.md
 │
 ├── directives/             # writing-agent directives (dated, accumulate)
 │   └── writing_directive_YYYY-MM-DD_<topic>.md
@@ -184,7 +185,7 @@ From **outside** `.agents/preprint/` (e.g., `.agents/reports/`,
 
 ## Source-of-truth references
 
-- [`README.md`](README.md) — comprehensive index (what's here, what's load-bearing).
+- [`README.md`](README.md) — comprehensive index (what's here, what's primary).
 - [`HANDOFF_INDEX.md`](HANDOFF_INDEX.md) — LaTeX writing-agent entry.
 - [`EVALUATION_PROTOCOL.md`](EVALUATION_PROTOCOL.md) — verification of writing-agent output.
 - [`locked/VERDICT_LEDGER.md`](locked/VERDICT_LEDGER.md) + [`locked/CONTROLS.md`](locked/CONTROLS.md) — trace lockdown.

@@ -20,11 +20,15 @@ two co-primary cluster statistics (**longest contiguous-significant run** and
 **cluster mass**) whose empirical null is built from the same R=200
 matched-strength surrogates that drive the per-k Wilcoxon. The band-level
 **single-number scalar** that the manuscript reports is the cluster mass
-`T_G^*(band) = Σ_{k ∈ C*(band)} −log10 p_k(band)`, which collapses the
-`k`-axis exactly along the cluster the test gates on and inherits its
-empirical p-value from the cluster-extent permutation null. β at
-`T_G^* = 52.97`, `cluster_p_mass = 0.005` is the load-bearing band; δ, γ_l
-sit in the weak tier; α, θ, γ_h carry no Grassmann trace under this gate.
+`T_G^*(b)` — resilient all-clusters sum of `−log10 p_k(b)` across every
+contiguous-significant `k`-cell — normalized to `[0,1]` per C1
+(denominator `n_k^cohort · log10(R+1) = 111 × 2.3032 ≈ 255.65`). β at
+`T_G^* = 69.76` raw / **0.273 normalized**, `cluster_p_mass = 0.005`,
+LOO max `p_mass = 0.005` (Pat_02) is the **primary band finding**; γ_l
+also reaches the strong tier under Decision-12 LOO precondition (`T_G^* = 66.14`
+raw / 0.259 normalized; LOO 0.040 Pat_05); δ sits in the weak tier (cohort
+gate at floor but full-data LOO 0.055 Pat_08 fails the < 0.05 precondition);
+α, θ, γ_h carry no Grassmann trace under this gate.
 
 ---
 
@@ -58,7 +62,7 @@ U_k = span{φ_2, φ_3, …, φ_{k+1}} ⊂ ℝ^N,   k ∈ {2, 3, …, 112}
 
 `U_k` is treated as a point on the Grassmann manifold `Gr(k, N)` — the
 manifold of `k`-dimensional subspaces of `ℝ^N`. The orthonormality of
-`{φ_n}` is **load-bearing** for the chordal Grassmann distance
+`{φ_n}` is **decisive** for the chordal Grassmann distance
 identity in §2 (Frobenius-of-product equals sum of `cos² θ_i` only
 when both bases are orthonormal); using the random-walk Laplacian
 `L_rw = D̂^{−1}L̂` would be invalid because `L_rw` is non-symmetric,
@@ -197,16 +201,35 @@ LR_obs(band) = max_{contiguous C ⊂ [2,112]} |C|
 
 Captures *contiguous extent* in `k` of the trace.
 
-### 5b Cluster mass `T_G^*(band)` — resilient all-clusters sum
+### 5b Cluster mass `T_G^*(band)` — resilient all-clusters sum, normalized to `[0,1]`
 
 ```
-T_G^*(band) = Σ_{k : p_k(band) < α_k} (−log10 p_k(band))
+T_G^*(b) = (n_k^cohort · log10(R+1))^{−1} · Σ_{k : p_k(b) < α_k} (−log10 p_k(b))   ∈ [0,1]
 ```
+
+with `n_k^cohort = 111` (biggest k-grid common to all patients in the
+cohort condition; `k ∈ [2, 112]` for full-data n=10 set by Pat_10's 113
+contacts), `R = 200` matched-strength surrogates, and `log10(R+1) =
+log10(201) ≈ 2.3032`. Denominator `255.65` for the full-data cohort.
+
+Per-patient analogue (descriptive, never gated):
+```
+T_G^{*,s}(b) = (n_k^s · log10(R+1))^{−1} · Σ_{k : p_k^s(b) < α_k} (−log10 max(p_k^s(b), 1/(R+1)))   ∈ [0,1]
+```
+
+with `n_k^s` = patient `s`'s own available k-grid (`= N_s − 1`, or the
+effective epi-X-excluded range under C5). The per-patient denominator
+varies per patient so that `T_G^{*,s} = 1` means "this patient saturates
+their own significance budget across the full available subspace",
+giving cross-patient comparability invariant to `N_s`. Per-cell `p_k^s`
+is regularized at the empirical floor `1/(R+1)` so a saturated cell
+contributes at most `log10(R+1) ≈ 2.3032`.
 
 Cluster mass aggregates *significance depth* across **every**
 contiguous-significant `k`-cluster, not just the longest one. The
 per-cell threshold `α_k = 0.05` is the cluster-forming threshold; the
-statistic is the sum of `−log10 p_k` over all `k`-cells that pass it.
+statistic is the sum of `−log10 p_k` over all `k`-cells that pass it,
+divided by the maximum-attainable sum (`n_k` cells at the floor).
 
 **Why all-clusters, not longest-cluster.** A length-20 cluster split
 into two halves of length 10 by a single non-significant `k`-cell
@@ -227,9 +250,12 @@ built consistently on the same all-clusters sum.
 - `T_G^*` — **mass-based, resilient**: total significance accumulated
   across all stretches, robust to single-`k` gaps.
 
-CONTROLS.md C3 records the rule as the **disjunctive gate**
-`min(cluster_p_LR, cluster_p_mass) < α` so that either contiguity-strong
-or fragment-mass-strong bands can pass.
+CONTROLS.md C3 records the locked rule (Decision 8, 2026-05-19 pm) as
+**mass-only**: `cluster_p_mass < 0.05` is the gate; `cluster_p_LR` is a
+descriptive co-statistic that does not gate. Decision 12 (2026-05-28)
+further requires `LOO max p_mass < 0.05` at full data as a precondition
+for the strong tier — the disjunctive framing from Decision 7 (2026-05-19 am)
+is retired.
 
 ### 5c Empirical null via phantom-surrogate testing
 
@@ -380,7 +406,7 @@ would be belt-and-braces.
 
 **Audit verification (recurring check)**: when running new bands or
 new cohorts, decompose `T_G^*` into per-cluster contributions and
-verify that the load-bearing mass comes from multi-cell clusters,
+verify that the principal mass comes from multi-cell clusters,
 not from singletons. If a band's `T_G^*` is dominated by isolated
 singletons (say > 50% singleton mass) AND the empirical
 `cluster_p_mass < 0.05`, treat it as a *cautionary* finding worth a
@@ -392,13 +418,14 @@ diagnostics, not a gate.
 ## 6 The k-independent scalar — `T_G^*` definition and current values
 
 The band-level **single number** the manuscript reports for the
-Grassmann probe is the cluster mass
+Grassmann probe is the cluster mass, normalized to `[0,1]` per C1:
 
 ```
-T_G^*(band) = Σ_{k : p_k(band) < α_k} (−log10 p_k(band))   (α_k = 0.05)
+T_G^*(b) = (n_k^cohort · log10(R+1))^{−1} · Σ_{k : p_k(b) < α_k} (−log10 p_k(b))   ∈ [0,1]
+        (α_k = 0.05, n_k^cohort = 111, R = 200, denominator ≈ 255.65)
 ```
 
-with empirical p-value `cluster_p_mass(band)`. This scalar:
+with empirical p-value `cluster_p_mass(b)`. This scalar:
 
 - has no `k` dependence — the `k`-axis is collapsed exactly by
   summing significance across every contiguous-significant cluster;
@@ -411,11 +438,11 @@ with empirical p-value `cluster_p_mass(band)`. This scalar:
 - inherits its empirical null directly from the audit_70
   phantom-surrogate permutation — no further test or correction
   needed;
-- is bounded below by `0` (no significant cell);
-- has no fixed upper bound but is interpretable through the null:
-  the null `mass^null` distribution gives a `p95_mass` of order
-  10–20 across bands, so values much above this percentile are
-  extreme on the null.
+- is bounded `[0, 1]` after C1 normalization: `0` = no significant
+  cell; `1` = every k-cell at the empirical floor;
+- the **raw** all-clusters sum (un-normalized) is also kept in the
+  CSV for audit-trail integrity; locked ledger tables cite both as
+  `raw (normalized)` dual format per user decision 2026-05-26.
 
 ### Locked band-level values (audit_70 re-run 2026-05-19 pm — resilient `cluster_mass`, mass-only gate)
 
@@ -522,26 +549,35 @@ text says "the Grassmann trace has amplitude X at β".
 ## 7 Sensitivity layer (C5) — epi-zone exclusion
 
 For each band, the same audit pipeline is rerun on the epi-zone-excluded
-adjacency matrices (audit_67 wrapping the same cluster-extent machinery
+adjacency matrices (audit_72 wrapping the same cluster-extent machinery
 on a reduced node set, contacts in the epileptogenic zone dropped per
 patient via `load_epileptic_nodes`). The output is at
-`data/audit/grassmann_epi_exclusion/cohort_summary.csv` (per-k) +
-`sensitivity.csv` (window summary).
+`data/audit/grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` (cohort
+gate) + `per_patient_per_band_per_k.csv` (per-k) + `sensitivity.csv`
+(diagnostic window summary).
 
-Reading rule (CONTROLS.md C5):
-- The `C*` window under epi-X is compared to the original `C*` window.
-- **≳ 80% retention** (cell count or `T_G^*` retention) supports a
-  strong verdict; biological attribution is to non-epileptic cortex.
-- **< 80% retention** or a substantial `k`-window shift downgrades to
-  weak; the trace partly depends on the epi zone.
-- **Window emergence** under epi-X (additional cells become significant
-  after dropping the epi zone) is interpreted as the epi zone *masking*
-  a wider trace — a known physiological scenario (γ_h is the canonical
-  case: 9 cells full → 6 retained + 8 newly emergent under epi-X,
-  documented at `audit_67_epi_exclusion_verdict.md` memory).
+Reading rule (CONTROLS.md C5, locked 2026-05-19 pm Decision 10):
+- The C5 gate is `cluster_p_mass^epi-X < 0.05` (Wilcoxon-on-epi-X on the
+  same all-clusters cluster-mass statistic, R=200 surrogates built from
+  the epi-X-restricted matched-strength ensemble).
+- **C5 passes** when the cohort cluster-mass null is cleared at α=0.05
+  under epi-zone exclusion — the biological attribution is to non-epileptic
+  cortex, OR (if mass increases under epi-X) the epi zone was *masking*
+  a wider trace.
+- **C5 fails** when `cluster_p_mass^epi-X ≥ 0.05` — the cohort trace
+  depends on the epi-zone contacts.
+- **LOO under epi-X** (`cluster_p_mass_loo_max_epiX`) is the matching
+  Decision-11 single-patient-leverage diagnostic for the C5 analysis.
 
-Epi-X never *upgrades* a verdict above what the primary C3 cluster gate
-allows. It is a sensitivity layer, not an independent gate.
+The previous "≳ 80% retention" / "< 80% retention" framing (cell count
+or `T_G^*` retention thresholds) is **retired** under Decision 10
+(2026-05-19 pm) — retention is a descriptive diagnostic only, never
+a gate.
+
+**Epi-X is a secondary mechanistic observation per Decision 10** —
+never an independent gate, never a verdict-promoter or demoter at the
+strong/weak/no-trace level. The full-data verdict (under Decisions 8 +
+12) is the cohort verdict; C5 epi-X is mechanistic interpretation.
 
 ---
 
@@ -582,7 +618,7 @@ agent should:
    non-trivial Laplacian eigenmode subspace `U_k = span{φ_2, …,
    φ_{k+1}}` of the symmetric normalised Laplacian `L̂` of each
    adjacency matrix." Do not write `U_k = span{φ_1, …, φ_k}` — the
-   `φ_1` skip is methodologically load-bearing.
+   `φ_1` skip is methodologically decisive.
 2. **Cite the distance explicitly**: the chordal Grassmann distance
    identity `d_G² = k − ‖A^T B‖_F²`, equivalent to `Σ sin² θ_i`. State
    that the `k`-sweep is computed SVD-free from a single `(N−1) × (N−1)`
@@ -592,19 +628,27 @@ agent should:
    Wilcoxon vs the matched-strength surrogate mean.
 4. **Pivot on the nuisance argument**: explain why no single `k` is
    chosen, why the cluster-extent test is the natural collapse, and
-   why the gate is *disjunctive* on (LR, mass).
-5. **Define `T_G^*` formally and give the β number first** (52.97,
-   `cluster_p_mass = 0.005`). Cite `cohort_summary.csv`.
+   why the gate is **mass-only** (Decision 8) with `LR` as a
+   descriptive co-statistic and **LOO max p_mass < 0.05** as the
+   strong-tier robustness precondition (Decision 12).
+5. **Define `T_G^*` formally** (normalized to `[0,1]` per C1) and
+   **give the β number first** (raw `69.76` / normalized **`0.273`**,
+   `cluster_p_mass = 0.005`, LOO max `p_mass = 0.005` Pat_02). Cite
+   `cohort_summary.csv`.
 6. **Tabulate all six bands** in one table (Section 6 above).
-7. **Add the C5 epi-X paragraph** for the bands where it shifts the
-   verdict (γ_l weak vs full, γ_h emergence, δ different-network
-   under epi-X) — per ANATOMY_LEDGER.md.
+7. **Add the C5 epi-X paragraph** as a **secondary mechanistic
+   observation** (per Decision 10) — never as a verdict-promoter.
+   For γ_l: trace contracts (mass 66.14 → 32.75) but cohort gate
+   held; for δ: trace strengthens (mass 38.07 → 43.99) and LOO
+   resolves to 0.005 Pat_02, but does not promote the weak full-data
+   verdict to strong.
 8. **Do not call** the cluster-extent procedure a "cluster-based
    correction" or a "denoising step". It is a **test gate**, not a
    pre-processing step on the data.
 9. **Do not cite the LR-only verdict column** from the CSV
-   (`verdict_cluster_extent`); cite the **disjunctive verdict** from
-   CONTROLS.md C3 (computed from `min(cluster_p_LR, cluster_p_mass)`).
+   (`verdict_cluster_extent`); cite the **mass-only verdict** from
+   CONTROLS.md C3 (Decision 8) with the **Decision-12 LOO precondition**
+   for strong-tier promotion (`cluster_p_mass_loo_max < 0.05`).
 10. **The matched-strength surrogate parameters** (R=200, swap_target=20,
     seed=20260511) are shared with cophenet and substrate audits and
     should be cited *once* in the methods Surrogate Battery section,
@@ -623,10 +667,10 @@ agent should:
 - **Surrogate eigvec cache**: `data/cache/matched_strength_surrogate_lrg/Pat_NN/{band}_{phase}_R200_swap20_seed20260511_imcoh_abs.npz`
 - **Helper module**: `lrg_eegfc.utils.surrogate.matched_strength`
 - **Subspace utilities**: `lrg_eegfc.utils.metrics.spectral.topk_basis` (k-truncated eigenmode basis), `chordal_distance` (single-`k` form)
-- **Locked gate**: `.agents/preprint/locked/CONTROLS.md` §C3 Grassmann + Decision 7 disjunctive verdict
-- **Locked verdicts**: `.agents/preprint/locked/VERDICT_LEDGER.md`
+- **Locked gate**: `.agents/preprint/locked/CONTROLS.md` §C3 Grassmann — Decision 8 mass-only (replaces Decision 7 disjunctive) + Decision 12 LOO precondition for strong tier
+- **Locked verdicts**: `.agents/preprint/locked/VERDICT_LEDGER.md` (Decision 12 cascade 2026-05-28)
 - **Anatomy companion**: `.agents/preprint/locked/ANATOMY_LEDGER.md` (per-(band, Grassmann) DK-region attribution under A3)
-- **Per-band briefs** (where Grassmann is load-bearing or contributes): `bands/01_beta.md`, `bands/03_gammalow.md`, `bands/05_gammah.md`, `bands/06_delta.md`
+- **Per-band briefs** (where Grassmann is primary or contributes): `bands/01_beta.md` (strong), `bands/03_gammalow.md` (strong ↑), `bands/06_delta.md` (weak — LOO Pat_08 binding)
 
 ---
 
@@ -636,3 +680,14 @@ agent should:
   band-level k-independent scalar; documents the disjunctive
   `min(cluster_p_LR, cluster_p_mass)` gate; flags `ΔG_C*` companion
   as one-line addition to audit_70 if writing agent needs it.
+- **2026-05-28** — Decision-12 cascade applied: gate citation switched
+  from disjunctive (Decision 7) to mass-only (Decision 8) + LOO
+  precondition for strong tier (Decision 12). `T_G^*` normalized to
+  `[0,1]` per C1 (denominator `n_k^cohort · log10(R+1) = 255.65` for
+  full-data cohort); per-patient `T_G^{*,s}` formula added with
+  per-patient denominator `n_k^s · log10(R+1)`. β raw 69.76 /
+  normalized **0.273**; γ_l raw 66.14 / normalized **0.259** (strong ↑
+  under Decision 12); δ raw 38.07 / normalized **0.149** (weak — LOO
+  Pat_08 = 0.055 fails Decision-12 precondition). C5 epi-X explicitly
+  reframed as secondary mechanistic observation (Decision 10), never
+  verdict-promoter.

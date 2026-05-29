@@ -28,8 +28,14 @@ file output in the `lrgeegfc` repo.
    breaks panel symmetry and creates dead white-space. See
    [`legends.md`](legends.md).
 2. **Colorbars → `imshow_colorbar_caxdivider`.** This helper is the
-   default. It guarantees properly spaced colorbars that don't squeeze
-   the parent axis. See [`colorbars.md`](colorbars.md).
+   default for any *single-imshow* axis. It guarantees properly spaced
+   colorbars that don't squeeze the parent axis. See
+   [`colorbars.md`](colorbars.md). **Scope:** the helper attaches the
+   colorbar to one axis via `make_axes_locatable`; it **cannot** serve
+   a colorbar shared across multiple columns in the same row (it will
+   misalign or resize the wrong axis). For row-shared cbars keep the
+   explicit `make_axes_locatable` / `fig.add_axes([...])` pattern.
+   Locked 2026-05-28.
 3. **Multi-axis layout → figure-level decoration.** Titles, legends,
    colorbars, and shared axis labels go on the *figure*, not on a
    single axis. Use `sharex` / `sharey` and per-row / per-column

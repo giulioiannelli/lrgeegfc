@@ -85,7 +85,7 @@ bullet 1 as the construction that defines `D_coph`.)
 **Replace the closing sentence** of the "Three coupled objects"
 paragraph with:
 
-> The two objects read **structurally distinct facets** of the same
+> The two objects read **structurally distinct aspects** of the same
 > information-communication geometry: `D_coph` reads the **per-pair
 > hierarchical-merge structure** (which contacts coalesce at which
 > scale), and `U_k` reads the **subspace alignment of the slow
@@ -225,7 +225,7 @@ The taxonomy operates on dendrogram subtrees compared by Jaccard
 overlap and was already reported in the original methods as a
 "coarse-grained per-patient illustration rather than an independent
 statistical test." With the dendrogram no longer being read directly,
-the taxonomy has no place in the methods of the load-bearing
+the taxonomy has no place in the methods of the primary
 preprint.
 
 (If the taxonomy figures are needed as exploratory illustrations they
@@ -244,7 +244,7 @@ companion). Add an explicit **"What `T_G(k)` reads vs what
 sentence:
 
 > The Grassmann probe and the per-pair multiscale probe of the
-> preceding subsection read **distinct facets** of the LRG
+> preceding subsection read **distinct aspects** of the LRG
 > communication geometry. `ρ_split^coph` operates on the dendrogram-
 > derived per-pair distance `D_coph`: it asks, for each contact pair
 > independently, whether the **scale at which the two contacts
@@ -351,7 +351,7 @@ Anti-patterns to flag and reject if encountered in any revision:
    (cophenet of any agglomerative linkage always is); this is a
    different statement.
 5. **Never describe Grassmann as redundant with the cophenetic probe,
-   nor vice versa.** They read distinct facets (pair-coalescence
+   nor vice versa.** They read distinct aspects (pair-coalescence
    scale vs slow-mode subspace orientation) and are not derivable from
    one another.
 
@@ -402,7 +402,7 @@ each cohort Wilcoxon — see `.agents/preprint/locked/CONTROLS.md` §C3 + §C4.
 The cophenet's contribution is therefore **band-resolution at the
 multiscale level via the dendrogram-induced merge-height integration**,
 not amplification of detection. This three-layer contrast is itself
-the load-bearing argument for adopting `D_coph` as the canonical
+the central argument for adopting `D_coph` as the canonical
 per-pair probe and should appear in the Results discussion of the
 LRG-CTM finding.
 
@@ -466,9 +466,13 @@ revised Methods section:
 - [ ] Grassmann subsection retains its current content plus the new
       "What `T_G(k)` reads vs what `ρ_split^coph` reads" paragraph
       that distinguishes the two probes' meanings explicitly.
-- [ ] Statistical inference subsection updates family sizes to `m =
-      12` (matrix distances on `D_coph`, six bands × two distances)
-      and `m = 6` (`ρ_split^coph`, six bands). Drops KC, VI, taxonomy
+- [ ] Statistical inference subsection: **drop all cross-band BH-FDR
+      statements at the LRG probes** (locked 2026-05-20 supersedure per
+      `feedback_no_unmotivated_bh_fdr.md`; ρ_split^coph m=6 cross-band
+      BH-FDR was retired because the per-band Wilcoxon already gates
+      and the cross-band family does not form a coordinated unit of
+      inference). Keep BH-FDR **only** for the anatomy A1 hypergeometric
+      across DK regions per (band, probe). Drops KC, VI, taxonomy
       family-size references.
 - [ ] All anti-patterns listed in the "What the writing agent must
       NOT do" section are absent from the revised text.
@@ -488,7 +492,7 @@ This methods revision **forces** the following downstream edits in
 other manuscript sections. Track these separately:
 
 - Results §5.2 (KC-based finding, the "β KC 10/10 within-baseline"
-  paragraph): retire the entire load-bearing claim; KC is no longer in
+  paragraph): retire the entire central claim; KC is no longer in
   the methods. If the result is to be kept anywhere, move to
   Supplement as exploratory.
 - Results §5.3 (LRG-CTM `ρ_split`): rewrite to use `ρ_split^coph`

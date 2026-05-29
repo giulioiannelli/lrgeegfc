@@ -32,7 +32,7 @@ cluster p = 0.055). α has no Grassmann trace.
 | **β** | 13–30 | **strong trace** | **strong trace** (LOO-robust) | **strong trace, both probes** |
 | α | 8–13 | **strong trace** (epi-X strengthens) | no trace | **strong trace, only D_coph** |
 | γ_l | 30–80 | no trace | **strong trace** ↑ (mass-only gate, LOO-robust) | **strong trace, only Grassmann** ↑ |
-| δ | 0.53–4 | no trace | **strong trace** ↑ (mass-only gate; C5 epi-X strengthens decisively; full-data LOO Pat_08 leverage resolves under epi-X) | **strong trace, only Grassmann** ↑ |
+| δ | 0.53–4 | no trace | **weak trace** (cohort gate clears at `p_mass = 0.005` floor; full-data LOO max p_mass = 0.055 Pat_08 fails Decision-12 < 0.05 LOO precondition — Decision-8 strong promotion retracted; C5 epi-X strengthens and LOO resolves, secondary mechanistic observation per Decision 10) | **weak trace, only Grassmann** |
 | γ_h | 80–300 | no trace | no trace (`p_mass` = 0.060) | **no trace** |
 | θ | 4–8 | no trace | no trace | **no trace** |
 
@@ -73,7 +73,7 @@ and not citable.
 - **C2** drift-floor null (D_coph only) — same CSV col `wilcoxon_split_gt_drift_p`
 - **C3** matched-strength surrogate (both probes; **mandatory**) — `matched_strength_surrogate_split_baseline/cohort_summary.csv` for D_coph; `grassmann_cluster_extent/cohort_summary.csv` col `cluster_p_cluster_mass` for Grassmann (mass-only gate, Decision 8)
 - **C4** cross-probe restriction (D_coph only) — `ctm_triangle/c4_wilcoxon_cohort.csv` (audit_71, locked 2026-05-19; paired-Wilcoxon gate, Decision 9). The old `ctm_triangle/cohort_summary.csv` cols `n_trace_xprobe_int`/`rho_xprobe_median` are retained as **descriptive auxiliary statistics**, not the gate.
-- **C5** epi-zone exclusion — `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` (audit_72, locked 2026-05-19; cluster-mass on epi-X eigvec cache for Grassmann) + `alpha_epi_exclusion/c5_wilcoxon_cohort.csv` (audit_72, locked 2026-05-19; one-sample Wilcoxon on `obs_rho^epi-X` for cophenet α). C5 is a **primary gate** for `strong vs weak`, not a sensitivity layer, under Decision 10.
+- **C5** epi-zone exclusion — `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` (audit_72, locked 2026-05-19; cluster-mass on epi-X eigvec cache for Grassmann) + `alpha_epi_exclusion/c5_wilcoxon_cohort.csv` (audit_72, locked 2026-05-19; one-sample Wilcoxon on `obs_rho^epi-X` for cophenet α). C5 is a **secondary mechanistic observation** documenting whether epi-zone exclusion strengthens or weakens the trace; **never a verdict-promoter** for either probe (Decision 10 amended 2026-05-28 — the earlier "primary gate" framing was retracted as contradictory to Decision 12, which already locked C5 as secondary for the Grassmann probe; the same rule now applies symmetrically to the cophenet probe).
 
 ---
 
@@ -98,15 +98,15 @@ and not citable.
 | Observed longest contiguous-sig run (descriptive) | **29 cells** at k = 27..55 | `grassmann_cluster_extent/cohort_summary.csv` beta |
 | Null mean / 95th / max LR | 2.37 / 6.0 / 17 | same |
 | `cluster_p_longest_run` (descriptive co-statistic) | 0.005 (minimum at R=200) | same |
-| **Resilient all-clusters mass `T_G^*`** | **69.76** | same |
+| **Resilient all-clusters mass `T_G^*`** | **69.76** (normalized **0.273** per C1, denominator 255.65) | same |
 | **`cluster_p_cluster_mass` (gate)** | **0.005** | same |
 | LOO max `p_mass` | 0.005 (Pat_02) — **fully LOO-robust** | same |
 | **C5 epi-X `cluster_p_cluster_mass^epi-X` (gate)** | **0.005** | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` beta |
-| C5 epi-X `T_G^*^epi-X` | **89.04** (strengthens vs full 69.76) | same |
+| C5 epi-X `T_G^*^epi-X` | **89.04** (normalized **0.444** per C1, denominator 200.38 with n_k^epi-X=87; strengthens vs full 69.76 / 0.273) | same |
 | C5 epi-X LOO max `p_mass^epi-X` | 0.005 (Pat_02) — **fully LOO-robust** | same |
 | C5 epi-X longest run | 36 cells (vs 29 in full data) | same |
 
-β trace **strengthens** under epi-X (mass 69.76 → 89.04, LR 29 → 36)
+β trace **strengthens** under epi-X (mass 69.76 (0.273) → 89.04 (0.444), LR 29 → 36)
 and remains fully LOO-robust at both full and epi-X.
 
 **Substrate context (raw FC matched-strength)**: p = 0.0527 (borderline), n_above 6/10 — β substrate is the *weakest* of the bands at raw FC; the β trace is an LRG-emergent property, NOT inherited from substrate.
@@ -152,21 +152,26 @@ clear **strong trace, both probes**. → manuscript backbone.
 
 cluster_p_longest_run ≥ 0.05 → Grassmann verdict: **no trace**.
 
-**Verdict reasoning**: full-cohort C3 cohort agreement is 5/10 (borderline by
-n_above count). C5 epi-X strengthens the trace decisively: ratio increases
-8.25× → 27.7×, cohort agreement 5/10 → **7/10**, p stays significant at 0.0137.
-Per-patient Δρ under epi-X (`alpha_epi_exclusion/comparison.csv`): Pat_03,
-Pat_05, Pat_07, Pat_10 strengthen; Pat_13 inverts (+0.028 → −0.171, this is the
-patient with the largest epi-zone N_epi=30/119); Pat_06, Pat_08, Pat_14 weaken
-mildly but stay positive. Net cohort signal is non-epi-cortex driven. The
-"borderline at 5/10" reading at full cohort is the epi zones masking the
-trace, not the trace being weak. → **strong trace, only D_coph**.
+**Verdict reasoning**: C3 paired Wilcoxon p = 0.00195 clears α decisively
+at the locked Wilcoxon-is-the-gate rule (per
+`feedback_patient_counts_never_the_gate.md`). The per-patient `n_above` =
+5/10 is a descriptive cohort-agreement statistic, not a verdict modifier;
+patient-count thresholds were retired at the 2026-05-19 lock and reaffirmed
+2026-05-28. C1, C2, C3, C4 all pass at full cohort. The Grassmann probe
+shows no contiguous-significant window at α. → **strong trace, only D_coph**
+at C3 alone.
 
-**Decision (logged)**: the C3 full-cohort n_above 5/10 is below 6/10, which by
-the conservative `weak trace` rule would tag α as weak. The epi-X strengthening
-(7/10 + ratio 27.7×) reclassifies it as **strong** — the controls work in
-sequence (C3 ratifies presence, C5 strengthens). This decision is final;
-re-opening requires a new audit, not a re-reading.
+**Secondary mechanistic observation (C5 epi-X, audit_68)**: under epi-zone
+exclusion the α effect-size ratio strengthens (obs_rho/surr_p50 8.25× →
+27.7×) and the C5 one-sample Wilcoxon on per-patient `obs_rho^epi-X` clears
+at p = 0.0098 (LOO max p = 0.0195 Pat_03). Per-patient Δρ under epi-X
+(`alpha_epi_exclusion/comparison.csv`): Pat_03/05/07/10 strengthen;
+Pat_13 — the patient with the largest epi-zone burden (N_epi = 30/119) —
+inverts from +0.028 to −0.171; Pat_06/08/14 weaken mildly but stay positive.
+This is a supportive mechanistic narrative consistent with α-relevant
+non-epi cortex carrying the trace; it is **not a verdict-promoter**, per
+Decision 10 (amended 2026-05-28). The α verdict was already strong at C3
+alone.
 
 ---
 
@@ -203,11 +208,11 @@ C3 fails → cophenet verdict **no trace**.
 | Observed longest contiguous-sig run (descriptive) | **13 cells** | `grassmann_cluster_extent/cohort_summary.csv` low_gamma |
 | Null mean / 95th / max LR | 2.63 / 8.0 / 15 | same |
 | `cluster_p_longest_run` (descriptive co-statistic) | 0.0149 | same |
-| **Resilient all-clusters mass `T_G^*`** | **66.14** | same |
+| **Resilient all-clusters mass `T_G^*`** | **66.14** (normalized **0.259** per C1, denominator 255.65) | same |
 | **`cluster_p_cluster_mass` (gate)** | **0.005** | same |
 | LOO max `p_mass` (descriptive) | 0.040 (drop Pat_05) | same |
 | **C5 epi-X `cluster_p_cluster_mass^epi-X` (gate)** | **0.030** | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` low_gamma |
-| C5 epi-X `T_G^*^epi-X` | 32.75 (vs full 66.14, contracts) | same |
+| C5 epi-X `T_G^*^epi-X` | 32.75 (normalized **0.163** per C1, denominator 200.38 with n_k^epi-X=87; vs full 66.14 / 0.259, contracts ~50%) | same |
 | C5 epi-X LOO max `p_mass^epi-X` | 0.159 (Pat_05) — **LOO-fragile under epi-X** | same |
 | C5 epi-X longest run | 10 cells (vs 13 in full data) | same |
 
@@ -230,45 +235,61 @@ resilient all-clusters mass (audit_70 cluster_mass corrected
 2026-05-19 pm), γ_l's multiple contiguous-significant `k`-clusters
 (13 + 12 + 5 + 5 + 2 + 2 cells) all contribute to `T_G^*`. The
 previous longest-cluster-only formula gave `T_G^* = 19.17` and
-`p_mass = 0.035`; the corrected formula gives `T_G^* = 66.14` and
+`p_mass = 0.035`; the corrected formula gives `T_G^* = 66.14 (normalized 0.259)` and
 `p_mass = 0.005`. Under the disjunctive gate (also retired), γ_l was
 already strong; under the new mass-only gate it remains strong with
 a single principled threshold.
 
 ---
 
-### δ (0.53–4 Hz) — **strong trace, only Grassmann** ↑ (revised 2026-05-19 pm)
+### δ (0.53–4 Hz) — **weak trace, only Grassmann** (revised 2026-05-19 pm; Decision-12 cascade 2026-05-28)
 
-**Revision**: under the mass-only Grassmann gate (CONTROLS.md §C3
-Decision 8), δ upgrades from weak → **strong** because the resilient
-all-clusters cluster mass `cluster_p_mass = 0.005` clears the `< 0.01`
-strong threshold. Old longest-run-only mass gave `T_G^* = 12.78` and
-`p_mass = 0.025` (weak by LR-only or longest-cluster-mass); the
-corrected resilient formula gives `T_G^* = 38.07` and `p_mass =
-0.005` because δ has multiple contiguous-significant `k`-clusters
-(7 + 4 + 4 + 2 + 2 cells across the k-axis) that the longest-run
-formula was under-counting.
+**Revision history**: under Decision 6 (cluster-extent revision, 2026-05-19 am)
+δ Grassmann was promoted from no trace → weak. Under Decision 8 (mass-only gate,
+2026-05-19 pm) δ was tentatively further promoted weak → strong because
+`cluster_p_mass = 0.005` cleared the < 0.01 strong threshold by the mass-only
+mechanical rule. Under **Decision 12 (LOO + extent preconditions, 2026-05-28)**
+the strong promotion is **retracted**: δ stays **weak** because full-data
+LOO max `p_mass = 0.055` (drops Pat_08) fails the Decision-12 < 0.05 LOO
+robustness precondition. The cohort gate is held — `cluster_p_mass = 0.005`
+at the empirical floor — but a single patient (Pat_08) drags the cohort
+verdict over the gate, which under brutal-honesty + no-single-patient-p-driven
+rules cannot be called "strong". The verdict is therefore **weak trace,
+only Grassmann**: cohort gate clears but LOO robustness fails at full data.
 
-**Caveat — single-patient leverage at full data, resolved under C5
-epi-X**: LOO max `p_mass = 0.055` (drops Pat_08) at the full-cohort
-analysis crosses the 0.05 boundary, indicating Pat_08 leverage on
-the full-data verdict. The verdict stays "strong" at the full-data
-gate, AND the C5 epi-X analysis (audit_72) resolves the leverage
-cleanly: `p_mass^epi-X = 0.005` with **LOO max `p_mass^epi-X = 0.005`
-(Pat_02), fully robust**. The interpretation: Pat_08 leverage at the
-full-cohort scale was driven by epi-zone contacts, not the true
-biological trace — under epi-X the cohort-level signal strengthens
-(mass 38 → 44) and the single-patient leverage disappears. The
-manuscript text should report both: *"the δ Grassmann trace clears
-the cluster-mass gate at the cohort level (`p_mass = 0.005`); the
-LOO sensitivity at the full cohort suggests Pat_08 leverage
-(LOO max p = 0.055), but the C5 epi-zone-exclusion analysis resolves
-this — the trace strengthens under epi-X (mass 38 → 44, `p_mass^epi-X
-= 0.005`) and is fully LOO-robust there. The full-data Pat_08
-leverage is attributable to epi-zone interactions, not the true
-biological trace."*
+**Why the strong promotion was wrong (Decision 12 rationale)**: Decision 8
+was a mechanical rule (`cluster_p_mass < 0.01`) without an LOO precondition.
+Empirically `p_mass = 0.005` is the empirical-null floor `1/(R+1)` for `R=200`
+surrogates — it can't go lower no matter how decisive the cohort signal is.
+So the p-value alone cannot discriminate marginal-clear from decisive-clear
+signal. The LOO sensitivity is what supplies that discrimination: β passes
+LOO 0.005 (Pat_02) and γ_l passes LOO 0.040 (Pat_05), both genuinely
+robust to single-patient removal. δ at full-data LOO 0.055 (Pat_08) does
+not, so it is not in the same robustness class as β or γ_l. The "strong"
+tag would falsely advertise that equivalence.
 
+**C5 epi-X — secondary mechanistic observation (Decision 10, not verdict-promoter)**:
+under epi-zone exclusion the trace strengthens decisively — `p_mass^epi-X = 0.005`,
+`T_G^*^epi-X = 43.99` (vs full 38.07), and LOO max `p_mass^epi-X = 0.005`
+(Pat_02), fully robust. The interpretation is that Pat_08 leverage at the
+full-cohort scale was driven by epi-zone interactions, not the true
+biological trace. This is **interesting biology to report in Discussion**
+but per Decision 10 C5 epi-X is never a verdict-promoter — the full-data
+verdict is what gates the strong/weak/no-trace tag. The full-data Pat_08
+LOO failure is the binding constraint; C5 resolution is descriptive of
+*why* (epi-zone interactions), not a recipe for promotion.
 
+**Manuscript text should report**: *"The δ Grassmann probe clears the
+cluster-mass gate at the cohort level (`cluster_p_mass = 0.005`,
+`T_G^* = 38.07` raw / 0.149 normalized) but full-data LOO sensitivity
+identifies Pat_08 as the leveraging patient (LOO max p = 0.055). Under
+the locked verdict-tier rule (Decision 12), this single-patient leverage
+prevents promotion to strong tier — the verdict is weak. The C5
+epi-zone-exclusion analysis (secondary, mechanistic) shows the trace
+strengthens and LOO becomes fully robust under epi-X (mass 38 → 44,
+`p_mass^epi-X = 0.005`, LOO under epi-X = 0.005), indicating Pat_08's
+full-data leverage is attributable to epi-zone interactions rather than
+the true biological trace."*
 
 **Cophenet `D_coph` — primary 4-control table:**
 
@@ -293,11 +314,11 @@ detected by ImCoh, not a task-induced reorganization.
 | Observed longest contiguous-sig run (descriptive) | **7 cells** | `grassmann_cluster_extent/cohort_summary.csv` delta |
 | Null mean / 95th / max LR | 2.17 / 5.0 / 10 | same |
 | `cluster_p_longest_run` (descriptive co-statistic) | 0.025 | same |
-| **Resilient all-clusters mass `T_G^*`** | **38.07** | same |
+| **Resilient all-clusters mass `T_G^*`** | **38.07** (normalized **0.149** per C1, denominator 255.65) | same |
 | **`cluster_p_cluster_mass` (gate)** | **0.005** | same |
 | LOO max `p_mass` (descriptive — flag at full data) | **0.055 (drop Pat_08)** | same |
 | **C5 epi-X `cluster_p_cluster_mass^epi-X` (gate)** | **0.005** | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` delta |
-| C5 epi-X `T_G^*^epi-X` | **43.99** (strengthens vs full 38.07) | same |
+| C5 epi-X `T_G^*^epi-X` | **43.99** (normalized **0.220** per C1, denominator 200.38 with n_k^epi-X=87; strengthens vs full 38.07 / 0.149) | same |
 | C5 epi-X LOO max `p_mass^epi-X` | **0.005 (Pat_02) — fully LOO-robust under epi-X** | same |
 | C5 epi-X longest run | 7 cells | same |
 
@@ -312,18 +333,20 @@ of mechanistic finding C5 epi-X is designed to surface, and it
 strengthens the biological-attribution argument for the δ Grassmann
 trace.
 
-**Verdict reasoning**: under the mass-only gate (Decision 8),
-`cluster_p_cluster_mass = 0.005 < 0.01` → **strong trace** by the
-locked rule. LOO max 0.055 crosses 0.05 → verdict is
-single-patient-leveraged on Pat_08; flag explicitly in manuscript
-(see caveat above). C3 on cophenet fails. → **strong trace,
-only Grassmann** (with LOO caveat).
-
-
-real subspace signature. Cophenet C3 fails so no per-pair trace. The δ C4
-anchor-anatomy reading remains a *separate, descriptive* known-biology
-observation, not part of the trace verdict. → **weak trace, only Grassmann**
-(Grassmann), with descriptive anchor-anatomy note alongside.
+**Verdict reasoning (Decision 12 cascade)**: under the Decision-8 mass-only
+gate `cluster_p_mass = 0.005 < 0.01` clears the strong-tier p-value threshold,
+and the cluster-extent co-statistic `cluster_p_LR = 0.025 < 0.05` clears the
+extent threshold. **However, the Decision-12 LOO precondition (full-data
+LOO max p_mass < 0.05) fails: LOO max = 0.055 (Pat_08).** Under Decision 12
+the strong tier requires all three conditions; δ fails one, so the verdict
+is **weak**. C3 on cophenet fails. δ C4 anchor-anatomy reading is a
+*separate, descriptive* known-biology observation (LEDGER Decision 5),
+not part of the trace verdict. C5 epi-X is a secondary mechanistic
+observation per Decision 10 (strengthens trace, resolves LOO under epi-X
+to 0.005 Pat_02, fully robust) — interpretable as Pat_08 full-data leverage
+being epi-zone-driven, but never a verdict-promoter. → **weak trace,
+only Grassmann** (Grassmann), with descriptive anchor-anatomy note
+alongside.
 
 ---
 
@@ -396,17 +419,43 @@ all FC. → **no trace**.
 
 ## Decisions on borderlines (logged once, never re-opened)
 
-### Decision 1: α C3 cohort agreement 5/10 borderline → resolved by C5 epi-X
-At full cohort, α has C3 paired Wilcoxon p = 0.00195 (passes) but only 5/10
-patients above their own surrogate. The conservative reading of the
-strong/weak rule would tag this as `weak trace`. C5 epi-X reclassifies it as
-`strong trace` because:
-- ratio 8.25× → 27.7× (3.4× improvement)
-- cohort agreement 5/10 → 7/10 (above the 6/10 threshold)
-- p = 0.0137 still significant under the smaller per-patient N
+> **Note on ordering**: decisions appear in file-order for narrative
+> coherence (verdict-by-verdict at the top, methodology refinements at the
+> bottom), not strict chronology. Each Decision header carries its own date
+> stamp; consult those for chronological ordering. Decisions 8 (mass-only
+> Grassmann gate), 9 (paired-Wilcoxon C4), and 10 (Wilcoxon-on-epi-X C5)
+> live in `CONTROLS.md` rather than this file — they are control-battery
+> refinements; this file logs verdict-side decisions. Decision 11 (LOO
+> max-p diagnostic mandatory) is companion to 8/9/10 and is described in
+> the 2026-05-19 pm revision-history entry below.
 
-The borderline is a non-epi-cortex effect being masked by epi-zone patients,
-not a marginal trace. **Decision: α D_coph is `strong trace`. Final.**
+### Decision 1: α C3 cohort agreement 5/10 borderline → resolved by C5 epi-X — **RETRACTED 2026-05-28**
+
+**Retraction note (2026-05-28)**: the original Decision 1 used C5 epi-X to
+"reclassify" α from weak → strong, anchored on the 5/10 → 7/10 per-patient
+count transition and the 8.25× → 27.7× ratio strengthening under epi-X.
+This decision is **retracted** for two reasons:
+
+1. **Patient-count thresholds were retired at the 2026-05-19 lock** (per
+   `feedback_patient_counts_never_the_gate.md` and CONTROLS.md §C3) — the
+   5/10 vs 7/10 distinction was never a principled verdict modifier and
+   could not legitimately rescue a tag.
+2. **C5 epi-X is a secondary mechanistic observation, not a verdict-
+   promoter** — this rule was already locked for the Grassmann probe under
+   Decision 12 (2026-05-28) and is now extended symmetrically to the
+   cophenet probe under amended Decision 10. C5 cannot reclassify
+   anything; it can only document whether epi exclusion strengthens or
+   weakens the trace.
+
+**The α verdict tag (`strong trace, only D_coph`) is preserved** because
+C3 paired Wilcoxon p = 0.00195 was already passing at full cohort under
+the locked Wilcoxon-as-gate rule. The verdict was earned at C3 alone; the
+rescue narrative was an unsanctioned overlay. C5 epi-X strengthening is
+reported in the α §verdict reasoning above as a supportive mechanistic
+observation, not as a promoter.
+
+Original Decision 1 text removed; this retraction note retained for
+audit history.
 
 ### Decision 2: γ_l Grassmann 83% retention with k-window shift → `weak`
 audit_66 contiguous window k=12..23 (12 cells); audit_67 contiguous window
@@ -498,6 +547,67 @@ threshold is retired. δ Grassmann is now `weak trace`. γ_h Grassmann is now
 
 ---
 
+### Decision 12: LOO + extent preconditions for strong-tier verdict (2026-05-28)
+
+Decision 8 (mass-only gate, 2026-05-19 pm) was a mechanical rule:
+`cluster_p_mass < 0.01` → strong; `0.01 ≤ cluster_p_mass < 0.05` → weak;
+`cluster_p_mass ≥ 0.05` → no trace. Empirically `cluster_p_mass = 0.005` is
+the empirical-null floor `1/(R+1)` for `R=200` surrogates, so the p-value
+alone cannot discriminate marginal-clear from decisive-clear signal once
+the floor is reached. The LR null and LOO sensitivity supply the missing
+discrimination.
+
+**Refined rule (locked under Decision 12):** strong-tier verdict requires
+**all three** conditions at full data:
+1. `cluster_p_mass < 0.01` (Decision-8 cluster-mass-null clearance)
+2. `cluster_p_longest_run < 0.05` (cluster-extent-null clearance; weak
+   threshold suffices since mass is the gate)
+3. **`LOO max p_mass < 0.05` (full data) — cohort verdict robust to
+   single-patient removal**
+
+C5 epi-X resolutions are **secondary mechanistic observations** (per
+Decision 10) and **never** promote a band to strong if conditions (1)–(3)
+fail at full data.
+
+**Per-band check under Decision 12** (data from
+`grassmann_cluster_extent/cohort_summary.csv`, 2026-05-26):
+
+| Band | `mass_p < 0.01` | `LR_p < 0.05` | LOO < 0.05 | Verdict |
+|---|---|---|---|---|
+| β | ✓ 0.005 | ✓ 0.005 | ✓ 0.005 (Pat_02) | **strong** |
+| γ_l | ✓ 0.005 | ✓ 0.015 | ✓ 0.040 (Pat_05) | **strong** ↑ |
+| **δ** | ✓ 0.005 | ✓ 0.025 | **✗ 0.055 (Pat_08)** | **weak** ← LOO binds |
+| γ_h | ✗ 0.060 | — | — | no trace |
+| θ | ✗ 0.159 | — | — | no trace |
+| α | ✗ 0.348 | — | — | no trace |
+
+**One verdict flip vs Decision 8:**
+- **δ Grassmann**: tentative strong (Decision 8) → **weak** (Decision 12).
+  Cohort gate clears at `p_mass = 0.005` floor and `LR_p = 0.025 < 0.05`,
+  but full-data LOO max `p_mass = 0.055 (Pat_08)` fails the < 0.05 LOO
+  precondition. Pat_08 single-handedly leverages the cohort verdict over
+  the gate at full data. C5 epi-X strengthens the trace and resolves the
+  LOO (mass 38.07 → 43.99, LOO under epi-X = 0.005 Pat_02) — secondary
+  mechanistic observation interpretable as Pat_08 full-data leverage
+  being epi-zone-driven, but never a verdict-promoter per Decision 10.
+
+**No verdict change for**: β (LOO 0.005 robust); γ_l (LOO 0.040 robust);
+α (cophenet probe, unaffected by Grassmann gate); γ_h, θ (already no trace
+under Decision 8).
+
+**Decision: LOO + extent preconditions are locked. δ Grassmann is now
+`weak trace`. Coverage tags updated accordingly in the locked verdict
+table. Final.**
+
+Rationale ties: `feedback_no_single_patient_p_driven.md` (Wilcoxon at n=10
+vulnerable to direction-outliers; LOO mandatory) + `feedback_brutal_honesty_no_sycophancy.md`
+(don't overclaim "strong" when robustness checks reveal fragility) +
+`feedback_no_hardcoded_test_thresholds.md` (LOO max is principled robustness
+on the same statistical test, not a hardcoded patient-count threshold —
+the test IS the gate, LOO sensitivity is part of the test).
+
+---
+
 ## Anti-revisitation clause
 
 These verdicts are **locked as of 2026-05-18**. To change any verdict in the
@@ -554,15 +664,26 @@ not re-derive it.
   `data/audit/ctm_triangle/c4_wilcoxon_cohort.csv`. All 6 bands pass new
   gate. β paired_p = 0.385 (LOO max 0.590, Pat_02). α paired_p = 0.461
   (LOO max 0.674, Pat_02). No verdict flips.
-  **Decision 10**: C5 epi-X gate refactored from `≳80% window-retention` to
+  **Decision 10**: C5 epi-X test refactored from `≳80% window-retention` to
   **Wilcoxon-on-epi-X**. Grassmann: re-run audit_70 cluster-mass test on
   epi-X eigvec cache (audit_72) → `cluster_p_mass^epi-X < 0.05`. Cophenet
   (α only): one-sample Wilcoxon on per-patient `obs_rho^epi-X` under
-  `H_1: rho_split^epi-X > 0` → α p = 0.0098 (passes). C5 promoted from
-  *sensitivity layer* to *primary gate* under the strong/weak rule.
+  `H_1: rho_split^epi-X > 0` → α p = 0.0098.
+  **Amended 2026-05-28**: the original Decision 10 promoted C5 from
+  *sensitivity layer* to *primary gate*. This promotion is **retracted**.
+  C5 epi-X is a **secondary mechanistic observation** for both probes
+  (cophenet and Grassmann) — it documents whether epi-zone exclusion
+  strengthens or weakens the trace but **never promotes a band to strong**
+  if the C1–C4 primary controls do not already pass at full data. This
+  brings Decision 10 into alignment with Decision 12 (locked 2026-05-28
+  for the Grassmann probe), and triggers retraction of Decision 1
+  (α cophenet C5 rescue). Under the amended Decision 10, the α verdict
+  is anchored by C3 paired Wilcoxon p = 0.00195 alone; Decision 12 governs
+  the Grassmann strong/weak gate.
   New audit at `scripts/01_compute/audit/audit_72_c5_wilcoxon_cohort.py`;
   CSVs at `data/audit/{grassmann_epi_exclusion,alpha_epi_exclusion}/c5_wilcoxon_cohort.csv`.
-  No verdict flips; α cophenet, β/γ_l/δ Grassmann all pass.
+  No verdict flips: α cophenet stays strong (anchored at C3); β/γ_l/δ
+  Grassmann verdicts governed by Decision 12.
   **Decision 11** (companion to 8/9/10): LOO max-p diagnostic mandatory
   alongside every Wilcoxon-based gate per `feedback_no_single_patient_p_driven.md`.
   Added to audit_70 (`cluster_p_mass_loo_max` column + `loo_cluster_p_mass.csv`

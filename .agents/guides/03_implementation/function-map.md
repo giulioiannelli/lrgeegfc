@@ -4,13 +4,21 @@ type: guide
 era: CROSS_ERA
 status: current
 created: 2026-04-24
-updated: 2026-04-24
+updated: 2026-05-28
+coverage: representative-not-exhaustive
 pointers: []
 ---
 
 # Function Map - lrg_eegfc Package
 
-Quick reference for all public functions organized by module.
+Representative reference for the most-used library entry points,
+organized by module.
+
+> **Coverage note (2026-05-28).** This document covers roughly 30% of
+> `src/lrg_eegfc/` — the entry points new agents reach for most often.
+> The source code is canonical; when in doubt, grep the module and read
+> the docstring. An auto-generated complete index is on the
+> post-preprint roadmap.
 
 ---
 

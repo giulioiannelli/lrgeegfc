@@ -9,7 +9,7 @@ pointers:
   - .agents/guides/task-persistence-investigation/2026-05-08_epi-cross-phase-rigidity.md
   - .agents/plans/active/2026-05-08_lrg-epilepsy-research-directions.md
   - .agents/reports/2026-05-07_epileptic-n10-revisit.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - data/audit/epi_rigidity/M_class_per_patient.csv
   - data/audit/epi_rigidity/figures/
   - scripts/01_compute/audit/audit_54_epi_rigidity_compute.py
@@ -97,7 +97,7 @@ is reset-like.
 
 This is the theoretically richest cell. **At the same band where the
 cohort network shows the load-bearing trace** (Result 2:
-`.agents/reports/2026-05-05_result-2-lrg-beta-trace.md` — KC λ=0/0.5/1
+`.agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md` — KC λ=0/0.5/1
 + D-rank d_F all 10/10 vs within-baseline null, joint Bonferroni
 m=48 surviving), **the epi-induced subtree shows the opposite
 direction**: the heights at λ=1 shift during task and revert.

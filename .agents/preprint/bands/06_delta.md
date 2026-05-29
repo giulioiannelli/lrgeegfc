@@ -16,8 +16,8 @@ verdict_source: VERDICT_LEDGER.md (locked 2026-05-18, REVISED 2026-05-19 — pro
 verdict_layers:
   substrate_rank: trace_direction_passing (raw FC ρ_split^raw matched-strength p=0.042 at 7/10 cohort, ratio 24.6× — the substrate at δ passes matched-strength, one of only two bands that do so along with α)
   rho_split_coph: no_trace_obs_equals_surrogate (C3 fails: paired Wilcoxon p=0.278, n_above_surrogate 4/10, obs_median +0.0076 vs surr_median +0.0078 — ratio 0.98×, observation effectively indistinguishable from surrogate)
-  grassmann: weak_trace (cluster-extent permutation p=0.0249, audit_70; 7-cell observed run at k=57..63 — above null 95th percentile of 5.0; promoted from no trace under previous 8-cell hardcoded threshold)
-  grassmann_epi_excluded: shifts_window_decisively (audit_67; 7-cell longest run at k=33..39 vs full-cohort k=57..63 — 0% within-window overlap, the epi-X signal is at a completely different mode range than the full-cohort signal)
+  grassmann: weak_trace (cluster-extent permutation cluster_p_mass=0.005 Decision-8 gate at floor, cluster_p_LR=0.025 descriptive co-statistic, audit_70 all-clusters; obs cluster mass 38.07 raw / 0.149 normalized; 7-cell observed run at k=57..63 — above null 95th percentile of 18.37; **Decision-12 LOO max p_mass=0.055 Pat_08 FAILS < 0.05 precondition — this is why the verdict stays "weak" rather than promoting to "strong"**)
+  grassmann_epi_excluded: secondary mechanistic observation strengthens decisively (audit_72; raw mass strengthens 38.07 → 43.99, p_mass^epi-X = 0.005 at floor; LOO under epi-X max = 0.005 Pat_02 fully robust — the full-data Pat_08 leverage is attributable to epi-zone interactions rather than the true trace; reported as secondary, not as verdict-promoter per Decision 10)
   anchor_anatomy_known_biology: descriptive_only (C4 passes formally at +0.032/6/10 +sign — but this is the published δ "anchor" cross-probe ratio 1.55× known epileptogenesis pattern, NOT a positive trace claim — LEDGER Decision 5)
   anchor_anatomy_descriptive: documented (δ anchor anatomy is the n=10 verdict in memory/epileptic_imcoh_universal.md — cross-probe ratio 1.55× is known biology, not a discovery)
   anatomy_grassmann_full: strong_localized (4 named DK regions under `S(δ)`; temporal + parietal + frontal: left inferior temporal + left inferior parietal + right pars triangularis + left superior temporal; audit_72 --cluster-extent under `S(δ)`, 2026-05-19 pm — supersedes the retired `K*(δ)` audit which had picked up Amy + cingulate + fusiform + OFC + bankssts)
@@ -36,13 +36,14 @@ sources:
   - memory/epileptic_imcoh_universal.md (δ anchor anatomy n=10 verdict)
 revision_history:
   - 2026-05-19: initial brief produced from VERDICT_LEDGER.md lockdown — δ Grassmann promoted no trace → weak trace via cluster-extent permutation (Decision 6); cophenet remains no trace; C4 descriptive anchor-anatomy noted (Decision 5)
+  - 2026-05-26: Decision-12 cascade — δ Grassmann verdict STAYS "weak" but the gate citation switches from `cluster_p_LR = 0.0249` to `cluster_p_mass = 0.005` (Decision-8 mass-only) with LOO max `p_mass = 0.055 Pat_08` as the actual demoter (fails Decision-12 < 0.05 LOO precondition). Pre-fix raw values 12.78 / 4.01 / 9.81 updated to post-fix all-clusters values 38.07 / 8.06 / 18.37. C5 epi-X reframed as secondary mechanistic observation per Decision 10 (strengthens rather than shifts; LOO under epi-X = 0.005 Pat_02 fully robust; the previous "0% overlap window shift" framing is descriptive only, not verdict-bearing).
 ---
 
 # δ band (0.53–4 Hz) — preprint result report
 
 ## Head
 
-δ carries a **whole-network subspace trace** detected by the Grassmann probe under cluster-extent permutation (audit_70 cluster_p = 0.0249) at a 7-cell contiguous-significant window k=57..63 — well above the empirical null 95th percentile of 5.0. **No per-pair cophenet trace**: `ρ_split^coph` C3 paired Wilcoxon p = 0.278, with `obs_median = +0.0076` essentially equal to `surr_median = +0.0078` (ratio 0.98×) and only 4/10 patients above their own surrogate. The substrate-level raw FC at δ **passes** matched-strength (cohort-median +0.111, ratio 24.6×, p=0.042 at 7/10) — one of only two bands where the substrate alone clears the matched-strength gate (α is the other). Under C5 epi-X (audit_67), the Grassmann window **shifts decisively** to k=33..39 (7-cell run) with **zero within-window overlap** vs the full-cohort k=57..63 window — the epi-X signal is at a completely different mode range than the full-cohort signal. This is descriptively informative (suggests the full-cohort signal is at least partially epi-zone-driven; the epi-X signal is a separate physiological subspace pattern) but does not change the locked verdict. The δ C4 cross-probe trace (+0.032 at 6/10 +sign) **formally passes the C4 gate** but is the published δ "anchor anatomy" 1.55× cross-probe ratio (known epileptogenesis pattern per `memory/epileptic_imcoh_universal.md`), **not** a trace claim — LEDGER Decision 5. Verdict from `locked/VERDICT_LEDGER.md`: **`weak trace, only Grassmann`** (promoted from no trace under the previous 8-cell hardcoded threshold via cluster-extent permutation, Decision 6).
+δ carries a **whole-network subspace trace** detected by the Grassmann probe under cluster-extent permutation (audit_70 all-clusters `cluster_p_mass = 0.005` Decision-8 gate at empirical floor; `cluster_p_LR = 0.025` descriptive co-statistic) at a 7-cell contiguous-significant window k=57..63. **The verdict is "weak" rather than "strong" because full-data LOO max `p_mass = 0.055 (Pat_08)` fails the Decision-12 < 0.05 LOO robustness precondition** — a single patient leverages the cohort verdict over the gate. **No per-pair cophenet trace**: `ρ_split^coph` C3 paired Wilcoxon p = 0.278, with `obs_median = +0.0076` essentially equal to `surr_median = +0.0078` (ratio 0.98×) and only 4/10 patients above their own surrogate. The substrate-level raw FC at δ **passes** matched-strength (cohort-median +0.111, ratio 24.6×, p=0.042 at 7/10) — one of only two bands where the substrate alone clears the matched-strength gate (α is the other). Under C5 epi-X (audit_72, secondary mechanistic observation per Decision 10): the trace **strengthens** (raw mass 38.07 → 43.99, `p_mass^epi-X = 0.005`, LOO under epi-X max = 0.005 (Pat_02) fully robust); the full-data Pat_08 leverage is attributable to epi-zone interactions rather than the true biological trace. C5 epi-X is reported as interesting mechanistic biology, not as a verdict-promoter — the full-data verdict remains "weak". The δ C4 cross-probe trace (+0.032 at 6/10 +sign) **formally passes the C4 gate** but is the published δ "anchor anatomy" 1.55× cross-probe ratio (known epileptogenesis pattern per `memory/epileptic_imcoh_universal.md`), **not** a trace claim — LEDGER Decision 5. Verdict from `locked/VERDICT_LEDGER.md` (Decision 12 cascade 2026-05-26): **`weak trace, only Grassmann`** — cohort gate passes at floor but full-data LOO Pat_08 fragility prevents strong-tier promotion.
 
 ## Headline three-layer cohort table (δ-band row, copied from `locked/VERDICT_LEDGER.md`)
 
@@ -52,20 +53,20 @@ Layer                                       δ (full n=10)
 Raw FC          ρ_split^raw  (raw_fc_ms)   7/10 p=.042  ratio 24.6×  ← PASSES substrate
 Raw D(τ_max)    ρ_split      (preprint_05) 7/10 p=.116  ratio 11.5×  ← borderline (just outside)
 Cophenet D_coph ρ_split^coph (audit_63)    4/10 p=.278  ratio 0.98×  ← FAILS (obs ≈ surrogate)
-Grassmann       d_G(k)       (audit_70)    7-cell run k=57..63, cluster_p = 0.0249  ← weak trace
+Grassmann       d_G(k)       (audit_70)    7-cell run k=57..63, cluster_p_mass = 0.005  ← weak trace (LOO Pat_08=0.055 fails Decision-12 precondition)
 ```
 
 Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`, `data/audit/grassmann_cluster_extent/cohort_summary.csv`.
 
-**Key reading**: δ is the **band where the substrate signal exists but does not propagate into per-pair LRG**, and the Grassmann probe rescues a subspace signature at high `k` (60-ish modes). The substrate-to-cophenet trajectory at δ shows substrate passing → raw D borderline → cophenet fully extinguished (obs and surrogate essentially identical). The LRG cophenet step does *not* preserve the substrate signal at δ. The Grassmann probe rescues a subspace signature at k=57..63, but the C5 epi-X shift to k=33..39 (0% within-window overlap) suggests the full-cohort high-k signal is at least partially driven by epi-zone contacts, while the epi-X-revealed lower-k signal is a separate physiological pattern. The previous 8-cell hardcoded threshold had δ as `no trace`; the cluster-extent permutation (audit_70, 2026-05-19) promoted it to `weak trace` because the 7-cell observed run is well above the null 95th percentile (5.0).
+**Key reading**: δ is the **band where the substrate signal exists but does not propagate into per-pair LRG**, and the Grassmann probe rescues a subspace signature at high `k` (60-ish modes). The substrate-to-cophenet trajectory at δ shows substrate passing → raw D borderline → cophenet fully extinguished (obs and surrogate essentially identical). The LRG cophenet step does *not* preserve the substrate signal at δ. The Grassmann probe rescues a subspace signature at k=57..63 (`cluster_p_mass = 0.005` at floor; `T_G^* = 38.07` raw / 0.149 normalized; null mean 8.06, null 95th 18.37). The previous 8-cell hardcoded threshold had δ as `no trace`; the cluster-extent permutation (audit_70, 2026-05-19) promoted it under the Decision-8 mass gate. **Under Decision 12 (2026-05-26) the verdict stays "weak" because full-data LOO max p_mass = 0.055 (Pat_08) fails the < 0.05 robustness precondition — a single patient leverages the cohort verdict.** C5 epi-X (audit_72) strengthens the trace (mass 38.07 → 43.99, LOO under epi-X = 0.005 fully robust), interpreted as the full-data Pat_08 leverage being attributable to epi-zone interactions rather than the true biological signal — reported as secondary mechanistic observation per Decision 10, not as a verdict-promoter.
 
 ## 1. Scientific claim
 
 **Cohort-level question.** Does the δ-band (0.53–4 Hz) post-task resting state at the LRG-CTM layer carry task-related reorganization on either of the two locked probes? Separately: does the δ-band cross-probe anchor anatomy reproduce the published n=10 verdict (1.55× cross-probe ratio, known epileptogenesis biology)?
 
-**Refined biological claim.** δ coupling reorganizes during the task at a level visible in the raw FC substrate (cohort-median +0.111 at 7/10 patients, matched-strength p=0.042), but the per-pair LRG cophenet representation **does not retain** this signal (obs_median +0.0076 essentially equal to surrogate +0.0078). The Grassmann probe detects a weak subspace trace at high `k` (k=57..63, 7-cell window, cluster_p = 0.0249) that is **partially epi-zone-driven** — under epi-X, the window shifts to k=33..39 with 0% overlap, suggesting the slow-mode subspace rotation at the full cohort scale incorporates epi-zone contributions that mask a separate physiological lower-k rotation. The separate δ cross-probe anchor anatomy (1.55× cross-probe ratio, +sign at 6/10) is a **known epileptogenesis biology** (per memory `epileptic_imcoh_universal.md`) and is not a positive trace claim — its inclusion in the per-band brief is *descriptive*, confirming the pipeline reads the expected anchor structure (LEDGER Decision 5).
+**Refined biological claim.** δ coupling reorganizes during the task at a level visible in the raw FC substrate (cohort-median +0.111 at 7/10 patients, matched-strength p=0.042), but the per-pair LRG cophenet representation **does not retain** this signal (obs_median +0.0076 essentially equal to surrogate +0.0078). The Grassmann probe detects a subspace trace at high `k` (k=57..63, 7-cell window, `cluster_p_mass = 0.005` Decision-8 gate at floor; `T_G^* = 38.07` raw / 0.149 normalized). The verdict is **weak** because full-data LOO max `p_mass = 0.055 (Pat_08)` fails the Decision-12 < 0.05 LOO precondition — Pat_08 single-handedly drags the cohort verdict over the gate at full data. Under C5 epi-X (audit_72) the trace strengthens decisively (mass 38.07 → 43.99, p_mass^epi-X = 0.005, LOO under epi-X = 0.005 Pat_02 fully robust), interpreted as the full-data Pat_08 leverage being attributable to epi-zone interactions rather than the true biological trace — secondary mechanistic observation per Decision 10, not a verdict-promoter. The separate δ cross-probe anchor anatomy (1.55× cross-probe ratio, +sign at 6/10) is a **known epileptogenesis biology** (per memory `epileptic_imcoh_universal.md`) and is not a positive trace claim — its inclusion in the per-band brief is *descriptive*, confirming the pipeline reads the expected anchor structure (LEDGER Decision 5).
 
-**Falsification budget.** The Grassmann verdict (`weak trace`) would flip to `no trace` if a re-run with a tighter null (R ≥ 500) raises the null 95th percentile LR above 7, or if the 7-cell window is shown to be entirely epi-zone-driven (audit_67 partial: the window shifts but the count remains 7). The cophenet verdict (`no trace`) would flip to `weak trace` only if a re-audit shows obs_median substantially above surrogate (currently they are within 3% of each other).
+**Falsification budget.** Under Decision 12 the verdict would flip to `no trace` if `cluster_p_mass ≥ 0.05` (currently 0.005 at floor) — far from threshold. Promotion to `strong` would require full-data LOO max `p_mass < 0.05` (currently 0.055, just above gate). The cophenet verdict (`no trace`) would flip to `weak trace` only if a re-audit shows obs_median substantially above surrogate (currently they are within 3% of each other).
 
 ## 2. Cohort, substrate, and library entry points
 
@@ -120,14 +121,14 @@ The C4 cross-probe formal pass is recorded for completeness and tagged in the br
 - Object built from `lrg.ultrametric_matrix` field in `data/cache/imcoh_lrg/Pat_NN/delta_{phase}_lrg_imcoh-abs.npz`
 - Anchor anatomy reference: `.agents/reports/2026-05-07_epileptic-n10-revisit.md` + `memory/epileptic_imcoh_universal.md`
 
-### 3.2 Global subspace rotation: Grassmann chordal distance `d_G(k)` — **weak trace (cluster-extent promotion)**
+### 3.2 Global subspace rotation: Grassmann chordal distance `d_G(k)` — **weak trace (LOO Pat_08 prevents strong-tier promotion)**
 
 #### Critical preamble (5-point)
 1. **Claim.** `T_G(k) < 0` at cohort level for some contiguous window of `k`.
 2. **Null (C3, audit_70 cluster-extent permutation).** R=200 matched-strength surrogates; cluster_p = (1 + #(null_LR ≥ obs_LR)) / (R + 1). **Locked gate as of 2026-05-19**, replacing the previous 8-cell hardcoded threshold (under which δ was `no trace`).
 3. **Strongest plausible alternative.** Same-strength edge rewiring producing a 7-cell contiguous cluster by chance. Under R=200 surrogates, the empirical null produces 5-cell runs at the 95th percentile, so a 7-cell observed run is above the 95th-percentile chance threshold.
 4. **Does C3 cover (3).** Yes by construction — the cluster-extent null IS the matched-strength chance-cluster distribution.
-5. **Falsification of the verdict.** Would require cluster_p ≥ 0.05. Currently 0.0249 (longest run) and 0.0249 (cluster mass), both clearly inside the gate.
+5. **Falsification of the verdict.** Would require `cluster_p_mass ≥ 0.05` (currently 0.005 at floor). Promotion to "strong" tier would require full-data LOO max `p_mass < 0.05` (currently 0.055 Pat_08, just above gate — fails Decision-12 precondition).
 
 #### Results (δ)
 
@@ -138,31 +139,31 @@ The C4 cross-probe formal pass is recorded for completeness and tagged in the br
 | Cluster-extent null median LR | 2.0 | same |
 | Cluster-extent null 95th LR | **5.0** | same |
 | Cluster-extent null max LR | 10 | same |
-| Observed cluster mass (Σ −log10p) | 12.78 | same |
-| Null mean cluster mass | 4.01 | same |
-| Null 95th cluster mass | 9.81 | same |
-| **cluster_p_longest_run** | **0.0249** | same — ✓ (weak gate) |
-| **cluster_p_cluster_mass** | **0.0249** | same — ✓ |
-| C5 epi-X (audit_67): obs longest run | **7 cells at k = 33..39** | `grassmann_epi_exclusion/sensitivity.csv` delta rows |
-| C5 epi-X: within-window overlap with full-cohort | **0% (no overlap between k=57..63 and k=33..39)** | per-k inspection |
+| Observed cluster mass `T_G^*` (raw Σ −log10p) | **38.07** (all-clusters formula, post-2026-05-19-pm fix) | same |
+| Observed `T_G^*` (normalized per C1) | **0.149** (raw / 255.65, n_k=111, R=200) | same |
+| Null mean cluster mass | 8.06 | same |
+| Null 95th cluster mass | 18.37 | same |
+| **cluster_p_mass (Decision-8 gate)** | **0.005** (at empirical floor `1/(R+1)`) | same |
+| cluster_p_longest_run (descriptive co-statistic) | 0.025 | same |
+| **LOO max p_mass (Decision-12 precondition)** | **0.055 (Pat_08) — FAILS < 0.05** | same — this is why the verdict stays "weak" |
+| C5 epi-X (audit_72; secondary): raw mass | 38.07 → **43.99** (strengthens) | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` delta |
+| C5 epi-X cohort gate `p_mass^epi-X` | **0.005** (at floor) | same |
+| C5 epi-X LOO max under epi-X | **0.005 (Pat_02)** — fully robust under epi-X | same |
+| C5 epi-X obs longest run | **7 cells at k = 33..39** | `grassmann_epi_exclusion/sensitivity.csv` |
+| C5 epi-X overlap with full-cohort window | 0% (k=57..63 vs k=33..39) — descriptive only | per-k inspection |
 
-The 7-cell observed run sits clearly above the null 95th percentile (5.0) and well above the null mean (2.17). Both cluster-p statistics (longest-run and cluster-mass) are at 0.0249 — within the `weak` gate [0.01, 0.05). By the locked rule, δ Grassmann is **weak trace** (promoted from `no trace` under the cluster-extent revision, Decision 6).
+The 7-cell observed run sits clearly above the null 95th percentile (5.0) and well above the null mean (2.17). Under the Decision-8 mass gate, `cluster_p_mass = 0.005` is at the empirical floor — δ clears the cohort gate at the same nominal strength as β and γ_l. However, **full-data LOO max p_mass = 0.055 (Pat_08) fails the Decision-12 < 0.05 LOO precondition**: Pat_08 single-handedly leverages the cohort verdict over the gate at full data. By the locked Decision-12 rule, δ Grassmann is therefore **weak trace** (cohort gate passes; LOO robustness precondition fails). The cluster-extent revision (Decision 6) had promoted δ no trace → weak; Decision 12 confirms "weak" rather than further promoting to "strong".
 
-#### C5 epi-X sensitivity (audit_67) — decisive window shift
-Under epi-zone exclusion, the contiguous-significant window shifts:
-- Original full-cohort: k=57..63 (7-cell run at p<0.05 gate).
-- Epi-X: k=33..39 (7-cell run at p<0.05 gate, with all cells flagged "persist" or "emerge").
+#### C5 epi-X — secondary mechanistic observation (audit_72)
+Under epi-zone exclusion (treated as a secondary mechanistic observation per Decision 10, **not** a verdict-promoter):
+- Cohort gate strengthens: `p_mass^epi-X = 0.005` (floor); raw mass 38.07 → **43.99** (strengthens, opposite of γ_l which contracts).
+- LOO under epi-X max: `p_mass^epi-X = 0.005 (Pat_02)` — **fully robust** under epi exclusion.
+- Contiguous window shifts: full-cohort k=57..63 (7 cells) → epi-X k=33..39 (7 cells), 0% within-window overlap.
 
-**Within-window overlap: 0%** — the full-cohort window k=57..63 and the epi-X window k=33..39 do not intersect at any `k`. This is the **most extreme window shift** in the panel (γ_l: partial overlap k=19..23, 42% overlap; γ_h: partial overlap, 67% overlap; δ: zero overlap).
-
-Mechanistic reading: the full-cohort signal at k=57..63 is at least partially driven by epi-zone contacts contributing to high-`k` (faster) modes. Removing those contacts unmasks a **separate physiological signal at lower k=33..39** (slower modes, more macroscopic). These are two qualitatively different subspace rotations:
-- **Full-cohort k=57..63**: roughly modes φ_58..φ_64 — these are mid-spectrum modes with intermediate spatial scale; the presence of epi-zone contacts in the network biases these modes toward epi-zone-related coupling.
-- **Epi-X k=33..39**: roughly modes φ_34..φ_40 — these are slower (more macroscopic) modes that emerge when the epi-zone contributions are removed.
-
-Both observations are 7-cell windows above their respective empirical 95th percentiles — but they describe **different subspace patterns**.
+**Mechanistic interpretation (informative but not verdict-bearing).** The full-data Pat_08 leverage (LOO 0.055) resolves cleanly under epi-X (LOO 0.005, fully robust) — this strongly suggests that Pat_08's contribution to the full-cohort verdict was driven by epi-zone-coupled interactions rather than the true biological trace. Removing the epi-zone contacts unmasks a more robust subspace signature at a different mode range (k=33..39 vs k=57..63). The cohort-level signal not only survives epi exclusion but strengthens (mass 38.07 → 43.99) and resolves the single-patient leverage. **This is interesting biology to discuss but does not promote the full-data verdict to "strong"** — per Decision 10, C5 epi-X is a secondary mechanistic observation, never a verdict-driver. The full-data verdict remains "weak" because the *full-data* LOO at full data fails the Decision-12 precondition; C5 resolution is descriptive of *why* (epi-zone interactions), not a recipe for promotion.
 
 #### Reading
-δ Grassmann passes cluster-extent at `weak` strength (cluster_p = 0.0249). The C5 epi-X window shift to k=33..39 with 0% overlap is descriptively the most interesting feature of the δ verdict — it suggests the δ subspace trace has two superposed components (an epi-zone-driven high-k component visible in the full cohort, and a physiological lower-k component revealed under epi-X) that are independent of each other. Both components individually satisfy the 7-cell-above-95th-percentile criterion, but the locked verdict is based on the full-cohort window (k=57..63, cluster_p = 0.0249).
+δ Grassmann passes the Decision-8 cluster-mass gate at `cluster_p_mass = 0.005` (floor) with cluster-extent co-statistic `cluster_p_LR = 0.025`. The cohort gate is held decisively; what stops the verdict from being "strong" is the Decision-12 LOO precondition: full-data LOO max `p_mass = 0.055 (Pat_08)` fails < 0.05 — Pat_08 single-handedly leverages the cohort verdict. Under C5 epi-X (secondary, not verdict-driver) the trace strengthens (mass 38.07 → 43.99) and LOO resolves to 0.005 (Pat_02) fully robust, interpretable as Pat_08's leverage at full data being driven by epi-zone interactions rather than the true trace. **Final verdict per Decision 12: weak trace, only Grassmann.**
 
 #### Cache + script provenance
 - `audit_66_grassmann_matched_strength_surrogate.py` → `data/audit/grassmann_matched_strength_surrogate/`
@@ -178,7 +179,7 @@ The δ cophenet probe is silent under C3 with obs ≈ surrogate. Substrate-level
 
 Interpretation: δ-band per-pair coupling is dominated by slow ambient activity (e.g., the slow waves of NREM-like states; the 1/f background; near-DC drift). The substrate-level cohort signal that passes matched-strength at the raw FC layer captures patient-level coupling strength differences, but the cophenetic representation re-distributes this across `N−1` merge heights without preserving the per-pair task-related component.
 
-### Subspace multiscale via Grassmann `d_G(k)` (weak trace at high k)
+### Subspace multiscale via Grassmann `d_G(k)` (weak trace at high k; LOO Pat_08 binding)
 
 The δ subspace trace at k=57..63 is at **the highest k of any band's contiguous-significant window**: β (k=27..55), γ_l (k=12..23), γ_h (k=19..27), δ (k=57..63). High-k modes are faster diffusion modes with smaller spatial coherence length — locally-extending rather than network-wide patterns. The δ Grassmann signal at k=57..63 is therefore a **mid-spectrum subspace rotation** rather than a slow-mode (low-k) rotation.
 
@@ -281,11 +282,11 @@ Pat_03 sits within the cohort-typical distribution at both probes. The δ band i
 | C1 within-rsPre split-half null | ✗ 6/10 cohort, p = 0.216 | `ctm_triangle/cohort_summary.csv` delta |
 | C2 drift-floor `ρ_split > ρ_drift` | ✗ 7/10 above drift, p = 0.246 | same |
 | C3 matched-strength surrogate `ρ_split^coph` | ✗ ratio 0.98× (obs ≈ surr), 4/10, p = 0.278 | `matched_strength_surrogate_split_baseline` delta |
-| C3 matched-strength surrogate Grassmann (cluster-extent) | ✓ cluster_p = 0.0249, 7-cell run k=57..63 (**promoted from no trace** under cluster-extent revision) | `grassmann_cluster_extent` delta |
+| C3 matched-strength surrogate Grassmann (cluster-extent) | ✓ cluster_p_mass = 0.005 (Decision-8 gate at floor); cluster_p_LR = 0.025 descriptive; **LOO max p_mass = 0.055 Pat_08 fails Decision-12 precondition** → verdict stays "weak" rather than promoting to "strong" | `grassmann_cluster_extent` delta |
 | C4 cross-probe restriction | (✓) +0.032, 6/10 +sign matches (but reading is anchor-anatomy known biology, LEDGER Decision 5) | `ctm_triangle` delta (rho_xprobe column) |
 | C5 epi-X `ρ_split^coph` | **not run** | (audit_68 was α-only) |
-| C5 epi-X Grassmann | 7-cell run at k=33..39 (0% within-window overlap with full-cohort k=57..63) | `grassmann_epi_exclusion/sensitivity.csv` delta |
-| Pat_03 dropout | not load-bearing | inspection |
+| C5 epi-X Grassmann (secondary observation per Decision 10) | strengthens: mass 38.07 → 43.99, p_mass^epi-X = 0.005 (floor), LOO under epi-X = 0.005 Pat_02 fully robust — full-data Pat_08 leverage attributable to epi-zone interactions, NOT a verdict-promoter | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` delta |
+| Pat_03 dropout | not decisive | inspection |
 | Three-layer cohort table | substrate **passes** matched-strength → raw D borderline → cophenet **extinguishes** (obs ≈ surrogate); Grassmann rescues at high k | headline section above |
 | Anchor anatomy (memory n=10 cross-probe 1.55×) | reproduced at C4; descriptive only per LEDGER Decision 5 | `memory/epileptic_imcoh_universal.md` |
 
@@ -295,11 +296,11 @@ Pat_03 sits within the cohort-typical distribution at both probes. The δ band i
 |---|---|---|---|
 | C1 split | ✗ p = 0.216 | n/a | C1 specific to cophenet |
 | C2 drift | ✗ p = 0.246 | n/a | C2 specific to cophenet |
-| C3 matched-strength | ✗ p = 0.278 (obs ≈ surr, ratio 0.98×) | ✓ cluster_p = 0.0249 (**promoted from no trace** under cluster-extent revision) | mandatory |
+| C3 matched-strength | ✗ p = 0.278 (obs ≈ surr, ratio 0.98×) | ✓ cluster_p_mass = 0.005 cohort gate (Decision-8 floor); LOO max p_mass = 0.055 Pat_08 fails Decision-12 precondition → "weak" not "strong" | mandatory |
 | C4 cross-probe | (✓) +sign 6/10 — passes formally; reads as anchor-anatomy known biology (LEDGER Decision 5) | n/a | C4 specific to cophenet |
-| C5 epi-X | **not run** (no audit_68 for δ cophenet) | window shifts decisively k=57..63 → k=33..39 (0% overlap) | sensitivity layer; descriptive |
+| C5 epi-X | **not run** (no audit_68 for δ cophenet) | strengthens: mass 38.07 → 43.99, LOO under epi-X 0.005 Pat_02 fully robust — secondary observation per Decision 10 | sensitivity layer; not verdict-driver |
 
-**Verdict (locked)**: `weak trace, only Grassmann` per `locked/VERDICT_LEDGER.md` (revised 2026-05-19, Decision 6). C4 anchor-anatomy reading is descriptive (LEDGER Decision 5).
+**Verdict (locked, Decision 12)**: `weak trace, only Grassmann` per `locked/VERDICT_LEDGER.md` (revised 2026-05-19 Decision 6; Decision-12 cascade 2026-05-26 — δ cohort gate passes at floor but full-data LOO Pat_08 = 0.055 fails the Decision-12 < 0.05 LOO precondition, blocking promotion to "strong"). C4 anchor-anatomy reading is descriptive (LEDGER Decision 5).
 
 ## 9. Interpretation
 
@@ -309,19 +310,19 @@ Pat_03 sits within the cohort-typical distribution at both probes. The δ band i
 
 1. **Anchor anatomy (descriptive, confirmation of known biology).** The C4 cross-probe +sign at 6/10 reproduces the published δ "anchor" pattern. This is a *pipeline-validation observation*: the pipeline reads what it should read. Not a trace claim.
 
-2. **Whole-network subspace trace at high `k` (weak, novel).** The Grassmann probe detects a 7-cell contiguous-significant window at k=57..63 (cluster_p = 0.0249) — promoted from `no trace` under the cluster-extent permutation revision. The epi-X window shift to k=33..39 with 0% overlap suggests a **two-component** δ subspace signature: an epi-zone-driven mid-spectrum (k=57..63) component visible in the full cohort, and a physiological lower-k (k=33..39) component revealed under epi-X. Both are 7-cell windows above their respective empirical 95th percentiles.
+2. **Whole-network subspace trace at high `k` (weak, novel).** The Grassmann probe detects a 7-cell contiguous-significant window at k=57..63 (`cluster_p_mass = 0.005` at empirical floor, all-clusters formula, `T_G^* = 38.07` raw / 0.149 normalized). The cohort gate clears decisively, but full-data LOO max `p_mass = 0.055 (Pat_08)` fails the Decision-12 < 0.05 LOO precondition — preventing promotion to "strong" tier. Under C5 epi-X (secondary mechanistic observation per Decision 10) the trace strengthens (mass → 43.99, LOO → 0.005 fully robust), interpretable as the full-data Pat_08 leverage being driven by epi-zone interactions rather than the true biological signal.
 
 **Why the substrate passes but cophenet doesn't.** This is the structurally interesting feature of δ: the raw FC matched-strength gate clears at p=0.042 (ratio 24.6×, 7/10 cohort), one of only two bands where the substrate passes (α also does). But the cophenet representation extinguishes the signal entirely (obs +0.0076 ≈ surrogate +0.0078). At α, the cophenet step *demotes* the substrate signal but C5 epi-X *promotes* it back (full cohort 5/10 → epi-X 7/10). At δ, the substrate signal does **not** re-emerge under any cophenet treatment — the dendrogram aggregation simply does not preserve δ per-pair task-related structure.
 
 Mechanistically: at δ frequencies, per-pair coupling is dominated by spatially-extensive slow rhythms (slow waves; 1/f background). The cohort-median substrate-level reorganization captured by raw FC ρ_split is a **coupling-strength-distribution** difference between phases (which patient/pair is more strongly coupled). When ρ_split^coph is computed on the cophenetic image, this magnitude information is removed (cophenet records only merge heights, which depend on the relative ordering of pair distances), and the residual δ pattern is uniformly redistributed across merge scales. The full-cohort δ Grassmann trace lives in mid-spectrum modes (k=57..63) where local subspace rotation is detectable; this is precisely where epi-zone removal shifts the signal — the local coupling structure near epi-zones contributes to those modes, and removing them moves the trace to slower physiological modes.
 
-**Why δ is `weak trace` rather than `strong trace` or `no trace`.** Three reasons: (i) cluster_p = 0.0249 is well within [0.01, 0.05), the `weak` band; (ii) the epi-X 0% within-window overlap argues against a strong physiologically-coherent trace at full cohort — the signal mode-identity is unstable to epi-zone removal; (iii) cophenet fails fully (obs ≈ surrogate), so the trace exists only at the subspace level and the per-pair multiscale geometry is silent.
+**Why δ is `weak trace` rather than `strong trace` or `no trace` (Decision-12 cascade 2026-05-26).** The cohort gate is held: `cluster_p_mass = 0.005` at the empirical floor (Decision-8 mass gate) clears the < 0.01 strong threshold. **What prevents promotion to "strong" is the Decision-12 LOO precondition: full-data LOO max p_mass = 0.055 (Pat_08) > 0.05** — Pat_08 single-handedly leverages the cohort verdict over the gate at full data. The cluster-extent revision (Decision 6) promoted no trace → weak; Decision 12 confirms weak without further promotion. C5 epi-X strengthens decisively (mass 38.07 → 43.99, LOO under epi-X = 0.005 Pat_02 fully robust), reported as secondary mechanistic observation per Decision 10 — *not* a verdict-promoter. Cophenet fails fully (obs ≈ surrogate), so the trace exists only at the subspace level and the per-pair multiscale geometry is silent.
 
 ## 10. Source-of-truth references
 
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery (Grassmann gate at cluster-extent permutation)
-- `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `weak trace, only Grassmann` for δ; Decision 5 (anchor anatomy descriptive) + Decision 6 (cluster-extent promotion)
+- `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `weak trace, only Grassmann` for δ; Decision 5 (anchor anatomy descriptive) + Decision 6 (cluster-extent promotion) + Decision 12 (LOO+extent preconditions for strong tier; δ fails LOO at full data, stays weak)
 - `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `02_alpha.md`, `03_gammalow.md`, `04_theta.md`, `05_gammah.md` — companion band briefs
 
@@ -351,8 +352,8 @@ Mechanistically: at δ frequencies, per-pair coupling is dominated by spatially-
 
 This brief freezes the δ `weak trace, only Grassmann` verdict for the preprint manuscript under the 2026-05-18 / 2026-05-19 lockdown. Next steps:
 
-1. **δ figures** — produce F1 (4-control panel for `ρ_split^coph` showing all primary controls fail at cophenet; C4 +sign annotated as anchor-anatomy known biology), F2 (Grassmann `T_G(k)` cohort cells highlighting the 7-cell window k=57..63 and the audit_70 empirical null), F3 (per-patient subspace-rotation visualization at k=59 — the within-window k with strongest cohort agreement 9/10), and F4 (audit_67 epi-X overlay showing the window shift k=57..63 → k=33..39 with 0% overlap). The F4 epi-X panel is **especially informative** at δ because of the 0% overlap. Output at `data/preprint/figures/delta/`.
+1. **δ figures** — produce F1 (4-control panel for `ρ_split^coph` showing all primary controls fail at cophenet; C4 +sign annotated as anchor-anatomy known biology), F2 (Grassmann `T_G(k)` cohort cells highlighting the 7-cell window k=57..63 and the audit_70 empirical null), F3 (per-patient subspace-rotation visualization at k=59 — the within-window k with strongest cohort agreement 9/10), and F4 (audit_72 c5_wilcoxon overlay showing the secondary epi-X analysis: mass strengthens 38.07 → 43.99, LOO under epi-X = 0.005 Pat_02 fully robust, window shifts k=57..63 → k=33..39). The F4 epi-X panel illustrates *why* the full-data LOO Pat_08 leverage fails — epi-zone interactions drive Pat_08's contribution at full data; removing them resolves the leverage. Output at `data/preprint/figures/delta/`.
 2. **No anatomy audit owed** for the trace verdict. The δ anchor anatomy is already documented in `memory/epileptic_imcoh_universal.md` as known biology; a mode-decomposition anatomy of the k=57..63 window would be a descriptive supplement.
-3. **No further sensitivity tests owed under the locked battery.** The C5 epi-X Grassmann audit (audit_67) is the sensitivity layer for δ; cophenet C5 epi-X was not run (audit_68 was α-only). The verdict is determined by cophenet C3 failure + Grassmann cluster-extent + descriptive epi-X window shift.
+3. **No further sensitivity tests owed under the locked battery.** The C5 epi-X Grassmann audit (audit_72 c5_wilcoxon) is the secondary mechanistic observation per Decision 10 for δ; cophenet C5 epi-X was not run (audit_68 was α-only). The verdict is determined by cophenet C3 failure + Grassmann Decision-8 cohort gate pass + Decision-12 LOO precondition failure at full data.
 
-Verdict ready for writing-agent handoff: **`weak trace, only Grassmann`**. The headline story has three components: (i) **substrate passes but cophenet extinguishes** (one of two bands where substrate clears matched-strength along with α; cophenet aggregation does not preserve δ per-pair signal); (ii) **cluster-extent promotes Grassmann no trace → weak trace** (7-cell run at k=57..63, cluster_p = 0.0249, audit_70 Decision 6); (iii) **C5 epi-X window shift 0% overlap** (full-cohort k=57..63 vs epi-X k=33..39 — two-component subspace signature with epi-zone-driven high-k and physiological lower-k components). The δ anchor-anatomy cross-probe 1.55× reading is reported separately as descriptive confirmation of known epileptogenesis biology (LEDGER Decision 5), not as a trace claim.
+Verdict ready for writing-agent handoff: **`weak trace, only Grassmann`** (Decision-12 cascade 2026-05-26 — cohort gate passes at floor but full-data LOO Pat_08 = 0.055 fails the < 0.05 LOO precondition). The headline story has three components: (i) **substrate passes but cophenet extinguishes** (one of two bands where substrate clears matched-strength along with α; cophenet aggregation does not preserve δ per-pair signal); (ii) **Grassmann cohort gate clears at floor but LOO Pat_08 prevents strong-tier promotion** (`cluster_p_mass = 0.005`, `T_G^* = 38.07` raw / 0.149 normalized at k=57..63; full-data LOO max 0.055 Pat_08 fails Decision-12 precondition); (iii) **C5 epi-X strengthens and resolves LOO** (mass 38.07 → 43.99, LOO under epi-X = 0.005 Pat_02 fully robust — full-data Pat_08 leverage attributable to epi-zone interactions, not the true trace; secondary mechanistic observation per Decision 10, not a verdict-promoter). The δ anchor-anatomy cross-probe 1.55× reading is reported separately as descriptive confirmation of known epileptogenesis biology (LEDGER Decision 5), not as a trace claim.

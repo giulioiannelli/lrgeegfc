@@ -1,15 +1,38 @@
 ---
 name: methods-directive-TG-normalization
+filename_note: "Filename uses `methods_directive_` prefix rather than the WRITING_GUIDE.md `writing_directive_` convention because this is a methods-side directive (changes a Methods-section equation), not a writing-agent task. Kept verbatim under `status: applied` 2026-05-28 — not renamed to avoid breaking inbound references."
 era: IMCOH_ABS_COHORT_N10
-status: directive
+status: applied
+applied_date: 2026-05-28
 kind: methods-agent-directive
 date: 2026-05-19
 target: methods §sssec:methods_compare_grassmann — normalize the cluster mass T_G^*
-priority: high (changes a methods-equation definition and a load-bearing scalar)
+priority: high (changes a methods-equation definition and a primary scalar)
 source_of_truth:
   - .agents/preprint/methods/methods_grassmann_cluster_extent.md
   - .agents/preprint/directives/writing_directive_2026-05-19_beta_post_methods_revision.md
   - data/audit/grassmann_cluster_extent/cohort_summary.csv
+applied_in:
+  - .agents/preprint/METHODS_AUDIT_ISSUES.md (C1 lock with normalized values table)
+  - .agents/preprint/methods/methods_grassmann_cluster_extent.md (Head + §5b normalized formula + §6 + §9 checklist updated 2026-05-28)
+  - .agents/preprint/bands/00_cohort.md §3 (normalized T_G^* column added 2026-05-28)
+  - .agents/preprint/bands/03_gammalow.md (γ_l raw 66.14 / normalized 0.259 cited 2026-05-28)
+  - .agents/preprint/bands/06_delta.md (δ raw 38.07 / normalized 0.149 cited 2026-05-28)
+  - .agents/preprint/locked/VERDICT_LEDGER.md (Decision 12 cascade 2026-05-28; δ verdict flipped strong → weak)
+notes_on_application: |
+  The "Open item" (line 64 of body) — discrepancy between cohort_summary CSV
+  (longest contiguous cluster only) and methods companion equation (sums over
+  all sig cells) — was RESOLVED 2026-05-19 pm: the CSV is now all-clusters
+  formula. Post-fix raw values: β 69.76 / γ_l 66.14 / δ 38.07 / γ_h 31.67 /
+  θ 12.97 / α 7.98. Normalized values (denominator 255.65 for full-data
+  cohort with n_k^cohort = 111 and R = 200): β 0.273 / γ_l 0.259 / δ 0.149 /
+  γ_h 0.124 / θ 0.0507 / α 0.0312.
+
+  The body text below references pre-fix values (β = 52.97 / normalized
+  0.2073) and the un-resolved "Open item" — kept verbatim as historical
+  record. **Live citations should use the post-fix values listed under
+  `notes_on_application` above, or pull directly from
+  `data/audit/grassmann_cluster_extent/cohort_summary.csv`.**
 ---
 
 # Methods directive — normalize the Grassmann cluster mass T_G^* (2026-05-19)

@@ -137,8 +137,8 @@ Re-evaluation requires:
 |---|---|---|---|
 | **β** | strong trace, both probes | cophenet (top-decile pairs) + Grassmann (top participation over `S(β)`) | yes for both |
 | α | strong trace, only D_coph | cophenet (top-decile pairs; full + C5 epi-X subset) | yes |
-| γ_l | weak trace, only Grassmann | Grassmann (top participation over `S(γ_l)`) | yes |
-| δ | weak trace, only Grassmann | Grassmann (top participation over `S(δ)` full + `S(δ)` epi-X) | yes for both windows |
+| γ_l | strong trace, only Grassmann ↑ | Grassmann (top participation over `S(γ_l)`) | yes |
+| δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (top participation over `S(δ)` full + `S(δ)` epi-X) | yes for both windows |
 | θ | no trace | — | n/a |
 | γ_h | no trace | — | n/a |
 

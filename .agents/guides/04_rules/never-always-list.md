@@ -49,12 +49,52 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   `feedback_no_unmotivated_bh_fdr.md`.
 - Never plot Δ_ARI(k) in partition-multiscale band×k publication
   figures — canonical 3 are `Δ_VI, Δ_H, Δ_NMI`; CSV may retain `d_ARI`.
+- **Never use colormaps whose interior has a near-white band**
+  (`Spectral`, `Spectral_r`, `RdYlBu`, `RdYlGn`, `RdBu`, `twilight`,
+  `twilight_shifted`, `BrBG`, `PiYG`, `PuOr`) on white-background
+  figures, and especially never use them when colours are
+  interpolated or weighted-averaged downstream (kernel smoothing,
+  size-weighted subtree-RGB mean up a dendrogram, etc.) — far-apart
+  colormap positions collapse to the near-white mid-band and become
+  invisible against the paper.  Prefer `turbo` (saturated rainbow,
+  no near-white), the viridis family (`viridis`, `plasma`, `magma`,
+  `inferno`), `cividis`, or a custom `LinearSegmentedColormap`.  If
+  a diverging cmap with a neutral centre is unavoidable, use a
+  saturated light-gray centre (e.g. `#dddddd`) instead of pure
+  white.  See `feedback_no_near_white_cmaps.md`.
+- **Never use ARI / NMI / Fowlkes-Mallows or any sklearn
+  `*_rand_score` / partition-cut metric for cross-phase LRG
+  dendrogram similarity, and never colour leaves / branches by
+  `fcluster(Z, t=K, ...)` at any single K.** The canonical metric
+  is the per-pair cophenet distance correlation
+  `ρ^coph(A, B) = Spearman(D_coph_A[triu], D_coph_B[triu])` — same
+  family as the §5.3 `ρ_split^coph` headline.  Reason: partition-cut
+  metrics collapse the continuous tree onto one K and are dominated
+  by the one large cluster that any single K produces on FC-derived
+  hierarchies; they are not in the project vocabulary anywhere.  For
+  cross-phase persistence visualisations, use a CONTINUOUS leaf
+  colouring (e.g. task's `leaves_list` slot index → rainbow).  See
+  `feedback_no_partition_metrics_use_rho_coph.md`.
 - Never use channel-label letter prefixes (A/B/.../Q) for cohort-level
   implant analysis — they are arbitrary clinical labels with no
   cross-patient anatomical meaning. Use `(x, y, z)` coordinates and
   Desikan-Killany regions from `implant_pat_NN.csv` instead.
 - Never title a figure with `fig.suptitle` (duplicate of above for
   emphasis — it keeps slipping through).
+- Never put descriptive text in figures.  Figures are for visual
+  content; only axis labels and single-letter panel tags (``"(a)"``,
+  ``"β"``) are acceptable.  Forbidden: ``ax.set_title`` summary
+  sentences, boxed annotations with ρ/p/N, italic floating "noise
+  floor" / "null" callouts, multi-line headers with model+source+
+  Wilcoxon p baked in, in-axes stat legends.  Push every number to
+  stdout and let the manuscript caption / companion .md carry the
+  context.  See [[feedback-no-text-in-figures]].
+- Always save figures with ``transparent=True`` in ``fig.savefig(...)``.
+  Default white background is wrong for our workflow (slide overlays,
+  journal compositing, dark/light theme reuse).  No
+  ``ax.set_facecolor(...)`` unless the user explicitly asks for an
+  opaque axes background; if added, comment why the opt-in overrides
+  the default.  See [[feedback-default-transparent-figures]].
 - Never save figures as both PDF and PNG. **PDF only** is the default
   and only format. PNG is opt-in with explicit user request.
 - Never call `im.set_rasterized(True)` (or any `set_rasterized`).
@@ -182,6 +222,83 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   explicitly prefers an honest "this is currently unverified" to a
   confident headline that gets retracted. See
   `feedback_brutal_honesty_no_sycophancy.md`.
+- **Never editorialize without evidence. Qualitative terms must be
+  weighted with the number that justifies them.** There is no banned-
+  word list — terms like *borderline, fails, clears, separated,
+  promote, strengthens, marginal* are acceptable when they sit next
+  to the principled-test number and per-patient structure that
+  justifies them, and unacceptable as standalone verdicts. The sin
+  is laundering uncertainty through an adjective that points one
+  direction while the underlying numbers point another (or both
+  ways). Default reporting form is still **per-patient table + exact
+  principled-test `p` + LOO max-p + structural counts at operational
+  thresholds (`n_obs_ρ > 0`, `n_obs_z > +2`, `n_obs_z < -2`,
+  `min(obs_z)`, `range(obs_ρ)`)**; qualitative summaries on top are
+  allowed when each one is tied to a specific cited number and the
+  same adjective applied symmetrically to another band/result would
+  not invert the verdict. With `n = 10` the principled-test `p` alone
+  cannot discriminate between qualitatively distinct per-patient
+  signatures (`5 strong-pro + 5 null` vs `5 strong-pro + 1 strong-
+  anti + 4 null` can yield the same `n_above_surrogate`); the per-
+  patient table is the load-bearing object. Caught 2026-05-26 in the
+  α vs γ_low cophenet comparison: "α borderline → resolved by C5"
+  vs "γ_low fails decisively" — same 5/10 count, opposite
+  adjectives, no quantitative support for the asymmetry. User
+  correction (2026-05-26 evening): not a banned-word problem, an
+  evidence-weighting problem. See
+  `feedback_no_qualitative_editorializing.md`.
+- **Never write LaTeX prose or suggest manuscript edits unless the
+  user explicitly asks.** The manuscript is the user's domain.
+  Quantitative reports stop at the per-patient table + test `p` + LOO.
+  Do not write replacement sentences, do not suggest framings, do not
+  rewrite cited paragraphs. If asked for LaTeX edits, do them; never
+  volunteer them.
+- **Never compute a triangle scalar with the old T_d sign convention.**
+  Locked 2026-05-26: every triangle scalar `T_d` MUST be
+  `T_d = d(rest_pre, task) − d(task, rest_post)` so that **T_d > 0 =
+  TRACE**, **T_d < 0 = ANTI-TRACE**, **T_d = 0 = NO TRACE**. Applies at
+  every layer (raw FC, LRG D_coph, KC, Grassmann, eigenmode E1).
+  Wilcoxon one-sided trace tests use `alternative='greater'`. Per-
+  patient trace counts are `(T > 0).sum()`. Surrogate upper-tail p is
+  `mean(s_finite >= obs_T)`. Plot ylabels / titles say
+  `positive = trace` (never `negative = trace`). Do not reintroduce
+  `d(task, rsPost) − d(rsPre, task)` in any new or refactored compute
+  site. See `feedback_td_sign_convention.md`.
+- **Never surface T_d triangle scalars or `d_P`/`d_F` variants in
+  preprint context.** Locked 2026-05-26: for raw FC and LRG D_coph
+  layers, the preprint locked probe is `ρ_split` (the Spearman
+  correlation `Spearman(Δ_task, Δ_rest)` from audit_33 / audit_63 /
+  Methods CTM block) under the C3 matched-strength gate. `ρ_split` is
+  intrinsically rank-only (it IS a Spearman correlation by
+  construction) — there is no Pearson or Frobenius variant of
+  `ρ_split` to drop. The audit_25 / audit_35 *triangle scalars*
+  `T_d^(d_S)`, `T_d^(d_P)`, `T_d^(d_F)` are a separate, three-
+  distance internal diagnostic family at a different layer of the
+  ladder; they do NOT appear in preprint tables, prose, per-band
+  summaries, figures, captions, verdict ledgers, or any chat/report
+  Claude writes about the preprint cross-band picture. The
+  /tmp/td_loo.py three-distance LOO table is internal diagnostic.
+  Manuscript-facing β raw FC = `ρ_split^raw` median +0.258 (p=0.053);
+  β D_coph = `ρ_split^coph` median +0.221 (p=0.005). When user says
+  "focus on Spearman" they mean `ρ_split` (already Spearman by
+  construction), not "pick d_S within the T_d triangle". See
+  `feedback_preprint_d_s_only.md`.
+- **Never name a library module / function after a manuscript-local
+  token** (`section3`, `figureN`, `preprint`, `chapter`, `H2c`, etc.).
+  Library names under `src/lrg_eegfc/` reflect general graph / network /
+  statistics / I/O concepts (`network_layouts`, `network_drawing`,
+  `tree_metrics`, `surrogate_helpers`, `patient_io`). A helper used by
+  Section-3 figures today must be importable from Section-7 figures
+  tomorrow without renaming. Locked 2026-05-28. See
+  `feedback_library_names_general.md`.
+- **Never use `imshow_colorbar_caxdivider` for a colorbar shared
+  across multiple columns in the same row.** The helper attaches the
+  colorbar to a single axis via `make_axes_locatable`; it has no
+  notion of a multi-column shared cbar and will misalign or resize
+  the wrong axis. For row-shared cbars keep the explicit
+  `make_axes_locatable` / `fig.add_axes([...])` pattern. The helper is
+  the canonical choice for any *single-imshow* axis. Locked 2026-05-28.
+  See `feedback_imshow_colorbar_caxdivider_scope.md`.
 
 ## Always
 

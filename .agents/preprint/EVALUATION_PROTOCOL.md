@@ -43,7 +43,7 @@ Each step below references which artifact is authoritative for the check.
 **Goal**: every per-pair distance citation is `D_coph` (or its long form); every subspace citation is on `U_k`; every τ is `τ_max = 1/λ_max`.
 
 **Procedure**: grep the LaTeX for:
-- `D(\tau)`, `D(τ)`, "propagator distance", "raw D" — if present in Results or Methods sections, must be in the **substrate / raw D layer** of the three-layer cohort table only. If in the main text describing the load-bearing LRG probe, replace with `D_coph` or `D_coph = cophenet(UPGMA(D(τ_max)))`.
+- `D(\tau)`, `D(τ)`, "propagator distance", "raw D" — if present in Results or Methods sections, must be in the **substrate / raw D layer** of the three-layer cohort table only. If in the main text describing the primary LRG probe, replace with `D_coph` or `D_coph = cophenet(UPGMA(D(τ_max)))`.
 - "ultrametric matrix", "linkage", "Z" — if present, must reference `D_coph` correctly.
 - Grassmann distance citations — must specify `U_k` and the k-range.
 - "diffusion time", "LRG time" without `τ_max = 1/λ_max` — replace.
@@ -126,7 +126,7 @@ Grep the LaTeX for every anti-pattern in `HANDOFF_INDEX.md` "Anti-pattern checkl
 - LaTeX cites BH at `m=48` for cohort claims (KC-era hardcoded; retired).
 - LaTeX claims Bonferroni at any LRG-probe layer (controls are matched-strength surrogate + cluster-extent + A1+A3, none Bonferroni-based).
 - LaTeX cites any correction without specifying (a) the corrected `p`/`q` is the gate, (b) the family is coordinated, (c) the per-test gate doesn't already absorb the concern.
-- LaTeX drops anatomy A1 BH-FDR — that one IS load-bearing and must remain.
+- LaTeX drops anatomy A1 BH-FDR — that one IS decisive and must remain.
 
 ## Step 8 — Methodological-language scan (binding directive)
 

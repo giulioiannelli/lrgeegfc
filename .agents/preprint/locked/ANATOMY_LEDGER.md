@@ -22,8 +22,8 @@ tau: 1/lambda_max
 |---|---|---|---|
 | **β** | strong trace, both probes | cophenet + Grassmann | **strong localized, both probes** (7+7 named DK regions) |
 | α | strong trace, only D_coph | cophenet (full + C5 epi-X) | **strong localized, only D_coph; epi-X reproduces identically** (11 named regions both) |
-| γ_l | weak trace, only Grassmann | Grassmann | **strong localized, only Grassmann** (6 named DK regions, temporal-cortex-dominant) |
-| δ | weak trace, only Grassmann | Grassmann (full + C5 epi-X) | **strong localized, only Grassmann; full and epi-X read DIFFERENT NETWORKS** (6 + 6 named regions, only 2 shared) |
+| γ_l | strong trace, only Grassmann ↑ | Grassmann | **strong localized, only Grassmann** (7 named DK regions, occipito-temporal + frontal + medial-OFC) |
+| δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (full + C5 epi-X) | **strong localized, only Grassmann; full and epi-X read FULLY DISJOINT NETWORKS** (4 + 3 named regions, **0 shared** under `S(b)`) |
 | θ | no trace | — | n/a |
 | γ_h | no trace | — | n/a |
 
@@ -84,81 +84,129 @@ Network: bilateral cingulate (anterior caudal + anterior rostral + posterior) + 
 
 Sources: `data/audit/anatomy_alpha_cophenet/cohort_summary.csv` + `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv` (audit_71 + audit_71 --epi-x, 2026-05-19).
 
-### γ_l Grassmann anatomy — **strong localized** (A3 alone; temporal-cortex-dominated)
+### γ_l Grassmann anatomy — **strong localized** (A3 alone; occipito-temporal + frontal + medial-OFC; locked under `S(γ_l)` cluster-extent paradigm 2026-05-19 pm)
 
-Top-decile per-node participation in `U_k`, k=12..23. Six named DK regions pass A3 alone:
-- ctx-lh-inferiortemporal (A1: 1.01×; A3: z=3.05, p_emp=0.005)
-- ctx-lh-fusiform (0.26×; >>2, 0.005)
-- ctx-lh-middletemporal (1.95×; 5.00, 0.005)
-- ctx-lh-superiortemporal (2.13×; 11.06, 0.005)
-- ctx-rh-paracentral (1.62×; >>2, 0.005)
-- ctx-rh-parstriangularis (3.24×; 10.13, 0.005)
+Top-decile per-node participation in `U_k` aggregated (unweighted average) over
+`S(γ_l) = {k : p_k(γ_l) < α_k}` — the 41-cell support of the cluster-mass
+statistic `T_G^*`. The retired `K*(γ_l) = [12, 23]` (longest-contiguous-significant
+window, 13 cells) is **not used**. Seven named DK regions pass A3 alone:
 
-Network: **temporal cortex dominant** (left fusiform + left inferior/middle/superior temporal) + right paracentral + right pars triangularis.
+- ctx-lh-lateraloccipital (A1: 2.43×; A3: z>>2 very large, p_emp=0.005)
+- ctx-lh-middletemporal (1.59×; 3.78, 0.005)
+- ctx-lh-rostralmiddlefrontal (2.37×; 16.30, 0.005)
+- ctx-lh-superiortemporal (1.82×; 7.16, 0.005)
+- ctx-rh-medialorbitofrontal (1.54×; 3.36, 0.005)
+- ctx-rh-parstriangularis (3.89×; 9.01, 0.005)
+- ctx-lh-cuneus (2.43×; 5.25, 0.040)
 
-**Cross-band note**: KC-era "left fusiform" claim at β is retracted — left fusiform passes A1+A3 here at γ_l Grassmann, not at β.
+Network: **occipito-temporal + frontal + medial-OFC** (left lateral occipital
++ left cuneus + left middle/superior temporal + left rostral middle frontal +
+right pars triangularis + right medial OFC).
 
-Source: `data/audit/anatomy_low_gamma_grassmann/cohort_summary.csv` (audit_72, 2026-05-19).
+**Cross-band note (KC-era retraction).** The earlier `K*(γ_l)` audit had picked
+up left fusiform under the retired contiguous-window aggregation. **Left
+fusiform does NOT appear under `S(γ_l)`** — fully retracted from the γ_l
+anatomy. The KC-era "Hippocampus + left fusiform" β claim is partially
+retracted (Hip retained at β Grassmann; left fusiform appears at no band
+under `S(b)` everywhere).
 
-### δ Grassmann anatomy — **strong localized, two non-overlapping networks across full and epi-X windows**
+Source: `data/audit/anatomy_low_gamma_grassmann_clusterext/cohort_summary.csv`
+(audit_72 --cluster-extent, 2026-05-19 pm). The retired
+`anatomy_low_gamma_grassmann/cohort_summary.csv` is superseded.
 
-The full-cohort window (k=57..63) and C5 epi-X window (k=33..39) are non-overlapping in k (`VERDICT_LEDGER.md` Decision 6) AND non-overlapping in anatomy (only 2/6 named regions shared). This is the strongest evidence that δ Grassmann is a **mixture of two distinct phenomena**.
+### δ Grassmann anatomy — **strong localized; full and epi-X read FULLY DISJOINT NETWORKS** (locked under `S(δ)` / `S^epiX(δ)` cluster-extent paradigm 2026-05-19 pm)
 
-**Full-cohort (k=57..63), 6 named DK regions A3-pass**:
-- ctx-lh-fusiform (A1: 1.05×; A3: z=12.62, p_emp=0.005)
-- ctx-lh-inferiorparietal (7.78×; 5.07, 0.005)
-- ctx-rh-medialorbitofrontal (1.02×; 4.08, 0.005)
-- ctx-rh-caudalanteriorcingulate (9.73×; 2.84, 0.005)
-- **Amy** (4.42×; 2.33, 0.030)
-- ctx-lh-bankssts (4.86×; 2.42, 0.045)
+Top-decile per-node participation in `U_k` aggregated (unweighted average) over
+`S(δ) = {k : p_k(δ) < α_k}` (23 cells) for the full cohort and
+`S^epiX(δ)` (22 cells, derived from per-k cohort Wilcoxon on
+`grassmann_epi_exclusion/per_patient_per_band_per_k.csv`, span
+`k = [2, 34..52, 87, 88]`) for the C5 epi-X analysis. The retired
+`K*(δ) = [57, 63]` (7 cells) and `K*^epiX(δ) = [33, 39]` (7 cells)
+contiguous windows are **not used**. The dissociation strengthens from
+"2/6 shared" (under retired `K*`) to **0/3 shared** (under locked `S(b)`)
+— δ Grassmann is now read as a fully disjoint mixture of two distinct
+phenomena.
 
-Network: Amygdala + cingulate + OFC + fusiform + inferior parietal + bankssts — overlaps published δ "anchor anatomy" (low-frequency synchronization near epi zones, `memory/epileptic_imcoh_universal.md`).
+**Full-cohort (over `S(δ)`), 4 named DK regions A3-pass**:
+- ctx-lh-inferiortemporal (A1: 1.34×; A3: z>>2 very large, p_emp=0.005)
+- ctx-lh-inferiorparietal (3.89×; >>2 very large, 0.005)
+- ctx-rh-parstriangularis (0.65×; >>2 very large, 0.005)
+- ctx-lh-superiortemporal (0.61×; 14.11, 0.010)
 
-**C5 epi-X (k=33..39), 6 named DK regions A3-pass**:
-- ctx-lh-fusiform (A1: 0.79×; A3: z>>2, p_emp=0.005)
-- ctx-lh-inferiorparietal (3.89×; >>2, 0.005)
-- ctx-lh-superiorparietal (9.73×; >>2, 0.005)
-- ctx-rh-postcentral (1.95×; 3.03, 0.005)
-- ctx-rh-rostralmiddlefrontal (1.47×; 3.52, 0.005)
-- ctx-lh-inferiortemporal (1.34×; 5.69, 0.035)
+Network: **temporal + parietal + frontal** (left inferior temporal + left
+superior temporal + left inferior parietal + right pars triangularis). The
+"anchor anatomy" interpretation (Amygdala + cingulate + medial OFC +
+fusiform + bankssts) of the retired `K*(δ)` analysis is **not supported**
+under `S(δ)` — replaced by a parietal-temporal-frontal network.
 
-Network: parietal-dominant (left inferior + left superior + right postcentral) + left fusiform + rostral middle frontal + left inferior temporal — distinct from full-cohort's anchor-anatomy network.
+**C5 epi-X (over `S^epiX(δ)`), 3 named DK regions A3-pass**:
+- ctx-lh-superiorparietal (A1: 9.73×; A3: z>>2 very large, p_emp=0.005)
+- ctx-rh-rostralmiddlefrontal (1.47×; 2.71, 0.005)
+- ctx-lh-superiorfrontal (0.88×; 14.11, 0.010)
 
-**Shared regions**: only fusiform + inferior parietal (2/6). The remaining 4 regions in each window are non-overlapping.
+Network: **left superior parietal + right rostral middle frontal + left
+superior frontal**. Fusiform, inferior parietal, postcentral, and inferior
+temporal that appeared in the retired `K*^epiX(δ)` analysis are **not
+present** under `S^epiX(δ)`; left superior frontal emerges as new.
 
-**Reading**: full-cohort δ Grassmann is dominated by epi-zone anchor anatomy; C5 epi-X reveals a separate, physiologically interpretable parietal-cortex network. The preprint should report both networks and the dissociation.
+**Shared regions between `S(δ)` and `S^epiX(δ)`: 0/3**. The two networks are
+fully disjoint under the cluster-extent paradigm (was 2/6 shared under the
+retired contiguous windows; dissociation strengthens to "completely
+non-overlapping").
 
-Sources: `data/audit/anatomy_delta_grassmann/cohort_summary.csv` + `data/audit/anatomy_delta_grassmann_epiX/cohort_summary.csv` (audit_72 + audit_72 --epi-x, 2026-05-19).
+**Reading**: full-cohort δ Grassmann (over `S(δ)`) reads a temporal-parietal-frontal
+cortical pattern; C5 epi-X (over `S^epiX(δ)`) reveals a distinct superior-parietal
++ frontal pattern. The two windows share no DK regions under the locked
+methodology. The preprint should report both networks and note the strengthened
+dissociation. The δ cross-probe anchor anatomy (1.55× cross-probe ratio, known
+biology per `memory/epileptic_imcoh_universal.md`) is a **separate, descriptive
+substrate-layer observation** (LEDGER Decision 5), independent of the Grassmann
+anatomy result above.
+
+Sources: `data/audit/anatomy_delta_grassmann_clusterext/cohort_summary.csv` +
+`data/audit/anatomy_delta_grassmann_epiX_clusterext/cohort_summary.csv` (audit_72
+--cluster-extent, full + --epi-x --k-list ..., 2026-05-19 pm). The retired
+`anatomy_delta_grassmann{_epiX}/cohort_summary.csv` are superseded.
 
 ## Cross-band anatomy comparison
 
-### Region overlaps across trace-positive bands
+### Region overlaps across trace-positive bands (locked under `S(b)` cluster-extent paradigm, 2026-05-19 pm)
 
 | Region | β cophenet | β Grassmann | α cophenet | γ_l Grassmann | δ Grassmann (full) | δ Grassmann (epi-X) |
 |---|---|---|---|---|---|---|
 | Hippocampus / parahippocampal | parahippocampal | **Hip** | parahippocampal | — | — | — |
 | Insula (any hemisphere) | right | left | — | — | — | — |
-| Cingulate (any subregion) | isthmus + ACC (rh) | — | ACC bilateral + PCC (rh) | — | caudal ACC (rh) | — |
-| Medial / lateral OFC | — | bilateral | medial (rh) | — | medial (rh) | — |
-| Fusiform | — | — | — | **left** | **left** | **left** |
-| Inferior parietal | — | — | — | — | left | left |
-| Superior parietal / postcentral | postcentral (rh) | — | superior + postcentral (rh) | — | — | superior (lh) + postcentral (rh) |
-| Temporal cortex (mid / sup / inf) | — | middle + superior (lh) | — | inferior + middle + superior (lh) | — | inferior (lh) |
-| Amygdala | — | — | — | — | **Amy** | — |
-| Bankssts | — | — | — | — | left | — |
-| Pars (orbitalis / triangularis) | — | — | — | triangularis (rh) | — | — |
-| Rostral / caudal middle frontal | — | rostral (rh) | caudal bilateral | — | — | rostral (rh) |
-| Superior frontal | left | — | — | — | — | — |
+| Cingulate (any subregion) | isthmus + ACC (rh) | — | ACC bilateral + PCC (rh) | — | — | — |
+| Medial / lateral OFC | — | bilateral | medial (rh) | medial (rh) | — | — |
+| Fusiform | — | — | — | — | — | — |
+| Inferior parietal | — | — | — | — | left | — |
+| Superior parietal / postcentral | postcentral (rh) | — | superior + postcentral (rh) | — | — | superior (lh) |
+| Temporal cortex (mid / sup / inf) | — | middle + superior (lh) | — | middle + superior (lh) | inferior + superior (lh) | — |
+| Amygdala | — | — | — | — | — | — |
+| Bankssts | — | — | — | — | — | — |
+| Pars (orbitalis / triangularis) | — | — | — | triangularis (rh) | triangularis (rh) | — |
+| Rostral / caudal middle frontal | — | rostral (rh) | caudal bilateral | rostral (lh) | — | rostral (rh) |
+| Superior frontal | left | — | — | — | — | left |
 | Precuneus | — | — | right | — | — | — |
-| Paracentral | — | — | — | right | — | — |
+| Paracentral | — | — | — | — | — | — |
+| Lateral occipital | — | — | — | left | — | — |
+| Cuneus | — | — | — | left | — | — |
 
-**Pattern**:
-- **Cingulate** is the most multi-band region — appears in β cophenet, α cophenet, δ Grassmann (full). Across-band cingulate involvement is consistent with cingulate's role as a multi-band integrator.
-- **Parahippocampal / Hippocampus** appears at β (both probes) and α cophenet — beta-and-alpha medial-temporal involvement.
-- **Fusiform** appears at γ_l Grassmann + δ Grassmann (both windows) — NOT at β (retracting the KC-era β fusiform claim).
-- **Insula** appears only at β (both probes, opposite hemispheres).
-- **Amygdala** appears only at δ Grassmann full-cohort (consistent with the δ anchor anatomy).
-- **Parietal cortex** (inferior + superior + postcentral) appears at β cophenet (postcentral) + α cophenet (superior + postcentral + precuneus) + δ Grassmann epi-X (superior + inferior + postcentral) — a recurring parietal motif.
+**Pattern (under locked `S(b)` cluster-extent paradigm)**:
+- **Parahippocampal / Hippocampus** appears at β (both probes) and α cophenet — beta-and-alpha medial-temporal involvement (unchanged from KC era).
+- **Medial OFC** appears at β Grassmann + α cophenet + γ_l Grassmann — three-band medial-OFC motif (newly visible under `S(γ_l)` after cluster-extent rerun).
+- **Temporal cortex (middle / superior)** appears at β Grassmann + γ_l Grassmann + δ Grassmann (full) — three-band temporal motif. Inferior temporal at δ Grassmann (full) only.
+- **Pars triangularis (right)** appears at γ_l Grassmann + δ Grassmann (full) — gamma-low and delta share a right inferior frontal node.
+- **Parietal cortex** (inferior + superior + postcentral) appears at β cophenet (postcentral) + α cophenet (superior + postcentral + precuneus) + δ Grassmann full (inferior) + δ Grassmann epi-X (superior) — a recurring parietal motif preserved across paradigms.
+- **Cingulate** appears at β cophenet + α cophenet only (no longer at δ Grassmann under `S(δ)` — the retired `K*(δ)` caudal ACC entry retracts).
+- **Insula** appears only at β (both probes, opposite hemispheres) — unchanged.
+
+**KC-era retractions under `S(b)`**:
+- **Left fusiform** appears at **NO band** — fully retracted from γ_l Grassmann, δ Grassmann (full), and δ Grassmann (epi-X). The KC-era "Hippocampus + left fusiform" β claim is partially retracted (Hip retained at β Grassmann; left fusiform appears nowhere under the locked cluster-extent paradigm).
+- **Amygdala** retracts from δ Grassmann (full) — the "anchor anatomy" interpretation (Amy + cingulate + medial OFC + fusiform + bankssts) is not supported under `S(δ)`. The δ cross-probe anchor anatomy (1.55× cross-probe ratio, known biology per `memory/epileptic_imcoh_universal.md`) is a separate descriptive substrate-layer observation, not a Grassmann anatomy claim.
+- **Bankssts** retracts from δ Grassmann (full).
+- **Right caudal anterior cingulate** retracts from δ Grassmann (full).
+- **Right paracentral** retracts from γ_l Grassmann.
 
 ## Manuscript ↔ lab label mapping (locked 2026-05-19 pm)
 

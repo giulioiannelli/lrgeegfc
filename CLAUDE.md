@@ -44,10 +44,10 @@ opposite phenomena (trace vs anchor) and silently flips the reading
 every time.
 
 - **trace** — task reorganized AND change persists into RPost. Our
-  raw-FC `T_d^(d_S) < 0` finding is a **trace**, never bare "persistence".
+  raw-FC `T_d^(d_S) > 0` finding is a **trace**, never bare "persistence".
 - **anchor** — module unchanged across all phases. A "persistent
   module" in the literature is usually an *anchor*, not a trace.
-- **reset** — task reorganized AND module reverts in RPost (`T_d > 0`).
+- **reset** — task reorganized AND module reverts in RPost (`T_d < 0`).
 - **emergent** — module that did not exist in RPre (LRG / community
   membership only).
 
@@ -65,6 +65,13 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   helpers. Import them.
 - FC-method-agnostic defaults. Config-driven constants. No hardcoded
   `data/...` paths — use `lrg_eegfc.config.paths`.
+- **Library names are general, not local-scope.** Module + function
+  names under `src/lrg_eegfc/` NEVER reference manuscript-local tokens
+  (`section3`, `figureN`, `preprint`, `chapter`, `H2c`, …). They reflect
+  general graph / network / statistics / I/O concepts: `network_layouts`,
+  `network_drawing`, `tree_metrics`, `surrogate_helpers`, `patient_io`.
+  A library helper used by figures-for-Section-3 today must be importable
+  by figures-for-Section-7 tomorrow without renaming. Locked 2026-05-28.
 
 ### Never / always list (full: `.agents/guides/04_rules/never-always-list.md`)
 
@@ -92,8 +99,18 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   `lrg_eegfc.visuals.layout.add_provenance_footer(fig, label)`).
 - Never label adjacency-matrix axes with "contact" / "channel"
   — use math `$i$`, `$j$`.
+- **Never use `imshow_colorbar_caxdivider` for a colorbar that is
+  shared across multiple columns in the same row.** That helper
+  attaches the colorbar to a *single* axis via `make_axes_locatable`;
+  it has no notion of a multi-column shared cbar and will misalign or
+  resize the wrong axis. For row-shared colorbars keep the explicit
+  `make_axes_locatable` / `fig.add_axes([...])` pattern. The helper is
+  the canonical choice for any single-`imshow` axis. Locked 2026-05-28.
+- **Never name a library module / function after a manuscript-local
+  token** (`section3`, `figureN`, `preprint`, `chapter`, ...). Library
+  names reflect general concepts; see the library-first section above.
 - Don't confuse the four cross-phase phenomena. **Trace** = task
-  changed it AND change stuck (our `T_d < 0` finding). **Anchor** =
+  changed it AND change stuck (our `T_d > 0` finding). **Anchor** =
   never changed. **Reset** = changed and reverted. **Emergent** =
   never existed before. Use the explicit taxonomy in cross-phase
   taxonomy tables, mixed-band paragraphs, and any context where the
@@ -122,6 +139,16 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   of "currently unverified" is preferred over a confident headline
   that gets retracted three iterations later. See
   `feedback_brutal_honesty_no_sycophancy.md`.
+- **Never compute a triangle scalar with the OLD T_d sign convention.**
+  Locked 2026-05-26: every triangle scalar `T_d` MUST be
+  `T_d = d(rest_pre, task) − d(task, rest_post)` so that **T_d > 0 = TRACE**,
+  **T_d < 0 = ANTI-TRACE**, **T_d = 0 = NO TRACE**. Applies at every layer
+  (raw FC, LRG D_coph, KC, Grassmann). Wilcoxon one-sided trace tests use
+  `alternative='greater'`. Per-patient trace counts use `(T > 0).sum()`.
+  Surrogate upper-tail p = `mean(s_finite >= obs_T)`. Plot/ylabel/title
+  conventions say "positive = trace" (never "negative = trace"). Do not
+  reintroduce `d(task, rsPost) − d(rsPre, task)` in any compute site. See
+  `feedback_td_sign_convention.md`.
 
 **Always**
 - Always show ≥ 3 patients / bands / phases in published figures.
@@ -230,6 +257,11 @@ Eight rules at a glance:
    `_apply_factored_sci_format(clb, axis_orientation=...)` (from
    `lrg_eegfc.visuals.fc_templates`) — kills inline `2 × 10ⁿ`
    mantissa labels in both <1.5-decade and ≥1.5-decade regimes.
+   **Scope:** use this helper for any *single-imshow* axis. It
+   **cannot** serve a colorbar that is shared across multiple columns
+   in the same row (it attaches to one axis via `make_axes_locatable`).
+   For row-shared cbars keep the explicit `make_axes_locatable` /
+   `fig.add_axes([...])` pattern. Locked 2026-05-28.
 3. **Multi-axis layout → figure-level decoration.** Titles, legends,
    colorbars, shared axis labels go on the *figure*.
 4. **Library-first.** Check `lrgsglib.plotlib` and `lrg_eegfc.visuals`
@@ -357,7 +389,7 @@ Full layout + vendor → canonical mapping + per-patient quirks:
 2. **Standard notebook header:**
    ```python
    from lrg_eegfc.notebook import *
-   move_to_root(pathname="lrgeegfc")
+   move_to_rootf(pathname="lrgeegfc")
    ```
 3. **Per-patient quirks** in [`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md) §6.
    Cohort locked at n=10 on 2026-04-25 (Pat_02, 03, 05, 06, 07, 08, 10, 13, 14, 15)
@@ -386,7 +418,7 @@ Full layout + vendor → canonical mapping + per-patient quirks:
 ```python
 # Notebook header
 from lrg_eegfc.notebook import *
-move_to_root(pathname="lrgeegfc")
+move_to_rootf(pathname="lrgeegfc")
 
 # Data paths (always use these)
 from lrg_eegfc.config.paths import (

@@ -6,7 +6,7 @@ status: locked
 created: 2026-05-06
 updated: 2026-05-06
 pointers:
-  - .agents/reports/2026-05-06_section-5-critical-review.md
+  - .agents/reports/archive/2026-05/2026-05-06_section-5-critical-review.md
   - .agents/reports/2026-05-06_section-5-writing-brief.md
   - data/audit/section5_v2_kc_controls/cohort_summary.csv
   - data/audit/section5_v2_kc_controls/per_patient_table.csv
