@@ -32,9 +32,9 @@ from lrg_eegfc.config.paths import FIGURES_ROOT, LRG_CACHE, SEEG_DATAPATH
 from lrg_eegfc.visuals.lrg import (
     plot_lrg_dendrogram,
     plot_lrg_entropy_curves,
-    plot_lrg_full_panel,
     plot_ultrametric_heatmap,
 )
+from lrg_eegfc.visuals.lrg_panels import plot_lrg_full_panel
 
 
 def visualize_single(

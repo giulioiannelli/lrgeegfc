@@ -124,11 +124,11 @@ from pathlib import Path
 from lrg_eegfc.workflow.msc import load_msc_matrix
 from lrg_eegfc.workflow.lrg import load_lrg_result
 from lrg_eegfc.visuals.lrg import (
-    plot_lrg_full_panel,
     plot_lrg_entropy_curves,
     plot_lrg_dendrogram,
     plot_ultrametric_heatmap,
 )
+from lrg_eegfc.visuals.lrg_panels import plot_lrg_full_panel
 
 patient = "{patient}"
 phases = {phases}
