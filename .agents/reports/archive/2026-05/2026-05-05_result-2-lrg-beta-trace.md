@@ -2,11 +2,12 @@
 name: 2026-05-05_result-2-lrg-beta-trace
 type: report
 era: IMCOH_ABS × COHORT_N10
-status: current
+status: superseded
 created: 2026-05-05
-updated: 2026-05-05
+updated: 2026-05-28
+sign_convention: pre-2026-05-26
 pointers:
-  - .agents/reports/2026-04-29_result-1-raw-fc-phase-trace.md
+  - .agents/reports/archive/2026-04/2026-04-29_result-1-raw-fc-phase-trace.md
   - data/reports/section_5_lrg_trace/README.md
   - data/reports/section_5_lrg_trace/03_kc_lambda_triangle/report.md
   - data/reports/section_5_lrg_trace/11_lrg_global_probe_controls/report.md
@@ -16,7 +17,21 @@ pointers:
   - data/audit/lrg_global_probe_controls/pat03_dropout.csv
 ---
 
-# Result 2 — LRG β-band trace is the load-bearing Section-5 finding
+> **Superseded sign convention (banner added 2026-05-28).** This report
+> was written before the 2026-05-26 T_d sign lock. It uses the
+> pre-2026-05-26 convention: `T_d = d(task, rest_post) − d(rest_pre, task)`
+> → negative = trace. The locked convention (from 2026-05-26 onward) is
+> `T_d = d(rest_pre, task) − d(task, rest_post)` → **positive = trace**,
+> at every layer (raw FC, D_coph, KC, Grassmann). To read this report in
+> the current convention, multiply every T_d value by −1 and read every
+> "T_d < 0", "negative = trace", or "n_trace = (T_d < 0).sum()" assertion
+> with the sign flipped. Numerical magnitudes, p-values, per-band
+> verdicts, and the β headline are unchanged; only the sign carrier is
+> inverted. Live preprint scripts and the current directive use the new
+> convention. Companion CSVs in `data/audit/...` may carry either sign
+> depending on compute date; check audit script docstrings.
+
+# Result 2 — LRG β-band trace is the Section-5 headline
 
 ## In plain words (read first)
 

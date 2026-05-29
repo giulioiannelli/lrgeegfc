@@ -2,16 +2,25 @@
 name: 2026-05-06_section-5-critical-review
 type: report
 era: IMCOH_ABS × COHORT_N10
-status: current
+status: superseded
 created: 2026-05-06
-updated: 2026-05-06
+updated: 2026-05-28
+sign_convention: pre-2026-05-26
 pointers:
   - .agents/reports/2026-05-06_section-5-writing-brief.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - .agents/reports/2026-05-05_section-5-manuscript-draft.md
   - data/audit/section5_v2_round2/README.md
   - data/audit/section5_v2_round3_redo/README.md
 ---
+
+> **Superseded sign convention (banner added 2026-05-28).** Written
+> before the 2026-05-26 T_d sign lock. Uses pre-2026-05-26 convention
+> (`T_d = d(task, rsPost) − d(rsPre, task)`, negative = trace). Current
+> locked convention is `T_d = d(rsPre, task) − d(task, rsPost)`,
+> positive = trace at every layer. Multiply T_d by −1 and flip
+> `T_d < 0` ↔ `T_d > 0` to read in current convention. Magnitudes,
+> p-values, verdicts unchanged; only sign carrier inverted.
 
 # Section 5 — Critical review of the writing-agent brief
 

@@ -2,18 +2,27 @@
 name: 2026-05-08_trace-minus-epi-resection
 type: report
 era: IMCOH_ABS × COHORT_N10
-status: current
+status: superseded
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-05-28
+sign_convention: pre-2026-05-26
 pointers:
   - .agents/reports/2026-05-08_direction-a-induced-subtree.md
-  - .agents/reports/2026-05-05_result-2-lrg-beta-trace.md
+  - .agents/reports/archive/2026-05/2026-05-05_result-2-lrg-beta-trace.md
   - .agents/reports/2026-05-07_epileptic-n10-revisit.md
   - data/audit/trace_minus_epi/Td_KC_per_patient.csv
   - data/audit/trace_minus_epi/Td_KC_cohort_summary.csv
   - data/audit/trace_minus_epi/Td_KC_full_vs_resect.csv
   - scripts/01_compute/audit/audit_56_trace_minus_epi.py
 ---
+
+> **Superseded sign convention (banner added 2026-05-28).** Written
+> before the 2026-05-26 T_d sign lock. Uses pre-2026-05-26 convention
+> at the KC layer (`T_KC = d_KC(task, rsPost; λ) − d_KC(rsPre, task; λ)`,
+> negative = trace). Current locked convention is
+> `T_KC = d_KC(rsPre, task; λ) − d_KC(task, rsPost; λ)`, positive =
+> trace. Multiply T_KC by −1 to read in current convention. Magnitudes,
+> p-values, full-vs-resect comparison verdicts unchanged.
 
 # Trace minus epi — KC trace on full tree vs V \ E_p resection
 

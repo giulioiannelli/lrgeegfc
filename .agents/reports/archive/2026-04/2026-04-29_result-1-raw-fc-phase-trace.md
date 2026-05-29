@@ -2,9 +2,10 @@
 name: 2026-04-29_result-1-raw-fc-phase-trace
 type: report
 era: IMCOH_ABS × COHORT_N10
-status: current
+status: superseded
 created: 2026-04-29
-updated: 2026-04-29
+updated: 2026-05-28
+sign_convention: pre-2026-05-26
 pointers:
   - .agents/guides/task-persistence-investigation/2026-04-28_raw-fc-phase-distance.md
   - .agents/reports/2026-04-28_raw-fc-phase-distance-verdict.md
@@ -13,6 +14,19 @@ pointers:
   - data/audit/fc_phase_geometry/cohort_summary.csv
   - data/audit/fc_phase_geometry/cohort_geometry.pdf
 ---
+
+> **Superseded sign convention (banner added 2026-05-28).** This report
+> uses the pre-2026-05-26 T_d convention:
+> `T_d = d(task_test, rest_post) − d(rest_pre, task_test)` → negative = trace.
+> The locked convention (from 2026-05-26 onward) is
+> `T_d = d(rest_pre, task) − d(task, rest_post)` → **positive = trace**.
+> To read this report in the current convention, multiply every T_d value
+> by −1 and read every "negative = trace" assertion as "positive = trace".
+> Numerical magnitudes, p-values, and per-band verdicts are unchanged; only
+> the sign of T_d is inverted. Current preprint scripts and the live
+> directive use the new convention. See
+> `.agents/reports/archive/2026-04/` for the archived location of this
+> report.
 
 # Result 1 — Raw-FC carries a task-shaped persistence trace
 
