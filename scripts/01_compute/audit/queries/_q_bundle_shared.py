@@ -43,6 +43,25 @@ from lrg_eegfc.visuals.network_drawing import (  # noqa: F401
 )
 
 
+def probe_sort_indices(channel_labels):
+    """Return indices that sort channels by probe, then by contact number."""
+    import numpy as np
+    from lrg_eegfc.utils.probe import extract_probe_labels
+    probes = extract_probe_labels(channel_labels)
+    unique = sorted(set(probes))
+    return np.argsort([unique.index(p) * 1000 + i for i, p in enumerate(probes)])
+
+
+def probe_boundaries(sorted_probes):
+    """Return boundary positions (first index of each new probe)."""
+    return [i for i in range(1, len(sorted_probes))
+            if sorted_probes[i] != sorted_probes[i - 1]]
+
+
+# draw_probe_outlines lives in the library — re-export for split-fig callers.
+from lrg_eegfc.visuals import draw_probe_outlines  # noqa: F401, E402
+
+
 def load_channel_labels(patient: str) -> list[str]:
     """Load cleaned monopolar channel labels for *patient*.
 
@@ -107,6 +126,21 @@ PAIR_LABELS = {
     ("rest_pre",  "task_test"):  "RPre$\\leftrightarrow$TT",
     ("rest_pre",  "rest_post"):  "RPre$\\leftrightarrow$RPost",
 }
+# Distance keys + labels used across multiple bundle figures (was at
+# module-top in fig6 section of the original q_bundle_figures.py and
+# reused by figS1, figS2, figS3).
+DISTANCE_KEYS = ["S", "P", "F"]
+DISTANCE_LABEL = {
+    "S": r"$d_S$  Spearman",
+    "P": r"$d_P$  Pearson",
+    "F": r"$d_F$  Frobenius",
+}
+PHASES_ORDER = ["rest_pre", "task_learn", "task_test", "rest_post"]
+PHASE_X = {ph: i for i, ph in enumerate(PHASES_ORDER)}
+PHASE_LABEL_SHORT = {"rest_pre": "RPre", "task_learn": "TL",
+                     "task_test": "TT", "rest_post": "RPost"}
+REF_LINES = [0.0, 0.25, 0.5, 0.75, 1.0]
+
 PAIR_ORDER = [
     ("task_learn", "task_test"),
     ("task_test",  "rest_post"),

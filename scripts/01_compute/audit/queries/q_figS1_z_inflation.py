@@ -27,6 +27,8 @@ from _q_bundle_shared import (
     compute_network_layout, draw_network_edges, _probe_color_map,
     extract_probe_labels, imshow_colorbar_caxdivider, load_bundle_data,
     load_channel_labels, load_fc_matrix, lookup_pair, resolve_substrate,
+    DISTANCE_KEYS,
+    DISTANCE_LABEL,
 )
 
 

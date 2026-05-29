@@ -35,7 +35,9 @@ def main() -> None:
     FC_METHOD_FIG5 = SUBSTRATE
     print(f"=== q_fig2 for substrate: {SUBSTRATE} ===")
     distances_long, td, contrast = load_bundle_data(SRC)
-
+    # In the original q_bundle_figures.py, ``sub_S`` was defined once at
+    # module top after the data load (line 133) and reused across figs.
+    sub_S = distances_long[distances_long.distance == "S"]
 
     # ----------------------------------------------------------------------
     # Fig 2 — Phase geometry (paired strip + IQR box, sorted phase pairs)

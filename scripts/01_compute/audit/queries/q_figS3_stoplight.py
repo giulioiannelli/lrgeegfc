@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd  # noqa: F401
 from matplotlib.patches import Ellipse, Patch, Rectangle, Arc  # noqa: F401
 from matplotlib.lines import Line2D  # noqa: F401
-from matplotlib.colors import Normalize  # noqa: F401
+from matplotlib.colors import Colormap, LinearSegmentedColormap, Normalize  # noqa: F401
 from scipy.stats import pearsonr, spearmanr  # noqa: F401
 
 from _q_bundle_shared import (

@@ -13,11 +13,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 import matplotlib  # noqa: F401
 import matplotlib.pyplot as plt
+import networkx as nx
 import numpy as np
 import pandas as pd  # noqa: F401
 from matplotlib.patches import Ellipse, Patch, Rectangle, Arc  # noqa: F401
 from matplotlib.lines import Line2D  # noqa: F401
-from matplotlib.colors import Normalize  # noqa: F401
+from matplotlib.colors import Colormap, LinearSegmentedColormap, Normalize  # noqa: F401
 from scipy.stats import pearsonr, spearmanr  # noqa: F401
 
 from _q_bundle_shared import (
@@ -61,8 +62,10 @@ def main() -> None:
         NullFormatter,
     )
 
-    # Probe-sort + outline helpers from the same archive module
-    from _shared import (  # noqa: E402
+    # Probe-sort + outline helpers — promoted to _q_bundle_shared on
+    # 2026-05-29 (split 3/7 follow-up; previously imported from the
+    # archived _shared module via sys.path.insert).
+    from _q_bundle_shared import (  # noqa: E402
         probe_sort_indices,
         probe_boundaries,
         draw_probe_outlines,

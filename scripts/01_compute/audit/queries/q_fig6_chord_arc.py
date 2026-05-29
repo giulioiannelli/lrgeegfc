@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd  # noqa: F401
 from matplotlib.patches import Ellipse, Patch, Rectangle, Arc  # noqa: F401
 from matplotlib.lines import Line2D  # noqa: F401
-from matplotlib.colors import Normalize  # noqa: F401
+from matplotlib.colors import Colormap, LinearSegmentedColormap, Normalize  # noqa: F401
 from scipy.stats import pearsonr, spearmanr  # noqa: F401
 
 from _q_bundle_shared import (
@@ -84,6 +84,10 @@ def main() -> None:
         N=256,
     )
 
+
+    # scipy.optimize.minimize was imported at module-top in the original
+    # q_bundle_figures.py; recreate the alias inside main() for the split.
+    from scipy.optimize import minimize as _spo_minimize
 
     def _solve_1d_spring_layout(panel_distances, n_phases=4):
         """Weighted 1D MDS: place `n_phases` phase points on a line so the
