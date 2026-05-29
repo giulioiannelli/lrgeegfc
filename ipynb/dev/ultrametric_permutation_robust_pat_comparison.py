@@ -20,7 +20,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 #
 from lrgsglib import *
 #
-move_to_rootf(pathname='lrg_eegfc')
+move_to_rootf(pathname='lrgeegfc')
 #
 from lrg_eegfc import *
 # Figure output path

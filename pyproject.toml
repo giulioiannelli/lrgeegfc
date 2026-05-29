@@ -7,7 +7,7 @@ name = "lrg-eegfc"
 version = "0.1.0"
 description = "EEG functional connectivity analysis tools for brain network research"
 readme = "README.md"
-license = {file = "LICENSE"}
+license = {text = "GPL-3.0-or-later"}
 authors = [
     {name = "Giulio Iannelli", email = "giulio.iannelli@cref.com"},
 ]
@@ -25,7 +25,7 @@ keywords = [
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
@@ -88,7 +88,7 @@ where = ["src"]
 include = ["lrg_eegfc*"]
 
 [tool.setuptools.package-data]
-lrg_eegfc = ["*.txt", "*.md"]
+lrg_eegfc = ["*.txt", "*.md", "visuals/styles/*.mplstyle"]
 
 # Black code formatter configuration
 [tool.black]

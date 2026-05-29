@@ -1,271 +1,289 @@
 # LRG EEG Functional Connectivity
 
-Tools for computing frequency-specific functional connectivity graphs from
-stereo-EEG (SEEG) recordings collected in the [Living and Relational Graphs
-(LRG)](https://github.com/giulioiannelli) research project.  The repository now
-ships as a regular Python package, complete with a command line interface,
-documented public APIs and optional plotting helpers.
+Tools for computing frequency-specific functional connectivity (FC)
+matrices from stereo-EEG (SEEG) recordings and running the Laplacian
+Renormalization Group (LRG) hierarchical analysis on the resulting
+graphs. Built for the [Living and Relational Graphs (LRG)
+project](https://github.com/giulioiannelli), with a Python package, a
+unified `lrg-eegfc` CLI, and a publication-grade plotting pipeline.
 
 ---
 
-- [Quick Start](#quick-start)
+## Current era (locked)
+
+- **FC carrier:** `imcoh_abs` = ⟨|ImCoh(f)|⟩_f — the band-magnitude of
+  the Nolte-2004 imaginary coherency (Ewald 2012 convention).
+  Volume-conduction immune. MSC is retained for diagnostics only.
+- **Cohort:** 10 sEEG patients (`Pat_02, 03, 05, 06, 07, 08, 10, 13,
+  14, 15`), locked 2026-04-25.
+- **T_d sign convention** (locked 2026-05-26): at every layer (raw FC,
+  D_coph, KC, Grassmann) `T_d := d(rest_pre, task) − d(task, rest_post)`,
+  **positive = TRACE**. Wilcoxon trace-direction tests use
+  `alternative='greater'`.
+- **Live preprint hub:** `.agents/preprint/` (see `WRITING_GUIDE.md`).
+- **Agent landing page:** `.agents/START_HERE.md`. Era index:
+  `.agents/era-map.md`. Project rules: `CLAUDE.md` (mirrored in
+  `AGENTS.md`).
+
+---
+
+## Contents
+
+- [Quick start](#quick-start)
 - [Installation](#installation)
-  - [Step 1: Clone the repository](#step-1-clone-the-repository)
-  - [Step 2: Initialize submodules](#step-2-initialize-submodules)
-  - [Step 3: Create the conda environment](#step-3-create-the-conda-environment)
-  - [Step 4: Build and configure lrgsglib](#step-4-build-and-configure-lrgsglib)
-  - [Step 5: Install lrg-eegfc](#step-5-install-lrg-eegfc)
+- [Canonical CLI flow](#canonical-cli-flow)
 - [Dataset layout](#dataset-layout)
-- [Command line usage](#command-line-usage)
-- [Python API overview](#python-api-overview)
+- [Python API](#python-api)
 - [Plotting utilities](#plotting-utilities)
-- [Developer guide](#developer-guide)
+- [Agent + developer guide](#agent--developer-guide)
 
 ---
 
-## Quick Start
+## Quick start
 
 ```bash
-# Clone and setup
 git clone https://github.com/giulioiannelli/lrgeegfc.git
 cd lrgeegfc
 git submodule update --init --recursive
 
-# Create and activate conda environment
 conda env create -f lapbrain.yml
 conda activate lapbrain
 
-# Build lrgsglib (generates config scripts and conda hooks)
+# Build lrgsglib (the submodule provides Laplacian operators)
 cd lrgsglib
-git checkout lrg_eegfc
 CONDA_ENV_NAME=lapbrain make all
 pip install -e .
 cd ..
 
-# Install lrg-eegfc
 pip install -e .
 ```
 
+End-to-end smoke test on one patient (uses cached `imcoh_abs` data):
+
+```bash
+lrg-eegfc compute lrg --patients Pat_02 --fc-method imcoh_abs -v
+lrg-eegfc show    lrg --patient  Pat_02 --phase rest_pre --fc-method imcoh_abs
+lrg-eegfc plot    lrg --patient  Pat_02 --phase rest_pre --band beta --plot-type full
+```
+
+The CLI defaults to `imcoh_abs` everywhere as of 2026-05-28; pass
+`--fc-method msc` only for explicit diagnostics.
+
+---
+
 ## Installation
 
-The project targets Python **3.12** (as specified in `lapbrain.yml`). Follow
-these steps to set up the complete environment.
+Python **3.12** (as pinned by `lapbrain.yml`). Steps:
 
-### Step 1: Clone the repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/giulioiannelli/lrgeegfc.git
 cd lrgeegfc
 ```
 
-### Step 2: Initialize submodules
+### 2. Initialise submodules
 
-The project depends on [`lrgsglib`](https://github.com/giulioiannelli/lrgsglib),
-a companion library that provides Laplacian-based graph operators. It is
-included as a Git submodule:
+`lrgsglib` (Laplacian + RG operators) is a submodule on `main`:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-### Step 3: Create the conda environment
-
-The repository includes a `lapbrain.yml` file that defines all conda
-dependencies (numpy, scipy, matplotlib, graph-tool, etc.):
+### 3. Create the conda env
 
 ```bash
 conda env create -f lapbrain.yml
 conda activate lapbrain
 ```
 
-**Custom installation path:** To install the environment in a specific
-location (e.g., on a larger disk or shared filesystem), use the `--prefix`
-option instead of the default location:
+Custom prefix:
 
 ```bash
-conda env create -f lapbrain.yml --prefix /path/to/custom/envs/lapbrain
-conda activate /path/to/custom/envs/lapbrain
+conda env create -f lapbrain.yml --prefix /path/to/envs/lapbrain
+conda activate /path/to/envs/lapbrain
 ```
 
-If the environment already exists and you want to update it:
+Update if it already exists:
 
 ```bash
 conda env update -f lapbrain.yml --prune
 ```
 
-### Step 4: Build and configure lrgsglib
-
-The `lrgsglib` submodule must be built to generate environment configuration
-scripts and set up conda activation hooks. Switch to the correct branch and
-run the build:
+### 4. Build `lrgsglib`
 
 ```bash
 cd lrgsglib
-git checkout lrg_eegfc
 CONDA_ENV_NAME=lapbrain make all
-```
-
-This command:
-- Generates `config_env.sh` and `unconfig_env.sh` with paths rooted at the
-  current directory
-- Creates conda activation/deactivation hooks that automatically export
-  environment variables (`LRGSG_ROOT`, `LRGSG_DATA`, etc.) when you activate
-  the `lapbrain` environment
-- Compiles any required C extensions
-
-**Custom conda prefix:** If you installed the conda environment with
-`--prefix`, set the `CONDA_PREFIX` variable before running make:
-
-```bash
-CONDA_PREFIX=/path/to/custom/envs/lapbrain CONDA_ENV_NAME=lapbrain make all
-```
-
-After building, install the package in editable mode:
-
-```bash
 pip install -e .
 cd ..
 ```
 
-### Step 5: Install lrg-eegfc
-
-Install the main package in editable mode:
+### 5. Install `lrg-eegfc`
 
 ```bash
 pip install -e .
 ```
 
-This registers the `lrg-eegfc` command line tool (unified CLI) plus the
-legacy `lrg-eegfc-corr` entry point, and makes the `lrg_eegfc` module
-available for imports.
+`pip install -e .[dev]` adds `pytest`, `black`, `isort`, etc.; the
+`jupyter` extra adds JupyterLab; the `docs` extra adds Sphinx.
 
-For development with linting and testing tools:
+---
 
-```bash
-pip install -e ".[dev]"
+## Canonical CLI flow
+
+The `lrg-eegfc` command exposes seven groups (40 subcommands total
+as of 2026-05-28; run `lrg-eegfc --help` for the live tree):
+
+```text
+lrg-eegfc compute  ...   # build caches (corr / msc / lrg / cleaning / ...)
+lrg-eegfc plot     ...   # generate figures (PDF by default; --png is opt-in)
+lrg-eegfc show     ...   # query cached results (no figures)
+lrg-eegfc data     ...   # inspect / normalize / compare patient data
+lrg-eegfc cache    ...   # list / verify / clean cache files
+lrg-eegfc config   ...   # show config + verify paths
+lrg-eegfc bundle   ...   # collect figures into Overleaf-ready bundles
 ```
 
-### Verify installation
+Common pipeline on `imcoh_abs`:
 
 ```bash
-python -c "import lrg_eegfc; import lrgsglib; print('OK')"
+# Compute FC + LRG for one patient
+lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rest_pre -v
+lrg-eegfc compute lrg --patients Pat_02 --fc-method imcoh_abs -v
+
+# Inspect what's cached
+lrg-eegfc show lrg --patient Pat_02 --phase rest_pre --fc-method imcoh_abs
+
+# Plot the full LRG panel
+lrg-eegfc plot lrg --patient Pat_02 --fc-method imcoh_abs --plot-type full -v
 ```
 
-### Developer tools
+Full subcommand reference:
+[`.agents/guides/03_implementation/cli-reference.md`](.agents/guides/03_implementation/cli-reference.md).
 
-The `dev` extra installs pytest, black, isort, flake8 and mypy. Run the full
-quality gate with:
-
-```bash
-pytest
-black --check src
-isort --check src
-flake8 src
-mypy src
-```
+---
 
 ## Dataset layout
 
-The command line tools assume the following directory structure by default:
+Raw + cache + reports + outputs sit under `data/`:
 
-```
-└── data/
-    └── raw/
-        └── stereoeeg_patients/
-            ├── Pat_01/
-            │   ├── resting/
-            │   │   ├── rest_pre.mat
-            │   │   └── rest_post.mat
-            │   ├── task/
-            │   │   ├── task_learn.mat
-            │   │   └── task_test.mat
-            │   ├── implant/implant_pat_01.xlsx
-            │   ├── implant_pat_01.csv
-            │   ├── channel_labels.csv
-            │   └── provenance.md
-            └── …
+```text
+data/
+├── raw/stereoeeg_patients/Pat_NN/   # canonical per-patient layout
+├── cache/                            # all computation caches
+├── reports/                          # scientific outputs (CSV, .md)
+└── outputs/{figures,tables}/         # CLI + publication outputs
 ```
 
-See `.agents/guides/03_implementation/DATA_LAYOUT.md` for the full canonical
-spec + per-patient quirks + the `lrg-eegfc data normalize` CLI.
+Per-patient quirks (Pat_03 1024 Hz, Pat_10 task row mask, Pat_14
+vendor-replaced `task_test.mat`) are documented in
+[`.agents/guides/03_implementation/data-layout.md`](.agents/guides/03_implementation/data-layout.md)
+and handled at the config layer (`FS_OVERRIDES`,
+`PATIENT_CHANNEL_DROP` in `src/lrg_eegfc/config/const.py`). No
+analysis-layer special casing.
 
-Use ``--dataset-root`` to point to a different directory when running the CLI.
-All generated artefacts (correlation matrices and plots) are written to
-``data/correlations/<patient>/`` by default.
+---
 
-## Command line usage
+## Python API
 
-The package exposes a unified `lrg-eegfc` CLI with subcommands for compute,
-plot, show, data, cache, config, and bundle. The legacy `lrg-eegfc-corr`
-entry point remains for backward-compatible correlation workflows.
+Notebook header (canonical as of 2026-05-28):
 
-Unified CLI examples:
-
-```bash
-# Compute MSC matrices (cached)
-lrg-eegfc compute msc --patients Pat_02 --band alpha --phase rest_pre -v
-
-# Run LRG analysis from cached FC matrices
-lrg-eegfc compute lrg --patients Pat_02 --fc-method msc -v
-
-# Plot LRG panels from cache
-lrg-eegfc plot lrg --patient Pat_02 --fc-method msc --plot-type full -v
+```python
+from lrg_eegfc.notebook import *
+move_to_rootf(pathname="lrgeegfc")
 ```
 
-Legacy CLI example (correlation-only):
+Most-used entry points:
 
-```bash
-lrg-eegfc-corr \
-    --patient Pat_01 \
-    --phase rest_pre \
-    --band beta \
-    --dataset-root /path/to/data/stereoeeg_patients \
-    --plot-all
+```python
+from lrg_eegfc.config.paths import (
+    SEEG_DATAPATH, CORR_CACHE, MSC_CACHE, LRG_CACHE,
+    IMCOH_CACHE, IMCOH_LRG_CACHE, FIGURES_ROOT, TABLES_ROOT,
+)
+
+# Unified FC loader (handles corr / msc / imcoh / imcoh_abs / imcoh_sq)
+from lrg_eegfc.workflow.fc import load_fc_matrix
+
+# Method-specific compute helpers
+from lrg_eegfc.workflow import (
+    compute_corr_matrix, compute_msc_matrix,
+    load_corr_matrix, load_msc_matrix,
+    compute_lrg_analysis, load_lrg_result,
+)
+
+# Stats (all promoted from script-local copies)
+from lrg_eegfc.utils.metrics.hypothesis import (
+    wilcoxon_z, rank_biserial, boot_ci_mean, bh_fdr, cluster_stats,
+    surrogate_p_value, loo_sensitivity,
+)
+
+# Tree / dendrogram helpers
+from lrg_eegfc.utils.metrics.tree import (
+    cophenet_matrix, induced_linkage, partition_vi_on_subset,
+)
+
+# Patient data
+from lrg_eegfc.utils.io.patient import (
+    PatientRecording, load_timeseries, load_channel_labels,
+    load_epileptic_nodes, PatientMasks, build_epi_masks,
+)
 ```
 
-Key options:
+Full function map:
+[`.agents/guides/03_implementation/function-map.md`](.agents/guides/03_implementation/function-map.md)
+(representative, not exhaustive — source code is canonical).
 
-* ``--filter-time`` – restrict the analysis to the first *N* samples.
-* ``--jump-index`` – choose which percolation jump to use when selecting the
-  correlation threshold (0 = single giant component).
-* ``--channel-names`` – path to a ``ChannelNames.mat`` file with the
-  ``ChannelNames`` variable, used to label the dendrogram/graph plots.
-* ``--plot-*`` flags – enable individual plots; ``--plot-all`` toggles every
-  available plot.
-
-Run ``lrg-eegfc --help`` for the full list of command groups and options.
-
-Pipeline scripts used by the shell runners live in `scripts/py/` and are
-invoked by `scripts/run_step.sh` and `scripts/run_full_analysis.sh`.
-
-## Python API overview
-
-The public API lives in :mod:`lrg_eegfc`.  Highlights include:
-
-| Function | Description |
-| --- | --- |
-| ``load_timeseries(patient, phase, root_path)`` | Load a SEEG recording into a ``(channels, samples)`` array. |
-| ``load_patient_dataset(patient, root_path)`` | Return a dictionary of ``phase -> PatientRecording`` objects. |
-| ``build_correlation_network(timeseries, threshold=...)`` | Produce a processed correlation matrix. |
-| ``build_band_correlation_matrices(data_ts, fs)`` | Compute per-band correlation matrices with automatic threshold selection. |
-| ``compute_band_connectivity(patient, phase, band, dataset_root)`` | Convenience wrapper that ties together loading, filtering and threshold selection. |
-
-Refer to the in-code docstrings for full parameter documentation.
+---
 
 ## Plotting utilities
 
-The :mod:`lrg_eegfc.plotting` module contains the functions that back the CLI
-plots (`plot_correlation_matrix`, `plot_entropy`, `plot_dendrogram`,
-`plot_graph`).  They accept plain ``pathlib.Path`` destinations so they can be
-used interactively inside notebooks.
+Activate the project mplstyle at the top of every figure script:
 
-## Developer guide
+```python
+from lrg_eegfc.visuals.styles import use_lrg_style
+use_lrg_style()
+```
 
-* New code must include type hints and informative docstrings.
-* Keep imports explicit – wildcard imports are intentionally avoided.
-* The ``docs/`` directory contains extended documentation for architecture and
-  contribution guidelines.
-* Use ``pip install -e .[dev]`` to bring in the linting and formatting tools.
+Canonical colorbar helper (single-imshow axes only — for row-shared
+colorbars keep the explicit `make_axes_locatable` /
+`fig.add_axes([...])` pattern):
 
-Issues and pull requests are welcome!  Please open an issue with a reproducible
-example when reporting bugs.
+```python
+from lrg_eegfc.visuals import imshow_colorbar_caxdivider
+```
+
+Per-class templates live under
+[`.agents/guides/05_plotting/`](.agents/guides/05_plotting/README.md)
+(FC matrices, dendrograms, network drawings, etc.). Eight enforced
+rules at a glance: figure-level legends, canonical colorbar, no
+`fig.suptitle` on publication figures, PDF-only output, no
+`set_rasterized(True)`, no default watermark, math axis labels (`$i$`,
+`$j$`, not "contact" / "channel"), `use_lrg_style()` activated.
+
+---
+
+## Agent + developer guide
+
+The `.agents/` tree is the source of truth for project state, era
+tracking, scope reports, plans, preprint writing, and per-day diary
+entries. New contributors should read:
+
+- [`.agents/START_HERE.md`](.agents/START_HERE.md) — current state,
+  central numerical results, where to begin per role.
+- [`.agents/era-map.md`](.agents/era-map.md) — era landmarks +
+  what-invalidated-what.
+- [`CLAUDE.md`](CLAUDE.md) (mirrored in `AGENTS.md`) — locked project
+  rules (renormalization style, terminology, library-first, never /
+  always lists).
+- [`.agents/guides/04_rules/never-always-list.md`](.agents/guides/04_rules/never-always-list.md)
+  — the single source of truth for enforced preferences.
+
+Developer-facing entry points:
+
+- [`docs/overview.md`](docs/overview.md) — architecture.
+- [`docs/developer-guide.md`](docs/developer-guide.md) — dev workflow.
+- `tests/` — pytest suite. Run `pytest tests/ -q`.
+
+The repository is licensed under **GPL-3.0-or-later**
+(see [`LICENSE`](LICENSE)).

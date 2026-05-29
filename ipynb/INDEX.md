@@ -7,9 +7,9 @@ All notebooks are listed here with a stable ID. Use this index to track consolid
 | ID | Path | Status | Summary |
 | --- | --- | --- | --- |
 | NB-001 | `ipynb/01_preprocessing/time_windows_analysis.ipynb` | active | Time window sensitivity checks for SEEG data. |
-| NB-002 | `ipynb/02_fc_msc/01_build_corr_networks_singlepat.ipynb` | active | Dev notebook to build correlation FC matrices for a single patient. |
-| NB-003 | `ipynb/02_fc_msc/02_build_msc_networks_singlepat.ipynb` | active | Dev notebook to build MSC FC matrices for a single patient. |
-| NB-004 | `ipynb/02_fc_msc/03_coherence_fc.ipynb` | active | MSC/Coherence functional connectivity tutorial. |
+| NB-002 | `ipynb/90_archive/2026-04_fc_msc_era/02_fc_msc/01_build_corr_networks_singlepat.ipynb` | archived | Dev notebook to build correlation FC matrices (archived 2026-05-28; MSC era). |
+| NB-003 | `ipynb/90_archive/2026-04_fc_msc_era/02_fc_msc/02_build_msc_networks_singlepat.ipynb` | archived | Dev notebook to build MSC FC matrices (archived 2026-05-28; MSC era). |
+| NB-004 | `ipynb/90_archive/2026-04_fc_msc_era/02_fc_msc/03_coherence_fc.ipynb` | archived | MSC/Coherence FC tutorial (archived 2026-05-28; superseded by imcoh_abs era). |
 | NB-005 | `ipynb/04_reorganization/distance_measures_comparison.ipynb` | active | Compare distance measures for reorganization analyses. |
 | NB-041 | `ipynb/04_reorganization/01_distance_metrics_singlepat.ipynb` | active | Single-patient reorganization metrics (phase distance matrices). |
 | NB-042 | `ipynb/04_reorganization/02_distance_metrics_crosspat.ipynb` | active | Cross-patient metric ranking and consistency checks. |
@@ -23,8 +23,8 @@ All notebooks are listed here with a stable ID. Use this index to track consolid
 | NB-047 | `ipynb/05_figures/05_band_pca_exploration.ipynb` | active | Optional: band PCA exploration (single patient). |
 | NB-048 | `ipynb/05_figures/06_poster_layouts.ipynb` | active | Poster layout scaffold combining figures. |
 | NB-049 | `ipynb/05_figures/07_single_patient_experiments.ipynb` | active | Single-patient sandbox for cached FC checks. |
-| NB-050 | `ipynb/02_fc_msc/04_msc_dense_vs_validated_singlepat.ipynb` | active | Dense vs validated MSC comparison (single patient). |
-| NB-051 | `ipynb/02_fc_msc/05_msc_vs_corr_singlepat.ipynb` | active | MSC vs correlation comparison (single patient). |
+| NB-050 | `ipynb/90_archive/2026-04_fc_msc_era/02_fc_msc/04_msc_dense_vs_validated_singlepat.ipynb` | archived | Dense vs validated MSC comparison (archived 2026-05-28; MSC era). |
+| NB-051 | `ipynb/90_archive/2026-04_fc_msc_era/02_fc_msc/05_msc_vs_corr_singlepat.ipynb` | archived | MSC vs correlation comparison (archived 2026-05-28; MSC era). |
 | NB-052 | `ipynb/00_intake/02_data_reader_singlepat.ipynb` | active | Data reader walkthrough (single patient). |
 | NB-053 | `ipynb/01_preprocessing/02_time_window_split_singlepat.ipynb` | active | Time-window split setup (single patient). |
 | NB-054 | `ipynb/01_preprocessing/03_time_window_corr_singlepat.ipynb` | active | Correlation matrices across time windows (single patient). |
@@ -36,6 +36,15 @@ All notebooks are listed here with a stable ID. Use this index to track consolid
 | NB-060 | `ipynb/dev/02_graph_sandbox.ipynb` | active | Graph sandbox for thresholding + entropy sanity checks. |
 | NB-061 | `ipynb/05_figures/02_msc_network_singlepat.ipynb` | active | Figure B: MSC network + FC matrix (single patient). |
 | NB-062 | `ipynb/05_figures/06_spatial_embedding_singlepat.ipynb` | active | Figure U: spatial embedding with cluster coloring (single patient). |
+| NB-063 | `ipynb/05_figures/10_spatial_network_3d.ipynb` | active | 3D spatial network (Plotly) per patient. |
+| NB-064 | `ipynb/05_figures/11_spatial_cluster_comparison.ipynb` | active | Cross-phase spatial cluster comparison panels. |
+| NB-065 | `ipynb/06_presentation_figures/01_msc_matrices_per_band.ipynb` | active | Presentation: per-band MSC matrices (legacy MSC era; revisit). |
+| NB-066 | `ipynb/06_presentation_figures/02_msc_validation_comparison.ipynb` | active | Presentation: MSC dense-vs-validated comparison. |
+| NB-067 | `ipynb/06_presentation_figures/03_lrg_framework_panels.ipynb` | active | Presentation: LRG framework panels (methods schematic). |
+| NB-068 | `ipynb/06_presentation_figures/04_cross_phase_comparison.ipynb` | active | Presentation: cross-phase comparison summary. |
+| NB-069 | `ipynb/06_presentation_figures/05_metastable_sankey.ipynb` | active | Presentation: metastable Sankey for cluster transitions. |
+| NB-070 | `ipynb/06_presentation_figures/06_spatial_lrg_implant.ipynb` | active | Presentation: spatial LRG + implant overlay. |
+| NB-071 | `ipynb/06_presentation_figures/07_fc_section_figures.ipynb` | active | Presentation: FC section composite figures. |
 | NB-006 | `ipynb/90_archive/.old_reviewed/DSTCMP_all_distance_measures.ipynb` | merge | Distance-of-distances (all measures) -> Stage-04 merge. |
 | NB-007 | `ipynb/90_archive/.old_reviewed/DSTCMP_permutation_robust.ipynb` | merge | Permutation-robust ultrametric distances -> Stage-04 merge. |
 | NB-008 | `ipynb/90_archive/.old_reviewed/FIGMNTGN01.ipynb` | merge | Figure prototype (dendrogram/entropy/PSI) -> Stage-03/05. |
