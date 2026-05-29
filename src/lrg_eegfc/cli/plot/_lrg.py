@@ -68,9 +68,9 @@ def lrg(ctx, patient, band, bands, phase, phases, fc_method, plot_type,
     from lrg_eegfc.visuals.lrg import (
         plot_lrg_dendrogram,
         plot_lrg_entropy_curves,
-        plot_lrg_full_panel,
         plot_ultrametric_heatmap,
     )
+    from lrg_eegfc.visuals.lrg_panels import plot_lrg_full_panel
 
     rpt = CliReporter.from_context(ctx, verbose=verbose)
     band_list = resolve_bands(bands, band)
