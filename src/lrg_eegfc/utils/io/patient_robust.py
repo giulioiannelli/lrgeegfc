@@ -24,14 +24,13 @@ __all__ = ["PatientRecording", "load_timeseries_robust", "load_patient_dataset_r
 
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class PatientRecording:
-    """Container for a patient's recording data and metadata."""
-
-    timeseries: np.ndarray
-    parameters: Dict[str, object]
-    channel_metadata: Optional[pd.DataFrame]
+# 2026-05-28 unification: ``PatientRecording`` is canonical in
+# ``lrg_eegfc.utils.io.patient`` (this module previously redefined an
+# identical dataclass). Re-exported here for backwards-compat with any
+# caller that did ``from lrg_eegfc.utils.io.patient_robust import
+# PatientRecording`` — but the canonical import is from
+# ``lrg_eegfc.utils.io.patient``.
+from .patient import PatientRecording  # noqa: F401
 
 
 def _try_load_mat_scipy(mat_path: Path) -> Optional[Mapping]:

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+from lrgsglib.plotlib.colorbars import imshow_colorbar_caxdivider
 from lrgsglib.utils.basic.probability import marchenko_pastur
 from lrgsglib.nx_patches.funcs.thresholding import compute_threshold_stats
 
@@ -20,17 +21,6 @@ from lrg_eegfc.workflow.corr import compute_corr_matrix, get_corr_cache_path, lo
 from lrg_eegfc.workflow.cleaning import load_cleaned_corr_matrix
 from lrg_eegfc.utils.io import load_patient_metadata
 from lrg_eegfc.utils.fc.corr.thresholds import find_exact_detachment_threshold, find_threshold_jumps
-
-
-def imshow_colorbar_caxdivider(im, ax, position='right', orientation='vertical', size='5%', pad=0.05):
-    """Add colorbar to imshow plot using axes divider.
-
-    Pattern from: lrgsglib plotting utilities
-    """
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes(position, size=size, pad=pad)
-    clb = plt.colorbar(im, cax=cax, orientation=orientation)
-    return divider, cax, clb
 
 
 def _load_or_compute_corr(

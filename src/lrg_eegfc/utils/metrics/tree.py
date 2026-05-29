@@ -26,7 +26,41 @@ __all__ = [
     "cluster_size_stats",
     "partition_vi_on_subset",
     "induced_linkage",
+    "cophenet_matrix",
 ]
+
+
+def cophenet_matrix(Z: np.ndarray, condensed: bool = False) -> np.ndarray:
+    """Cophenetic distance matrix from a scipy linkage matrix.
+
+    The squareform(cophenet(Z)) pattern is re-rolled in audit_48 / audit_54 /
+    audit_71 and in every script that needs the dendrogram-derived
+    ultrametric. Promoted 2026-05-28.
+
+    Parameters
+    ----------
+    Z : np.ndarray, shape (n-1, 4)
+        Linkage matrix.
+    condensed : bool, default False
+        If False (default), return the full ``(n, n)`` symmetric matrix
+        with zero diagonal. If True, return the condensed 1D vector of
+        length ``n * (n - 1) / 2`` in the scipy.spatial.distance convention.
+
+    Returns
+    -------
+    np.ndarray
+        Cophenetic distances. Note: ``cophenet(Z)`` from scipy can
+        return either a vector or a (correlation, vector) tuple
+        depending on whether ``Y`` is passed; this helper always passes
+        ``Z`` alone, so the result is unambiguously the distance vector.
+    """
+    coph = cophenet(Z)
+    if isinstance(coph, tuple):
+        coph = coph[1]
+    coph = np.asarray(coph, dtype=float)
+    if condensed:
+        return coph
+    return squareform(coph)
 
 
 def induced_linkage(Z: np.ndarray, leaf_indices: Sequence[int],

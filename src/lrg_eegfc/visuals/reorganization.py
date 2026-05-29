@@ -405,13 +405,8 @@ def plot_phase_reorganization(
     cax = divider.append_axes("bottom", size="6%", pad=0.4)
     plt.colorbar(im_corr, cax=cax, orientation="horizontal", label="Correlation")
 
-    # Overall title
-    fig.suptitle(
-        f"Phase Reorganization Analysis - {patient} {band} ({fc_method})",
-        fontsize=18,
-        fontweight="bold",
-        y=0.98,
-    )
+    # No fig.suptitle on publication figures; identifying metadata
+    # lives in the file name.
 
     # Generate output path if not provided
     if output_path is None:
@@ -636,11 +631,8 @@ def plot_reorganization_distance_matrix(
                 )
         fig.colorbar(im, ax=axes[idx], fraction=0.046, pad=0.04)
 
-    fig.suptitle(
-        f"Phase-to-Phase Distance Matrix - {patient} {band} ({fc_method})",
-        fontsize=18,
-        fontweight="bold",
-    )
+    # No fig.suptitle on publication figures; identifying metadata
+    # lives in the file name.
     fig.tight_layout(rect=[0, 0, 1, 0.97])
 
     # Generate output path if not provided

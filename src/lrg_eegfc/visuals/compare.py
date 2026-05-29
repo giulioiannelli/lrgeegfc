@@ -177,7 +177,7 @@ def plot_fc_comparison(
 
     # Build figure
     fig, axes = plt.subplots(1, 3, figsize=figsize)
-    fig.suptitle(f"{patient} {phase} {band.upper()} - FC Method Comparison", fontsize=14, fontweight='bold')
+    # No fig.suptitle on publication figures; context goes in file name.
 
     # Panel 0: Correlation (abs)
     ax0 = axes[0]

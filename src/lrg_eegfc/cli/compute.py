@@ -216,7 +216,7 @@ def msc(ctx, patients, bands, band, phases, phase, cache_root, overwrite,
 @compute.command()
 @patient_options()
 @band_phase_options()
-@fc_method_option(default="msc")
+@fc_method_option(default="imcoh_abs")
 @cache_options(str(LRG_CACHE))
 @filter_time_option()
 @click.option("--fc-cache-root", type=click.Path(path_type=Path), default=None,
@@ -360,7 +360,7 @@ def clean(ctx, patients, bands, band, phases, phase, corr_cache_root,
 @compute.command("time-windows")
 @patient_options()
 @band_phase_options()
-@fc_method_option(default="msc")
+@fc_method_option(default="imcoh_abs")
 @cache_options(str(MSC_WINDOWS_CACHE))
 @filter_time_option()
 @click.option("--window-sec", type=float, default=None,
@@ -458,7 +458,7 @@ def time_windows(ctx, patients, bands, band, phases, phase, fc_method,
 @compute.command("reorganization")
 @patient_options()
 @band_phase_options()
-@fc_method_option(default="msc")
+@fc_method_option(default="imcoh_abs")
 @click.option("--lrg-cache-root", type=click.Path(path_type=Path),
               default=LRG_CACHE, show_default=True)
 @click.option("--output-root", type=click.Path(path_type=Path),

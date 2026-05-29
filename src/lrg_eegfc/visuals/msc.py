@@ -344,12 +344,8 @@ def plot_msc_comparison_dense_vs_validated(
     ax[2].set_title(f"Removed by Validation", fontsize=12)
     ax[2].axis("off")
 
-    # Overall title
-    fig.suptitle(
-        f"{patient} - {band} {phase} - MSC Comparison (n_surr={n_surrogates})",
-        fontsize=14,
-        y=0.98,
-    )
+    # No fig.suptitle on publication figures; identifying metadata
+    # (patient, band, phase, n_surrogates) lives in the file name.
 
     # Generate output path if not provided
     if output_path is None:
@@ -572,13 +568,8 @@ def plot_msc_summary(
     # =========================================================================
     # Overall Title and Layout
     # =========================================================================
-    fig.suptitle(
-        f"{patient} - MSC Summary - {band.upper()} {phase}",
-        fontsize=14,
-        fontweight="bold",
-        y=0.98,
-    )
-
+    # No fig.suptitle on publication figures; identifying metadata
+    # lives in the file name.
     plt.tight_layout(rect=[0, 0, 1, 0.96])
 
     # Generate output path if not provided

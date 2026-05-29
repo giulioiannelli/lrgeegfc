@@ -27,6 +27,8 @@ __all__ = [
     "load_epileptic_nodes",
     "bipolar_rereference",
     "parse_seeg_label",
+    "PatientMasks",
+    "build_epi_masks",
 ]
 
 
@@ -450,3 +452,77 @@ def load_epileptic_nodes(
                 red_labels.append(str(cell.value).strip())
 
     return red_labels
+
+
+# ---------------------------------------------------------------------------
+# Epi-zone masks
+# ---------------------------------------------------------------------------
+
+@dataclass
+class PatientMasks:
+    """Per-patient channel-level masks for epi-zone-stratified analyses.
+
+    Attributes
+    ----------
+    patient
+        Patient identifier (e.g. ``"Pat_02"``).
+    channels
+        Cleaned channel labels in FC-matrix order (same as
+        :func:`load_channel_labels`).
+    epi_mask
+        ``(N,)`` boolean array; True at channels marked epileptic in the
+        implant Excel (red-coloured cells via :func:`load_epileptic_nodes`).
+    probes
+        ``(N,)`` object array; each entry is the alphabetic probe prefix
+        of the channel label (e.g. ``"A"``, ``"H'"``). Used to stratify
+        pair masks into same-probe vs cross-probe contrasts.
+    """
+
+    patient: str
+    channels: list[str]
+    epi_mask: np.ndarray
+    probes: np.ndarray
+
+
+def _probe_of(label: str) -> str:
+    """Alphabetic prefix of a channel label (probe identifier)."""
+    import re
+
+    m = re.match(r"([A-Za-z]+'?)", label)
+    return m.group(1) if m else label
+
+
+def build_epi_masks(
+    patient: str,
+    root_path: Path | str = SEEG_DATAPATH,
+) -> PatientMasks:
+    """Assemble per-patient channel labels + epi-mask + probe vector.
+
+    Promoted 2026-05-28. Replaces the private ``_build_masks`` pattern
+    in audit_48 / audit_54 / audit_68 / audit_71 — each of which loaded
+    channel labels, called ``load_epileptic_nodes``, did a set
+    membership check, and ran the probe-prefix regex.
+
+    Audit_71 (commit e97d249) caught a subtle bug in some earlier copies
+    that used ``np.isin(int, str)`` on the wrong dtype and silently
+    returned an all-False mask. This canonical version uses set
+    membership on string labels, matching the audit_68 / audit_71-fixed
+    pattern. See ``audit_epi_mask_pattern`` memory.
+
+    Parameters
+    ----------
+    patient
+        Patient identifier (e.g. ``"Pat_02"``).
+    root_path
+        Root directory containing patient folders. Defaults to
+        ``SEEG_DATAPATH``.
+
+    Returns
+    -------
+    PatientMasks
+    """
+    channels = load_channel_labels(patient, root_path=root_path)
+    epi_set = set(load_epileptic_nodes(patient, root_path=root_path))
+    epi_mask = np.array([c in epi_set for c in channels], dtype=bool)
+    probes = np.array([_probe_of(c) for c in channels], dtype=object)
+    return PatientMasks(patient=patient, channels=channels, epi_mask=epi_mask, probes=probes)

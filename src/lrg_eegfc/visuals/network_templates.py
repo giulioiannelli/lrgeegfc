@@ -65,6 +65,50 @@ from lrg_eegfc.utils.probe import extract_probe_labels
 from lrg_eegfc.workflow.fc import load_fc_matrix
 from lrg_eegfc.workflow.lrg import load_lrg_result
 
+# Layout + chord helpers moved out on 2026-05-29 (Phase 4-B split 7/7).
+# Imported at module top so functions in this file can use them as default
+# argument values (``DEFAULT_GALLERY``, etc.) at definition time. A full
+# re-export block at the bottom of this file extends backwards compatibility
+# to the rest of the symbol surface.
+from .network_layouts import (
+    compute_layout,
+    DEFAULT_GALLERY,
+    is_lrg_layout,
+    LAYOUT_REGISTRY,
+    layout_arf,
+    layout_backbone_guided,
+    layout_circular_by_shaft,
+    layout_community_grouped,
+    layout_kk,
+    layout_laplacian_pca,
+    layout_lrg_kk,
+    layout_lrg_sfdp,
+    layout_sfdp,
+    layout_spectral,
+    layout_spring,
+)
+from .network_chord import (
+    DENDROGRAM_DEFAULT_COLOR,
+    DENDROGRAM_DEFAULT_LW,
+    DENDROGRAM_R_INNER,
+    DENDROGRAM_R_OUTER,
+    HIERARCHY_BG_ALPHA,
+    HIERARCHY_BG_PEN,
+    HIERARCHY_BG_RGB,
+    HIERARCHY_DEFAULT_BETA,
+    HIERARCHY_DEFAULT_FIT_VIEW,
+    HIERARCHY_DEFAULT_K_CLUSTERS,
+    HIERARCHY_DEFAULT_RENDER_PX,
+    HIERARCHY_R_CLUSTER,
+    HIERARCHY_R_OUTER,
+    build_chord_depth2_layout,
+    draw_circular_dendrogram_overlay,
+    draw_radial_leaf_labels,
+    plot_chord_with_dendrogram,
+    plot_chord_with_highlight,
+    render_hierarchy_chord,
+)
+
 
 __all__ = [
     # Constants
@@ -116,6 +160,30 @@ __all__ = [
     "plot_fc_network_grid",
     "plot_fc_network_lrg",
     "plot_layout_gallery",
+    # Hierarchy-bundled chord (graph-tool curvy edges through LRG)
+    "HIERARCHY_DEFAULT_K_CLUSTERS",
+    "HIERARCHY_DEFAULT_BETA",
+    "HIERARCHY_DEFAULT_RENDER_PX",
+    "HIERARCHY_DEFAULT_FIT_VIEW",
+    "HIERARCHY_R_OUTER",
+    "HIERARCHY_R_CLUSTER",
+    "HIERARCHY_BG_RGB",
+    "HIERARCHY_BG_ALPHA",
+    "HIERARCHY_BG_PEN",
+    "DENDROGRAM_DEFAULT_COLOR",
+    "DENDROGRAM_DEFAULT_LW",
+    "DENDROGRAM_R_OUTER",
+    "DENDROGRAM_R_INNER",
+    "build_chord_depth2_layout",
+    "render_hierarchy_chord",
+    "draw_circular_dendrogram_overlay",
+    "draw_radial_leaf_labels",
+    "plot_chord_with_dendrogram",
+    "plot_chord_with_highlight",
+    # Matrix + network (cmap-linked)
+    "spring_auto_k",
+    "plot_fc_matrix_and_network",
+    "plot_fc_matrix_and_network_rows",
 ]
 
 
@@ -141,7 +209,7 @@ DEFAULT_COLORING: str = "probe"
 MAGNITUDE_FC_METHODS: Tuple[str, ...] = ("imcoh_abs", "imcoh_sq", "msc")
 SIGNED_FC_METHODS: Tuple[str, ...] = ("corr", "imcoh")
 
-ColoringMode = Literal["probe", "signed", "weight", "shaft"]
+ColoringMode = Literal["probe", "signed", "weight", "shaft", "cmap"]
 NodeColorMode = Literal["shaft", "community", "uniform"]
 
 
@@ -278,354 +346,6 @@ def top_k_backbone(A: NDArray, keep_frac: float = 0.05) -> NDArray:
 
 
 # ---------------------------------------------------------------------------
-# Layouts — return (N, 2) np.ndarray.  Pure: no drawing, no side
-# effects on inputs.
-# ---------------------------------------------------------------------------
-
-def _build_graph_with_distance(A: NDArray) -> nx.Graph:
-    G = nx.from_numpy_array(np.asarray(A))
-    for _, _, d in G.edges(data=True):
-        w = d.get("weight", 1.0)
-        d["distance"] = 1.0 / (w + 1e-6)
-    return G
-
-
-def layout_spring(
-    A: NDArray,
-    *,
-    k: Optional[float] = None,
-    k_base: float = 5.0,
-    iterations: int = 600,
-    seed: int = 42,
-) -> NDArray:
-    """Fruchterman–Reingold (NetworkX ``spring_layout``).
-
-    Pass ``k`` (raw spring constant, fed to ``nx.spring_layout``
-    verbatim) for direct control.  When ``k`` is ``None`` (default) the
-    canonical dense-graph tuning ``k_base / √N`` is used instead.
-    Stochastic; set ``seed`` for reproducibility.
-    """
-    A = np.asarray(A)
-    N = A.shape[0]
-    G = nx.from_numpy_array(A)
-    k_eff = k if k is not None else k_base / np.sqrt(N)
-    pos = nx.spring_layout(
-        G, k=k_eff, iterations=iterations,
-        seed=seed, weight="weight",
-    )
-    return np.array([pos[i] for i in range(N)])
-
-
-def layout_kk(A: NDArray) -> NDArray:
-    """Kamada–Kawai with ``distance = 1 / weight``.  Deterministic."""
-    A = np.asarray(A)
-    N = A.shape[0]
-    G = _build_graph_with_distance(A)
-    pos = nx.kamada_kawai_layout(G, weight="distance")
-    return np.array([pos[i] for i in range(N)])
-
-
-def layout_spectral(A: NDArray) -> NDArray:
-    """Project onto Laplacian eigenvectors λ₂, λ₃.  Deterministic.
-
-    Falls flat for nearly-fully-connected uniform-weight networks
-    (no clear bipartition); use :func:`layout_laplacian_pca` for a
-    richer projection in that regime.
-    """
-    A = np.asarray(A)
-    D = np.diag(A.sum(axis=1))
-    L = D - A
-    _, eigvecs = np.linalg.eigh(L)
-    coords = eigvecs[:, 1:3]
-    coords = coords - coords.min(axis=0)
-    denom = coords.max(axis=0) + 1e-12
-    return coords / denom
-
-
-def layout_laplacian_pca(A: NDArray, n_components: int = 2) -> NDArray:
-    """First five non-trivial Laplacian eigenvectors → 2-D PCA.
-    Deterministic.  Captures multiscale structure invisible to the
-    pure (λ₂, λ₃) projection.
-    """
-    A = np.asarray(A)
-    D = np.diag(A.sum(axis=1))
-    L = D - A
-    _, eigvecs = np.linalg.eigh(L)
-    emb = eigvecs[:, 1:6]
-    emb_centered = emb - emb.mean(axis=0)
-    U, S, _ = np.linalg.svd(emb_centered, full_matrices=False)
-    coords = U[:, :n_components] * S[:n_components]
-    coords = coords - coords.min(axis=0)
-    denom = coords.max(axis=0) + 1e-12
-    return coords / denom
-
-
-def layout_circular_by_shaft(probes: Sequence[str]) -> NDArray:
-    """Nodes on a unit circle, sorted by electrode probe.
-
-    Deterministic baseline.  Use to rule out probe-trivial modules:
-    if the same module structure appears here, it isn't real geometry.
-    """
-    N = len(probes)
-    uniq = sorted(set(probes))
-    probe_to_idx = {p: i for i, p in enumerate(uniq)}
-    order = np.argsort([probe_to_idx[p] * 100000 + i for i, p in enumerate(probes)])
-    theta = np.linspace(0, 2 * np.pi, N, endpoint=False)
-    coords = np.column_stack([np.cos(theta), np.sin(theta)])
-    inverse = np.empty(N, dtype=int)
-    inverse[order] = np.arange(N)
-    return coords[inverse]
-
-
-def layout_community_grouped(
-    A: NDArray,
-    *,
-    seed: int = 42,
-    R_out: float = 3.0,
-) -> NDArray:
-    """Louvain communities on an outer ring; sub-spring within each.
-
-    Reads communities from ``A`` directly (Louvain on the weighted
-    graph).  Sub-spring is stochastic; pin ``seed`` for reproducibility.
-    """
-    A = np.asarray(A)
-    N = A.shape[0]
-    G = nx.from_numpy_array(A)
-    try:
-        import networkx.algorithms.community as nx_comm
-        communities = list(
-            nx_comm.louvain_communities(
-                G, weight="weight", seed=seed, resolution=1.0,
-            )
-        )
-    except Exception:
-        communities = [set(range(N))]
-
-    K = len(communities)
-    coords = np.zeros((N, 2))
-    for ci, nodes in enumerate(communities):
-        theta_c = 2 * np.pi * ci / max(K, 1)
-        center = np.array([R_out * np.cos(theta_c), R_out * np.sin(theta_c)])
-        nodes = sorted(nodes)
-        nn = len(nodes)
-        if nn == 1:
-            coords[nodes[0]] = center
-            continue
-        sub = A[np.ix_(nodes, nodes)]
-        sub_G = nx.from_numpy_array(sub)
-        sub_pos = nx.spring_layout(
-            sub_G, k=1.5 / np.sqrt(nn),
-            iterations=200, seed=seed, weight="weight",
-        )
-        local = np.array([sub_pos[i] for i in range(nn)])
-        span = np.abs(local).max() + 1e-9
-        local = local / span
-        for idx, node in enumerate(nodes):
-            coords[node] = center + local[idx]
-    return coords
-
-
-def layout_backbone_guided(
-    A: NDArray,
-    *,
-    alpha: float = 0.05,
-    iterations: int = 400,
-    seed: int = 42,
-) -> NDArray:
-    """Lay out the disparity-filter backbone; full graph drawn on top.
-
-    The layout sees only the statistically-significant subset (Serrano
-    et al. 2009) so modules emerge; the caller still draws every
-    edge of ``A``.
-    """
-    B = disparity_filter(np.abs(A), alpha=alpha)
-    N = A.shape[0]
-    G_back = nx.from_numpy_array(B)
-    pos = nx.spring_layout(
-        G_back, k=2.0 / np.sqrt(N),
-        iterations=iterations, seed=seed, weight="weight",
-    )
-    return np.array([pos[i] for i in range(N)])
-
-
-def layout_lrg_kk(
-    A: NDArray,
-    ultrametric_matrix: NDArray,
-) -> NDArray:
-    """Kamada–Kawai on the LRG ultrametric distance ``T_ρ = 1/ρ̂_ij``.
-
-    The LRG ultrametric is a single mathematical object — it doesn't
-    depend on any community-label cut.  We feed it directly to KK as
-    the pairwise distance the layout should preserve.
-
-    Parameters
-    ----------
-    A
-        FC matrix (only used for shape; layout uses ultrametric).
-    ultrametric_matrix
-        LRG ultrametric distances in scipy *condensed* form (length
-        N·(N−1)/2), as cached on :class:`LRGResult.ultrametric_matrix`.
-
-    Notes
-    -----
-    Modules emerge naturally because the LRG ultrametric clusters
-    nodes that share a high communication probability — there is no
-    need for an artificial inter-cluster distance multiplier.
-    """
-    from scipy.spatial.distance import squareform
-    A = np.asarray(A)
-    N = A.shape[0]
-    expected = N * (N - 1) // 2
-    if ultrametric_matrix.shape[0] != expected:
-        raise ValueError(
-            f"ultrametric_matrix has length {ultrametric_matrix.shape[0]}, "
-            f"expected {expected} for N={N}"
-        )
-    D = squareform(np.asarray(ultrametric_matrix))  # (N, N)
-    G = nx.Graph()
-    G.add_nodes_from(range(N))
-    r, c = np.triu_indices(N, k=1)
-    d_flat = D[r, c]
-    for i, j, d in zip(r, c, d_flat):
-        G.add_edge(int(i), int(j), distance=float(d))
-    pos = nx.kamada_kawai_layout(G, weight="distance")
-    return np.array([pos[i] for i in range(N)])
-
-
-def layout_sfdp(
-    A: NDArray,
-    *,
-    gamma: float = 0.1,
-    mu: float = 0.0,
-    C: float = 0.2,
-    p: float = 2.0,
-    max_iter: int = 0,
-) -> NDArray:
-    """Scalable Force-Directed Placement (graph-tool).  Multilevel,
-    fast on dense graphs (≥ 50× faster than NetworkX on N=115).
-    """
-    import graph_tool.all as gt
-    g, ew = matrix_to_gt(np.abs(A))
-    pos = gt.sfdp_layout(
-        g, eweight=ew, gamma=gamma, mu=mu, C=C, p=p, max_iter=max_iter,
-    )
-    return np.array([list(pos[v]) for v in range(A.shape[0])], dtype=float)
-
-
-def layout_arf(A: NDArray, *, d: float = 0.5, a: float = 10.0) -> NDArray:
-    """Attractive-Repulsive Force layout (Geipel 2007, graph-tool).
-    Robust on very dense graphs.  Deterministic post-init.
-    """
-    import graph_tool.all as gt
-    g, ew = matrix_to_gt(np.abs(A))
-    pos = gt.arf_layout(g, weight=ew, d=d, a=a)
-    return np.array([list(pos[v]) for v in range(A.shape[0])], dtype=float)
-
-
-def layout_lrg_sfdp(
-    A: NDArray,
-    community_labels: Sequence[int],
-    *,
-    gamma: float = 0.1,
-    mu: float = 0.0,
-    C: float = 0.2,
-    p: float = 2.0,
-    max_iter: int = 0,
-) -> NDArray:
-    """SFDP with ``groups=`` from an LRG dendrogram cut.  graph-tool's
-    SFDP gives same-group vertices an extra attractive force; ``gamma``
-    controls module-separation strength (0.03 → weak, 0.6 → strong).
-    """
-    import graph_tool.all as gt
-    g, ew = matrix_to_gt(np.abs(A))
-    grp = g.new_vertex_property("int")
-    grp.a = np.asarray(community_labels, dtype=int)
-    pos = gt.sfdp_layout(
-        g, eweight=ew, groups=grp,
-        gamma=gamma, mu=mu, C=C, p=p, max_iter=max_iter,
-    )
-    return np.array([list(pos[v]) for v in range(A.shape[0])], dtype=float)
-
-
-# Layout registry — string name → callable.  ``compute_layout`` is the
-# entry point templates use; it dispatches on the name and threads
-# extra kwargs (``probes`` for circular_by_shaft, ``community_labels``
-# for LRG-seeded layouts).
-
-LAYOUT_REGISTRY: Dict[str, Callable] = {
-    "spring": layout_spring,
-    "kk": layout_kk,
-    "spectral": layout_spectral,
-    "laplacian_pca": layout_laplacian_pca,
-    "circular_by_shaft": layout_circular_by_shaft,
-    "community_grouped": layout_community_grouped,
-    "backbone_guided": layout_backbone_guided,
-    "lrg_kk": layout_lrg_kk,
-    "sfdp": layout_sfdp,
-    "arf": layout_arf,
-    "lrg_sfdp": layout_lrg_sfdp,
-}
-
-# Default gallery for ``mosaic_layout_compare``.  Includes one of every
-# family.  LRG-seeded layouts only render when ``community_labels`` is
-# supplied; absent labels they're skipped silently.
-DEFAULT_GALLERY: Tuple[str, ...] = (
-    "spring",
-    "kk",
-    "spectral",
-    "laplacian_pca",
-    "community_grouped",
-    "backbone_guided",
-    "circular_by_shaft",
-    "sfdp",
-    "arf",
-    "lrg_kk",
-    "lrg_sfdp",
-)
-
-
-def is_lrg_layout(name: str) -> bool:
-    return name.startswith("lrg_")
-
-
-def compute_layout(
-    name: str,
-    A: NDArray,
-    *,
-    probes: Optional[Sequence[str]] = None,
-    community_labels: Optional[Sequence[int]] = None,
-    ultrametric_matrix: Optional[NDArray] = None,
-    **kwargs,
-) -> NDArray:
-    """Dispatch layout by name; thread the right extra args.
-
-    - ``circular_by_shaft`` consumes ``probes``
-    - ``lrg_kk`` consumes ``ultrametric_matrix`` (LRG ultrametric ``T_ρ``,
-      condensed) — does NOT need community_labels
-    - ``lrg_sfdp`` consumes ``community_labels`` (cut of the LRG dendrogram)
-    - Other layouts take only ``A`` plus layout-specific kwargs.
-    """
-    if name not in LAYOUT_REGISTRY:
-        raise ValueError(f"Unknown layout {name!r}; choose from {list(LAYOUT_REGISTRY)}")
-    fn = LAYOUT_REGISTRY[name]
-    if name == "circular_by_shaft":
-        if probes is None:
-            raise ValueError("circular_by_shaft requires probes=")
-        return fn(probes, **kwargs)
-    if name == "lrg_kk":
-        if ultrametric_matrix is None:
-            raise ValueError(
-                "lrg_kk requires ultrametric_matrix= (condensed T_ρ from LRGResult)"
-            )
-        return fn(A, ultrametric_matrix, **kwargs)
-    if name == "lrg_sfdp":
-        if community_labels is None:
-            raise ValueError("lrg_sfdp requires community_labels=")
-        return fn(A, community_labels, **kwargs)
-    return fn(A, **kwargs)
-
-
-# ---------------------------------------------------------------------------
 # Edge renderer
 # ---------------------------------------------------------------------------
 
@@ -645,6 +365,8 @@ def draw_gamma_edges(
     same_probe_alpha: float = 0.9,
     signed_cmap: str = SIGNED_CMAP,
     signed_vrange: Optional[Tuple[float, float]] = None,
+    cmap: Optional[object] = None,
+    norm: Optional[object] = None,
     zorder: int = 1,
     min_alpha: float = 0.0,
 ) -> Optional["LineCollection"]:
@@ -673,9 +395,15 @@ def draw_gamma_edges(
       symmetric ``(-|w|_max, |w|_max)``.
     - ``"weight"`` — sequential gray scale by ``|w|``; no probe
       info.  Used for cohort comparisons where probe geometry differs.
+    - ``"cmap"`` — arbitrary ``cmap + norm`` on ``|w|``.  The canonical
+      "matrix-attached" coloring: pass the same ``cmap`` and ``norm``
+      used by the partner ``imshow`` so the matrix and network share
+      the colour scale.  Requires ``cmap=`` (string or
+      ``matplotlib.colors.Colormap``); ``norm=`` falls back to
+      :class:`matplotlib.colors.Normalize(vmin=0, vmax=|w|_max)`.
 
     Returns the ``LineCollection`` (so callers can attach a colorbar
-    when ``coloring="signed"``).  ``None`` if no edges to draw.
+    when ``coloring="signed"`` or ``"cmap"``).  ``None`` if no edges to draw.
 
     NEVER passes ``rasterized=True`` — vector PDFs handle ~6.5k thin
     lines fine and the project rule is "no rasterization".
@@ -846,14 +574,33 @@ def draw_gamma_edges(
             colors.append((rgba[0], rgba[1], rgba[2], float(alphas[oi])))
 
     elif coloring == "weight":
-        cmap = plt.get_cmap("Greys")
+        cmap_w = plt.get_cmap("Greys")
         for oi in order:
             idx = active[oi]
             i, j = int(r[idx]), int(c[idx])
             segments.append([pos[i], pos[j]])
             linew.append(float(widths[oi]))
-            rgba = cmap(t[oi] * 0.7 + 0.3)  # avoid pure white
+            rgba = cmap_w(t[oi] * 0.7 + 0.3)  # avoid pure white
             colors.append((rgba[0], rgba[1], rgba[2], float(alphas[oi])))
+
+    elif coloring == "cmap":
+        if cmap is None:
+            raise ValueError(
+                "coloring='cmap' requires cmap= (string or "
+                "matplotlib.colors.Colormap)"
+            )
+        from matplotlib.colors import Colormap, Normalize
+        cmap_obj = cmap if isinstance(cmap, Colormap) else plt.get_cmap(cmap)
+        if norm is None:
+            norm = Normalize(vmin=0.0, vmax=float(w_act_abs.max()))
+        for oi in order:
+            idx = active[oi]
+            i, j = int(r[idx]), int(c[idx])
+            segments.append([pos[i], pos[j]])
+            linew.append(float(widths[oi]))
+            rgba = cmap_obj(norm(w_act_abs[oi]))
+            colors.append((rgba[0], rgba[1], rgba[2], float(alphas[oi])))
+
     else:
         raise ValueError(f"Unknown coloring {coloring!r}")
 
@@ -1290,3 +1037,370 @@ def plot_fc_network_lrg(
     )
     fig.tight_layout()
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Matrix + network (cmap-linked) — Pat_02/fig1_msc_alpha-style figure
+# ---------------------------------------------------------------------------
+#
+# Composes :func:`lrg_eegfc.visuals.fc_templates.plot_fc_adjacency` on
+# the left with a network drawing on the right whose edges are coloured
+# by the SAME ``cmap + norm`` as the imshow.  Reader's eye reads both
+# panels in the same colour language: the dark/bright FC cells map
+# 1-to-1 onto the dark/bright edges.
+#
+# Modular: layout, edge γ-power recipe, coloring mode, backend
+# (NetworkX / graph-tool), and tick-label mode are independent knobs.
+
+def spring_auto_k(
+    N: int,
+    *,
+    scale: Literal["msc_era", "kbase_sqrtN", "fixed", "inv_sqrtN"] = "msc_era",
+    k_base: float = 5.0,
+    k_fixed: float = 0.1,
+) -> float:
+    """Spring ``k`` chooser for dense weighted FC graphs.
+
+    Four rules:
+
+    - ``msc_era`` (default) — **``k = 0.1`` regardless of ``N``**.
+      Matches the legacy ``plot_msc_and_network`` recipe that produced
+      the structured MSC presentation figures
+      (``data/outputs/figures/presentation_figures/Pat_02/fig1_msc_*``).
+      Paired with ``iterations ≈ 50`` (NOT 600) the strong heavy-
+      tailed edges pull tight clusters together before the spring
+      relaxation equilibrates everything to a ball.  This is the
+      load-bearing trick for matrix+network figures on
+      heavy-tailed FC.
+    - ``kbase_sqrtN`` — ``k = k_base / √N`` (FR canonical).  Reads
+      gracefully across N=80–130 with **fully-converged** iterations,
+      but on heavy-tailed dense FC it equilibrates the strong-edge
+      structure into a ball.  Use only when you want a converged
+      layout; combine with ``iterations ≥ 600``.
+    - ``inv_sqrtN`` — ``k = 1 / √N``.  NetworkX's documented default.
+    - ``fixed`` — ``k = k_fixed``.  Use when sweeping ``k`` for a
+      diagnostic.
+
+    Returns the raw ``k`` value to pass to ``layout_spring(k=...)``.
+    """
+    if scale == "msc_era":
+        return 0.1
+    if scale == "kbase_sqrtN":
+        return float(k_base) / float(np.sqrt(N))
+    if scale == "inv_sqrtN":
+        return 1.0 / float(np.sqrt(N))
+    if scale == "fixed":
+        return float(k_fixed)
+    raise ValueError(f"Unknown spring k scale: {scale!r}")
+
+
+def _fc_method_cmap_default(fc_method: Optional[str]) -> str:
+    """Default colormap for the matrix + network panel.
+
+    Magnitude FC (``imcoh_abs``, ``imcoh_sq``, ``msc``) → ``magma``;
+    signed FC (``corr``, ``imcoh``) → ``RdBu_r`` (diverging).
+    """
+    if fc_method in SIGNED_FC_METHODS:
+        return SIGNED_CMAP
+    return "magma"
+
+
+def plot_fc_matrix_and_network(
+    A: NDArray,
+    probes: Sequence[str],
+    *,
+    ax_matrix: plt.Axes,
+    ax_network: plt.Axes,
+    fc_method: Optional[str] = None,
+    band: Optional[str] = None,
+    cmap: Optional[str] = None,
+    vmin: Optional[float] = 0.0,
+    vmax: Optional[float] = None,
+    log_scale: bool = False,
+    tick_labels: Literal["generic", "index", "chnames"] = "generic",
+    channel_labels: Optional[Sequence[str]] = None,
+    matrix_colorbar: bool = True,
+    layout: str = "spring",
+    layout_kwargs: Optional[Dict] = None,
+    pos_override: Optional[NDArray] = None,
+    coloring: ColoringMode = "cmap",
+    node_color: NodeColorMode = "shaft",
+    community_labels: Optional[NDArray] = None,
+    ultrametric_matrix: Optional[NDArray] = None,
+    node_size: int = DEFAULT_NODE_SIZE,
+    network_colorbar: bool = False,
+    gamma: float = 2.0,
+    width_range: Tuple[float, float] = (0.0, 4.0),
+    alpha_range: Tuple[float, float] = (0.0, 1.0),
+    min_alpha: float = 0.0,
+    t_mode: Literal["magnitude", "rank"] = "magnitude",
+    finalize_network: bool = True,
+) -> Dict:
+    """One row of ``(matrix, network)`` with cmap-linked edges.
+
+    The network's edges are coloured by the same ``cmap + norm`` as the
+    matrix imshow when ``coloring="cmap"`` (the default and the figure's
+    whole point).
+
+    Parameters
+    ----------
+    A : ``(N, N)`` FC matrix.
+    probes : per-contact shaft labels.
+    ax_matrix, ax_network : pre-allocated axes the caller owns.
+    fc_method, band : forwarded to ``plot_fc_adjacency`` for the
+        canonical colourbar label.
+    cmap : colormap shared by the matrix and the network edges.  When
+        ``None`` → :func:`_fc_method_cmap_default`.
+    vmin / vmax / log_scale : matrix ``imshow`` controls.  The network
+        edges use the *same* numeric range so the two panels share a
+        colour scale.
+    layout : any name in :data:`LAYOUT_REGISTRY` (``spring``, ``kk``,
+        ``spectral``, ``laplacian_pca``, ``lrg_kk``, ``lrg_sfdp``, …).
+    layout_kwargs : forwarded to the layout function (e.g.
+        ``{"k": 0.4, "iterations": 1000}`` for spring).
+    coloring : one of ``probe / shaft / signed / weight / cmap``.
+        Default ``cmap`` — paint edges by ``cmap(norm(|w|))``, locked
+        to the matrix.
+    node_color : ``shaft / community / uniform``.  Default ``shaft``.
+    network_colorbar : if True, add a colorbar to ``ax_network`` (only
+        useful when ``coloring="cmap"`` and the matrix colorbar is
+        suppressed via ``matrix_colorbar=False``).
+    finalize_network : if True (default), call ``ax_network.axis('off')``
+        and zoom to the layout bbox with a uniform margin.
+
+    Returns
+    -------
+    dict with keys ``pos``, ``im_matrix``, ``cmap``, ``norm``,
+    ``edge_collection``, ``n_edges``, ``n_nodes``.
+    """
+    from matplotlib.colors import LogNorm, Normalize
+
+    from lrg_eegfc.visuals.fc_templates import plot_fc_adjacency
+
+    A = np.asarray(A, dtype=float)
+    N = A.shape[0]
+
+    if cmap is None:
+        cmap = _fc_method_cmap_default(fc_method)
+
+    A_for_imshow = A.copy()
+    np.fill_diagonal(A_for_imshow, 0.0)
+    if vmax is None:
+        vmax = float(np.nanmax(A_for_imshow)) if np.any(np.isfinite(A_for_imshow)) else 1.0
+
+    _, _, im = plot_fc_adjacency(
+        A,
+        ax=ax_matrix,
+        cmap=cmap,
+        vmin=vmin,
+        vmax=vmax,
+        log_scale=log_scale,
+        tick_labels=tick_labels,
+        channel_labels=channel_labels,
+        colorbar=matrix_colorbar,
+        fc_method=fc_method,
+        band=band,
+    )
+
+    # Lock the network's edge norm to the matrix's norm.
+    if log_scale:
+        positives = A_for_imshow[A_for_imshow > 0]
+        log_vmin = float(positives.min()) if positives.size else 1e-6
+        if vmin is not None and vmin > 0:
+            log_vmin = max(log_vmin, float(vmin))
+        norm = LogNorm(vmin=log_vmin, vmax=float(vmax))
+    else:
+        norm = Normalize(vmin=float(vmin or 0.0), vmax=float(vmax))
+
+    if pos_override is not None:
+        pos = np.asarray(pos_override)
+    else:
+        pos = compute_layout(
+            layout, A_for_imshow,
+            probes=probes,
+            community_labels=community_labels,
+            ultrametric_matrix=ultrametric_matrix,
+            **(layout_kwargs or {}),
+        )
+
+    lc = draw_gamma_edges(
+        ax_network, pos, A_for_imshow,
+        coloring=coloring,
+        probes=probes,
+        cmap=cmap,
+        norm=norm,
+        gamma=gamma,
+        width_range=width_range,
+        alpha_range=alpha_range,
+        t_mode=t_mode,
+        min_alpha=min_alpha,
+    )
+
+    nc = _node_color_array(
+        node_color=node_color,
+        probes=probes,
+        community_labels=community_labels,
+    )
+    draw_nodes(ax_network, pos, c=nc, s=node_size)
+
+    if finalize_network:
+        _finalize_axes(ax_network, pos)
+
+    if network_colorbar and coloring == "cmap":
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+        divider = make_axes_locatable(ax_network)
+        cax = divider.append_axes("right", size="4%", pad=0.05)
+        cb = plt.colorbar(im, cax=cax)
+        cb.ax.tick_params(labelsize=6)
+
+    n_edges = int((np.triu(A_for_imshow, k=1) > 0).sum())
+    return dict(
+        pos=pos,
+        im_matrix=im,
+        cmap=cmap,
+        norm=norm,
+        edge_collection=lc,
+        n_edges=n_edges,
+        n_nodes=N,
+    )
+
+
+def plot_fc_matrix_and_network_rows(
+    patient: str,
+    band: str,
+    *,
+    phases: Sequence[str] = PHASE_LABELS,
+    fc_method: str = "imcoh_abs",
+    cmap: Optional[str] = None,
+    vmin: Optional[float] = 0.0,
+    vmax: Optional[float] = None,
+    log_scale: bool = False,
+    tick_labels: Literal["generic", "index", "chnames"] = "generic",
+    layout: str = "spring",
+    layout_kwargs: Optional[Dict] = None,
+    shared_layout: bool = True,
+    coloring: ColoringMode = "cmap",
+    node_color: NodeColorMode = "shaft",
+    node_size: int = DEFAULT_NODE_SIZE,
+    n_communities: Optional[int] = None,
+    gamma: float = 2.0,
+    width_range: Tuple[float, float] = (0.0, 4.0),
+    alpha_range: Tuple[float, float] = (0.0, 1.0),
+    min_alpha: float = 0.0,
+    figsize_per_row: Tuple[float, float] = (10.5, 4.4),
+    shared_scale: bool = True,
+) -> Tuple[plt.Figure, NDArray]:
+    """Row-per-phase mosaic: one ``(matrix, network)`` row per phase.
+
+    Mirrors the layout of the reference figure
+    ``presentation_figures/Pat_02/fig1_msc_alpha.pdf`` (two phases) but
+    generalised to any subset of ``PHASE_LABELS``.
+
+    Defaults reproduce the MSC-presentation recipe that made the
+    structure visible in the legacy figure:
+
+    - ``layout="spring"`` with ``k=0.1`` / ``iterations=100`` (set by
+      the calling script via ``layout_kwargs``).
+    - ``gamma=2``  →  ``widths = max_width · t²``,
+                       ``alphas = alpha_max · t²``  with
+                       ``t = |w|/|w|_max``.
+    - ``width_range=(0, 4)``, ``alpha_range=(0, 1)`` — full range
+      starting from zero so weak edges become invisible and only the
+      structural strong-edge skeleton survives visually.
+    - ``shared_layout=True`` — layout computed once on the cross-phase
+      AVERAGE FC, then every phase row uses ``shared_pos``.  Node
+      positions stay identical across rows so side-by-side comparison
+      is meaningful; only edges (widths + colours) change between
+      phases.
+
+    ``shared_scale=True`` (default) → cohort-wide ``vmax`` across the
+    selected phases so the colorbar range is directly comparable.
+
+    Returns ``(fig, axes)`` with ``axes`` an ``(n_phases, 2)`` array
+    (column 0 = matrix, column 1 = network).
+    """
+    A_per_phase = {
+        ph: load_fc_matrix(patient=patient, phase=ph,
+                            band=band, fc_method=fc_method)
+        for ph in phases
+    }
+    probes = load_probe_labels(patient)
+
+    community_labels = None
+    ultrametric_matrix = None
+    if is_lrg_layout(layout) or node_color == "community":
+        anchor_phase = "rest_pre" if "rest_pre" in phases else phases[0]
+        lrg = load_lrg_result(patient, anchor_phase, band, fc_method)
+        if lrg is None or lrg.linkage_matrix is None:
+            raise FileNotFoundError(
+                f"No LRG cache for {patient}/{band}/{anchor_phase}/"
+                f"{fc_method}; needed for layout={layout!r} or "
+                f"node_color='community'."
+            )
+        N_lrg = next(iter(A_per_phase.values())).shape[0]
+        community_labels = fcluster(
+            lrg.linkage_matrix,
+            t=n_communities or 10,
+            criterion="maxclust",
+        )[:N_lrg]
+        ultrametric_matrix = getattr(lrg, "ultrametric_matrix", None)
+
+    if shared_scale and vmax is None:
+        vmax_candidates = []
+        for A in A_per_phase.values():
+            Az = A.copy()
+            np.fill_diagonal(Az, 0.0)
+            vmax_candidates.append(float(np.nanmax(Az)))
+        vmax = max(vmax_candidates)
+
+    # ---- shared layout from the cross-phase average FC ----
+    # The load-bearing trick of the MSC-era presentation figure:
+    # compute the spring layout ONCE on the mean of all selected
+    # phases, then re-use those positions for every row.  Without this
+    # each row's spring relaxation lands in a different local minimum
+    # and same-node comparison across rows is meaningless.
+    pos_shared = None
+    if shared_layout and len(phases) > 1:
+        A_avg = np.mean(
+            [A_per_phase[p] for p in phases], axis=0,
+        )
+        np.fill_diagonal(A_avg, 0.0)
+        pos_shared = compute_layout(
+            layout, A_avg,
+            probes=probes,
+            community_labels=community_labels,
+            ultrametric_matrix=ultrametric_matrix,
+            **(layout_kwargs or {}),
+        )
+
+    n_rows = len(phases)
+    fig, axes = plt.subplots(
+        n_rows, 2,
+        figsize=(figsize_per_row[0], figsize_per_row[1] * n_rows),
+        gridspec_kw={"width_ratios": [1.0, 1.1]},
+    )
+    if n_rows == 1:
+        axes = np.atleast_2d(axes)
+
+    for row, phase in enumerate(phases):
+        ax_mat = axes[row, 0]
+        ax_net = axes[row, 1]
+        plot_fc_matrix_and_network(
+            A_per_phase[phase], probes,
+            ax_matrix=ax_mat, ax_network=ax_net,
+            fc_method=fc_method, band=band,
+            cmap=cmap, vmin=vmin,
+            vmax=vmax if shared_scale else None,
+            log_scale=log_scale,
+            tick_labels=tick_labels,
+            layout=layout, layout_kwargs=layout_kwargs,
+            pos_override=pos_shared,
+            coloring=coloring, node_color=node_color,
+            community_labels=community_labels,
+            ultrametric_matrix=ultrametric_matrix,
+            node_size=node_size, gamma=gamma,
+            width_range=width_range, alpha_range=alpha_range,
+            min_alpha=min_alpha,
+        )
+
+    return fig, axes

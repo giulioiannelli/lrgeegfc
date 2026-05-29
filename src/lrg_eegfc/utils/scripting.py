@@ -243,7 +243,7 @@ def load_all_lrg(
     patients: Optional[Sequence[str]] = None,
     bands: Optional[Sequence[str]] = None,
     phases: Optional[Sequence[str]] = None,
-    fc_method: str = "msc",
+    fc_method: str = "imcoh_abs",
     cache_root: Optional[Path] = None,
     verbose: bool = True,
 ) -> dict:
@@ -256,7 +256,9 @@ def load_all_lrg(
     patients, bands, phases : sequence of str, optional
         Override the default iteration scope (see :func:`iter_patient_band_phase`).
     fc_method : str
-        FC method used for LRG computation (``"msc"`` or ``"corr"``).
+        FC method used for LRG computation. Default ``"imcoh_abs"`` (current
+        era). ``"msc"``, ``"corr"``, ``"imcoh"``, ``"imcoh_sq"`` accessible
+        for diagnostics.
     cache_root : Path, optional
         Override the LRG cache directory.
     verbose : bool
@@ -288,7 +290,7 @@ def load_all_fc(
     patients: Optional[Sequence[str]] = None,
     bands: Optional[Sequence[str]] = None,
     phases: Optional[Sequence[str]] = None,
-    fc_method: str = "msc",
+    fc_method: str = "imcoh_abs",
     cache_root: Optional[Path] = None,
     sparsify: str = "none",
     n_surrogates: int = 0,
@@ -303,7 +305,8 @@ def load_all_fc(
     patients, bands, phases : sequence of str, optional
         Override the default iteration scope.
     fc_method : str
-        ``"msc"`` or ``"corr"``.
+        Default ``"imcoh_abs"`` (current era). ``"msc"``, ``"corr"``,
+        ``"imcoh"``, ``"imcoh_sq"`` accessible for diagnostics.
     cache_root : Path, optional
         Override the cache directory.
     sparsify : str

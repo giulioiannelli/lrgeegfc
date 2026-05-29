@@ -69,7 +69,7 @@ def single_patient_option(required: bool = True) -> Callable:
     return decorator
 
 
-def fc_method_option(required: bool = False, default: str = "msc") -> Callable:
+def fc_method_option(required: bool = False, default: str = "imcoh_abs") -> Callable:
     """Add ``--fc-method`` option.
 
     ``"imcoh"`` is the raw signed Nolte-2004 imaginary coherency; it cannot
@@ -115,9 +115,9 @@ def output_options(default_dir: str = str(FIGURES_ROOT)) -> Callable:
     def decorator(f: Callable) -> Callable:
         f = click.option(
             "--format", "fmt",
-            type=click.Choice(["png", "pdf", "svg", "eps"]),
-            default="png", show_default=True,
-            help="Output figure format.",
+            type=click.Choice(["pdf", "png", "svg", "eps"]),
+            default="pdf", show_default=True,
+            help="Output figure format. PDF is canonical (vector, no PNG sibling). PNG is opt-in.",
         )(f)
         f = click.option(
             "--dpi", type=int, default=150, show_default=True,

@@ -1,5 +1,13 @@
 """Visualization functions for LRG EEG FC analysis."""
 
+# Canonical colorbar helper (re-export from lrgsglib so callers have one
+# source). Use for any single-imshow axis. Cannot serve a colorbar shared
+# across multiple columns in the same row — for that case keep the
+# explicit `make_axes_locatable` / `fig.add_axes([...])` pattern (rule
+# locked 2026-05-28; see CLAUDE.md plotting rule 2 and the
+# `feedback_imshow_colorbar_caxdivider_scope` memory).
+from lrgsglib.plotlib.colorbars import imshow_colorbar_caxdivider
+
 from .correlation import (
     plot_correlation_heatmap,
     plot_correlation_and_network,
@@ -15,8 +23,8 @@ from .lrg import (
     plot_lrg_entropy_curves,
     plot_lrg_dendrogram,
     plot_ultrametric_heatmap,
-    plot_lrg_full_panel,
 )
+from .lrg_panels import plot_lrg_full_panel
 from .spatial import (
     load_spatial_metadata,
     prepare_spatial_coordinates,
@@ -34,6 +42,17 @@ from .fc_templates import (
     fc_method_colorbar_label,
     probe_groups,
     draw_probe_outlines,
+)
+from .network_layouts import (
+    compute_network_layout,
+    compute_percolation_threshold,
+)
+from .network_drawing import (
+    EDGE_GAMMA,
+    scale_edge_weights,
+    draw_network_edges,
+    render_sbm_panel,
+    render_lrg_panel,
 )
 from .network_templates import (
     plot_fc_network,
@@ -105,4 +124,13 @@ __all__ = [
     "matrix_to_gt",
     "SAME_PROBE_RGB",
     "CROSS_PROBE_RGB",
+    # Network layouts (promoted from figures_for_notes/_shared.py 2026-05-29)
+    "compute_network_layout",
+    "compute_percolation_threshold",
+    # Network drawing (promoted from figures_for_notes/_shared.py 2026-05-29)
+    "EDGE_GAMMA",
+    "scale_edge_weights",
+    "draw_network_edges",
+    "render_sbm_panel",
+    "render_lrg_panel",
 ]

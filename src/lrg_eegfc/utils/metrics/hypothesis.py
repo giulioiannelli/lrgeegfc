@@ -1,16 +1,21 @@
 """Cross-patient hypothesis-testing primitives.
 
-Five helpers used by every H2-family cross-patient test. Elevated to the
+Helpers used by every cross-patient test. The first five (wilcoxon_z,
+rank_biserial, boot_ci_mean, bh_fdr, cluster_stats) were elevated to the
 library in 2026-04 after being duplicated across 3+ scripts under
-`scripts/01_compute/`. See `.agents/guides/02_methods/h2-metrics.md` for
-the scientific role.
+`scripts/01_compute/`. `surrogate_p_value` and `loo_sensitivity` were
+elevated 2026-05-28 after being re-rolled in audit_62/65/66/67/70 (the
+matched-strength surrogate family). See
+`.agents/guides/02_methods/h2-metrics.md` for the scientific role and
+`feedback_matched_strength_mandatory` for why every FC-derived cohort
+claim must run a surrogate p-value.
 
 Signatures follow the `rigorous_hypothesis_test.py` defaults (includes an
 optional `rng` on the bootstrap for reproducibility).
 """
 from __future__ import annotations
 
-from typing import Optional
+from typing import Callable, Optional, Sequence
 
 import numpy as np
 from scipy import stats
@@ -22,6 +27,8 @@ __all__ = [
     "boot_ci_mean",
     "bh_fdr",
     "cluster_stats",
+    "surrogate_p_value",
+    "loo_sensitivity",
 ]
 
 
@@ -131,3 +138,128 @@ def cluster_stats(z: np.ndarray, thresh: float) -> list[tuple[int, int, float]]:
     if in_run:
         out.append((start, len(sup) - 1, mass))
     return out
+
+
+def surrogate_p_value(
+    obs: float,
+    surr_array: np.ndarray,
+    tail: str = "upper",
+    *,
+    add_one: bool = True,
+) -> float:
+    """One-tailed empirical p-value from a surrogate / permutation array.
+
+    Canonical formula across the matched-strength surrogate family
+    (audit_62/65/66/67/70). Computes the fraction of surrogate values
+    that are at least as extreme as the observed value in the requested
+    tail.
+
+    Parameters
+    ----------
+    obs
+        Observed statistic (scalar).
+    surr_array
+        Surrogate / permutation distribution of the statistic. NaNs are
+        silently dropped. If empty after NaN removal, returns ``nan``.
+    tail
+        ``"upper"`` (default): p = P(surr ≥ obs). Use when "larger =
+        more extreme" (trace mass under the locked T_d > 0 = TRACE
+        convention). ``"lower"``: p = P(surr ≤ obs).
+    add_one
+        Phipson–Smyth (2010) unbiased estimator: numerator and
+        denominator each receive +1 (counts the observed value as one
+        permutation). Default True. Set False for naive
+        ``mean(surr ≥ obs)`` — only appropriate if the surrogate
+        ensemble already includes the observed configuration.
+
+    Returns
+    -------
+    float
+        p-value in ``[0, 1]``.
+    """
+    surr = np.asarray(surr_array, dtype=float).ravel()
+    surr = surr[np.isfinite(surr)]
+    n = surr.size
+    if n == 0 or not np.isfinite(obs):
+        return float("nan")
+    if tail == "upper":
+        n_extreme = int(np.sum(surr >= obs))
+    elif tail == "lower":
+        n_extreme = int(np.sum(surr <= obs))
+    else:
+        raise ValueError(f"tail must be 'upper' or 'lower', got {tail!r}")
+    if add_one:
+        return (n_extreme + 1) / (n + 1)
+    return n_extreme / n
+
+
+def loo_sensitivity(
+    cohort_values: np.ndarray,
+    test_fn: Callable[[np.ndarray], float],
+    *,
+    labels: Optional[Sequence[str]] = None,
+) -> dict:
+    """Leave-one-out sensitivity for any cohort-level scalar test.
+
+    Mandated since 2026-05-19 (see ``feedback_no_single_patient_p_driven``):
+    every cohort p-value (Wilcoxon, cluster-permutation, anatomy A1) must
+    be paired with a leave-one-out report. n=10 Wilcoxon is vulnerable to
+    direction-outliers; LOO surfaces single-patient-leveraged verdicts
+    (e.g., "p=0.005 overall, p=0.07 dropping Pat_XX"). LOO is descriptive,
+    never a hardcoded gate.
+
+    Parameters
+    ----------
+    cohort_values
+        1D array of per-patient values, length ``n`` (rows = patients).
+        2D arrays are passed to ``test_fn`` row-sliced (i.e. ``arr[mask]``
+        where ``mask`` removes one row). Higher-dim arrays index along
+        axis 0.
+    test_fn
+        Callable that takes a (n-1)-row subset of ``cohort_values`` and
+        returns a scalar (typically a p-value, sometimes an effect size).
+    labels
+        Optional patient labels matching ``cohort_values`` axis 0.
+        Default ``range(n)``.
+
+    Returns
+    -------
+    dict with keys
+        ``full`` — ``test_fn(cohort_values)`` (the n-patient value).
+        ``loo`` — ``np.ndarray`` of n LOO values.
+        ``worst`` — max of the LOO values (worst-case p when the metric
+            IS a p-value, smaller-is-better; caller swaps sign if needed).
+        ``worst_patient`` — label of the patient whose removal produced
+            ``worst``. ``None`` if all LOO values are NaN.
+    """
+    arr = np.asarray(cohort_values)
+    n = arr.shape[0]
+    if labels is None:
+        labels = [str(i) for i in range(n)]
+    else:
+        labels = list(labels)
+        if len(labels) != n:
+            raise ValueError(
+                f"labels length {len(labels)} ≠ cohort_values axis 0 ({n})"
+            )
+
+    full = float(test_fn(arr))
+    loo = np.full(n, np.nan)
+    for i in range(n):
+        keep = np.ones(n, dtype=bool)
+        keep[i] = False
+        try:
+            loo[i] = float(test_fn(arr[keep]))
+        except Exception:
+            loo[i] = np.nan
+
+    finite = loo[np.isfinite(loo)]
+    if finite.size == 0:
+        return {"full": full, "loo": loo, "worst": float("nan"), "worst_patient": None}
+    worst_idx = int(np.nanargmax(loo))
+    return {
+        "full": full,
+        "loo": loo,
+        "worst": float(loo[worst_idx]),
+        "worst_patient": labels[worst_idx],
+    }
