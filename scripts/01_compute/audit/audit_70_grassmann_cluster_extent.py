@@ -31,8 +31,8 @@ Method notes
   Σ sin²θ_i = k − Σ σ_i² where σ_i are singular values of UᵀV).
 * The non-trivial mode subspace skips column 0 (λ_1 = 0) and takes
   columns [1:k+1], matching audit_66's `topk_basis()` convention.
-* Per-k Wilcoxon uses one-sided alternative='less' since the trace
-  direction is T_G < 0 (rsPost closer to task than rsPre is to task).
+* Per-k Wilcoxon uses one-sided alternative='greater' since the trace
+  direction is T_G > 0 (rsPost closer to task than rsPre is to task).
 """
 from __future__ import annotations
 
@@ -113,7 +113,8 @@ def compute_surr_T_G_band(band, patients, k_grid, R):
         for r in range(R):
             d_taskpost = chordal_distances_for_k_grid(eigvecs_task[r], eigvecs_post[r], k_grid)
             d_pretask = chordal_distances_for_k_grid(eigvecs_pre[r], eigvecs_task[r], k_grid)
-            out[pi, r, :] = d_taskpost - d_pretask
+            # T_G > 0 = trace (rsPost closer to task than rsPre).
+            out[pi, r, :] = d_pretask - d_taskpost
 
         del eigvecs_pre, eigvecs_task, eigvecs_post
         gc.collect()
@@ -134,8 +135,13 @@ def longest_run_below(p_values, alpha):
     return int(max_run)
 
 
-def wilcoxon_per_k_less(a, b):
-    """Per-k paired Wilcoxon one-sided 'less' (a < b). a, b: (P, K) → p-vals (K,)."""
+def wilcoxon_per_k_greater(a, b):
+    """Per-k paired Wilcoxon one-sided 'greater' (a > b). a, b: (P, K) → p-vals (K,).
+
+    Trace direction under the project-wide convention: T_d > 0 means
+    rsPost closer to task than rsPre is. Per-k test is whether the
+    observed T_G(k) sits above the surrogate-mean T_G(k).
+    """
     K = a.shape[1]
     p_vals = np.full(K, 1.0)
     for k in range(K):
@@ -144,7 +150,7 @@ def wilcoxon_per_k_less(a, b):
         if d.size < 3 or np.all(d == 0):
             continue
         try:
-            _, p = wilcoxon(d, alternative="less", zero_method="wilcox", correction=False)
+            _, p = wilcoxon(d, alternative="greater", zero_method="wilcox", correction=False)
             p_vals[k] = p
         except Exception:
             pass
@@ -198,7 +204,7 @@ def main():
         print(f"  surrogate done in {time.time() - t0:.1f}s")
 
         # --- Observed cohort Wilcoxon per k
-        obs_p = wilcoxon_per_k_less(obs_T_G, surr_mean)
+        obs_p = wilcoxon_per_k_greater(obs_T_G, surr_mean)
         obs_LR = longest_run_below(obs_p, ALPHA_K)
         obs_mass = cluster_mass(obs_p, ALPHA_K)
         for ki, k in enumerate(K_GRID):
@@ -213,7 +219,7 @@ def main():
             mask = np.ones(R, dtype=bool)
             mask[r] = False
             ref = surr_T_G[:, mask, :].mean(axis=1)
-            null_p = wilcoxon_per_k_less(phantom, ref)
+            null_p = wilcoxon_per_k_greater(phantom, ref)
             null_LR[r] = longest_run_below(null_p, ALPHA_K)
             null_mass[r] = cluster_mass(null_p, ALPHA_K)
             null_rows.append({
@@ -239,7 +245,7 @@ def main():
             obs_T_G_loo = obs_T_G[keep]
             surr_T_G_loo = surr_T_G[keep]
             surr_mean_loo = surr_T_G_loo.mean(axis=1)
-            obs_p_loo = wilcoxon_per_k_less(obs_T_G_loo, surr_mean_loo)
+            obs_p_loo = wilcoxon_per_k_greater(obs_T_G_loo, surr_mean_loo)
             obs_mass_loo = cluster_mass(obs_p_loo, ALPHA_K)
             obs_LR_loo = longest_run_below(obs_p_loo, ALPHA_K)
             null_mass_loo = np.zeros(R)
@@ -247,7 +253,7 @@ def main():
                 phantom_loo = surr_T_G_loo[:, r, :]
                 mask_r = np.ones(R, dtype=bool); mask_r[r] = False
                 ref_loo = surr_T_G_loo[:, mask_r, :].mean(axis=1)
-                null_p_loo = wilcoxon_per_k_less(phantom_loo, ref_loo)
+                null_p_loo = wilcoxon_per_k_greater(phantom_loo, ref_loo)
                 null_mass_loo[r] = cluster_mass(null_p_loo, ALPHA_K)
             loo_p_mass[pi_drop] = (1 + np.sum(null_mass_loo >= obs_mass_loo)) / (R + 1)
             loo_mass[pi_drop] = obs_mass_loo
@@ -358,8 +364,8 @@ verdict.
 ## Parameters
 - `k_grid`: 2..112 ({len(K_GRID)} values, matches audit_66 K_GRID).
 - `R`: {R} matched-strength surrogates (SWAP_FACTOR={SWAP_FACTOR}, seed={SEED}).
-- `alpha_per_k`: {ALPHA_K} for the per-k paired Wilcoxon (one-sided less,
-  trace direction T_G < 0).
+- `alpha_per_k`: {ALPHA_K} for the per-k paired Wilcoxon (one-sided greater,
+  trace direction T_G > 0).
 """
     (OUT_DIR / "README.md").write_text(readme)
 

@@ -139,11 +139,7 @@ def main() -> None:
     ]
     fig.legend(handles=handles, loc="lower center", ncol=5, frameon=False,
                bbox_to_anchor=(0.5, -0.02), fontsize=9.5)
-    fig.suptitle(
-        "Per-band Δρ(k) trajectories across 9 patients — multiscale "
-        "block-persistence (|ImCoh|, n=9)",
-        fontsize=12, y=1.00,
-    )
+    # No fig.suptitle on publication figures — context lives in the file name.
     fig.tight_layout()
 
     for ext in ("pdf", "png"):

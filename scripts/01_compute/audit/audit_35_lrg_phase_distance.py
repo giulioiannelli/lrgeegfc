@@ -10,9 +10,11 @@ phase pair (a, b):
     d_S_LRG(a, b) = 1 - Spearman(triu D^a, triu D^b)
     d_F_LRG(a, b) = ||D^a - D^b||_F / sqrt(||D^a||_F * ||D^b||_F)
 
-Triangle: T_d_LRG(p, b) = d(task_test, rest_post) - d(rest_pre, task_test).
-Negative = trace direction. Mirrors substrate's column schema in
-``data/audit/raw_fc_phase_distance/Td_per_patient_per_band.csv`` (F/P/S).
+Triangle: T_d_LRG(p, b) = d(rest_pre, task_test) - d(task_test, rest_post).
+**Sign convention: T_d > 0 = trace (rsPost closer to task than rsPre),
+T_d < 0 = anti-trace, T_d = 0 = no trace.** Mirrors substrate's column
+schema in ``data/audit/raw_fc_phase_distance/Td_per_patient_per_band.csv``
+(F/P/S).
 
 Outputs
 -------
@@ -76,8 +78,9 @@ def main() -> None:
                 d_pre_tt = distance_pair(D["rest_pre"], D["task_test"])
                 d_tt_post = distance_pair(D["task_test"], D["rest_post"])
                 d_pre_post = distance_pair(D["rest_pre"], D["rest_post"])
-                # Triangle scalar: d(tt,post) - d(pre,tt)
-                T_P, T_S, T_F = (a - b for a, b in zip(d_tt_post, d_pre_tt))
+                # Triangle scalar: d(pre,tt) - d(tt,post)
+                # T_d > 0 = trace (rsPost closer to task than rsPre).
+                T_P, T_S, T_F = (a - b for a, b in zip(d_pre_tt, d_tt_post))
                 rows.append({
                     "patient": pat,
                     "band": band,
@@ -98,10 +101,10 @@ def main() -> None:
         sub = df[df["band"] == b]
         for col, dist_name in (("T_S", "d_S"), ("T_P", "d_P"), ("T_F", "d_F")):
             v = sub[col].dropna().values
-            n_trace = int((v < 0).sum())
+            n_trace = int((v > 0).sum())
             from scipy.stats import wilcoxon
             try:
-                _, p_one = wilcoxon(v, alternative="less")
+                _, p_one = wilcoxon(v, alternative="greater")
             except Exception:
                 p_one = float("nan")
             summary_rows.append({
@@ -132,7 +135,7 @@ def main() -> None:
             jitter = (np.random.RandomState(7).rand(len(v)) - 0.5) * 0.12
             ax.scatter(np.full(len(v), i + 1) + jitter, v, s=10, color="#1f77b4", alpha=0.7, zorder=3)
         ax.set_title(name)
-        ax.set_ylabel("triangle scalar (negative = trace)")
+        ax.set_ylabel("triangle scalar (positive = trace)")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "boxplots_per_band.pdf")
     plt.close(fig)

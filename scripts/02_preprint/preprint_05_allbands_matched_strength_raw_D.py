@@ -24,6 +24,9 @@ from lrg_eegfc.config.paths import IMCOH_LRG_CACHE, CACHE_ROOT
 from lrg_eegfc.notebook import move_to_rootf
 from lrg_eegfc.utils.surrogate.matched_strength import load_or_compute_surrogate_eigs
 from lrg_eegfc.workflow.fc import load_fc_matrix
+from lrg_eegfc.visuals.styles import use_lrg_style
+use_lrg_style()
+
 
 move_to_rootf(pathname="lrgeegfc")
 

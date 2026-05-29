@@ -108,13 +108,7 @@ def main() -> None:
                 ax.set_ylabel(BRAIN_BAND_TEX_DICT[band], fontsize=12,
                               rotation=0, ha="right", va="center", labelpad=12)
 
-    fig.suptitle(
-        f"Dendrograms per (band × phase) for {pat} — "
-        f"fc_method={fc}, leaf ordering from rest_pre.\n"
-        "Visual check: in bands where H2c/H2d say 'trace', do the trees "
-        "actually look topologically similar across phases?",
-        fontsize=11, y=1.00,
-    )
+    # No fig.suptitle on publication figures — context lives in the file name.
     fig.tight_layout()
 
     out_dir = REPORTS_ROOT / "imcoh_vi" / "figures"

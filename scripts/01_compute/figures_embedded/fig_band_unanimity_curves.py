@@ -156,11 +156,7 @@ def main() -> None:
     for yi, v in zip(y, vals):
         ax_rank.text(v + 0.02, yi, f"{v:.2f}", va="center", fontsize=9)
 
-    fig.suptitle(
-        "Band-selective multiscale block persistence "
-        "(|ImCoh|, n=9) — θ is the ergodic outlier",
-        fontsize=13, y=1.00,
-    )
+    # No fig.suptitle on publication figures — context lives in the file name.
     for ext in ("pdf", "png"):
         out = OUT_DIR / f"band_unanimity_curves.{ext}"
         fig.savefig(out, bbox_inches="tight")

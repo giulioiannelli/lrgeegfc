@@ -16,12 +16,12 @@ Three control layers per (patient, band, lambda):
        ``lrg_eegfc.utils.metrics.tree_distance.kc_distance``. Triangle:
        ``T_KC_xprobe(lam; p, b) = d_KC_xprobe(lam; Z^TT, Z^RPost)
                                  - d_KC_xprobe(lam; Z^RPre, Z^TT)``.
-       Cohort one-sided Wilcoxon T_KC_xprobe < 0 on n=10 patients.
+       Cohort one-sided Wilcoxon T_KC_xprobe > 0 on n=10 patients.
 
     3. Pat_03 dropout — extend the existing partial table to all (band,
-       lambda) cells under three flavors: absolute Wilcoxon T_KC < 0,
-       within-baseline-null Wilcoxon T_KC < T_KC_null, cross-probe
-       Wilcoxon T_KC_xprobe < 0.
+       lambda) cells under three flavors: absolute Wilcoxon T_KC > 0,
+       within-baseline-null Wilcoxon T_KC > T_KC_null, cross-probe
+       Wilcoxon T_KC_xprobe > 0.
 
 Within-probe BH-FDR at m=12 (6 bands × 2 lambda values, λ=0 and λ=1) on
 each control layer.
@@ -34,7 +34,7 @@ Outputs
   for each control's "below-floor" event.
 - ``data/audit/section5_v2_kc_controls/cohort_summary.csv`` — 18 rows
   (6 bands × 3 lambda) with absolute / within-baseline / cross-probe
-  cohort Wilcoxon p, n_below, rank-biserial, BH-corrected q (m=12 for
+  cohort Wilcoxon p, n_above, rank-biserial, BH-corrected q (m=12 for
   λ=0/λ=1, λ=0.5 reported uncorrected).
 - ``data/audit/section5_v2_kc_controls/pat03_dropout.csv`` — 18 rows
   with p_full and p_drop for all three control layers.
@@ -157,7 +157,8 @@ def xprobe_triangle_for(patient: str, band: str, mask: np.ndarray) -> dict:
     for lam in KC_LAMBDAS:
         d_pre_tt = kc_xprobe_distance(Z["rest_pre"], Z["task_test"], lam, mask)
         d_tt_post = kc_xprobe_distance(Z["task_test"], Z["rest_post"], lam, mask)
-        out[f"xprobe_T_lam{lam:.1f}"] = d_tt_post - d_pre_tt
+        # T_d > 0 = trace (rsPost closer to task than rsPre).
+        out[f"xprobe_T_lam{lam:.1f}"] = d_pre_tt - d_tt_post
         out[f"xprobe_d_pre_tt_lam{lam:.1f}"] = d_pre_tt
         out[f"xprobe_d_tt_post_lam{lam:.1f}"] = d_tt_post
     return out
@@ -167,18 +168,22 @@ def xprobe_triangle_for(patient: str, band: str, mask: np.ndarray) -> dict:
 # Wilcoxon one-sided p
 # ---------------------------------------------------------------------------
 
-def wilcoxon_one_sided_less(x: np.ndarray, y: np.ndarray | None = None) -> float:
-    """Paired one-sided Wilcoxon (alternative='less'); returns nan on degenerate input."""
+def wilcoxon_one_sided_greater(x: np.ndarray, y: np.ndarray | None = None) -> float:
+    """Paired one-sided Wilcoxon (alternative='greater'); returns nan on degenerate input.
+
+    Tests x > 0 (or x > y) in the trace direction under the project-wide
+    sign convention T_d > 0 = trace.
+    """
     try:
         if y is None:
-            return float(wilcoxon(x, alternative="less", zero_method="wilcox").pvalue)
-        return float(wilcoxon(x, y, alternative="less", zero_method="wilcox").pvalue)
+            return float(wilcoxon(x, alternative="greater", zero_method="wilcox").pvalue)
+        return float(wilcoxon(x, y, alternative="greater", zero_method="wilcox").pvalue)
     except ValueError:
         return float("nan")
 
 
-def rb_paired_less(x: np.ndarray, y: np.ndarray | None = None) -> float:
-    """Rank-biserial in [-1, +1] for a one-sided 'x < y' (or 'x < 0') Wilcoxon."""
+def rb_paired_greater(x: np.ndarray, y: np.ndarray | None = None) -> float:
+    """Rank-biserial in [-1, +1] for a one-sided 'x > y' (or 'x > 0') Wilcoxon."""
     try:
         diff = x if y is None else (np.asarray(x) - np.asarray(y))
         diff = diff[diff != 0]
@@ -248,14 +253,14 @@ def main() -> None:
             sub_xpr, on=["patient", "band"]
         )
         merged["lam"] = lam
-        merged["abs_below_zero"] = merged["real_T_KC"] < 0
-        merged["real_below_null"] = merged["real_T_KC"] < merged["null_T_KC"]
-        merged["xprobe_below_zero"] = merged["xprobe_T_KC"] < 0
+        merged["abs_above_zero"] = merged["real_T_KC"] > 0
+        merged["real_above_null"] = merged["real_T_KC"] > merged["null_T_KC"]
+        merged["xprobe_above_zero"] = merged["xprobe_T_KC"] > 0
         pieces.append(merged)
     per_patient = pd.concat(pieces, ignore_index=True)
     per_patient = per_patient[
         ["patient", "band", "lam", "real_T_KC", "null_T_KC", "xprobe_T_KC",
-         "abs_below_zero", "real_below_null", "xprobe_below_zero"]
+         "abs_above_zero", "real_above_null", "xprobe_above_zero"]
     ]
     per_patient.to_csv(OUT / "per_patient_table.csv", index=False)
 
@@ -270,21 +275,21 @@ def main() -> None:
             n = len(sub)
             row = dict(
                 band=band, lam=lam, n_pat=n,
-                # absolute Wilcoxon (T_KC < 0)
-                n_abs_below_zero=int(np.sum(real < 0)),
+                # absolute Wilcoxon (T_KC > 0)
+                n_abs_above_zero=int(np.sum(real > 0)),
                 median_real=float(np.median(real)),
-                p_abs=wilcoxon_one_sided_less(real),
-                rb_abs=rb_paired_less(real),
-                # within-baseline null (T_KC < T_KC_null)
-                n_real_below_null=int(np.sum(real < null)),
+                p_abs=wilcoxon_one_sided_greater(real),
+                rb_abs=rb_paired_greater(real),
+                # within-baseline null (T_KC > T_KC_null)
+                n_real_above_null=int(np.sum(real > null)),
                 median_null=float(np.median(null)),
-                p_null=wilcoxon_one_sided_less(real, null),
-                rb_null=rb_paired_less(real, null),
-                # cross-probe (T_KC_xprobe < 0)
-                n_xprobe_below_zero=int(np.sum(xpr < 0)),
+                p_null=wilcoxon_one_sided_greater(real, null),
+                rb_null=rb_paired_greater(real, null),
+                # cross-probe (T_KC_xprobe > 0)
+                n_xprobe_above_zero=int(np.sum(xpr > 0)),
                 median_xprobe=float(np.median(xpr)),
-                p_xprobe=wilcoxon_one_sided_less(xpr),
-                rb_xprobe=rb_paired_less(xpr),
+                p_xprobe=wilcoxon_one_sided_greater(xpr),
+                rb_xprobe=rb_paired_greater(xpr),
             )
             coh_rows.append(row)
     coh = pd.DataFrame(coh_rows)
@@ -316,22 +321,22 @@ def main() -> None:
                 band=band, lam=lam,
                 n_full=len(f), n_drop=len(d),
                 # absolute
-                p_abs_full=wilcoxon_one_sided_less(f["real_T_KC"].values),
-                p_abs_drop=wilcoxon_one_sided_less(d["real_T_KC"].values),
-                n_abs_below_zero_full=int((f["real_T_KC"] < 0).sum()),
-                n_abs_below_zero_drop=int((d["real_T_KC"] < 0).sum()),
+                p_abs_full=wilcoxon_one_sided_greater(f["real_T_KC"].values),
+                p_abs_drop=wilcoxon_one_sided_greater(d["real_T_KC"].values),
+                n_abs_above_zero_full=int((f["real_T_KC"] > 0).sum()),
+                n_abs_above_zero_drop=int((d["real_T_KC"] > 0).sum()),
                 # within-baseline null
-                p_null_full=wilcoxon_one_sided_less(f["real_T_KC"].values,
+                p_null_full=wilcoxon_one_sided_greater(f["real_T_KC"].values,
                                                     f["null_T_KC"].values),
-                p_null_drop=wilcoxon_one_sided_less(d["real_T_KC"].values,
+                p_null_drop=wilcoxon_one_sided_greater(d["real_T_KC"].values,
                                                     d["null_T_KC"].values),
-                n_real_below_null_full=int((f["real_T_KC"] < f["null_T_KC"]).sum()),
-                n_real_below_null_drop=int((d["real_T_KC"] < d["null_T_KC"]).sum()),
+                n_real_above_null_full=int((f["real_T_KC"] > f["null_T_KC"]).sum()),
+                n_real_above_null_drop=int((d["real_T_KC"] > d["null_T_KC"]).sum()),
                 # cross-probe
-                p_xprobe_full=wilcoxon_one_sided_less(f["xprobe_T_KC"].values),
-                p_xprobe_drop=wilcoxon_one_sided_less(d["xprobe_T_KC"].values),
-                n_xprobe_below_zero_full=int((f["xprobe_T_KC"] < 0).sum()),
-                n_xprobe_below_zero_drop=int((d["xprobe_T_KC"] < 0).sum()),
+                p_xprobe_full=wilcoxon_one_sided_greater(f["xprobe_T_KC"].values),
+                p_xprobe_drop=wilcoxon_one_sided_greater(d["xprobe_T_KC"].values),
+                n_xprobe_above_zero_full=int((f["xprobe_T_KC"] > 0).sum()),
+                n_xprobe_above_zero_drop=int((d["xprobe_T_KC"] > 0).sum()),
             )
             drop_rows.append(row)
     drop_df = pd.DataFrame(drop_rows)
@@ -379,9 +384,9 @@ def main() -> None:
     print("\n=== cohort summary (sample) ===")
     print(coh[coh["lam"].isin([0.0, 1.0])][[
         "band", "lam", "n_pat",
-        "n_abs_below_zero", "p_abs", "q_abs_within_m12",
-        "n_real_below_null", "p_null", "q_null_within_m12",
-        "n_xprobe_below_zero", "p_xprobe", "q_xprobe_within_m12",
+        "n_abs_above_zero", "p_abs", "q_abs_within_m12",
+        "n_real_above_null", "p_null", "q_null_within_m12",
+        "n_xprobe_above_zero", "p_xprobe", "q_xprobe_within_m12",
     ]].to_string(index=False))
     print(f"\n[audit_46] outputs at {OUT}\n         figure at {FIG_DIR / 'kc_controls_summary.pdf'}")
 

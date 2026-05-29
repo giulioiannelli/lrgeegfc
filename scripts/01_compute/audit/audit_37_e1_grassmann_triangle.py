@@ -80,7 +80,8 @@ def main() -> None:
                     rows.append({
                         "patient": pat, "band": band, "k": k,
                         "d_pre_tt": d_pre_tt, "d_tt_post": d_tt_post,
-                        "T_E1": d_tt_post - d_pre_tt,
+                        # T_d > 0 = trace (rsPost closer to task than rsPre).
+                        "T_E1": d_pre_tt - d_tt_post,
                     })
             except Exception as e:
                 print(f"[audit_37] WARN {pat} {band}: {e}")
@@ -92,9 +93,9 @@ def main() -> None:
         for k in K_GRID:
             sub = df[(df["band"] == b) & (df["k"] == k)]
             v = sub["T_E1"].dropna().values
-            n_trace = int((v < 0).sum())
+            n_trace = int((v > 0).sum())
             try:
-                _, p = wilcoxon(v, alternative="less")
+                _, p = wilcoxon(v, alternative="greater")
             except Exception:
                 p = float("nan")
             summary_rows.append({
@@ -123,7 +124,7 @@ def main() -> None:
             ax.scatter(np.full(len(v), i + 1) + jitter, v, s=10, color="#1f77b4", alpha=0.7, zorder=3)
         ax.axhline(0, color="0.4", lw=0.7, ls="--")
         ax.set_title(rf"$k = {k}$")
-    axes[0].set_ylabel(r"$T_{E1}(p, b, k)$ -- negative = trace")
+    axes[0].set_ylabel(r"$T_{E1}(p, b, k)$ -- positive = trace")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "boxplots_per_k.pdf")
     plt.close(fig)

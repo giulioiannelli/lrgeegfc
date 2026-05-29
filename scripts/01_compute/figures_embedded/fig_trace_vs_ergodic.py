@@ -211,13 +211,7 @@ def main() -> None:
             ha="center", va="center", fontsize=11, fontweight="bold",
             transform=ax.transAxes)
 
-    fig.suptitle(
-        "Band-selective task trace: α, δ carry a drift-controlled persistence signal; "
-        "θ does not. \n"
-        "All bands pass the uncontrolled H2d test (q<0.005), so the drift-floor "
-        "(H2e) is what resolves the band-heterogeneity.",
-        fontsize=12, y=1.00,
-    )
+    # No fig.suptitle on publication figures — context lives in the file name.
     for ext in ("pdf", "png"):
         out = OUT_DIR / f"trace_vs_ergodic.{ext}"
         fig.savefig(out, bbox_inches="tight")

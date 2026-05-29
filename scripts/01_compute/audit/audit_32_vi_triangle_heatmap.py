@@ -4,11 +4,12 @@
 Re-mines ``data/reports/imcoh_vi/vi_raw_profiles.csv`` (already on disk).
 Computes, per (patient, band, k):
 
-    T_VI(p, b, k) = VI(c^TT, c^RPost; k) - VI(c^RPre, c^TT; k)
+    T_VI(p, b, k) = VI(c^RPre, c^TT; k) - VI(c^TT, c^RPost; k)
 
-Negative T_VI = trace direction (test-tree closer to post than to pre at scale k).
+**Sign convention: T_VI > 0 = trace** (test-tree closer to post than to pre at scale k),
+T_VI < 0 = anti-trace, T_VI = 0 = no trace.
 No collapse over k. The result is reported as a per-patient heatmap and a cohort
-``n_trace(b, k) = #{p : T_VI(p, b, k) < 0}`` heatmap. Same-k cross-patient
+``n_trace(b, k) = #{p : T_VI(p, b, k) > 0}`` heatmap. Same-k cross-patient
 comparison is dirty (different |L_p|) -- flagged in the body of the deliverable.
 
 Critical addition: singleton-share filter. At k close to N_p (the number of
@@ -77,7 +78,8 @@ def main() -> None:
         .pivot_table(index=["patient", "band", "k"], columns="pair", values="vi")
         .reset_index()
     )
-    pivot["T_VI"] = pivot["TT-Post"] - pivot["Pre-TT"]
+    # T_VI > 0 = trace (rsPost VI closer to TT than rsPre VI is to TT).
+    pivot["T_VI"] = pivot["Pre-TT"] - pivot["TT-Post"]
     pivot.to_csv(OUT_DIR / "T_VI_per_patient_per_band_per_k.csv", index=False)
 
     # ---- Singleton share per (p, b, k) averaged across (RPre, TT, RPost) phases.
@@ -121,7 +123,7 @@ def main() -> None:
 
     # ---- Cohort n_trace(b, k)
     cohort = (
-        pivot.assign(is_trace=(pivot["T_VI"] < 0).astype(int))
+        pivot.assign(is_trace=(pivot["T_VI"] > 0).astype(int))
         .groupby(["band", "k"])["is_trace"]
         .sum()
         .reset_index(name="n_trace")

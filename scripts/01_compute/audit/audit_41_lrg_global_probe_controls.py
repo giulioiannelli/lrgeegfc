@@ -244,17 +244,18 @@ def main():
             sub = dr[dr["band"] == band]
             real = sub[real_col].values
             null = sub[null_col].values
-            n_below_null = int(np.sum(real < null))
+            # T_d > 0 = trace; "real > null" means real T_d more in the trace direction than null T_d.
+            n_above_null = int(np.sum(real > null))
             try:
-                w_p = float(wilcoxon(real, null, alternative="less", zero_method="wilcox").pvalue)
+                w_p = float(wilcoxon(real, null, alternative="greater", zero_method="wilcox").pvalue)
             except ValueError:
                 w_p = np.nan
             cohort.append(dict(probe="drank", band=band, variant=dist,
                                n_pat=len(sub),
-                               n_real_below_null=n_below_null,
+                               n_real_above_null=n_above_null,
                                median_real=float(np.median(real)),
                                median_null=float(np.median(null)),
-                               wilcoxon_p_real_lt_null=w_p))
+                               wilcoxon_p_real_gt_null=w_p))
 
     # KC: 3 lambdas
     for band in BANDS:
@@ -264,17 +265,17 @@ def main():
                 continue
             real = sub["real_T_KC"].values
             null = sub[f"null_T_lam{lam:.1f}"].values
-            n_below = int(np.sum(real < null))
+            n_above = int(np.sum(real > null))
             try:
-                w_p = float(wilcoxon(real, null, alternative="less", zero_method="wilcox").pvalue)
+                w_p = float(wilcoxon(real, null, alternative="greater", zero_method="wilcox").pvalue)
             except ValueError:
                 w_p = np.nan
             cohort.append(dict(probe="kc", band=band, variant=f"lambda={lam:.1f}",
                                n_pat=len(sub),
-                               n_real_below_null=n_below,
+                               n_real_above_null=n_above,
                                median_real=float(np.median(real)),
                                median_null=float(np.median(null)),
-                               wilcoxon_p_real_lt_null=w_p))
+                               wilcoxon_p_real_gt_null=w_p))
 
     # Grassmann k=13
     for band in BANDS:
@@ -283,17 +284,17 @@ def main():
             continue
         real = sub["real_T_E1"].values
         null = sub["null_T_E1"].values
-        n_below = int(np.sum(real < null))
+        n_above = int(np.sum(real > null))
         try:
-            w_p = float(wilcoxon(real, null, alternative="less", zero_method="wilcox").pvalue)
+            w_p = float(wilcoxon(real, null, alternative="greater", zero_method="wilcox").pvalue)
         except ValueError:
             w_p = np.nan
         cohort.append(dict(probe="grassmann", band=band, variant=f"k={GRASSMANN_K}",
                            n_pat=len(sub),
-                           n_real_below_null=n_below,
+                           n_real_above_null=n_above,
                            median_real=float(np.median(real)),
                            median_null=float(np.median(null)),
-                           wilcoxon_p_real_lt_null=w_p))
+                           wilcoxon_p_real_gt_null=w_p))
 
     coh_df = pd.DataFrame(cohort)
     coh_df.to_csv(OUT / "cohort_controls_summary.csv", index=False)
@@ -310,17 +311,17 @@ def main():
             T_full = sub["T_KC"].values
             T_drop = sub[sub["patient"] != "Pat_03"]["T_KC"].values
             try:
-                p_full = float(wilcoxon(T_full, alternative="less", zero_method="wilcox").pvalue)
+                p_full = float(wilcoxon(T_full, alternative="greater", zero_method="wilcox").pvalue)
             except ValueError:
                 p_full = np.nan
             try:
-                p_drop = float(wilcoxon(T_drop, alternative="less", zero_method="wilcox").pvalue)
+                p_drop = float(wilcoxon(T_drop, alternative="greater", zero_method="wilcox").pvalue)
             except ValueError:
                 p_drop = np.nan
             drops.append(dict(probe="kc", band=band, variant=f"lambda={lam}",
                               n_full=len(T_full), n_drop=len(T_drop),
-                              n_below_zero_full=int(np.sum(T_full < 0)),
-                              n_below_zero_drop=int(np.sum(T_drop < 0)),
+                              n_above_zero_full=int(np.sum(T_full > 0)),
+                              n_above_zero_drop=int(np.sum(T_drop > 0)),
                               median_T_full=float(np.median(T_full)),
                               median_T_drop=float(np.median(T_drop)),
                               wilcoxon_p_full=p_full,

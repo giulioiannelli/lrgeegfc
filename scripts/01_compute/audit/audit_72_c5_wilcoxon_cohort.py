@@ -82,7 +82,8 @@ def chordal_distances_for_k_grid(eigvecs_a, eigvecs_b, k_grid):
     return out
 
 
-def wilcoxon_per_k_less(a, b):
+def wilcoxon_per_k_greater(a, b):
+    """Per-k paired Wilcoxon one-sided 'greater' (a > b) under project T_d > 0 = trace."""
     K = a.shape[1]
     p_vals = np.full(K, 1.0)
     for k in range(K):
@@ -91,7 +92,7 @@ def wilcoxon_per_k_less(a, b):
         if d.size < 3 or np.all(d == 0):
             continue
         try:
-            _, p = wilcoxon(d, alternative="less", zero_method="wilcox", correction=False)
+            _, p = wilcoxon(d, alternative="greater", zero_method="wilcox", correction=False)
             p_vals[k] = p
         except Exception:
             pass
@@ -139,7 +140,7 @@ def compute_surr_T_G_band_epiX(band, patients, k_grid, R):
         for r in range(R):
             d_taskpost = chordal_distances_for_k_grid(eigvecs_task[r], eigvecs_post[r], k_grid)
             d_pretask = chordal_distances_for_k_grid(eigvecs_pre[r], eigvecs_task[r], k_grid)
-            out[pi, r, :] = d_taskpost - d_pretask
+            out[pi, r, :] = d_pretask - d_taskpost  # T_G > 0 = trace
         del eigvecs_pre, eigvecs_task, eigvecs_post
         gc.collect()
     return out
@@ -168,7 +169,7 @@ def run_grassmann_c5():
         surr_mean = surr_T_G.mean(axis=1)
 
         # Observed cohort Wilcoxon and cluster mass
-        obs_p = wilcoxon_per_k_less(obs_T_G, surr_mean)
+        obs_p = wilcoxon_per_k_greater(obs_T_G, surr_mean)
         obs_mass = cluster_mass(obs_p, ALPHA_K)
         obs_LR = longest_run_below(obs_p, ALPHA_K)
 
@@ -179,7 +180,7 @@ def run_grassmann_c5():
             phantom = surr_T_G[:, r, :]
             mask_r = np.ones(R, dtype=bool); mask_r[r] = False
             ref = surr_T_G[:, mask_r, :].mean(axis=1)
-            null_p = wilcoxon_per_k_less(phantom, ref)
+            null_p = wilcoxon_per_k_greater(phantom, ref)
             null_mass[r] = cluster_mass(null_p, ALPHA_K)
             null_LR[r] = longest_run_below(null_p, ALPHA_K)
 
@@ -194,14 +195,14 @@ def run_grassmann_c5():
             obs_T_G_loo = obs_T_G[keep]
             surr_T_G_loo = surr_T_G[keep]
             surr_mean_loo = surr_T_G_loo.mean(axis=1)
-            obs_p_loo = wilcoxon_per_k_less(obs_T_G_loo, surr_mean_loo)
+            obs_p_loo = wilcoxon_per_k_greater(obs_T_G_loo, surr_mean_loo)
             obs_mass_loo = cluster_mass(obs_p_loo, ALPHA_K)
             null_mass_loo = np.zeros(R)
             for r in range(R):
                 phantom_loo = surr_T_G_loo[:, r, :]
                 mask_r = np.ones(R, dtype=bool); mask_r[r] = False
                 ref_loo = surr_T_G_loo[:, mask_r, :].mean(axis=1)
-                null_p_loo = wilcoxon_per_k_less(phantom_loo, ref_loo)
+                null_p_loo = wilcoxon_per_k_greater(phantom_loo, ref_loo)
                 null_mass_loo[r] = cluster_mass(null_p_loo, ALPHA_K)
             loo_p[pi_drop] = (1 + np.sum(null_mass_loo >= obs_mass_loo)) / (R + 1)
         loo_argmax = int(np.argmax(loo_p))

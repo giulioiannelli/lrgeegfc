@@ -188,13 +188,7 @@ def main() -> None:
     cbar = fig.colorbar(im, ax=axes, orientation="vertical",
                          pad=0.01, shrink=0.78, fraction=0.04)
     cbar.set_label("trace-consistency (per-test rescaled to [−1, +1])", fontsize=9)
-    fig.suptitle(
-        "Evidence chain — per-patient, per-band sign of each contrast.\n"
-        "Green = trace-consistent; red = trace-opposite. "
-        "Direct tests (H2a-raw) are mostly red; residual / conditional / "
-        "drift-floored tests (H2c, H2d, H2e) are universally green.",
-        fontsize=10, y=1.02,
-    )
+    # No fig.suptitle on publication figures — context lives in the file name.
     for ext in ("pdf", "png"):
         out = OUT_DIR / f"evidence_chain.{ext}"
         fig.savefig(out, bbox_inches="tight")

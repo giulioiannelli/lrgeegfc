@@ -16,6 +16,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from lrg_eegfc.utils.scripting import setup_script_env
+from lrg_eegfc.visuals.styles import use_lrg_style
+use_lrg_style()
+
 ROOT = setup_script_env()
 
 import matplotlib.pyplot as plt
@@ -50,7 +53,6 @@ PAT_COLORS = {
 }
 PAT_SHORT = {"Pat_02": "P2", "Pat_03": "P3", "Pat_05": "P5",
              "Pat_07": "P7", "Pat_08": "P8"}
-OUTLIER = "Pat_03"
 
 ALL_PAIRS = [
     ("rest_pre", "task_learn"), ("rest_pre", "task_test"), ("rest_pre", "rest_post"),
@@ -370,8 +372,8 @@ def task2_three_row_dissociation():
         "## What the figure shows\n"
         "3×6 panel figure. Row 1: H1 (task stability), Row 2: H2a (task trace), "
         "Row 3: H2b (task approach). Each column = one frequency band. "
-        "Thin colored lines = 4 patients (Pat_03 excluded from display). "
-        "Black = mean. Shading = 5/5 unanimity (all 5 patients incl. Pat_03).\n\n"
+        "Thin colored lines = all 5 patients, uniform line style. "
+        "Black = mean. Shading = 5/5 unanimity.\n\n"
         "## Key result\n"
         "H1: beta has widest blue shading. "
         "H2a: only alpha has orange shading (29 contiguous k). "
@@ -432,9 +434,11 @@ def task3_radar_charts():
 
         for ip, pat in enumerate(ALL_PATIENTS):
             vals = data[ip].tolist() + [data[ip, 0]]
-            ls = "--" if pat == OUTLIER else "-"
-            marker = "x" if pat == OUTLIER else "o"
-            lbl = f"{PAT_SHORT[pat]}*" if pat == OUTLIER else PAT_SHORT[pat]
+            # Pat_03 outlier framing retired 2026-05-18; render with same
+            # line style + marker as every other patient.
+            ls = "-"
+            marker = "o"
+            lbl = PAT_SHORT[pat]
             ax.plot(angles_closed, vals, ls, marker=marker,
                     color=PAT_COLORS[pat], lw=1.2, markersize=3.5,
                     alpha=0.85, label=lbl, zorder=3)
@@ -463,10 +467,6 @@ def task3_radar_charts():
                   fontsize=9, frameon=True, framealpha=0.95,
                   edgecolor="#cccccc", handlelength=1.5)
 
-        fig.text(0.5, -0.02,
-                 "*Pat_03 (dashed): 1024 Hz acquisition — outlier",
-                 ha="center", fontsize=8, color="#666666", style="italic")
-
         fig.savefig(OUTDIR / filename, bbox_inches="tight", dpi=200)
         plt.close(fig)
         print(f"  Saved {filename}")
@@ -482,7 +482,7 @@ def task3_radar_charts():
         "## What the figure shows\n"
         "Radar chart of H2b scalar VI contrast (task approach) across 6 bands. "
         "Same format as H2a radar. Alpha: 4/5 positive (Pat_03 negative). "
-        "Excluding Pat_03 (documented outlier): 4/4, p = 0.0625.\n"
+        "Era-pinned n=5 cohort; Pat_03 outlier framing was retired 2026-05-18.\n"
     )
     (OUTDIR / "radar_chart_H2b.md").write_text(md)
 

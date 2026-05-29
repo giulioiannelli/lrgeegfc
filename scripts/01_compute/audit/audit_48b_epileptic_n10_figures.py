@@ -29,7 +29,8 @@ fig_04_mrca_violins.pdf
 fig_05_kc_epi_triangle.pdf
     KC distance restricted to epi-epi pairs across phase pairs (rsPre↔task,
     task↔rsPost, rsPre↔rsPost) and λ ∈ {0, 0.5, 1}. Per-patient T_KC_epi =
-    d(task, rsPost) − d(rsPre, task). Negative = trace at the epi sub-network.
+    d(rsPre, task) − d(task, rsPost). Positive = trace at the epi sub-network.
+    (Sign convention locked 2026-05-26: T_d > 0 = TRACE.)
 
 fig_06_dendrograms_beta.pdf
     9 patients × 3 phases at β. Dendrograms with epi leaves coloured red,
@@ -397,7 +398,8 @@ def fig_04_mrca_violins() -> None:
 def fig_05_kc_epi_triangle() -> None:
     kc = pd.read_csv(CSV_DIR / "M3_kc_epi_subtree.csv")
 
-    # Triangle scalar T_KC_epi = d(task, rsPost) - d(rsPre, task)
+    # Triangle scalar T_KC_epi = d(rsPre, task) - d(task, rsPost)
+    # Project convention: T_KC_epi > 0 = trace at epi sub-network.
     rows = []
     for (pat, band, lam), g in kc.groupby(["patient", "band", "lam"]):
         d_pre_tt = g.loc[(g.phase_a == "rest_pre") & (g.phase_b == "task_test"),
@@ -410,7 +412,7 @@ def fig_05_kc_epi_triangle() -> None:
             patient=pat, band=band, lam=lam,
             d_pre_tt=float(d_pre_tt.iloc[0]),
             d_tt_post=float(d_tt_post.iloc[0]),
-            T_KC_epi=float(d_tt_post.iloc[0] - d_pre_tt.iloc[0]),
+            T_KC_epi=float(d_pre_tt.iloc[0] - d_tt_post.iloc[0]),
         ))
     triangle = pd.DataFrame(rows)
     triangle.to_csv(CSV_DIR / "M3_kc_epi_subtree_triangle.csv", index=False)
@@ -438,10 +440,10 @@ def fig_05_kc_epi_triangle() -> None:
             ax.scatter(np.full(len(v), bi) + jitter, v, s=22,
                        color="#1f77b4", alpha=0.85, edgecolor="white",
                        linewidth=0.4, zorder=3)
-            # per-band Wilcoxon < 0
+            # per-band Wilcoxon > 0 (trace direction)
             if len(v) >= 3:
                 try:
-                    _, p = wilcoxon(v, alternative="less")
+                    _, p = wilcoxon(v, alternative="greater")
                     if p < 0.05:
                         ax.text(bi, ax.get_ylim()[1] * 0.92 if ax.get_ylim()[1] > 0
                                 else ax.get_ylim()[0] * 0.92,
@@ -455,9 +457,9 @@ def fig_05_kc_epi_triangle() -> None:
         kind = {0.0: "topology", 0.5: "balanced", 1.0: "heights"}[lam]
         ax.set_title(rf"$\lambda = {lam}$ ({kind})", fontsize=11)
         ax.tick_params(labelsize=9)
-    axes[0].set_ylabel(r"$T_{KC}^{\mathrm{epi}}$ = $d(\mathrm{task},\mathrm{rsPost}) - "
-                       r"d(\mathrm{rsPre},\mathrm{task})$"
-                       "\n  (negative = trace at epi sub-network)", fontsize=9)
+    axes[0].set_ylabel(r"$T_{KC}^{\mathrm{epi}}$ = $d(\mathrm{rsPre},\mathrm{task}) - "
+                       r"d(\mathrm{task},\mathrm{rsPost})$"
+                       "\n  (positive = trace at epi sub-network)", fontsize=9)
     fig.tight_layout()
     fig.savefig(FIG_DIR / "fig_05_kc_epi_triangle.pdf", bbox_inches="tight")
     plt.close(fig)

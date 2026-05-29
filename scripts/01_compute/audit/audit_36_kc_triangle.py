@@ -64,7 +64,8 @@ def main() -> None:
                     rows.append({
                         "patient": pat, "band": band, "lam": lam,
                         "d_pre_tt": d_pre_tt, "d_tt_post": d_tt_post,
-                        "T_KC": d_tt_post - d_pre_tt,
+                        # T_d > 0 = trace (rsPost closer to task than rsPre).
+                        "T_KC": d_pre_tt - d_tt_post,
                     })
             except Exception as e:
                 print(f"[audit_36] WARN {pat} {band}: {e}")
@@ -77,9 +78,9 @@ def main() -> None:
         for lam in LAMBDAS:
             sub = df[(df["band"] == b) & (df["lam"] == lam)]
             v = sub["T_KC"].dropna().values
-            n_trace = int((v < 0).sum())
+            n_trace = int((v > 0).sum())
             try:
-                _, p = wilcoxon(v, alternative="less")
+                _, p = wilcoxon(v, alternative="greater")
             except Exception:
                 p = float("nan")
             summary_rows.append({
@@ -110,7 +111,7 @@ def main() -> None:
         ax.axhline(0, color="0.4", lw=0.7, ls="--")
         kind = {0.0: "topology", 0.25: "0.25", 0.5: "balanced", 0.75: "0.75", 1.0: "heights"}[lam]
         ax.set_title(rf"$\lambda = {lam}$ ({kind})")
-    axes[0].set_ylabel(r"$T_{KC}(p, b, \lambda)$ -- negative = trace")
+    axes[0].set_ylabel(r"$T_{KC}(p, b, \lambda)$ -- positive = trace")
     fig.tight_layout()
     fig.savefig(FIG_DIR / "boxplots_per_lambda.pdf")
     plt.close(fig)

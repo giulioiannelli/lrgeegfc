@@ -1,16 +1,31 @@
 #!/usr/bin/env python3
 """Per-pair persistence (`ρ_split^coph`) headline preprint figure (per band).
 
-Two-panel composite for any band's per-pair paragraph of the preprint:
+Three-panel composite, redesigned 2026-05-22 to put the per-patient
+z-score above the matched-strength noise floor as the primary visual
+element. The cohort decile tilt and the drift/split/xprobe paired
+slope corroborate.
 
-Panel (a)  per-patient observed ρ_split^coph vs own matched-strength
-           surrogate p50, paired connectors. Cohort median + matched-
-           strength gap ratio annotated.
+Panel (a)  per-patient z above own matched-strength surrogate
+           (R = 200, 4-cycle ±δ rewiring). Patients sorted by z
+           descending; grey vertical band marks the universal
+           noise-floor zone |z| ≤ 2; stems coloured green for
+           z > +2 (trace), red for z < −2 (anti), grey otherwise.
+           At a glance β shows 7/10 patients past z = +2 with the
+           remaining three sitting inside / just outside the band —
+           the band-discriminator quantity is the cohort being
+           uniformly *above* the band, never below it.
 
-Panel (b)  per-pair Δ_task(i,j) vs Δ_rest(i,j) scatter for the cohort-
-           median exemplar patient (from selection.csv if present,
-           otherwise auto-picked as the patient whose obs_rho is closest
-           to the cohort median).
+Panel (b)  cohort-pooled binned regression of within-patient ranks,
+           with the ten per-patient curves shown underneath as
+           thin grey lines. Cohort line = thick blue + bootstrap
+           CI; shaded band = within-patient shuffle null. No
+           quadrant tinting, no corner labels, no callout box.
+
+Panel (c)  per-patient ρ_drift → ρ_split → ρ_xprobe paired slope
+           graph (replaces the 3-boxplot null triangle). Drift→split
+           rise visualises C2 (trace above rest-only drift); split↔
+           xprobe parallel visualises C4 (cross-probe non-degradation).
 
 Usage
 -----
@@ -22,8 +37,9 @@ Inputs
 ------
 data/audit/matched_strength_surrogate_split_baseline/per_patient_per_band.csv
 data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv
+data/audit/ctm_triangle/Td_per_patient_per_band.csv
 data/audit/ctm_triangle/cohort_summary.csv
-data/audit/ctm_per_pair_scatter/tables/selection.csv  (β/α/θ only)
+data/audit/ctm_triangle/c4_wilcoxon_cohort.csv
 data/reports/imcoh_continuous_trace/per_pair_split/<Pat>_<band>.npz
 
 Output (PDF only, no PNG sibling)
@@ -38,15 +54,12 @@ from pathlib import Path
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.lines as mlines
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr
+from scipy.stats import rankdata
 
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
-from lrg_eegfc.utils.probe import extract_probe_labels
 from lrg_eegfc.utils.scripting import setup_script_env
 from lrg_eegfc.visuals.styles import use_lrg_style
 
@@ -62,17 +75,12 @@ COHORT = [
 LRG_CTM_DIR = ROOT / "data" / "audit" / "matched_strength_surrogate_split_baseline"
 CTM_TRI_DIR = ROOT / "data" / "audit" / "ctm_triangle"
 PAIR_SPLIT_DIR = ROOT / "data" / "reports" / "imcoh_continuous_trace" / "per_pair_split"
-SEL_CSV = ROOT / "data" / "audit" / "ctm_per_pair_scatter" / "tables" / "selection.csv"
-SEEG_RAW = ROOT / "data" / "raw" / "stereoeeg_patients"
 
 CLR_OBS = "#1f3d6e"
-CLR_SURR = "#7d7d7d"
 CLR_PRO = "#1a7c3e"
 CLR_ANTI = "#c0392b"
-CLR_SP = "#bababa"
-CLR_XP = "#1f3d6e"
 
-# Null-triangle palette (panel c)
+# Slope-graph palette (panel c)
 CLR_RHO_SPLIT = "#1f3d6e"
 CLR_RHO_DRIFT = "#a48b22"
 CLR_RHO_XPROBE = "#5d3a8f"
@@ -85,246 +93,244 @@ def short(pat: str) -> str:
 def load_pair_data(pat: str, band: str) -> dict:
     npz_path = PAIR_SPLIT_DIR / f"{pat}_{band}.npz"
     d = np.load(npz_path)
-    iu_i = d["iu_i"].astype(int)
-    iu_j = d["iu_j"].astype(int)
-    n_contacts = int(max(iu_i.max(), iu_j.max())) + 1
-    ch = pd.read_csv(SEEG_RAW / pat / "channel_labels.csv")
-    probes = np.array(extract_probe_labels(ch["label"].tolist()))[:n_contacts]
-    same_probe = probes[iu_i] == probes[iu_j]
     return dict(
         dD_task=np.asarray(d["dD_task"]),
         dD_rest=np.asarray(d["dD_rest"]),
-        same_probe=same_probe,
     )
 
 
-def panel_a_strip(ax: plt.Axes, per_pat: pd.DataFrame, cohort: pd.Series,
-                  band: str, band_tex: str) -> None:
-    """Per-patient observed vs own matched-strength surrogate strip plot.
+def panel_a_zstrip(ax: plt.Axes, per_pat: pd.DataFrame, cohort_row: pd.Series,
+                   band: str, band_tex: str) -> None:
+    """Per-patient z above own matched-strength surrogate, sorted by z.
 
-    For each patient: horizontal box-and-whisker over the R=200
-    strength-preserving surrogates (p5–p25–p50–p75–p95) overlaid with the
-    filled observed `ρ_split^coph` marker.
+    Each patient is one horizontal stem from x = 0 to the observed z.
+    A grey vertical band at |z| ≤ 2 marks the universal noise-floor
+    zone (because z normalises by the patient's own surrogate std,
+    the band is shared across patients). Stem + dot are coloured by
+    sign of excess: green for z > +2 (trace), red for z < −2 (anti),
+    grey otherwise.
     """
     sub = per_pat[per_pat.band == band].set_index("patient").loc[COHORT]
-    n = len(sub)
+    z = sub["obs_z"].values
+    order = np.argsort(z)[::-1]
+    patients_sorted = [COHORT[i] for i in order]
+    z_sorted = z[order]
+
+    n = len(z_sorted)
     y = np.arange(n)[::-1]
 
-    obs = sub["obs_rho"].values
-    p5 = sub["surr_p5"].values
-    p25 = sub["surr_p25"].values
-    p50 = sub["surr_p50"].values
-    p75 = sub["surr_p75"].values
-    p95 = sub["surr_p95"].values
+    ax.axvspan(-2, 2, color="0.88", alpha=0.55, zorder=0)
+    ax.axvline(0, color="0.35", lw=0.8, zorder=1)
+    ax.axvline(2, color="0.55", lw=0.7, ls=":", zorder=1)
+    ax.axvline(-2, color="0.55", lw=0.7, ls=":", zorder=1)
 
-    box_h = 0.46
-    surr_fill = "#dcdcdc"
-    for yi, _p5, _p25, _p50, _p75, _p95 in zip(y, p5, p25, p50, p75, p95):
-        # p5–p95 whisker
-        ax.plot([_p5, _p95], [yi, yi], color=CLR_SURR, lw=1.1,
-                solid_capstyle="round", zorder=2)
-        # p25–p75 box
-        ax.add_patch(mpatches.Rectangle(
-            (_p25, yi - box_h / 2.0), _p75 - _p25, box_h,
-            facecolor=surr_fill, edgecolor=CLR_SURR, linewidth=1.0,
-            zorder=3))
-        # p50 tick
-        ax.plot([_p50, _p50], [yi - box_h / 2.0, yi + box_h / 2.0],
-                color=CLR_SURR, lw=1.6, zorder=4)
-
-    pro_mask = obs > 0
-    ax.scatter(obs[pro_mask], y[pro_mask], s=72, marker="o",
-               color=CLR_PRO, edgecolor="white", linewidth=0.8, zorder=6)
-    ax.scatter(obs[~pro_mask], y[~pro_mask], s=72, marker="o",
-               color=CLR_ANTI, edgecolor="white", linewidth=0.8, zorder=6)
-
-    obs_med = float(cohort["obs_median_rho"])
-    surr_med = float(cohort["surr_median_rho_median"])
-    ratio = abs(obs_med) / max(abs(surr_med), 1e-12)
-    p_val = float(cohort["paired_wilcoxon_p"])
-    n_above = str(cohort["n_above_surrogate"])
-
-    ax.axvline(0, color="0.55", lw=0.7, ls="--", zorder=1)
-    ax.axvline(obs_med, color=CLR_OBS, lw=1.1, ls=":", zorder=1)
-    ax.axvline(surr_med, color=CLR_SURR, lw=1.0, ls=":", zorder=1)
+    for yi, zi in zip(y, z_sorted):
+        if zi > 2:
+            clr = CLR_PRO
+        elif zi < -2:
+            clr = CLR_ANTI
+        else:
+            clr = "0.45"
+        ax.plot([0, zi], [yi, yi], color=clr, lw=1.7, alpha=0.78,
+                zorder=2, solid_capstyle="round")
+        ax.scatter([zi], [yi], s=95, color=clr, edgecolor="white",
+                   linewidth=1.1, zorder=3)
 
     ax.set_yticks(y)
-    ax.set_yticklabels([short(p) for p in COHORT], fontsize=8.5)
-    ax.set_xlabel(r"$\rho_{\mathrm{split}}^{\mathrm{coph}}$",
-                  fontsize=11)
-    ax.set_title(rf"(a) per-patient {band_tex} persistence on $D_{{\mathrm{{coph}}}}$",
+    ax.set_yticklabels([short(p) for p in patients_sorted], fontsize=9)
+    ax.set_ylim(-1.0, n - 0.35)
+
+    z_max = max(float(z_sorted.max()) + 1.0, 3.5)
+    z_min = min(float(z_sorted.min()) - 1.0, -3.0)
+    ax.set_xlim(z_min, z_max)
+    ax.set_xlabel(r"$z$ above own matched-strength surrogate",
+                  fontsize=10)
+
+    ax.text(0, -0.75, r"noise floor ($|z| \leq 2$)",
+            ha="center", va="top",
+            fontsize=8, color="0.30", style="italic", zorder=4)
+
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.set_title(rf"(a) {band_tex} per-patient signal above noise floor",
                  fontsize=10.5, loc="left", pad=4)
 
-    xmin = min(obs.min(), p5.min(), -0.05) - 0.04
-    xmax = max(obs.max(), p95.max(),  0.05) + 0.10
-    ax.set_xlim(xmin, xmax)
-    ax.spines[["top", "right"]].set_visible(False)
-
-    obs_trace = int((obs > 0).sum())
-    txt = (
-        rf"cohort median (obs) $= {obs_med:+.3f}$"
-        "\n"
-        rf"cohort median (surr) $= {surr_med:+.3f}$"
-        "\n"
-        rf"ratio $= {ratio:.1f}\times$"
-        "\n"
-        rf"$n_{{\rho>0}}={obs_trace}/10$, "
-        rf"$n_{{>\mathrm{{surr}}}} = {n_above}$"
-        "\n"
+    n_above_p95 = str(cohort_row["n_above_surrogate"])
+    n_above_2 = int((z_sorted > 2).sum())
+    p_val = float(cohort_row["paired_wilcoxon_p"])
+    annot = (
+        rf"{n_above_2}/10 at $z > 2$"
+        rf"$\quad\mid\quad$"
+        rf"{n_above_p95} above own surrogate p95"
+        rf"$\quad\mid\quad$"
         rf"Wilcoxon $p = {p_val:.3f}$"
     )
-    ax.text(0.98, 0.02, txt, transform=ax.transAxes,
-            ha="right", va="bottom", fontsize=8.5,
-            bbox=dict(facecolor="white", edgecolor="#bbb",
-                      boxstyle="round,pad=0.32"))
+    ax.text(0.5, -0.20, annot, transform=ax.transAxes,
+            ha="center", va="top", fontsize=8.6, color="0.20")
 
 
-def pick_exemplar_patient(band: str, per_pat: pd.DataFrame, cohort_row: pd.Series,
-                          sel: pd.DataFrame) -> str:
-    """Return the cohort-median exemplar patient for a given band.
+def panel_b_tilt(ax: plt.Axes, cohort_row: pd.Series, band: str,
+                 band_tex: str) -> None:
+    """Cohort + per-patient rank tilt — polished, no clutter."""
+    rng = np.random.default_rng(20260520)
+    n_bins = 10
+    bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-    Prefer selection.csv if it has a row for this band; otherwise pick
-    the patient whose obs_rho is closest to the cohort median.
-    """
-    sel_band = sel[sel.band == band]
-    if not sel_band.empty:
-        return sel_band.iloc[0].patient
-    sub = per_pat[per_pat.band == band].set_index("patient").loc[COHORT]
-    cohort_med = float(cohort_row["obs_median_rho"])
-    idx = (sub["obs_rho"] - cohort_med).abs().idxmin()
-    return idx
+    rank_data = []
+    for pat in COHORT:
+        pair = load_pair_data(pat, band)
+        n = len(pair["dD_task"])
+        if n < 2:
+            continue
+        t_rank = (rankdata(pair["dD_task"]) - 1) / (n - 1)
+        r_rank = (rankdata(pair["dD_rest"]) - 1) / (n - 1)
+        bin_id = np.minimum(np.digitize(t_rank, bin_edges[1:-1]), n_bins - 1)
+        rank_data.append(dict(r_rank=r_rank, bin_id=bin_id, n=n))
 
+    P = len(rank_data)
+    per_pat_bin = np.full((P, n_bins), np.nan)
+    for i, d in enumerate(rank_data):
+        for k in range(n_bins):
+            mask = d["bin_id"] == k
+            if mask.any():
+                per_pat_bin[i, k] = d["r_rank"][mask].mean()
+    cohort_bin = np.nanmean(per_pat_bin, axis=0)
 
-def panel_b_scatter(ax: plt.Axes, sel: pd.DataFrame, per_pat: pd.DataFrame,
-                    cohort_row: pd.Series, band: str, band_tex: str) -> None:
-    """Per-pair Δ_task vs Δ_rest for the cohort-median exemplar patient."""
-    pat = pick_exemplar_patient(band, per_pat, cohort_row, sel)
-    pair = load_pair_data(pat, band)
-    sp = pair["same_probe"]
-    cp = ~sp
-    rho_full, _ = spearmanr(pair["dD_task"], pair["dD_rest"])
-    rho_x, _ = spearmanr(pair["dD_task"][cp], pair["dD_rest"][cp])
+    B = 2000
+    boot = np.empty((B, n_bins))
+    for b in range(B):
+        idx = rng.integers(0, P, P)
+        boot[b] = np.nanmean(per_pat_bin[idx], axis=0)
+    ci_lo = np.percentile(boot, 2.5, axis=0)
+    ci_hi = np.percentile(boot, 97.5, axis=0)
 
-    lim = float(np.quantile(np.abs(
-        np.concatenate([pair["dD_task"], pair["dD_rest"]])), 0.985)) * 1.06
+    n_perm = 500
+    null_curve = np.empty((n_perm, n_bins))
+    for p in range(n_perm):
+        per_pat_bin_null = np.full((P, n_bins), np.nan)
+        for i, d in enumerate(rank_data):
+            r_shuf = rng.permutation(d["r_rank"])
+            for k in range(n_bins):
+                mask = d["bin_id"] == k
+                if mask.any():
+                    per_pat_bin_null[i, k] = r_shuf[mask].mean()
+        null_curve[p] = np.nanmean(per_pat_bin_null, axis=0)
+    null_p5 = np.percentile(null_curve, 2.5, axis=0)
+    null_p95 = np.percentile(null_curve, 97.5, axis=0)
 
-    ax.scatter(pair["dD_task"][sp], pair["dD_rest"][sp],
-               s=6, color=CLR_SP, alpha=0.50, edgecolors="none", zorder=1)
-    ax.scatter(pair["dD_task"][cp], pair["dD_rest"][cp],
-               s=7, color=CLR_XP, alpha=0.55, edgecolors="none", zorder=2)
-    ax.axhline(0, color="#cccccc", lw=0.6, zorder=0)
-    ax.axvline(0, color="#cccccc", lw=0.6, zorder=0)
-    ax.plot([-lim, lim], [-lim, lim], color="#888888", lw=0.6, ls="--",
-            zorder=0)
-    ax.set_xlim(-lim, lim)
-    ax.set_ylim(-lim, lim)
-    ax.set_aspect("equal")
-    ax.set_xlabel(r"$\Delta_{\mathrm{task}}(i,j) = "
-                  r"D_{\mathrm{coph}}^{\mathrm{taskT}} - "
-                  r"D_{\mathrm{coph}}^{\mathrm{rsPre,A}}$",
+    for i in range(P):
+        ax.plot(bin_centers, per_pat_bin[i], color="0.60", lw=0.9,
+                alpha=0.55, zorder=2)
+
+    ax.fill_between(bin_centers, null_p5, null_p95, color="0.55",
+                    alpha=0.28, linewidth=0, zorder=1.5)
+    ax.axhline(0.5, color="0.40", lw=0.7, ls="--", alpha=0.55, zorder=1)
+
+    ax.fill_between(bin_centers, ci_lo, ci_hi, color=CLR_OBS, alpha=0.30,
+                    linewidth=0, zorder=3)
+    ax.plot(bin_centers, cohort_bin, color=CLR_OBS, lw=2.4, marker="o",
+            markersize=7.5, markerfacecolor=CLR_OBS,
+            markeredgecolor="white", markeredgewidth=1.0, zorder=4)
+
+    obs_half_span = max(
+        float(np.nanmax(np.abs(cohort_bin - 0.5))),
+        float(np.nanmax(np.abs(ci_lo - 0.5))),
+        float(np.nanmax(np.abs(ci_hi - 0.5))),
+        float(np.nanmax(np.abs(per_pat_bin - 0.5))),
+    )
+    y_half = max(0.12, obs_half_span + 0.020)
+    ax.set_ylim(0.5 - y_half, 0.5 + y_half)
+    ax.set_xlim(0.0, 1.0)
+
+    ax.set_xticks([0.05, 0.5, 0.95])
+    ax.set_xticklabels(["0.05", "0.50", "0.95"])
+    ax.set_xlabel(r"within-patient rank of $\Delta_{\mathrm{task}}(i,j)$",
                   fontsize=10)
-    ax.set_ylabel(r"$\Delta_{\mathrm{rest}}(i,j) = "
-                  r"D_{\mathrm{coph}}^{\mathrm{rsPost}} - "
-                  r"D_{\mathrm{coph}}^{\mathrm{rsPre,B}}$",
+    ax.set_ylabel(r"cohort mean rank of $\Delta_{\mathrm{rest}}(i,j)$",
                   fontsize=10)
     ax.spines[["top", "right"]].set_visible(False)
-
-    ax.set_title(rf"(b) per-pair geometry ({pat}, {band_tex}; "
-                 rf"cohort-median exemplar)",
+    ax.set_title(rf"(b) cohort pair-rank tilt at {band_tex}",
                  fontsize=10.5, loc="left", pad=4)
 
-    n_total = pair["dD_task"].size
-    n_same = int(sp.sum())
-    n_cross = int(cp.sum())
-    txt = (
-        rf"$\rho_{{\mathrm{{split}}}} = {rho_full:+.3f}$"
-        "\n"
-        rf"$\rho_{{\mathrm{{xprobe}}}} = {rho_x:+.3f}$"
-        "\n"
-        rf"$N = {n_total}$ pairs "
-        rf"({n_same} same / {n_cross} cross)"
+    null_mid = float((null_p5[0] + null_p95[0]) / 2)
+    ax.text(0.04, null_mid, "null", ha="left", va="center",
+            fontsize=8, color="0.25", style="italic", zorder=2.5)
+    ax.text(0.96, cohort_bin[-1] + 0.005,
+            "cohort", ha="right", va="bottom",
+            fontsize=8.6, color=CLR_OBS, fontweight="bold", zorder=5)
+
+    rho_cohort = float(cohort_row["obs_median_rho"])
+    delta_lr = float(cohort_bin[-1] - cohort_bin[0])
+    n_pairs_total = int(sum(d["n"] for d in rank_data))
+    annot = (
+        rf"cohort $\rho = {rho_cohort:+.3f}$"
+        rf"$\quad\mid\quad$"
+        rf"$\Delta_{{10-1}} = {delta_lr:+.3f}$"
+        rf"$\quad\mid\quad$"
+        rf"$N = {n_pairs_total}$ pairs"
     )
-    ax.text(0.03, 0.97, txt, transform=ax.transAxes, ha="left", va="top",
-            fontsize=9,
-            bbox=dict(facecolor="white", edgecolor="#bbb",
-                      boxstyle="round,pad=0.32"))
+    ax.text(0.5, -0.20, annot, transform=ax.transAxes,
+            ha="center", va="top", fontsize=8.6, color="0.20")
 
 
-def panel_c_null_triangle(ax: plt.Axes, td_per_pat: pd.DataFrame,
-                          td_cohort_row: pd.Series, band: str,
-                          band_tex: str) -> None:
-    """Per-patient null triangle (`ρ_split^coph`, `ρ_drift`, `ρ_xprobe`)
-    rendered as three boxplots, addressing C1 (split > 0), C2 (split
-    > drift, paired) and C4 (cross-probe sign + count).
+def panel_c_slope(ax: plt.Axes, td_per_pat: pd.DataFrame,
+                  td_cohort_row: pd.Series, c4_row: pd.Series,
+                  band: str, band_tex: str) -> None:
+    """Per-patient drift / split / xprobe paired slope graph.
+
+    Three x-positions: ρ_drift, ρ_split^coph, ρ_xprobe. Each patient
+    is a thin grey 3-point polyline; cohort medians are large
+    coloured dots joined by a thick black line. The drift→split rise
+    visualises C2; the split↔xprobe parallel visualises C4.
     """
     sub = td_per_pat[td_per_pat.band == band].set_index("patient").loc[COHORT]
-    rho_split = sub["rho_split"].values
     rho_drift = sub["rho_null_drift"].values
+    rho_split = sub["rho_split"].values
     rho_xp = sub["rho_split_cross_probe"].values
 
-    data = [rho_split, rho_drift, rho_xp]
-    colors = [CLR_RHO_SPLIT, CLR_RHO_DRIFT, CLR_RHO_XPROBE]
-    cats = [r"$\rho_{\mathrm{split}}^{\mathrm{coph}}$",
-            r"$\rho_{\mathrm{drift}}$",
-            r"$\rho_{\mathrm{xprobe}}$"]
     xs = np.array([0.0, 1.0, 2.0])
 
-    bp = ax.boxplot(data, positions=xs, widths=0.55, patch_artist=True,
-                    showfliers=False, zorder=2,
-                    medianprops=dict(color="white", lw=2.0),
-                    whiskerprops=dict(color="0.30", lw=1.2),
-                    capprops=dict(color="0.30", lw=1.2),
-                    boxprops=dict(lw=1.2))
-    for patch, clr in zip(bp["boxes"], colors):
-        patch.set_facecolor(clr)
-        patch.set_edgecolor("0.20")
-        patch.set_alpha(0.85)
+    for d_val, s_val, xp_val in zip(rho_drift, rho_split, rho_xp):
+        ax.plot(xs, [d_val, s_val, xp_val], color="0.55", lw=0.9,
+                alpha=0.50, solid_capstyle="round", zorder=2)
+        ax.scatter(xs, [d_val, s_val, xp_val], s=22, color="0.45",
+                   alpha=0.70, zorder=3, edgecolor="white", linewidth=0.4)
 
-    # Per-patient dots overlay (jittered)
-    rng = np.random.default_rng(20260519)
-    for x, vals, clr in zip(xs, data, colors):
-        jx = rng.uniform(-0.13, 0.13, size=len(vals))
-        ax.scatter(np.full_like(vals, x) + jx, vals,
-                   s=22, color=clr, edgecolor="white", linewidth=0.5,
-                   alpha=0.95, zorder=4)
+    med = [float(np.median(rho_drift)),
+           float(np.median(rho_split)),
+           float(np.median(rho_xp))]
+    cohort_colors = [CLR_RHO_DRIFT, CLR_RHO_SPLIT, CLR_RHO_XPROBE]
+    ax.plot(xs, med, color="0.12", lw=2.0, zorder=4)
+    for x, m, c in zip(xs, med, cohort_colors):
+        ax.scatter([x], [m], s=180, color=c, edgecolor="0.12",
+                   linewidth=1.5, zorder=5)
 
-    # Per-patient connectors (split → drift, split → xprobe)
-    for s, d, xp in zip(rho_split, rho_drift, rho_xp):
-        ax.plot([xs[0], xs[1]], [s, d], color="#cccccc", lw=0.5,
-                alpha=0.6, zorder=1)
-        ax.plot([xs[0], xs[2]], [s, xp], color="#cccccc", lw=0.5,
-                alpha=0.6, zorder=1)
-
-    ax.axhline(0, color="0.55", lw=0.7, ls="--", zorder=0)
+    ax.axhline(0, color="0.55", lw=0.7, ls="--", zorder=1)
 
     ax.set_xticks(xs)
-    ax.set_xticklabels(cats, fontsize=10)
-    ax.set_xlim(-0.55, 2.55)
+    ax.set_xticklabels([
+        r"$\rho_{\mathrm{drift}}$",
+        r"$\rho_{\mathrm{split}}^{\mathrm{coph}}$",
+        r"$\rho_{\mathrm{xprobe}}$",
+    ], fontsize=10)
+    ax.set_xlim(-0.35, 2.35)
     ax.set_ylabel(r"Spearman $\rho$", fontsize=10)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.set_title(rf"(c) {band_tex} null triangle (C1 / C2 / C4)",
+    ax.set_title(rf"(c) {band_tex} drift / split / xprobe",
                  fontsize=10.5, loc="left", pad=4)
 
     p1 = float(td_cohort_row["wilcoxon_split_gt_0_p"])
     p2 = float(td_cohort_row["wilcoxon_split_gt_drift_p"])
-    n_xp = int(td_cohort_row["n_trace_xprobe_int"])
-    rho_xp_med = float(td_cohort_row["rho_xprobe_median"])
-    rho_sp_med = float(td_cohort_row["rho_split_median"])
-    sign_match = (np.sign(rho_xp_med) == np.sign(rho_sp_med)) and (n_xp >= 6)
-    txt = (
-        rf"C1 $\rho_{{\mathrm{{split}}}}>0$: $p = {p1:.4f}$"
-        "\n"
-        rf"C2 $\rho_{{\mathrm{{split}}}}>\rho_{{\mathrm{{drift}}}}$: $p = {p2:.4f}$"
-        "\n"
-        rf"C4 $\rho_{{\mathrm{{xprobe}}}}={rho_xp_med:+.3f}$, "
-        rf"$n={n_xp}/10$"
-        "\n"
-        rf"sign + $n$ check: {'pass' if sign_match else 'fail'}"
+    c4_paired_p = float(c4_row["paired_wilcoxon_p_split_gt_xprobe"])
+    annot = (
+        rf"C1 $p = {p1:.3f}$"
+        rf"$\quad\mid\quad$"
+        rf"C2 $p = {p2:.3f}$"
+        rf"$\quad\mid\quad$"
+        rf"C4 $p = {c4_paired_p:.3f}$"
     )
-    ax.text(0.97, 0.03, txt, transform=ax.transAxes, ha="right", va="bottom",
-            fontsize=8.5,
-            bbox=dict(facecolor="white", edgecolor="#bbb",
-                      boxstyle="round,pad=0.32"))
+    ax.text(0.5, -0.20, annot, transform=ax.transAxes,
+            ha="center", va="top", fontsize=8.6, color="0.20")
 
 
 def main(band: str = "beta") -> Path:
@@ -333,50 +339,26 @@ def main(band: str = "beta") -> Path:
     per_pat = pd.read_csv(LRG_CTM_DIR / "per_patient_per_band.csv")
     cohort = pd.read_csv(LRG_CTM_DIR / "cohort_summary.csv")
     cohort_row = cohort[cohort.band == band].iloc[0]
-    sel = pd.read_csv(SEL_CSV)
     td_per_pat = pd.read_csv(CTM_TRI_DIR / "Td_per_patient_per_band.csv")
     td_cohort = pd.read_csv(CTM_TRI_DIR / "cohort_summary.csv")
     td_cohort_row = td_cohort[td_cohort.band == band].iloc[0]
+    c4_cohort = pd.read_csv(CTM_TRI_DIR / "c4_wilcoxon_cohort.csv")
+    c4_row = c4_cohort[c4_cohort.band == band].iloc[0]
 
     out_dir = ROOT / "data" / "preprint" / "figures" / band / "per_pair_trace"
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Layout: 1×3. (a) per-patient strip + (b) per-pair scatter + (c) null
-    # triangle boxplots. (c) is narrower since it carries only three categories.
-    fig = plt.figure(figsize=(18.0, 5.4))
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.05, 1.0, 0.62], wspace=0.30)
+    fig = plt.figure(figsize=(16.0, 5.0))
+    gs = fig.add_gridspec(1, 3, width_ratios=[1.0, 1.0, 0.75], wspace=0.30)
     ax_a = fig.add_subplot(gs[0, 0])
     ax_b = fig.add_subplot(gs[0, 1])
     ax_c = fig.add_subplot(gs[0, 2])
 
-    panel_a_strip(ax_a, per_pat, cohort_row, band, band_tex)
-    panel_b_scatter(ax_b, sel, per_pat, cohort_row, band, band_tex)
-    panel_c_null_triangle(ax_c, td_per_pat, td_cohort_row, band, band_tex)
+    panel_a_zstrip(ax_a, per_pat, cohort_row, band, band_tex)
+    panel_b_tilt(ax_b, cohort_row, band, band_tex)
+    panel_c_slope(ax_c, td_per_pat, td_cohort_row, c4_row, band, band_tex)
 
-    handles = [
-        mpatches.Patch(facecolor="#dcdcdc", edgecolor=CLR_SURR,
-                       label="matched-strength surrogate IQR (p25–p75)"),
-        mlines.Line2D([], [], color=CLR_SURR, lw=1.6,
-                      label="surrogate p50 / whisker (p5–p95)"),
-        mlines.Line2D([], [], marker="o", linestyle="None", markersize=8,
-                      markerfacecolor=CLR_PRO, markeredgecolor="white",
-                      label=r"observed: pro ($\rho_{\mathrm{split}}^{\mathrm{coph}} > 0$)"),
-        mlines.Line2D([], [], marker="o", linestyle="None", markersize=8,
-                      markerfacecolor=CLR_ANTI, markeredgecolor="white",
-                      label=r"observed: anti ($\rho_{\mathrm{split}}^{\mathrm{coph}} \leq 0$)"),
-        mpatches.Patch(facecolor=CLR_SP, label="same-probe pairs"),
-        mpatches.Patch(facecolor=CLR_XP, alpha=0.6, label="cross-probe pairs"),
-        mpatches.Patch(facecolor=CLR_RHO_SPLIT, alpha=0.85,
-                       label=r"$\rho_{\mathrm{split}}^{\mathrm{coph}}$ per-patient"),
-        mpatches.Patch(facecolor=CLR_RHO_DRIFT, alpha=0.85,
-                       label=r"$\rho_{\mathrm{drift}}$ (rest-only null)"),
-        mpatches.Patch(facecolor=CLR_RHO_XPROBE, alpha=0.85,
-                       label=r"$\rho_{\mathrm{xprobe}}$ (cross-probe only)"),
-    ]
-    fig.legend(handles=handles, loc="lower center", ncol=9,
-               frameon=False, fontsize=8.5,
-               bbox_to_anchor=(0.5, -0.02))
-    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    fig.tight_layout(rect=(0, 0.04, 1, 0.97))
 
     out = out_dir / f"fig_{band}_rho_split.pdf"
     fig.savefig(out, bbox_inches="tight")

@@ -111,7 +111,8 @@ def compute_per_patient() -> pd.DataFrame:
                             "delta_theta": float(a - b),
                             "d_pre_tt": d_pre_tt,
                             "d_tt_post": d_tt_post,
-                            "T_E1": d_tt_post - d_pre_tt,
+                            # T_E1 > 0 = trace.
+                            "T_E1": d_pre_tt - d_tt_post,
                         })
                 except Exception as e:
                     print(f"[audit_46] WARN compute {pat} {band} k={k}: {e}")
@@ -158,7 +159,7 @@ def cohort_n_trace(df: pd.DataFrame) -> dict:
             if not len(sub):
                 continue
             out[(band, k)] = (
-                int((sub["T_E1"] < 0).sum()),
+                int((sub["T_E1"] > 0).sum()),
                 int(len(sub)),
             )
     return out

@@ -26,8 +26,9 @@ M3 — Hierarchical-position diagnostics
         {epi-epi, non-non, cross}.
     (b) KC distance restricted to the epi-epi pair subset across phase pairs
         (rest_pre↔task, task↔rest_post, rest_pre↔rest_post) at λ ∈ {0, 0.5, 1}.
-        T_KC_epi = d_KC(task, rest_post; λ) − d_KC(rest_pre, task; λ).
-        Negative = trace at the epi sub-network level (parallels Result 2).
+        T_KC_epi = d_KC(rest_pre, task; λ) − d_KC(task, rest_post; λ).
+        Positive = trace at the epi sub-network level (parallels Result 2).
+        (Sign convention locked 2026-05-26: T_d > 0 = TRACE.)
 
 All math via library helpers; no private forks.
 """

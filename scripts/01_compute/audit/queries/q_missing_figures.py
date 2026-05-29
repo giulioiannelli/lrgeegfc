@@ -295,7 +295,7 @@ with PdfPages(out_pdf) as pdf:
         plt.Line2D([], [], color="k", lw=1.2, label=f"median (n={N_COHORT})"),
     ]
     figure_legend(fig, handles, where="bottom", fontsize=8)
-    add_provenance_footer(fig, "Td_swarm — per-band cohort dispersion, T_d<0 sign count")
+    add_provenance_footer(fig, "Td_swarm — per-band cohort dispersion, T_d>0 sign count")
     fig.tight_layout(rect=[0, 0.05, 1, 1])
     pdf.savefig(fig, dpi=200); plt.close(fig)
 print(f"wrote {out_pdf}")

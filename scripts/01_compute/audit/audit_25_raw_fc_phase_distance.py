@@ -14,8 +14,10 @@ distances on the substrate ladder:
 
 Within-``rest_pre`` split-half null (``n_split = 50``) yields a robust
 z-score per phase pair. Triangle scalar
-``T_d = d(task, post) − d(pre, task)`` operationalises persistence at
-the FC-edge level.
+``T_d = d(rest_pre, task) − d(task, rest_post)`` operationalises
+persistence at the FC-edge level. **Sign convention: T_d > 0 = trace
+(rsPost closer to task than rsPre), T_d < 0 = anti-trace, T_d = 0 = no
+trace.**
 
 Usage
 -----
@@ -361,11 +363,13 @@ def run_patient(
                     "flag": flag,
                 })
 
-        # Triangle scalar T_d for this band
+        # Triangle scalar T_d for this band.
+        # T_d = d(rest_pre, task) - d(task, rest_post).
+        # T_d > 0 = trace (rsPost closer to task than rsPre).
         for d_label in DISTANCES:
             d_taskpre = all_distances(A_phase["rest_pre"], A_phase["task_test"])[d_label]
             d_taskpost = all_distances(A_phase["task_test"], A_phase["rest_post"])[d_label]
-            T = d_taskpost - d_taskpre
+            T = d_taskpre - d_taskpost
             rows.append({
                 "patient": patient,
                 "band": band,
@@ -639,7 +643,7 @@ def _render_cohort_diagnostic(
                 ax.plot([lo, hi], [lo, hi], color="k", lw=0.6, ls="--", alpha=0.6)
                 ax.set_xlim(lo, hi); ax.set_ylim(lo, hi)
                 ax.tick_params(labelsize=6)
-                # Annotate fraction below diagonal (T_d < 0)
+                # Annotate fraction below diagonal (T_d > 0, trace direction)
                 n_below = int((merged.y < merged.x).sum())
                 n_total = int(merged.shape[0])
                 ax.text(0.04, 0.92, f"{n_below}/{n_total}",
@@ -690,8 +694,8 @@ def _cohort_summary(per_patient: Dict[str, pd.DataFrame], out_path: Path) -> Non
                 })
 
     # Triangle metrics — two complementary counts:
-    #   TRIANGLE     : T_d < 0 alone (geometric persistence).
-    #   TRIANGLE_SIG : T_d < 0 AND Z(pre,post) > 2 (geometric + significant
+    #   TRIANGLE     : T_d > 0 alone (geometric persistence; trace direction).
+    #   TRIANGLE_SIG : T_d > 0 AND Z(pre,post) > 2 (geometric + significant
     #                  pre→post move). Stricter, can suppress real cells
     #                  where pre/post sit close to each other but post is
     #                  still on the task side of pre.
@@ -711,8 +715,8 @@ def _cohort_summary(per_patient: Dict[str, pd.DataFrame], out_path: Path) -> Non
                 & (pooled_T.phase_B == "rest_post")
             ][["patient", "z"]].rename(columns={"z": "z_post"})
             merged = tri.merge(zpost, on="patient", how="left")
-            n_neg = int((merged.d_obs < 0).sum())
-            n_persist = int(((merged.d_obs < 0) & (merged.z_post > 2)).sum())
+            n_pos = int((merged.d_obs > 0).sum())
+            n_persist = int(((merged.d_obs > 0) & (merged.z_post > 2)).sum())
             n_eligible = int(merged.shape[0])
             rows.append({
                 "band": band,
@@ -720,8 +724,8 @@ def _cohort_summary(per_patient: Dict[str, pd.DataFrame], out_path: Path) -> Non
                 "phase_A": "TRIANGLE",
                 "phase_B": "TRIANGLE",
                 "n_eligible": n_eligible,
-                "n_plus": n_neg,
-                "verdict": "positive" if n_neg >= 6 else "negative",
+                "n_plus": n_pos,
+                "verdict": "positive" if n_pos >= 6 else "negative",
             })
             rows.append({
                 "band": band,

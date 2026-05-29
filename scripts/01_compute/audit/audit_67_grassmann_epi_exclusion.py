@@ -247,7 +247,8 @@ def t_g_at_all_k(U_pre: np.ndarray, U_tt: np.ndarray,
     for i, k in enumerate(k_grid):
         d_pre_tt = chordal(U_pre, U_tt, k)
         d_tt_post = chordal(U_tt, U_post, k)
-        out[i] = d_tt_post - d_pre_tt
+        # T_G > 0 = trace (rsPost closer to task than rsPre).
+        out[i] = d_pre_tt - d_tt_post
     return out
 
 
@@ -367,7 +368,8 @@ def per_cell(pat: str, band: str, n_surr: int, swap_factor: int,
         s_std = float(np.std(s_finite, ddof=1))
         obs_T = float(obs_T_G[i])
         z = (obs_T - s_mean) / s_std if s_std > 0 else float("nan")
-        p_low = float(np.mean(s_finite <= obs_T))
+        # Trace direction: T_G > 0; one-sided upper-tail.
+        p_upper = float(np.mean(s_finite >= obs_T))
         rows.append({
             "patient": pat,
             "band": band,
@@ -386,7 +388,7 @@ def per_cell(pat: str, band: str, n_surr: int, swap_factor: int,
             "surr_T_G_p75": float(np.quantile(s_finite, 0.75)),
             "surr_T_G_p95": float(np.quantile(s_finite, 0.95)),
             "obs_z": z,
-            "obs_p_one_sided_lower": p_low,
+            "obs_p_one_sided_upper": p_upper,
         })
     return {"rows": rows, "patient": pat, "band": band}
 
@@ -403,9 +405,9 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
                 continue
             obs_T = sub.obs_T_G.values
             surr_med = sub.surr_T_G_p50.values
-            n_below = int((sub.obs_p_one_sided_lower < 0.05).sum())
+            n_above = int((sub.obs_p_one_sided_upper < 0.05).sum())
             try:
-                wz, wp = wilcoxon(obs_T - surr_med, alternative="less")
+                wz, wp = wilcoxon(obs_T - surr_med, alternative="greater")
                 cohort_z = float(wz)
                 cohort_p = float(wp)
             except Exception:
@@ -414,10 +416,10 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
             med_obs = float(np.median(obs_T))
             med_surr = float(np.median(surr_med))
             if (cohort_p < 0.05 and abs(med_surr) < 0.05 * max(1.0, abs(med_obs))
-                    and n_below >= 8):
+                    and n_above >= 8):
                 verdict = "separated"
-            elif med_obs < 0 and med_surr < 0.5 * med_obs:
-                verdict = "also_negative"
+            elif med_obs > 0 and med_surr > 0.5 * med_obs:
+                verdict = "also_positive"
             else:
                 verdict = "intermediate"
             out.append({
@@ -426,8 +428,8 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
                 "n_patients": len(sub),
                 "obs_median_T_G": med_obs,
                 "surr_median_T_G_per_patient_median": med_surr,
-                "n_patients_below_own_surrogate": n_below,
-                "n_patients_below_own_surrogate_str": f"{n_below}/{len(sub)}",
+                "n_patients_above_own_surrogate": n_above,
+                "n_patients_above_own_surrogate_str": f"{n_above}/{len(sub)}",
                 "paired_wilcoxon_z": cohort_z,
                 "paired_wilcoxon_p": cohort_p,
                 "verdict": verdict,
@@ -462,14 +464,14 @@ def sensitivity_table(cohort_67: pd.DataFrame) -> pd.DataFrame:
             "full_obs_median_T_G": r66.get("obs_median_T_G", np.nan),
             "full_surr_median_T_G": r66.get(
                 "surr_median_T_G_per_patient_median", np.nan),
-            "full_n_below": r66.get("n_patients_below_own_surrogate", np.nan),
+            "full_n_below": r66.get("n_patients_above_own_surrogate", np.nan),
             "full_paired_wilcoxon_p": r66.get("paired_wilcoxon_p", np.nan),
             "full_verdict": r66.get("verdict", "missing"),
             # audit_67 (epi-excluded)
             "epiX_obs_median_T_G": r67["obs_median_T_G"],
             "epiX_surr_median_T_G": r67[
                 "surr_median_T_G_per_patient_median"],
-            "epiX_n_below": r67["n_patients_below_own_surrogate"],
+            "epiX_n_below": r67["n_patients_above_own_surrogate"],
             "epiX_paired_wilcoxon_p": r67["paired_wilcoxon_p"],
             "epiX_verdict": r67["verdict"],
         })

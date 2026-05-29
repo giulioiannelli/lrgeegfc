@@ -51,12 +51,12 @@ def get_geom(band, d_label, A, B):
     return float(r["median"]), float(r["q1"]), float(r["q3"])
 
 
-def n_negative(td_long, band, d_label):
-    """Count patients with T_d < 0 (full cohort; Pat_03 included)."""
+def n_positive(td_long, band, d_label):
+    """Count patients with T_d > 0 (trace direction; full cohort; Pat_03 included)."""
     sub = td_long[td_long.band == band]
     if d_label not in sub.columns:
         return 0
-    n = int((sub[d_label] < 0).sum())
+    n = int((sub[d_label] > 0).sum())
     return n
 
 
@@ -66,7 +66,7 @@ for band in BRAIN_BANDS_NAMES:
     tt_post_med, tt_post_q1, tt_post_q3 = get_geom(band, "S", "task_test", "rest_post")
     rpre_post_med, _, _ = get_geom(band, "S", "rest_pre", "rest_post")
     tl_tt_med, _, _ = get_geom(band, "S", "task_learn", "task_test")  # within-task floor
-    n_pers = n_negative(td, band, "S")
+    n_pers = n_positive(td, band, "S")
     n_pool = int(td[td.band == band].shape[0])
     rows.append({
         "band": band,
@@ -74,9 +74,10 @@ for band in BRAIN_BANDS_NAMES:
         "d_S_TT_RPost": round(tt_post_med, 3),
         "d_S_RPre_RPost": round(rpre_post_med, 3),
         "d_S_TL_TT_within_task": round(tl_tt_med, 3),
-        "T_d_median": round(tt_post_med - rpre_tt_med, 3),
+        # T_d = d(RPre, TT) - d(TT, RPost); positive = trace (RPost closer to TT than RPre).
+        "T_d_median": round(rpre_tt_med - tt_post_med, 3),
         "n_persist_d_S": f"{n_pers}/{n_pool}",
-        "n_persist_d_F": f"{n_negative(td, band, 'F')}/{n_pool}",
+        "n_persist_d_F": f"{n_positive(td, band, 'F')}/{n_pool}",
         "verdict": (
             "persistence" if (n_pers >= 6 and tt_post_med < rpre_tt_med)
             else ("drift-only" if n_pers <= 3 else "borderline")

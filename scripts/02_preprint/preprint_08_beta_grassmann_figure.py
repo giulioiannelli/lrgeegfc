@@ -189,8 +189,9 @@ def draw_panel(ax: plt.Axes, cohort: pd.DataFrame, env: pd.DataFrame,
         )
 
     ax.set_title(title, loc="left", fontsize=10.5, pad=4)
-    ax.set_ylabel(r"$T_G(k) = d_{\mathrm{chord}}^{\mathrm{taskT, rsPost}}"
-                  r" - d_{\mathrm{chord}}^{\mathrm{rsPre, taskT}}$",
+    # Sign convention locked 2026-05-26: T_G > 0 = TRACE.
+    ax.set_ylabel(r"$T_G(k) = d_{\mathrm{chord}}^{\mathrm{rsPre, taskT}}"
+                  r" - d_{\mathrm{chord}}^{\mathrm{taskT, rsPost}}$",
                   fontsize=10)
     if show_xticks:
         ax.set_xlabel(r"subspace dimension $k$", fontsize=10)

@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """Section 6 — Final radar chart of scalar VI contrast (H2a).
 
-N=5 patients. Pat_03 marked as outlier (dashed line).
+N=5 patients (era artifact). Pat_03 is rendered with the same line
+style and marker as every other patient — the earlier "1024 Hz
+outlier" framing was retired 2026-05-18 (see
+``feedback_pat03_no_dropout``; Pat_03 is handled at the config layer
+only).
 Output: data/figures/section6/radar_chart_final.pdf + .md
 """
 from __future__ import annotations
@@ -9,6 +13,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from lrg_eegfc.utils.scripting import setup_script_env
+from lrg_eegfc.visuals.styles import use_lrg_style
+use_lrg_style()
+
 ROOT = setup_script_env()
 
 import matplotlib.pyplot as plt
@@ -42,7 +49,6 @@ PAT_COLORS = {
 }
 PAT_SHORT = {"Pat_02": "P2", "Pat_03": "P3", "Pat_05": "P5",
              "Pat_07": "P7", "Pat_08": "P8"}
-OUTLIER = "Pat_03"
 
 data = np.zeros((len(PATIENTS), len(BANDS)))
 for ip, pat in enumerate(PATIENTS):
@@ -83,12 +89,14 @@ ax.set_rlabel_position(22)
 ax.grid(color="#e0e0e0", linewidth=0.4, linestyle="-")
 ax.spines["polar"].set_visible(False)
 
-# Patient polygons (Pat_03 dashed as outlier)
+# Patient polygons — Pat_03 uniformly rendered with the other patients
+# (Pat_03 outlier framing retired 2026-05-18; OUTLIER kept as dead
+# constant for downstream readability of the legacy script).
 for ip, pat in enumerate(PATIENTS):
     vals = data[ip].tolist() + [data[ip, 0]]
-    ls = "--" if pat == OUTLIER else "-"
-    marker = "x" if pat == OUTLIER else "o"
-    lbl = f"{PAT_SHORT[pat]}*" if pat == OUTLIER else PAT_SHORT[pat]
+    ls = "-"
+    marker = "o"
+    lbl = PAT_SHORT[pat]
     ax.plot(angles_closed, vals, ls, marker=marker, color=PAT_COLORS[pat],
             lw=1.2, markersize=3.5, alpha=0.85, label=lbl, zorder=3)
     ax.fill(angles_closed, vals, color=PAT_COLORS[pat], alpha=0.08, zorder=1)
@@ -120,11 +128,6 @@ leg = ax.legend(loc="upper right", bbox_to_anchor=(1.28, 1.08),
                 fontsize=9, frameon=True, framealpha=0.95,
                 edgecolor="#cccccc", handlelength=1.5)
 
-# Footnote
-fig.text(0.5, -0.02,
-         "*Pat_03 (dashed): 1024 Hz acquisition — outlier at $\\gamma_h$",
-         ha="center", fontsize=8, color="#666666", style="italic")
-
 fig.savefig(OUTDIR / "radar_chart_final.pdf", bbox_inches="tight", dpi=200)
 plt.close(fig)
 print("Saved radar_chart_final.pdf")
@@ -135,9 +138,10 @@ md = """\
 
 ## What the figure shows
 Radar chart of H2a scalar VI contrast (Scalar A) across 6 frequency bands
-for N=5 patients. Pat_03 shown with dashed line (1024 Hz outlier at high gamma).
-Each polygon = one patient's profile. Thick black = mean. Dashed circle = zero
-(no trace baseline). Outside = positive task trace; gray fill inside = anti-trace.
+for N=5 patients (era-pinned cohort; not current n=10). Each polygon =
+one patient's profile, rendered with the same line style. Thick black =
+mean. Dashed circle = zero (no trace baseline). Outside = positive task
+trace; gray fill inside = anti-trace.
 
 ## Key result
 Alpha is the only band where all 5 patients show positive task trace (5/5,

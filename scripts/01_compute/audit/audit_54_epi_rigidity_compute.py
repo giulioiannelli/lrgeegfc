@@ -9,7 +9,7 @@ epi node set E_p in each of {rest_pre, task_test, rest_post}; compute the
 three pairwise Kendall-Colijn distances; classify the per-patient call
 into one of {anchor, trace, reset, rearrange}; build a size-matched
 random-leaf-subset null (R=100); emit per-patient z-scores and the
-continuous trace score Td_E = d(tt, post) - d(pre, tt).
+continuous trace score Td_E = d(pre, tt) - d(tt, post). T_d > 0 = trace.
 
 Library reuse only:
     load_channel_labels, load_epileptic_nodes  -> E_p
@@ -169,7 +169,8 @@ def compute_for_patient(masks: PatientMasks,
                     Z_sub_phase["rest_pre"], Z_sub_phase["task_test"],
                     Z_sub_phase["rest_post"], lam)
                 cls_E = _classify(d_a, d_b, d_c, EPSILON_KC)
-                Td_E = d_b - d_a
+                # T_d > 0 = trace (rsPost closer to task than rsPre).
+                Td_E = d_a - d_b
 
                 class_count = {c: 0 for c in CLASS_NAMES}
                 Td_null: list[float] = []
@@ -177,7 +178,7 @@ def compute_for_patient(masks: PatientMasks,
                     da, db, dc = _triangle(
                         Zn["rest_pre"], Zn["task_test"], Zn["rest_post"], lam)
                     class_count[_classify(da, db, dc, EPSILON_KC)] += 1
-                    Td_null.append(db - da)
+                    Td_null.append(da - db)
                 Td_null_arr = np.asarray(Td_null)
 
                 P_null = {c: class_count[c] / N_NULL for c in CLASS_NAMES}
@@ -276,19 +277,19 @@ def cohort_trace_stats(df: pd.DataFrame) -> pd.DataFrame:
                 if zt.size < 3 or td.size < 3:
                     rows.append(dict(
                         band=band, lam=float(lam), variant=variant,
-                        n=int(min(zt.size, td.size)), n_neg=0, n_neg_raw=0,
+                        n=int(min(zt.size, td.size)), n_pos=0, n_pos_raw=0,
                         z_trace_mean=float("nan"),
                         Td_mean=float("nan"), Td_median=float("nan"),
                         p_z_trace=float("nan"), p_Td_vs_zero=float("nan")))
                     continue
-                # z_trace < 0 -> test 'greater' on -z
-                _, p_zt = wilcoxon_z(-zt)
-                _, p_td = wilcoxon_z(-td)
+                # z_trace > 0 = trace; wilcoxon_z tests 'greater' by default.
+                _, p_zt = wilcoxon_z(zt)
+                _, p_td = wilcoxon_z(td)
                 rows.append(dict(
                     band=band, lam=float(lam), variant=variant,
                     n=int(zt.size),
-                    n_neg=int(np.sum(zt < -1.96)),
-                    n_neg_raw=int(np.sum(td < 0.0)),
+                    n_pos=int(np.sum(zt > 1.96)),
+                    n_pos_raw=int(np.sum(td > 0.0)),
                     z_trace_mean=float(zt.mean()),
                     Td_mean=float(td.mean()),
                     Td_median=float(np.median(td)),
@@ -364,26 +365,26 @@ def main() -> None:
     if not trace_df.empty:
         # z_trace test (random-null)
         sig_zt = trace_df[(trace_df.q_z_trace < 0.05) &
-                          (trace_df.n_neg >= 7)].sort_values(
+                          (trace_df.n_pos >= 7)].sort_values(
             ["variant", "lam", "band"])
         if not sig_zt.empty:
-            print("\n[audit_54] Cohort-positive z_trace cells (BH q<0.05, n_neg>=7):")
+            print("\n[audit_54] Cohort-positive z_trace cells (BH q<0.05, n_pos>=7):")
             for _, r in sig_zt.iterrows():
                 print(f"  z_trace {r.variant}/lam={r.lam:.1f}/{r.band}: "
-                      f"n_neg={r.n_neg}, p={r.p_z_trace:.4g}, q={r.q_z_trace:.4g}")
+                      f"n_pos={r.n_pos}, p={r.p_z_trace:.4g}, q={r.q_z_trace:.4g}")
         else:
             print("\n[audit_54] z_trace test: no cohort-positive cells.")
 
         # Td_E vs 0 (raw, comparable to audit_48 fig_05)
         sig_td = trace_df[(trace_df.q_Td_vs_zero < 0.05) &
-                          (trace_df.n_neg_raw >= 7)].sort_values(
+                          (trace_df.n_pos_raw >= 7)].sort_values(
             ["variant", "lam", "band"])
         if not sig_td.empty:
             print("\n[audit_54] Cohort-positive Td_E vs 0 cells "
-                  "(BH q<0.05, n_neg_raw>=7):")
+                  "(BH q<0.05, n_pos_raw>=7):")
             for _, r in sig_td.iterrows():
                 print(f"  Td_vs_0 {r.variant}/lam={r.lam:.1f}/{r.band}: "
-                      f"n_neg={r.n_neg_raw}/{r.n}, "
+                      f"n_pos={r.n_pos_raw}/{r.n}, "
                       f"median={r.Td_median:+.3f}, "
                       f"p={r.p_Td_vs_zero:.4g}, q={r.q_Td_vs_zero:.4g}")
         else:

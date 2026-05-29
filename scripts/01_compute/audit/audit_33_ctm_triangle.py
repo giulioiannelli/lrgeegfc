@@ -12,13 +12,13 @@ measures 02-04. CTM produces, per (patient, band):
                 D^rest_pre_B (Run A control: split-baseline).
 
 CTM trace direction is rho_split > 0 (task-induced and rest-induced
-distance shifts agree in sign). For consistency with other measures where
-negative = trace, we report
+distance shifts agree in sign). **Project-wide sign convention: T > 0 =
+trace, T < 0 = anti-trace, T = 0 = no trace.** We report
 
-    T_CTM(p, b) = -rho_split(p, b)
+    T_CTM(p, b) = rho_split(p, b)
 
-so negative = trace. Cohort summary mirrors the existing
-``controls_band_stats.md`` numbers but in the (negative = trace) convention.
+so positive = trace. Cohort summary mirrors the existing
+``controls_band_stats.md`` numbers in the (positive = trace) convention.
 
 Outputs
 -------
@@ -65,7 +65,7 @@ def main() -> None:
         on=["patient", "band"],
         how="left",
     )
-    df["T_CTM"] = -df["rho_split"]                   # negative = trace
+    df["T_CTM"] = df["rho_split"]                    # positive = trace
     df["passes_drift"] = (df["rho_split"] > df["rho_null_drift"]).astype(int)
     df.to_csv(OUT_DIR / "Td_per_patient_per_band.csv", index=False)
 

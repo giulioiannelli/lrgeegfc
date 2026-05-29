@@ -235,9 +235,14 @@ def verify_strengths(W_obs: np.ndarray, W_surr: np.ndarray,
 # ---------------------------------------------------------------------------
 def t_kc_from_linkages(Z_pre: np.ndarray, Z_tt: np.ndarray,
                         Z_post: np.ndarray, lam: float) -> tuple[float, float, float]:
+    """Returns (d_pre_tt, d_tt_post, T_KC).
+
+    T_KC = d(rest_pre, task) - d(task, rest_post). Project-wide convention:
+    T_KC > 0 = trace (rsPost closer to task than rsPre is to task).
+    """
     d_pre_tt = kc_distance(Z_pre, Z_tt, lam=lam, normalize=True)
     d_tt_post = kc_distance(Z_tt, Z_post, lam=lam, normalize=True)
-    return float(d_pre_tt), float(d_tt_post), float(d_tt_post - d_pre_tt)
+    return float(d_pre_tt), float(d_tt_post), float(d_pre_tt - d_tt_post)
 
 
 # ---------------------------------------------------------------------------
@@ -314,8 +319,8 @@ def per_cell(pat: str, band: str, n_surr: int, swap_factor: int,
         s_std = float(np.std(s_finite, ddof=1))
         obs_T = obs[lam]["T_KC"]
         z = (obs_T - s_mean) / s_std if s_std > 0 else float("nan")
-        # Trace direction: T_KC < 0; one-sided lower-tail
-        p_low = float(np.mean(s_finite <= obs_T))
+        # Trace direction: T_KC > 0; one-sided upper-tail
+        p_upper = float(np.mean(s_finite >= obs_T))
         out_rows.append({
             "patient": pat,
             "band": band,
@@ -334,7 +339,7 @@ def per_cell(pat: str, band: str, n_surr: int, swap_factor: int,
             "surr_T_KC_p75": float(np.quantile(s_finite, 0.75)),
             "surr_T_KC_p95": float(np.quantile(s_finite, 0.95)),
             "obs_z": z,
-            "obs_p_one_sided_lower": p_low,
+            "obs_p_one_sided_upper": p_upper,
         })
     return {"rows": out_rows, "surr_arrays": surr_arrays,
             "patient": pat, "band": band, "obs": obs}
@@ -353,10 +358,10 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
                 continue
             obs_T = sub.obs_T_KC.values
             surr_med_per_pat = sub.surr_T_KC_p50.values
-            n_below = int((sub.obs_p_one_sided_lower < 0.05).sum())
+            n_above = int((sub.obs_p_one_sided_upper < 0.05).sum())
             try:
                 wz, wp = wilcoxon(obs_T - surr_med_per_pat,
-                                  alternative="less")
+                                  alternative="greater")
                 cohort_z = float(wz)
                 cohort_p = float(wp)
             except Exception:
@@ -364,23 +369,18 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
                 cohort_p = float("nan")
             med_obs = float(np.median(obs_T))
             med_surr = float(np.median(surr_med_per_pat))
-            p5_surr = float(np.quantile(surr_med_per_pat, 0.05))
+            p95_surr = float(np.quantile(surr_med_per_pat, 0.95))
 
-            # Verdict per spec:
-            # - separated: cohort_z (wilcoxon stat for "T_obs < T_surr" is
-            #   a sum-of-ranks; no clean "z>2"); use cohort_p<0.05 AND
-            #   |median surr T_KC across patients| < 0.05 AND ≥ 8/10
-            #   patients individually below their surrogate at p<0.05.
-            # - also_negative: surr median T_KC < 0.5 * obs median T_KC
-            #   AND obs median T_KC < 0.
+            # Verdict per spec (trace direction = positive under project convention):
+            # - separated: cohort_p<0.05 AND |median surr T_KC| < 0.05 AND
+            #   ≥ 8/10 patients individually above their surrogate at p<0.05.
+            # - also_positive: surr median T_KC > 0.5 * obs median T_KC
+            #   AND obs median T_KC > 0.
             # - intermediate: anything else.
-            # The ticket text says "cohort z > 2" but the paired Wilcoxon
-            # returns a rank sum, not a z. We use cohort_p < 0.05 as the
-            # equivalent tail criterion and document.
-            if (cohort_p < 0.05 and abs(med_surr) < 0.05 and n_below >= 8):
+            if (cohort_p < 0.05 and abs(med_surr) < 0.05 and n_above >= 8):
                 verdict = "separated"
-            elif med_obs < 0 and med_surr < 0.5 * med_obs:
-                verdict = "also_negative"
+            elif med_obs > 0 and med_surr > 0.5 * med_obs:
+                verdict = "also_positive"
             else:
                 verdict = "intermediate"
             out.append({
@@ -389,8 +389,8 @@ def cohort_summary(per_pat: pd.DataFrame) -> pd.DataFrame:
                 "n_patients": len(sub),
                 "obs_median_T_KC": med_obs,
                 "surr_median_T_KC_per_patient_median": med_surr,
-                "surr_median_T_KC_per_patient_p5": p5_surr,
-                "n_patients_below_own_surrogate": f"{n_below}/{len(sub)}",
+                "surr_median_T_KC_per_patient_p95": p95_surr,
+                "n_patients_above_own_surrogate": f"{n_above}/{len(sub)}",
                 "paired_wilcoxon_z": cohort_z,
                 "paired_wilcoxon_p": cohort_p,
                 "verdict": verdict,
@@ -421,13 +421,13 @@ def joint_signature(per_pat: pd.DataFrame) -> pd.DataFrame:
                 not r63.empty and "obs_p_one_sided" in r63.columns
             ) else float("nan")
             kc0_z = float(l0.iloc[0]["obs_z"]) if not l0.empty else float("nan")
-            kc0_p = float(l0.iloc[0]["obs_p_one_sided_lower"]) if not l0.empty else float("nan")
+            kc0_p = float(l0.iloc[0]["obs_p_one_sided_upper"]) if not l0.empty else float("nan")
             kc1_z = float(l1.iloc[0]["obs_z"]) if not l1.empty else float("nan")
-            kc1_p = float(l1.iloc[0]["obs_p_one_sided_lower"]) if not l1.empty else float("nan")
+            kc1_p = float(l1.iloc[0]["obs_p_one_sided_upper"]) if not l1.empty else float("nan")
 
             # n_probes_significant_at_p05
             # - rho_split: one-sided upper-tail at p<0.05 (audit_63 obs_p)
-            # - T_KC λ=0/1: one-sided lower-tail at p<0.05
+            # - T_KC λ=0/1: one-sided upper-tail at p<0.05 (positive = trace)
             n_sig = 0
             if np.isfinite(rho_p) and rho_p < 0.05:
                 n_sig += 1
@@ -441,9 +441,9 @@ def joint_signature(per_pat: pd.DataFrame) -> pd.DataFrame:
                 "rho_split_z": rho_z,
                 "rho_split_p_one_sided_upper": rho_p,
                 "T_KC_l0_z": kc0_z,
-                "T_KC_l0_p_one_sided_lower": kc0_p,
+                "T_KC_l0_p_one_sided_upper": kc0_p,
                 "T_KC_l1_z": kc1_z,
-                "T_KC_l1_p_one_sided_lower": kc1_p,
+                "T_KC_l1_p_one_sided_upper": kc1_p,
                 "n_probes_significant_at_p05": n_sig,
             })
     return pd.DataFrame(rows)
@@ -491,7 +491,7 @@ def make_cohort_figure(per_pat: pd.DataFrame, cohort: pd.DataFrame,
             ax.set_title(
                 f"{BRAIN_BAND_TEX_DICT[band]} — verdict: {verdict}\n"
                 rf"Wilcoxon $p={wp:.4f}$,  $n_{{<}} = "
-                rf"{cohort_row['n_patients_below_own_surrogate']}$",
+                rf"{cohort_row['n_patients_above_own_surrogate']}$",
                 fontsize=10)
             ax.spines[["top", "right"]].set_visible(False)
     fig.tight_layout()
@@ -579,7 +579,7 @@ def write_readme(cohort: pd.DataFrame, joint: pd.DataFrame,
             f"| {r['band']} | {r['lambda']:g} "
             f"| {r['obs_median_T_KC']:+.3f} "
             f"| {r['surr_median_T_KC_per_patient_median']:+.3f} "
-            f"| {r['n_patients_below_own_surrogate']} "
+            f"| {r['n_patients_above_own_surrogate']} "
             f"| {r['paired_wilcoxon_p']:.4f} "
             f"| **{r['verdict']}** |"
         )
@@ -608,13 +608,13 @@ def write_readme(cohort: pd.DataFrame, joint: pd.DataFrame,
         "",
         "- ρ_split (audit_63): one-sided upper-tail (large positive ρ_split "
         "= trace).",
-        "- T_KC(λ=0): one-sided lower-tail (large negative T_KC = trace).",
-        "- T_KC(λ=1): one-sided lower-tail.",
+        "- T_KC(λ=0): one-sided upper-tail (large positive T_KC = trace).",
+        "- T_KC(λ=1): one-sided upper-tail.",
         "",
         "`joint_signature.csv` columns:",
         "`patient, band, rho_split_z, rho_split_p_one_sided_upper, "
-        "T_KC_l0_z, T_KC_l0_p_one_sided_lower, T_KC_l1_z, "
-        "T_KC_l1_p_one_sided_lower, n_probes_significant_at_p05`",
+        "T_KC_l0_z, T_KC_l0_p_one_sided_upper, T_KC_l1_z, "
+        "T_KC_l1_p_one_sided_upper, n_probes_significant_at_p05`",
         "",
         "## Algorithm choice (vs §5.2 within-baseline null)",
         "",
@@ -706,10 +706,10 @@ def main() -> None:
             l1 = next((r for r in cell["rows"]
                         if r["lambda"] == 1.0), None)
             l0s = (f"l0: T={l0['obs_T_KC']:+.3f} z={l0['obs_z']:+.2f} "
-                   f"p={l0['obs_p_one_sided_lower']:.3f}"
+                   f"p={l0['obs_p_one_sided_upper']:.3f}"
                    if l0 else "l0: NA")
             l1s = (f"l1: T={l1['obs_T_KC']:+.3f} z={l1['obs_z']:+.2f} "
-                   f"p={l1['obs_p_one_sided_lower']:.3f}"
+                   f"p={l1['obs_p_one_sided_upper']:.3f}"
                    if l1 else "l1: NA")
             print(f"[audit_64] {pat}/{band}: {l0s} | {l1s} ({dt:.1f}s)")
 

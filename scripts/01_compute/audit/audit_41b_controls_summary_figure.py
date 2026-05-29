@@ -167,7 +167,7 @@ def make_paired_lines():
         ax.axhline(0, color="0.5", lw=0.4, ls=":")
         ax.set_title(label, fontsize=10)
         if ax is axes[0]:
-            ax.set_ylabel(r"$T_d$  (negative = trace direction)", fontsize=10)
+            ax.set_ylabel(r"$T_d$  (positive = trace direction)", fontsize=10)
     fig.tight_layout()
     fig.savefig(OUT_DIR / "controls_paired_lines.pdf")
     fig.savefig(RPT_FIG / "controls_paired_lines.pdf")

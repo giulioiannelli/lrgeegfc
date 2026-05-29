@@ -249,7 +249,6 @@ def main() -> None:
     # Rasterise the dendrogram line collections inside the PDF for size.
     for ax in axes:
         for coll in ax.collections:
-            coll.set_rasterized(True)
     fig.savefig(out, dpi=200, bbox_inches="tight")
     print(f"[step1] saved {out}")
     plt.close(fig)

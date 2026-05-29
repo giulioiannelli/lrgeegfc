@@ -29,6 +29,9 @@ from scipy.stats import spearmanr, pearsonr, wilcoxon
 
 from lrg_eegfc.config.paths import IMCOH_LRG_CACHE
 from lrg_eegfc.notebook import move_to_rootf
+from lrg_eegfc.visuals.styles import use_lrg_style
+use_lrg_style()
+
 
 move_to_rootf(pathname="lrgeegfc")
 

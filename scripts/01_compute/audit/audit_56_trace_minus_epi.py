@@ -18,7 +18,7 @@ phases. Compute Td_KC = d_KC(tt, post) - d_KC(pre, tt) on:
     epi_only  = the induced subtree on E_p (audit_54's primary object,
                 included here for direct comparison)
 
-Cohort comparison: per-band, per-lambda median Td_KC + IQR + n_neg
+Cohort comparison: per-band, per-lambda median Td_KC + IQR + n_pos
 across the three operationalisations. Lead with the cohort shape; BH
 gating in a footnote.
 
@@ -130,13 +130,13 @@ def compute_for_patient(masks: PatientMasks) -> list[dict]:
                     d_pre_tt=float(d_a),
                     d_tt_post=float(d_b),
                     d_pre_post=float(d_c),
-                    Td_KC=float(d_b - d_a),
+                    Td_KC=float(d_a - d_b),
                 ))
     return rows
 
 
 def cohort_summary(df: pd.DataFrame) -> pd.DataFrame:
-    """Per (variant, band, lam): median, IQR, n_neg, raw Wilcoxon p (less)."""
+    """Per (variant, band, lam): median, IQR, n_pos, raw Wilcoxon p (greater)."""
     rows: list[dict] = []
     for variant in ("full", "resect", "epi_only"):
         for lam in KC_LAMBDAS:
@@ -150,13 +150,13 @@ def cohort_summary(df: pd.DataFrame) -> pd.DataFrame:
                 q3 = float(np.percentile(v, 75))
                 iqr = q3 - q1
                 pct_iqr = (abs(med) / iqr * 100.0) if iqr > 1e-9 else float("nan")
-                n_neg = int(np.sum(v < 0))
-                _, p = wilcoxon_z(-v)  # alternative='less' on raw v
+                n_pos = int(np.sum(v > 0))
+                _, p = wilcoxon_z(v)  # alternative='greater' on raw v (T_d>0 = trace)
                 rows.append(dict(
                     variant=variant, band=band, lam=float(lam),
                     n=int(v.size),
                     median=med, q1=q1, q3=q3, iqr=iqr,
-                    pct_iqr=pct_iqr, n_neg=n_neg,
+                    pct_iqr=pct_iqr, n_pos=n_pos,
                     p_one_sided=float(p),
                 ))
     out = pd.DataFrame(rows)
@@ -195,16 +195,16 @@ def comparison_table(cohort: pd.DataFrame) -> pd.DataFrame:
                 band=band, lam=float(lam),
                 full_med=float(f["median"].iloc[0]),
                 full_pctIQR=float(f["pct_iqr"].iloc[0]),
-                full_n_neg=int(f["n_neg"].iloc[0]),
+                full_n_pos=int(f["n_pos"].iloc[0]),
                 resect_med=float(r["median"].iloc[0]),
                 resect_pctIQR=float(r["pct_iqr"].iloc[0]),
-                resect_n_neg=int(r["n_neg"].iloc[0]),
+                resect_n_pos=int(r["n_pos"].iloc[0]),
                 delta_med=float(r["median"].iloc[0]) - float(f["median"].iloc[0]),
             )
             if not e.empty:
                 row.update(epi_med=float(e["median"].iloc[0]),
                             epi_pctIQR=float(e["pct_iqr"].iloc[0]),
-                            epi_n_neg=int(e["n_neg"].iloc[0]))
+                            epi_n_pos=int(e["n_pos"].iloc[0]))
             rows.append(row)
     return pd.DataFrame(rows)
 
@@ -239,22 +239,22 @@ def main() -> None:
     # Lead with the comparison: per-band, per-lambda full vs resect
     print("\n=== Per-(band, lam) cohort Td_KC: FULL vs RESECT (V\\E_p) ===")
     print(f"{'band':>10s} {'lam':>4s} | "
-          f"{'full med (%IQR, n_neg)':>26s} | "
-          f"{'resect med (%IQR, n_neg)':>28s} | "
+          f"{'full med (%IQR, n_pos)':>26s} | "
+          f"{'resect med (%IQR, n_pos)':>28s} | "
           f"{'Δmed':>7s} | direction")
     print("-" * 95)
     for _, row in cmp.iterrows():
-        f_str = f"{row.full_med:+.3f} ({row.full_pctIQR:.0f}%, {row.full_n_neg}/9)"
-        rs_str = f"{row.resect_med:+.3f} ({row.resect_pctIQR:.0f}%, {row.resect_n_neg}/9)"
+        f_str = f"{row.full_med:+.3f} ({row.full_pctIQR:.0f}%, {row.full_n_pos}/9)"
+        rs_str = f"{row.resect_med:+.3f} ({row.resect_pctIQR:.0f}%, {row.resect_n_pos}/9)"
         d_str = f"{row.delta_med:+.3f}"
-        if row.full_med < 0 and row.delta_med < 0:
+        if row.full_med > 0 and row.delta_med > 0:
             tag = "trace strengthens"
-        elif row.full_med < 0 and row.delta_med > 0:
-            tag = "trace weakens"
-        elif row.full_med > 0 and row.delta_med > 0:
-            tag = "reset strengthens"
         elif row.full_med > 0 and row.delta_med < 0:
-            tag = "reset weakens / flip"
+            tag = "trace weakens"
+        elif row.full_med < 0 and row.delta_med < 0:
+            tag = "anti-trace strengthens"
+        elif row.full_med < 0 and row.delta_med > 0:
+            tag = "anti-trace weakens / flip"
         else:
             tag = ""
         print(f"{row.band:>10s} {row.lam:>4.1f} | {f_str:>26s} | {rs_str:>28s} | "
@@ -268,8 +268,8 @@ def main() -> None:
             continue
         row = sub.iloc[0]
         print(f"  beta  lam={lam}: full Td_med={row.full_med:+.3f} "
-              f"({row.full_n_neg}/9 trace) → resect Td_med={row.resect_med:+.3f} "
-              f"({row.resect_n_neg}/9 trace).  Δ = {row.delta_med:+.3f}")
+              f"({row.full_n_pos}/9 trace) → resect Td_med={row.resect_med:+.3f} "
+              f"({row.resect_n_pos}/9 trace).  Δ = {row.delta_med:+.3f}")
 
 
 if __name__ == "__main__":

@@ -52,7 +52,7 @@ def regate_one(cohort: pd.DataFrame, label: str) -> pd.DataFrame:
         p = float(r["paired_wilcoxon_p"])
         med_obs = float(r["obs_median_T_G"])
         med_surr = float(r["surr_median_T_G_per_patient_median"])
-        n_below = int(r["n_patients_below_own_surrogate"])
+        n_below = int(r["n_patients_above_own_surrogate"])
         # Old gate (3 conditions, all hardcoded)
         old_sep = (
             (p < 0.05)

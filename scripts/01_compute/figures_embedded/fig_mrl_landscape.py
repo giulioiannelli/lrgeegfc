@@ -156,7 +156,6 @@ def headline_figure(step_df: pd.DataFrame, smooth_df: pd.DataFrame,
                    fontsize=11)
 
     for im in (im_a, im_b, im_c):
-        im.set_rasterized(True)
     fig.tight_layout()
     out = OUT_DIR / "mrl_landscape.pdf"
     fig.savefig(out, dpi=200, bbox_inches="tight")

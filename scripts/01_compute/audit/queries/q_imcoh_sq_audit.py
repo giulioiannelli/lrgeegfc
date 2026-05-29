@@ -234,23 +234,23 @@ def _wilcoxon_p(values):
     if arr.size < 5 or np.allclose(arr, 0):
         return float("nan")
     try:
-        stat, p = wilcoxon(arr, alternative="less")
+        stat, p = wilcoxon(arr, alternative="greater")
         return float(p)
     except ValueError:
         return float("nan")
 
 
 def _sign_p(values):
-    """One-sided binomial sign test, alternative T_d < 0."""
+    """One-sided binomial sign test, alternative T_d > 0."""
     arr = np.asarray(values, dtype=float)
     arr = arr[np.isfinite(arr)]
     if arr.size < 5:
         return float("nan")
     n = arr.size
-    n_neg = int((arr < 0).sum())
-    # P(X >= n_neg | p=0.5) under one-sided "less"
+    n_pos = int((arr > 0).sum())
+    # P(X >= n_pos | p=0.5) under one-sided "greater"
     from math import comb
-    p = sum(comb(n, k) for k in range(n_neg, n + 1)) / 2 ** n
+    p = sum(comb(n, k) for k in range(n_pos, n + 1)) / 2 ** n
     return float(p)
 
 

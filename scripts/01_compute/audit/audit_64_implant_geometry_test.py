@@ -202,19 +202,20 @@ def build_trace_measures() -> pd.DataFrame:
     kc = pd.read_csv(OUT_DIR.parent / "kc_triangle"
                      / "Td_per_patient_per_band_lambda.csv")
     kc = kc[kc.band.isin(BANDS) & kc.lam.isin([0.0, 1.0])].copy()
-    kc["trace_score"] = -kc["T_KC"]
+    # T_KC and S are already positive=trace under the project-wide sign
+    # convention (T_d = d(rest_pre, task) - d(task, rest_post)); no sign flip.
+    kc["trace_score"] = kc["T_KC"]
     kc_l0 = (kc[kc.lam == 0.0][["patient", "band", "trace_score"]]
              .rename(columns={"trace_score": "T_KC_l0"}))
     kc_l1 = (kc[kc.lam == 1.0][["patient", "band", "trace_score"]]
              .rename(columns={"trace_score": "T_KC_l1"}))
 
-    # Substrate T_d^(d_S) from raw_fc_phase_distance. Column S in that
-    # CSV is the raw triangle inequality residual T_d^(d_S); negative =
-    # trace direction. Flip sign for consistency.
+    # Substrate T_d^(d_S) from raw_fc_phase_distance. Column S = T_d^(d_S)
+    # with project convention positive = trace; pass through directly.
     rfc = pd.read_csv(OUT_DIR.parent / "raw_fc_phase_distance"
                       / "Td_per_patient_per_band.csv")
     rfc = rfc[rfc.band.isin(BANDS)][["patient", "band", "S"]].copy()
-    rfc["T_d_dS"] = -rfc["S"]
+    rfc["T_d_dS"] = rfc["S"]
     rfc = rfc[["patient", "band", "T_d_dS"]]
 
     out = (mss
@@ -614,8 +615,8 @@ def write_readme(feat: pd.DataFrame, trace: pd.DataFrame,
         "- Implant features: " + ", ".join(FEATURES),
         "- Sources:",
         "  - `data/audit/matched_strength_surrogate_split_baseline/per_patient_per_band.csv` (obs_rho, obs_z)",
-        "  - `data/audit/kc_triangle/Td_per_patient_per_band_lambda.csv` (T_KC λ=0, λ=1; sign-flipped)",
-        "  - `data/audit/raw_fc_phase_distance/Td_per_patient_per_band.csv` (T_d^(d_S); sign-flipped)",
+        "  - `data/audit/kc_triangle/Td_per_patient_per_band_lambda.csv` (T_KC λ=0, λ=1; positive = trace)",
+        "  - `data/audit/raw_fc_phase_distance/Td_per_patient_per_band.csv` (T_d^(d_S); positive = trace)",
         "  - `data/raw/stereoeeg_patients/Pat_NN/implant_pat_NN.csv` (implant geometry)",
         "- BH-FDR over m = "
         + str(len(BANDS) * len(TRACE_MEASURES) * len(FEATURES))
