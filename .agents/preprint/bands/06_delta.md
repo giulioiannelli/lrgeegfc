@@ -185,11 +185,23 @@ The δ subspace trace at k=57..63 is at **the highest k of any band's contiguous
 
 The C5 epi-X shift to k=33..39 brings the trace down to slower modes — these are more macroscopic patterns that emerge when the local high-k epi-zone-coupled modes are removed. Mechanistically, this is consistent with the epi-zone forming local coupling clusters that contribute to mid-spectrum modes; removing those clusters leaves the remaining network with a macroscopic δ-band coupling reorganization at the slow-mode level.
 
-## 5. Anatomical distribution — δ Grassmann trace localizes to two FULLY DISJOINT networks (full cohort vs C5 epi-X)
+## 5. Anatomical distribution — ~~two FULLY DISJOINT networks~~ **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01**
 
-The δ Grassmann trace is **localized to two anatomically distinct cortical networks** depending on whether epi-zone contacts are included. Under the locked all-clusters paradigm (`S(δ)` aggregation, `data/audit/anatomy_delta_grassmann{_epiX}_clusterext/`), the full-cohort and C5 epi-X networks **share 0 regions** (was 2/6 under the retired `K*(δ)`/`K*^epiX(δ)` windows). The dissociation is **fully disjoint** under the cluster-extent paradigm.
+> ⚠️ **RETRACTED — the δ Grassmann "two disjoint networks" claim does not survive.** Neither
+> network localizes: **0/4 (full) and 0/3 (epi-X) cohort-supported** (the well-sampled locked
+> regions are *anti*-localized: superiortemporal n=4 = −0.10, inferiortemporal n=5 = −0.03),
+> and **per-patient localization is null** too. Two extra problems compound it: (a) the
+> δ-epi-X "network" was computed with a **no-op epi-X mask bug** (`np.isin(int,str)` excluded
+> 0 nodes — it never removed epileptic contacts; fixed 2026-05-30), so the "fully disjoint
+> two networks" contrast was partly an artifact; (b) δ is only a **weak** trace to begin with.
+> The region lists were top-decile per-node-participation + A3-on-counts on the phase-AVERAGED
+> anchor quantity (not a cross-phase trace). Tables retained as historical record. Sources:
+> `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`, `locked/ANATOMY_LEDGER.md`.
 
-Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 pm cluster-extent revision.
+~~The δ Grassmann trace is **localized to two anatomically distinct cortical networks** ... The dissociation is **fully disjoint** under the cluster-extent paradigm.~~ (retracted — see banner)
+
+Audited under `locked/ANATOMY_CONTROLS.md`. **Verdict source NOW: `data/audit/anatomy_localization_wilcoxon/` + `data/audit/per_patient_localization/` (2026-05-30/06-01 retraction); `ANATOMY_LEDGER.md` 2026-05-19 pm entry superseded.**
 
 ### δ Grassmann anatomy, full cohort (over `S(δ)`)
 
@@ -204,7 +216,7 @@ Four named DK regions pass A3 alone (A1 sparse for Grassmann probe):
 | ctx-rh-parstriangularis | 1 / 13 | 0.65× | very large | 0.005 |
 | ctx-lh-superiortemporal | 2 / 32 | 0.61× | 14.11 | 0.010 |
 
-Network anatomy: **temporal + parietal + frontal** — left inferior temporal + left superior temporal + left inferior parietal + right pars triangularis. The Amygdala, medial-OFC, caudal anterior cingulate, fusiform, and bankssts that appeared in the retired `K*(δ)` analysis are **not present under `S(δ)`** — the all-clusters aggregation reads a different network. The "anchor anatomy" interpretation (Amy + cingulate + fusiform overlap with published δ epi-zone synchronization) is **not supported** at the Grassmann probe under the locked paradigm.
+~~Network anatomy: **temporal + parietal + frontal** — left inferior temporal + left superior temporal + left inferior parietal + right pars triangularis.~~ **RETRACTED (see §5 banner): 0/4 cohort-supported; well-sampled superiortemporal (n=4) and inferiortemporal (n=5) are *anti*-localized; per-patient null. Only passing locked region (inferiorparietal) is n=1.**
 
 Source: `data/audit/anatomy_delta_grassmann_clusterext/cohort_summary.csv` (audit_72 --cluster-extent, 2026-05-19 pm).
 
@@ -220,21 +232,28 @@ Three named DK regions pass A3 alone:
 | ctx-rh-rostralmiddlefrontal | 5 / 33 | 1.47× | 2.71 | 0.005 |
 | ctx-lh-superiorfrontal | 2 / 32 | 0.88× | 14.11 | 0.010 |
 
-Network anatomy: **left superior parietal + right rostral middle frontal + left superior frontal**. Fusiform, inferior parietal, postcentral, and inferior temporal that appeared in the retired `K*^epiX(δ)` analysis are **not present under `S^epiX(δ)`**; left superior frontal emerges as new.
+~~Network anatomy: **left superior parietal + right rostral middle frontal + left superior frontal**.~~ **RETRACTED (see §5 banner): 0/3 cohort-supported (rostralmiddlefrontal anti-localized); per-patient null; AND this network was computed with the no-op epi-X mask bug (never excluded epileptic nodes; fixed 2026-05-30).**
 
-**Region-set overlap with full cohort**: **0/3 regions are shared**. The two networks are **fully disjoint** under the cluster-extent paradigm (was 2/6 shared under the retired windows; the dissociation strengthens to "completely non-overlapping").
+~~**Region-set overlap with full cohort**: **0/3 regions are shared**. The two networks are **fully disjoint** ...~~ **RETRACTED — the "fully disjoint two networks" contrast does not survive (neither network localizes; the epi-X side was a masking-bug artifact).**
 
 Source: `data/audit/anatomy_delta_grassmann_epiX_clusterext/cohort_summary.csv` (audit_72 --epi-x --k-list ..., 2026-05-19 pm).
 
-### Reading: δ Grassmann is a mixture of two distinct phenomena (strengthened under `S(b)`)
+### Reading: ~~δ Grassmann is a mixture of two distinct phenomena~~ **RETRACTED — neither "phenomenon" localizes**
 
-The two fully disjoint anatomies at fully disjoint significance-thresholded sets mean:
-- **Full-cohort signal** (over `S(δ)`): temporal + parietal + frontal — a cortical pattern that does NOT overlap with the published δ epi-zone anchor anatomy.
-- **C5 epi-X signal** (over `S^epiX(δ)`): superior parietal + superior frontal + rostral middle frontal — a tighter parietal-frontal cortical signal revealed only when epi contacts are removed.
+> ⚠️ **RETRACTED 2026-05-30/06-01.** The "two distinct, anatomically localized phenomena"
+> reading does not survive: neither network is cohort-supported (0/4 full, 0/3 epi-X;
+> well-sampled regions anti-localized) or per-patient-supported, and the epi-X "network"
+> rested on a no-op masking bug (fixed). The correct reading is that the weak δ Grassmann
+> trace, to the extent it exists, is **anatomically delocalized** — there is no "two-network"
+> structure to report. The bullets below are retained only as historical record.
 
-This is **not** the same trace seen through two windows. The full-cohort δ Grassmann probe and the C5 epi-X probe each read a distinct cortical reorganization pattern; the two patterns share no DK regions under the locked methodology.
+~~The two fully disjoint anatomies at fully disjoint significance-thresholded sets mean:~~
+- ~~**Full-cohort signal** (over `S(δ)`): temporal + parietal + frontal.~~ (retracted)
+- ~~**C5 epi-X signal** (over `S^epiX(δ)`): superior parietal + superior frontal + rostral middle frontal.~~ (retracted — masking-bug artifact)
 
-The δ Grassmann verdict from `locked/VERDICT_LEDGER.md` is "weak trace" (cluster_p=0.0249); the anatomy lockdown reveals that this weak trace is actually **two phenomena, both anatomically localized, both physiologically interpretable, with zero anatomical overlap**. The preprint should report both networks and note the strengthened dissociation.
+~~This is **not** the same trace seen through two windows...~~ **RETRACTED — see banner.**
+
+~~The δ Grassmann verdict ... the anatomy lockdown reveals that this weak trace is actually **two phenomena, both anatomically localized, both physiologically interpretable, with zero anatomical overlap**. The preprint should report both networks and note the strengthened dissociation.~~ **RETRACTED 2026-05-30/06-01 — neither "phenomenon" is anatomically localized (0/4 and 0/3 cohort-supported, per-patient null), and the epi-X side rested on a no-op masking bug. The δ Grassmann verdict stays "weak trace"; do NOT report a "two-network" anatomy. The trace, such as it is, is delocalized.**
 
 ### δ anchor anatomy (descriptive only, substrate-layer)
 

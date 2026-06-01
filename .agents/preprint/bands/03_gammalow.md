@@ -201,11 +201,21 @@ The k=12..23 range corresponds to roughly modes φ_2, φ_3, …, φ_{24} of the 
 
 The C5 epi-X shift (k=12..23 → k=19..28) means epi-zone contacts contribute to the lower-k modes carrying the original trace; without them, the signal re-projects onto slightly faster modes. The mode-identity is not preserved, but the existence of a coherent subspace rotation is.
 
-## 5. Anatomical distribution — γ_l Grassmann trace is strong-localized to an occipito-temporal + frontal + medial-OFC network
+## 5. Anatomical distribution — ~~strong-localized to an occipito-temporal + frontal + medial-OFC network~~ **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01**
 
-The γ_l Grassmann trace is **localized to an occipito-temporal + frontal + medial-OFC cortical network** of 7 named DK regions that pass A3 matched-strength surrogacy at p_emp<0.05 / obs_z>2 (R=200, seed 20260511) under the locked all-clusters paradigm. A1 hypergeometric is sparse (top-decile per-patient endpoints yield too few hits for high-power hypergeometric in the Grassmann probe — see `locked/ANATOMY_CONTROLS.md` audit note); the A3 surrogate gate is the primary anatomy control for Grassmann.
+> ⚠️ **RETRACTED — the γ_l Grassmann trace does not localize anatomically.** The 7-region
+> network does **not** survive a signed, threshold-free test: **0/7 cohort-supported** (the
+> one well-sampled locked region, middletemporal n=5, fails; no well-sampled region passes),
+> and **per-patient localization is also null** (anchor probe 1–3/10 = a seed-flickering
+> knife-edge; the proper cross-phase Grassmann trace also null per-patient). The 7-region
+> list was built on top-decile per-node participation + A3 enrichment on counts (this is
+> also the phase-AVERAGED anchor quantity, not a cross-phase trace). Tables retained as
+> historical record. Sources: `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`, `locked/ANATOMY_LEDGER.md`.
 
-Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 pm cluster-extent revision.
+~~The γ_l Grassmann trace is **localized to an occipito-temporal + frontal + medial-OFC cortical network** of 7 named DK regions that pass A3 matched-strength surrogacy ...~~ (retracted — see banner; the A3-on-counts gate does not survive the signed cohort-consistency / per-patient test)
+
+Audited under `locked/ANATOMY_CONTROLS.md`. **Verdict source NOW: `data/audit/anatomy_localization_wilcoxon/` + `data/audit/per_patient_localization/` (2026-05-30/06-01 retraction); `ANATOMY_LEDGER.md` 2026-05-19 pm entry superseded.**
 
 ### γ_l Grassmann anatomy (top-decile per-node participation in `U_k` over `S(γ_l)`)
 
@@ -223,7 +233,7 @@ Seven named DK regions pass A3 alone:
 | ctx-rh-parstriangularis | 5 / 15 | 3.89× | 9.01 | 0.005 |
 | ctx-lh-cuneus | 4 / 16 | 2.43× | 5.25 | 0.040 |
 
-Network anatomy: **occipital cortex** (left lateral occipital + left cuneus) + **temporal cortex** (left middle + left superior) + **frontal** (left rostral middle frontal + right pars triangularis) + **medial OFC** (right). The KC-era "left fusiform at γ_l" claim is **fully retracted** under `S(γ_l)` — left fusiform was carried by the retired `K*(γ_l) = [12, 23]` analysis but does not appear in the all-clusters cluster-extent rerun (audit_72 --cluster-extent, 2026-05-19 pm).
+~~Network anatomy: **occipital cortex** (left lateral occipital + left cuneus) + **temporal cortex** + **frontal** + **medial OFC**.~~ **RETRACTED (see §5 banner): 0/7 cohort-supported; well-sampled middletemporal (n=5) fails; per-patient null.** (The KC-era "left fusiform at γ_l" claim was already retracted; left fusiform appears nowhere.)
 
 A1 enrichments are now all ≥ 1.5× (vs the retired audit's mix of 0.26×–3.24×), reflecting that `S(γ_l)`-averaged participations are more concentrated than the contiguous-window-only participations.
 
@@ -231,7 +241,7 @@ Source: `data/audit/anatomy_low_gamma_grassmann_clusterext/cohort_summary.csv` (
 
 ### Cross-band comparison
 
-Under `S(b)`, **fusiform appears nowhere** across the cluster-extent anatomy panel — neither at β nor γ_l nor δ. The KC-era "Hippocampus + left fusiform" β claim is partially retracted: Hippocampus survives at β Grassmann; left fusiform retracts everywhere. The retraction is the cleanest worked-example of why the cluster-extent methodology cascade was necessary.
+Under `S(b)`, **fusiform appears nowhere** across the cluster-extent anatomy panel — neither at β nor γ_l nor δ. ~~The KC-era "Hippocampus + left fusiform" β claim is partially retracted: Hippocampus survives at β Grassmann; left fusiform retracts everywhere.~~ **FULLY RETRACTED 2026-05-30/06-01: Hippocampus does NOT survive either — it crosses the cohort test on only 3–5/10 patients (a marginal hint, not a localization) and is null per-patient. Both "Hippocampus" and "left fusiform" are retracted; no β localization survives.**
 
 ### Caveats
 

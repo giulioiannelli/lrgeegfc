@@ -70,7 +70,7 @@ import pandas as pd
 from scipy.stats import hypergeom
 
 from lrg_eegfc.utils.io.patient import load_epileptic_nodes
-from lrg_eegfc.utils.io.regions import load_channel_regions
+from lrg_eegfc.utils.io.regions import load_channel_regions, _normalise_label
 from lrg_eegfc.utils.scripting import setup_script_env
 
 ROOT = setup_script_env()
@@ -230,8 +230,13 @@ def run_band(band: str, k_iter, n_surrogates: int, epi_x: bool,
         N = eig_obs[OBS_PHASES[0]].shape[0]
 
         if epi_x:
-            epi = load_epileptic_nodes(pat)
-            keep_mask = ~np.isin(np.arange(N), np.asarray(list(epi)))
+            # BUGFIX 2026-05-30: load_epileptic_nodes returns string LABELS, not
+            # integer indices. The previous `np.isin(np.arange(N), epi)` compared
+            # int vs str → all-False → epi-X excluded ZERO nodes (verified: Pat_02
+            # 0/117). Use the label-based mask (audit_71 pattern).
+            epi = set(load_epileptic_nodes(pat))
+            labels = [_normalise_label(l) for l in regions_df["label_raw"]]
+            keep_mask = np.array([l not in epi for l in labels], dtype=bool)
         else:
             keep_mask = np.ones(N, dtype=bool)
 

@@ -218,11 +218,25 @@ The headline three-layer table shows that raw FC (single-pair magnitudes), raw `
 
 α has no contiguous-significant Grassmann window. The 4-cell run at k = 11..14 is within the empirical null (cluster_p = 0.159). Reading: α's reorganization does not project into a coherent rotation of the leading-mode subspace at any `k`. This is what distinguishes α from β: β is multi-probe (both `ρ_split^coph` and Grassmann pass C3 with epi-X strengthening); α is single-probe (`ρ_split^coph` only).
 
-## 5. Anatomical distribution — α cophenet trace is strong-localized to a bilateral cingulate + parahippocampal + parietal cortical network; 9 of 11 regions reproduce under C5 epi-X
+## 5. Anatomical distribution — ~~strong-localized to a bilateral cingulate + parahippocampal + parietal network~~ **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01 (diffuse)**
 
-The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 (hypergeometric + matched-strength surrogate, R=200, seed 20260511) at q_BH<0.05 / p_emp<0.05. Under C5 epi-X exclusion **9 of 11 named regions reproduce** at the joint A1+A3 gate, with two named dropouts that carry distinct meaning: left caudal middle frontal gyrus drops at A1 (marginal q_BH=0.051, the weakest of the 11 in full cohort), and **right medial orbitofrontal cortex drops at A2 (matched-strength surrogate z falls from 3.22 to 1.28)** — A1 remains strong, but the matched-strength surrogate no longer separates the residual signal, indicating that the full-cohort rh-medial-OFC enrichment carried a substantial epi-zone-coupled topological component. The 9 surviving regions all maintain or strengthen under epi-X, with **lh-rostral-anterior-cingulate the largest gainer** (enrichment 3.04× → 5.37×, q_BH 4.1e-20 → 1.5e-31). This is consistent with the C5 effect-size strengthening at the cohort level (mechanistic observation per amended Decision 10 / retracted Decision 1, 2026-05-28) and supports reading the α reorganization as a non-epileptic-cortex multiscale phenomenon. The original "11/11 reproduce identically" claim recorded here in the 2026-05-19 lockdown was an artifact of a silent no-op bug in the audit_71 `--epi-x` mask (`np.isin(int_array, str_array)` always-False); the bug was patched and the audit rerun on 2026-05-22 (see `.agents/preprint/directives/writing_directive_2026-05-22_alpha_results_drafting.md` §"Critical issues" → Issue 1 for the bug history and the verified outcome).
+> ⚠️ **RETRACTED — the α cophenet trace is anatomically DIFFUSE / delocalized.** The
+> "11 named DK regions" localization does **not** survive a signed, threshold-free test:
+> **0/11 cohort-supported** (verdict DIFFUSE; all 11 locked regions are sampled by ≤3
+> patients — four by 1, five by 2, two by 3 — and no well-sampled region passes), and
+> **per-patient localization is also null** (1/10 patients, = chance: the lone passer is
+> Pat_15, p=0.029, one of ~5 expected over 100 patient-tests). The 11-region list was
+> built on top-decile `|Δρ|` + A1/A3 enrichment on endpoint counts (direction-blind,
+> count-based, partly driven by Wm/Unk junk labels that this test excludes). The "9 of 11
+> reproduce under C5 epi-X" question below is moot — none localize cohort-wide. The
+> verified α trace (matched-strength, cophenet) is real but **spatially distributed with
+> no anatomical anchor at cohort or single-patient level**. Tables retained as historical
+> record. Sources: `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`, `locked/ANATOMY_LEDGER.md`.
 
-Audited under `locked/ANATOMY_CONTROLS.md`. Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 entry.
+~~The α cophenet trace is **localized to a distributed cortical network** of 11 named DK regions that all pass A1+A3 ... a non-epileptic-cortex multiscale phenomenon.~~ (retracted — see banner) The original "11/11 reproduce identically" claim recorded here in the 2026-05-19 lockdown was an artifact of a silent no-op bug in the audit_71 `--epi-x` mask (`np.isin(int_array, str_array)` always-False); the bug was patched and the audit rerun on 2026-05-22 — but the whole region list is now retracted regardless (diffuse cohort + null per-patient).
+
+Audited under `locked/ANATOMY_CONTROLS.md`. **Verdict source NOW: `data/audit/anatomy_localization_wilcoxon/` + `data/audit/per_patient_localization/` (2026-05-30/06-01 retraction); `ANATOMY_LEDGER.md` 2026-05-19 entry superseded.**
 
 ### α cophenet anatomy (top-decile per-pair `|Δρ_split^coph|`)
 
@@ -242,7 +256,7 @@ Eleven named Desikan–Killiany regions pass A1+A3 jointly (full cohort, R=200):
 | ctx-rh-superiorparietal | 84 / 819 | 1.64× | 7.94e-06 | 3.64 | 0.025 |
 | ctx-rh-posteriorcingulate | 100 / 804 | 1.99× | 7.39e-11 | 3.13 | 0.045 |
 
-Network anatomy: **bilateral cingulate** (anterior caudal + anterior rostral + right posterior) + **left parahippocampal** + **right medial OFC** + **bilateral caudal middle frontal** + **right postcentral / precuneus / superior parietal**. A widely distributed cortical network spanning cingulate / medial-temporal / medial-frontal / parietal cortex. Cohort verdict: **strong localized**.
+~~Network anatomy: **bilateral cingulate** ... spanning cingulate / medial-temporal / medial-frontal / parietal cortex. Cohort verdict: **strong localized**.~~ **RETRACTED (see §5 banner): 0/11 cohort-supported (DIFFUSE); all 11 regions n≤3; per-patient also null (1/10 = chance).**
 
 Source: `data/audit/anatomy_alpha_cophenet/cohort_summary.csv`.
 

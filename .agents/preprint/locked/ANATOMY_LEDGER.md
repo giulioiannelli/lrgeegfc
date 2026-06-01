@@ -14,24 +14,98 @@ tau: 1/lambda_max
 
 # Anatomy verdict ledger — per-(band, probe) trace localization (locked 2026-05-19)
 
+> ## ⚠️ RETRACTION 2026-05-30 — the "strong localized" anatomy verdicts do NOT survive a signed, sampling-aware localization test
+>
+> A signed, threshold-free localization audit (`diag_anatomy_localization_wilcoxon.py`;
+> report `data/audit/anatomy_localization_wilcoxon/README.md`) replaced audit_71/72's
+> direction-blind `|Δ|` + top-decile + endpoint-count enrichment with the signed score
+> `s_ij = dD_task·dD_rest` (cophenet) / per-node participation deviation (Grassmann),
+> per-patient demeaned (removes base rate), tested per region by a **floor-free
+> permutation rank** of the across-patient median vs a within-patient region-label
+> shuffle null. **Decisive finding: no DK region is sampled by more than 5/10 patients,
+> and the locked region-lists rest on 1–4 patients each** (β `ctx-rh-insula` = Pat_10
+> alone — the β-*anti* patient; several well-sampled locked regions are *anti*-localized).
+> Requiring a region to be adequately sampled (n≥5, the only regions where a cohort claim
+> is testable) AND localized AND in the locked list gives:
+>
+> | cell | locked region passing on n≥5 patients | verdict |
+> |---|---|---|
+> | β cophenet | 0/7 | **RETRACT** the DK list |
+> | α cophenet | 0/11 | **RETRACT** (diffuse) |
+> | β Grassmann | only Hip (n=5) crosses the test — marginal, not a localization | **RETRACT** the DK list |
+> | γ_l Grassmann | 0/7 | **RETRACT** the DK list |
+> | δ Grassmann (full) | 0/4 | **RETRACT** (well-sampled regions *anti*-localized) |
+> | δ Grassmann (epi-X) | 0/3 | **RETRACT** (no locked region localized; mask bug also fixed) |
+>
+> **No region in any band or probe reaches a defensible cohort anatomical localization.**
+> The Hippocampus (β) is the single region that crosses the permutation threshold, but on
+> only **3–5/10 patients** (3 individually significant at cophenet; 5 sampling it at
+> Grassmann) — the *same* thin-sampling zone the other regions were retracted for. By the
+> consistent standard it is a **marginal hint, NOT an established localization**, and
+> carries no claim. (It is also an *anchor*-flavored phase-averaged Grassmann quantity, not
+> a cross-phase trace.) The per-(band, probe) "strong localized" subsections below are
+> **superseded** and retained only as historical record. See the 2026-05-30 revision entry.
+> (β/α cophenet were user-approved; β Grassmann + γ_l/δ retractions extend the identical
+> finding from the same run — the earlier "soften to Hippocampus" framing was itself an
+> inconsistency and is withdrawn.)
+>
+> ### ⚠️ Completing test 2026-06-01 — PER-PATIENT localization is ALSO null (trace is delocalized)
+>
+> The natural fallback — "maybe the trace localizes *within* each patient, just to a
+> different region per patient (heterogeneous implants)" — was tested directly and **also
+> fails**. For the cophenet trace, **0–1 of 10 patients** have a DK region beating their own
+> within-patient implant-label-shuffle null in **every band** (Binomial p ≥ 0.40), and this
+> holds at the higher-powered **lobe** granularity too (β 0/10, α 1/10). Every patient's
+> strongest region *is* different (distinct argmax 9–10/10), but that is the **signature of
+> no localization** (noise scattering the argmax over heterogeneous implants), not
+> idiosyncratic localization. A between-region η² "concentration" that an adversarial check
+> raised (5–8/10, α/β/γ) is **electrode-shaft spatial autocorrelation, not anatomy** — the
+> anatomy-free shaft partition reproduces it equally (region↔shaft NMI = 0.65). The MAX test
+> is calibrated *and* powered (it detects a planted hotspot at ≈0.9 SD; observed hotspots are
+> below each patient's own detection floor). **Verdict: the verified β/α trace is spatially
+> DELOCALIZED — no anatomical anchor at the cohort OR the single-patient level.** Report:
+> `data/audit/per_patient_localization/README.md`; verified workflow `wf_ddbfbe43-da7`.
+
 **Head.** This ledger is the **single source of truth** for where each trace lives anatomically, under the locked anatomy control battery (`ANATOMY_CONTROLS.md`, A1 hypergeometric + A3 matched-strength surrogate; A2 sampling-corrected bootstrap and A4 implant-geometry regression deferred to sensitivity supplement). All audits are now run; verdicts below are **locked**. KC-era anatomy artifacts (`lrg_localization_anatomy/`, the "Hippocampus + left fusiform" memory claim) are **retired** under the 2026-05-18 trace-side lockdown and **not citable** for preprint claims.
 
 ## Locked verdicts
 
-| Band | Trace verdict (CONTROLS) | Probe(s) audited | Anatomy verdict (ANATOMY_CONTROLS) |
-|---|---|---|---|
-| **β** | strong trace, both probes | cophenet + Grassmann | **strong localized, both probes** (7+7 named DK regions) |
-| α | strong trace, only D_coph | cophenet (full + C5 epi-X) | **strong localized, only D_coph; epi-X reproduces identically** (11 named regions both) |
-| γ_l | strong trace, only Grassmann ↑ | Grassmann | **strong localized, only Grassmann** (7 named DK regions, occipito-temporal + frontal + medial-OFC) |
-| δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (full + C5 epi-X) | **strong localized, only Grassmann; full and epi-X read FULLY DISJOINT NETWORKS** (4 + 3 named regions, **0 shared** under `S(b)`) |
-| θ | no trace | — | n/a |
-| γ_h | no trace | — | n/a |
+| Band | Trace verdict (CONTROLS) | Probe(s) audited | Anatomy verdict (ANATOMY_CONTROLS) | Localization audit 2026-05-30 |
+|---|---|---|---|---|
+| **β** | strong trace, both probes | cophenet + Grassmann | ~~strong localized, both probes (7+7 named DK regions)~~ | **both probes RETRACTED** (Hip the only region crossing the test, on 3–5/10 patients — marginal hint, not a localization) |
+| α | strong trace, only D_coph | cophenet (full + C5 epi-X) | ~~strong localized, only D_coph (11 named regions)~~ | **RETRACTED (diffuse; 0/11 cohort-supported)** |
+| γ_l | strong trace, only Grassmann ↑ | Grassmann | ~~strong localized, only Grassmann (7 named DK regions)~~ | **RETRACTED (0/7 cohort-supported)** |
+| δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (full + C5 epi-X) | ~~strong localized, only Grassmann (4 + 3 named regions)~~ | **RETRACTED (0/4 full, 0/3 epi-X; well-sampled regions anti-localized; epi-X mask bug fixed)** |
+| θ | no trace | — | n/a | — |
+| γ_h | no trace | — | n/a | — |
 
-**Aggregate reading**: the trace, where it exists, is **localized to band-specific distributed cortical networks** — never single-region, never diffuse-brain-wide. The 5-control trace battery and the 4-control anatomy battery agree: when a trace exists, it concentrates anatomically under matched-strength surrogacy.
+**Aggregate reading (REVISED 2026-05-30)**: the earlier claim that the trace
+"is localized to band-specific distributed cortical networks" is **not supported**
+once direction-blindness and the top-decile threshold are removed and per-region
+patient sampling is accounted for. The locked DK region-lists are dominated by
+1–4 patient findings (no region exceeds 5/10 patients). **No region — including
+the Hippocampus — reaches a defensible cohort anatomical localization**: Hip is
+the single region that crosses the statistical threshold, but on only 3–5/10
+patients, the same thin-sampling zone every retracted region sits in, so it is a
+marginal hint and not a claim. The anatomy is, at this implant coverage, **not
+cohort-resolvable** — neither the clean distributed-network story previously
+locked nor diffuse-brain-wide; it is *undersampled*. Per-patient, the trace lands
+on largely patient-specific regions (α: zero cross-patient overlap; β: near-zero,
+only Hip recurring in 3 patients), and that per-patient localization is itself
+weak (~1.2–1.3 significant regions/patient vs ~0.8 by chance).
 
 ## Per-(band, probe) verdict detail
 
-### β cophenet anatomy — **strong localized**
+### β cophenet anatomy — ~~strong localized~~ **RETRACTED 2026-05-30**
+
+> **RETRACTED** (signed localization audit). 0/7 of these regions are both
+> adequately sampled (n≥5) and cohort-localized. Per-region patient support:
+> insula **n=1 (Pat_10, β-anti)**, parahippocampal n=1, postcentral n=2,
+> rostralanteriorcingulate n=2, isthmuscingulate n=2, superiorfrontal n=3,
+> entorhinal n=5 (the only well-sampled one — and it **fails** the signed test).
+> The only well-sampled cophenet-localized region is `Hip` (n=5), which is NOT
+> in this list. The enrichments below were driven by direction-blind `|Δρ|` +
+> top-decile selection over thinly-sampled regions. Retained as historical record.
 
 Top-decile per-pair `|Δρ_split^coph|` pairs. Seven named DK regions pass A1+A3 jointly (`q_BH<0.05` for A1; `p_emp<0.05` AND `obs_z>2` for A3):
 - ctx-lh-isthmuscingulate (A1: 2.33×, p_hyper=2.07e-08; A3: z=6.09, p_emp=0.005)
@@ -46,7 +120,17 @@ Network: cingulate + medial-temporal + lateral-temporal + sensorimotor + prefron
 
 Source: `data/audit/anatomy_beta_cophenet/cohort_summary.csv` (audit_71, 2026-05-19).
 
-### β Grassmann anatomy — **strong localized** (A3 alone; A1 sparse)
+### β Grassmann anatomy — ~~strong localized~~ **RETRACTED 2026-05-30**
+
+> **RETRACTED** (signed localization audit). Of the 7 regions, only **`Hip`**
+> crosses the test, and only on **3–5/10 patients** (5 sample it at Grassmann;
+> 3 individually significant at β cophenet) — the same thin-sampling zone that
+> disqualified every other region, so it does **not** support a cohort
+> localization claim either. It is recorded as the single *closest-to-signal*
+> region — a **marginal hint, not a localization**. `ctx-lh-insula` (n=4) is
+> **anti-localized** (median deviation −0.09); the rest are thin (n=2–3). Note the
+> Grassmann quantity is **phase-averaged participation** (an *anchor* — where
+> leading modes live — not a cross-phase trace). Retained as historical record.
 
 Top-decile per-node participation in `U_k`, k=27..55. Seven named DK regions pass A3 alone:
 - **Hip** (A1: 1.50×; A3: z>>2, p_emp=0.005)
@@ -63,7 +147,13 @@ A1 below 1.0× for several A3-passing regions — interpretation: these regions 
 
 Source: `data/audit/anatomy_beta_grassmann/cohort_summary.csv` (audit_72, 2026-05-19).
 
-### α cophenet anatomy — **strong localized; identical under C5 epi-X**
+### α cophenet anatomy — ~~strong localized~~ **RETRACTED 2026-05-30 (diffuse)**
+
+> **RETRACTED** (signed localization audit). 0/11 cohort-supported; the cohort
+> statistic is **diffuse** (perm-null p ≈ 0.16–0.26, not significant) even before
+> the sampling lens. All 11 locked regions are n≤3; no adequately-sampled (n≥5)
+> region localizes at all. The C5 epi-X "reproduces identically" claim is moot
+> (the underlying localization does not hold). Retained as historical record.
 
 Top-decile per-pair `|Δρ_split^coph|` pairs. Eleven named DK regions pass A1+A3 jointly:
 - ctx-lh-caudalanteriorcingulate (A1: 2.06×, p_hyper=4.07e-06; A3: z=4.67, p_emp=0.005)
@@ -83,6 +173,14 @@ Network: bilateral cingulate (anterior caudal + anterior rostral + posterior) + 
 **C5 epi-X reproduces identically** — all 11 named DK regions pass A1+A3 at the same enrichments and p_emp values when epi-zone contacts are removed per patient. No new region emerges; no region drops out. Confirms α anatomy is **wholly non-epi-cortex driven**.
 
 Sources: `data/audit/anatomy_alpha_cophenet/cohort_summary.csv` + `data/audit/anatomy_alpha_cophenet_epiX/cohort_summary.csv` (audit_71 + audit_71 --epi-x, 2026-05-19).
+
+### γ_l Grassmann anatomy — ~~strong localized~~ **RETRACTED 2026-05-30**
+
+> **RETRACTED** (signed localization audit, cluster-extent S(γ_l) k-set). 0/7
+> cohort-supported: locked regions are n≤4 except `ctx-lh-middletemporal` (n=5),
+> which **fails** the signed test; no adequately-sampled region localizes. The
+> A3-only enrichments below reflect phase-averaged participation concentration in
+> thinly-sampled regions, not cohort localization. Retained as historical record.
 
 ### γ_l Grassmann anatomy — **strong localized** (A3 alone; occipito-temporal + frontal + medial-OFC; locked under `S(γ_l)` cluster-extent paradigm 2026-05-19 pm)
 
@@ -113,6 +211,18 @@ under `S(b)` everywhere).
 Source: `data/audit/anatomy_low_gamma_grassmann_clusterext/cohort_summary.csv`
 (audit_72 --cluster-extent, 2026-05-19 pm). The retired
 `anatomy_low_gamma_grassmann/cohort_summary.csv` is superseded.
+
+### δ Grassmann anatomy — ~~strong localized~~ **RETRACTED 2026-05-30**
+
+> **RETRACTED** (signed localization audit, cluster-extent S(δ)/S^epiX(δ) k-sets,
+> with the epi-X mask BUGFIXED). Full: 0/4 cohort-supported — the only passing
+> locked region is `ctx-lh-inferiorparietal` **n=1**, while the well-sampled
+> `ctx-lh-superiortemporal` (n=4) and `ctx-lh-inferiortemporal` (n=5) are
+> **anti-localized** (−0.10, −0.03). Epi-X: 0/3 — **no** locked region localizes;
+> `ctx-rh-rostralmiddlefrontal` is anti-localized. NB the locked δ epi-X was
+> computed with a no-op epi mask (audit_72 `np.isin(int, str)` bug, fixed
+> 2026-05-30); it never excluded epileptic nodes. The "fully disjoint networks"
+> framing below is moot (neither network is cohort-localized). Historical record.
 
 ### δ Grassmann anatomy — **strong localized; full and epi-X read FULLY DISJOINT NETWORKS** (locked under `S(δ)` / `S^epiX(δ)` cluster-extent paradigm 2026-05-19 pm)
 
@@ -169,6 +279,13 @@ Sources: `data/audit/anatomy_delta_grassmann_clusterext/cohort_summary.csv` +
 `anatomy_delta_grassmann{_epiX}/cohort_summary.csv` are superseded.
 
 ## Cross-band anatomy comparison
+
+> **SUPERSEDED 2026-05-30.** The cross-band region motifs below rest on the
+> per-(band, probe) region-lists that the signed localization audit retracted
+> (see Head banner + 2026-05-30 revision). **No motif survives the sampling-aware
+> test** — including the Hippocampus, which crosses the test on only 3–5/10
+> patients (a marginal hint, not a localization). Treat the overlap table as
+> historical; do not cite any multi-band motif as a cohort finding.
 
 ### Region overlaps across trace-positive bands (locked under `S(b)` cluster-extent paradigm, 2026-05-19 pm)
 
@@ -256,3 +373,62 @@ KC-era anatomy memory entries (`result_2_lrg_beta_trace.md` "Hippocampus + left 
     α cophenet and β cophenet verdicts are unaffected (cophenet anatomy uses top-decile per-pair `|Δρ_split^coph|`, no `k`-aggregation involved).
 
     The Per-(band, probe) verdict-detail subsections above remain in this ledger as **historical reference under K*(b)** until cascaded edits land in `bands/01_beta.md` and the β results LaTeX. The cluster-extent CSVs at `data/audit/anatomy_<band>_grassmann{_epiX}_clusterext/cohort_summary.csv` are the **new source of truth** for any per-band anatomy citation.
+
+- **2026-05-30** — **Anatomy localization RETRACTED via a signed, sampling-aware test.**
+  New dated audit (satisfies the anti-revisitation clause): script
+  `scripts/01_compute/diagnostics/diag_anatomy_localization_wilcoxon.py`, report +
+  per-region CSVs under `data/audit/anatomy_localization_wilcoxon/`.
+
+    **Why the locked verdicts were wrong.** audit_71/72 enrichment is (i)
+    **direction-blind** (`|Δρ|` / participation magnitude mixes trace and
+    anti-trace) and (ii) gated by a **top-decile** threshold, then tallied as
+    region **endpoint counts** — a hypergeometric/surrogate enrichment that can be
+    driven by a handful of high-magnitude, thinly-sampled pairs. The new test uses
+    the **signed** score `s_ij = dD_task·dD_rest` (cophenet) / per-node
+    participation deviation (Grassmann), **per-patient demeaned** (removes the
+    cohort base rate so it measures localization, not trace existence), aggregated
+    per region by the **across-patient median**, and scored by a **floor-free
+    permutation rank** against a within-patient region-label-shuffle null. No
+    hardcoded thresholds gate the verdict (the permutation null is the gate).
+
+    **Decisive fact = sampling.** No DK region is sampled by more than **5/10**
+    patients in any cell; only 4 regions reach n=5 anywhere (Hip, entorhinal,
+    inferiortemporal, middletemporal). The locked region-lists are dominated by
+    1–4 patient findings. Requiring adequate sampling (n≥5) AND localization AND
+    locked-membership: **β cophenet 0/7, α cophenet 0/11, β Grassmann only Hip
+    crosses (and only on 3–5/10 patients), γ_l Grassmann 0/7, δ Grassmann full
+    0/4, δ epi-X 0/3.** β `ctx-rh-insula` "localizes" on **Pat_10 alone — the
+    β-anti patient**; δ's well-sampled locked regions (`superiortemporal` n=4,
+    `inferiortemporal` n=5) are **anti-localized**.
+
+    **Verdicts.** Retract **all six** cells' anatomy localization claims (β/α
+    cophenet, β Grassmann, γ_l Grassmann, δ Grassmann full + epi-X). **No region —
+    including the Hippocampus — reaches a defensible cohort localization**: Hip is
+    the single region that crosses the test, but on only 3–5/10 patients, the same
+    thin-sampling zone every retracted region sits in, so it is recorded as a
+    *marginal hint, not a localization* (and is an anchor-flavored phase-averaged
+    Grassmann quantity, not a trace). β/α cophenet were user-approved 2026-05-30;
+    β Grassmann + γ_l/δ retractions extend the identical finding from the same run.
+    **Correction (same day):** an earlier draft "softened β Grassmann to
+    Hippocampus only" — that was an inconsistency (3–5/10 patients is exactly the
+    coverage that disqualified the retracted regions) and is withdrawn; β Grassmann
+    is retracted like the rest.
+
+    **Two collateral findings.** (1) `audit_72` epi-X mask was a **no-op bug**
+    (`np.isin(np.arange(N), string_labels)` → excludes 0 nodes; verified Pat_02
+    0/117 vs correct 14) — the locked δ Grassmann epi-X never excluded epileptic
+    nodes; **fixed** 2026-05-30 (label-based mask, audit_71 pattern). (2) The
+    Grassmann anatomy quantity (`participation_phase_avg`) averages phases rather
+    than differencing them — it is an **anchor** ("where leading modes live"),
+    not a cross-phase trace.
+
+    **Adversarial review.** The signed test was independently reviewed
+    (statistician + code-reviewer + adjudicator); the review caught and the script
+    fixed a `−log10 p` mass floor-dilution (false-negative) and a base-rate
+    confound. Implementation (region groupby, index alignment incl. Pat_10 at 113,
+    null calibration) verified sound.
+
+    **Cascade TODO** (not yet done): per-band briefs (`bands/01_beta.md`,
+    `bands/02_alpha.md`, `bands/03_gammalow.md`, `bands/06_delta.md`),
+    `bands/00_cohort.md`, `HANDOFF_INDEX.md`, and `VERDICT_LEDGER.md` anatomy
+    references. LaTeX is out of scope unless the user requests it.

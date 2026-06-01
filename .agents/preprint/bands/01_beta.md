@@ -42,7 +42,7 @@ revision_history:
 
 ## Head
 
-β is the **only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes** — the per-pair multiscale **cophenetic communication distance** `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))` (cohort-paired Wilcoxon p = 0.005, effect-size ratio 23.7×, 7/10 patients above own surrogate; passes C1 split p=0.005, C2 drift p=0.014, C3 matched-strength p=0.005, C4 cross-probe 8/10) and the Grassmann chordal distance `d_G(k)` on the leading-k Laplacian eigenmode subspaces (cluster-extent permutation p = 0.005, audit_70; 29 contiguous matched-strength-significant k cells at k ∈ [27, 55], **strengthening to 36 cells at k ∈ [21, 56] under epileptic-zone exclusion**, 29/29 of the manuscript-window cells persist + 7 new emerge at lower k). The trace is **localized to a distributed cortical network** (7 DK regions per probe pass A1+A3 join under matched-strength: cingulate + parahippocampal + entorhinal + insula + postcentral + superior frontal on the cophenet probe; Hippocampus + temporal cortex + orbitofrontal + insula + rostral middle frontal on the Grassmann probe; audit_71 + audit_72, 2026-05-19) and **multiscale** (per-pair via cophenetic merge-height integration on `D_coph`; subspace via k-sweep on `U_k` — the two probes read different aspects of the same multiscale geometry). Verdict tag from `locked/VERDICT_LEDGER.md`: **`strong trace, both probes`** (locked 2026-05-18, revised 2026-05-19 for cluster-extent gate).
+β is the **only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes** — the per-pair multiscale **cophenetic communication distance** `ρ_split^coph` on `D_coph = cophenet(UPGMA(D(τ_max)))` (cohort-paired Wilcoxon p = 0.005, effect-size ratio 23.7×, 7/10 patients above own surrogate; passes C1 split p=0.005, C2 drift p=0.014, C3 matched-strength p=0.005, C4 cross-probe 8/10) and the Grassmann chordal distance `d_G(k)` on the leading-k Laplacian eigenmode subspaces (cluster-extent permutation p = 0.005, audit_70; 29 contiguous matched-strength-significant k cells at k ∈ [27, 55], **strengthening to 36 cells at k ∈ [21, 56] under epileptic-zone exclusion**, 29/29 of the manuscript-window cells persist + 7 new emerge at lower k). The trace is ~~**localized to a distributed cortical network** (7 DK regions per probe pass A1+A3 join under matched-strength)~~ **anatomically DELOCALIZED — RETRACTED 2026-05-30/06-01** (the 7+7 region lists do not survive a signed, threshold-free test: 0/7 cohort-supported on either probe, and 0/10 per-patient on both — see §5; the verified trace is real but distributed with no anatomical anchor at cohort or single-patient level) and **multiscale** (per-pair via cophenetic merge-height integration on `D_coph`; subspace via k-sweep on `U_k` — the two probes read different aspects of the same multiscale geometry). Verdict tag from `locked/VERDICT_LEDGER.md`: **`strong trace, both probes`** (locked 2026-05-18, revised 2026-05-19 for cluster-extent gate).
 
 ## Headline three-layer cohort table
 
@@ -294,45 +294,45 @@ For each (patient, band, phase) cell:
 - Compute the symmetric combinatorial Laplacian `L^(φ) = D^(φ) − W^(φ)` and its eigendecomposition. Take the `k` slowest non-zero eigenmodes (excluding the trivial zero-mode at index 0).
 - Build `U^(φ)_k ∈ R^(N × k)` whose columns are the chosen eigenvectors.
 - Chordal Grassmann distance: `d_chord(U, U'; k) = sqrt(k − sum_i σ_i^2)` where `σ_i = svdvals(U^T U')`, equivalently `d_chord = sqrt(sum_i sin² θ_i)` for principal angles `θ_i`. Gauge-invariant under sign flips and basis rotations within degenerate eigenspaces.
-- Phase-triangle scalar `T_G(k) = d_chord(U^(taskT)_k, U^(rsPost)_k) − d_chord(U^(rsPre_A)_k, U^(taskT)_k)`. Negative = trace direction.
+- Phase-triangle scalar `T_G(k) = d_chord(U^(rsPre_A)_k, U^(taskT)_k) − d_chord(U^(taskT)_k, U^(rsPost)_k)`. **Positive = trace direction** (locked convention 2026-05-26; matches `audit_66` code line 248 and `cohort_summary.csv`).
 - Per-patient observed `T_G(k)` compared against per-patient surrogate-median across R=200 matched-strength surrogates.
-- Cohort-paired one-sided Wilcoxon `H_0: T_G_obs ≥ T_G_surr_med`, `H_1: T_G_obs < T_G_surr_med`, gated at p < 0.05.
+- Cohort-paired one-sided Wilcoxon `H_0: T_G_obs ≤ T_G_surr_med`, `H_1: T_G_obs > T_G_surr_med`, gated at p < 0.05.
 - `k` grid: `{2, 3, ..., 112}` on full FC; `{2, ..., 88}` on epi-exclusion.
 
 #### Results (β, full FC, `audit_66`)
 
 **Per-k cohort verdict at strategic k** (from `data/audit/grassmann_matched_strength_surrogate/cohort_summary.csv`):
 
-| k | Obs median T_G | Surr median (per-pat med) | n_below own surr | Wilcoxon p | Verdict |
+| k | Obs median T_G | Surr median (per-pat med) | n_above own surr | Wilcoxon p | Verdict |
 |---|---|---|---|---|---|
-| 20 | −0.308 | ≈ 0.000 | 6/10 | 0.080 | intermediate (below k=27 onset) |
-| 27 | −0.215 | −0.061 | 8/10 | 0.042 | **sig (onset of contiguous run)** |
-| 30 | −0.309 | −0.098 | 8/10 | 0.014 | sig |
-| 40 | −0.489 | −0.166 | 9/10 | **0.005** | sig |
-| 45 | −0.585 | −0.197 | 9/10 | 0.010 | sig |
-| 55 | −0.473 | −0.308 | 8/10 | 0.024 | sig (end of contiguous run) |
-| 60 | −0.450 | −0.332 | 6/10 | 0.024 | sig (Wilcoxon, but n_below drops) |
-| 80 | −0.422 | −0.251 | 5/10 | 0.080 | intermediate |
+| 20 | +0.308 | ≈ 0.000 | 6/10 | 0.080 | intermediate (below k=27 onset) |
+| 27 | +0.215 | +0.061 | 8/10 | 0.042 | **sig (onset of contiguous run)** |
+| 30 | +0.309 | +0.098 | 8/10 | 0.014 | sig |
+| 40 | +0.489 | +0.166 | 9/10 | **0.005** | sig |
+| 45 | +0.585 | +0.197 | 9/10 | 0.010 | sig |
+| 55 | +0.473 | +0.308 | 8/10 | 0.024 | sig (end of contiguous run) |
+| 60 | +0.450 | +0.332 | 6/10 | 0.024 | sig (Wilcoxon, but n_above drops) |
+| 80 | +0.422 | +0.251 | 5/10 | 0.080 | intermediate |
 
 **Cohort summary across the full k range:**
 - 40 sig k cells (cohort-paired one-sided Wilcoxon p<0.05) out of 111 unmasked
 - Longest contiguous run: **k = 27..55, length 29** (the manuscript window)
 - Cohort verdict gate: **Wilcoxon-only**. The earlier in-code "strict separated" label gave 0 strict cells for β; the strict gate was an over-restrictive holdover and is dropped (cf. `audit_69_grassmann_regate_no_filter`, 2026-05-15 — confirmed the 29 contiguous Wilcoxon-only cells are unchanged by removing the strict gate).
 
-**Best-k effect size**: at k=40, ratio |obs|/|surr| = 2.94×; at k=45, ratio = 2.97×; at k=27, ratio = 3.53×. Cohort median |observed T_G| grows from −0.21 at k=27 to −0.58 at k=45 — the trace deepens through the contiguous run.
+**Best-k effect size**: at k=40, ratio |obs|/|surr| = 2.94×; at k=45, ratio = 2.97×; at k=27, ratio = 3.53×. Cohort median observed T_G grows from +0.21 at k=27 to +0.58 at k=45 — the trace deepens through the contiguous run.
 
 #### Results (β, epi-exclusion, `audit_67`)
 
 **Per-k cohort verdict at strategic k** (from `data/audit/grassmann_epi_exclusion/cohort_summary.csv`):
 
-| k | Obs median T_G (epi-X) | Surr median | n_below | Wilcoxon p (epi-X) | Verdict |
+| k | Obs median T_G (epi-X) | Surr median | n_above | Wilcoxon p (epi-X) | Verdict |
 |---|---|---|---|---|---|
-| 20 | −0.146 | −0.025 | 8/10 | 0.053 | (borderline outside manuscript window) |
-| 27 | −0.274 | −0.075 | 8/10 | 0.042 | sig (window start) |
-| 30 | −0.364 | −0.108 | 8/10 | 0.014 | sig |
-| 40 | −0.469 | −0.156 | 8/10 | 0.010 | sig |
-| 45 | −0.567 | −0.146 | 8/10 | 0.010 | sig |
-| 55 | −0.434 | −0.219 | 8/10 | 0.014 | sig (window end) |
+| 20 | +0.146 | +0.025 | 8/10 | 0.053 | (borderline outside manuscript window) |
+| 27 | +0.274 | +0.075 | 8/10 | 0.042 | sig (window start) |
+| 30 | +0.364 | +0.108 | 8/10 | 0.014 | sig |
+| 40 | +0.469 | +0.156 | 8/10 | 0.010 | sig |
+| 45 | +0.567 | +0.146 | 8/10 | 0.010 | sig |
+| 55 | +0.434 | +0.219 | 8/10 | 0.014 | sig (window end) |
 
 **Cohort summary across the audit_67 k range (k=2..88):**
 - 52 sig k cells (vs 40 in audit_66) — **epi-exclusion increases the cohort signal**
@@ -341,14 +341,14 @@ For each (patient, band, phase) cell:
 - **Manuscript window k = 27..55: 29/29 cells persist (100% retention)** — every cell of the audit_66 manuscript window remains cohort-paired Wilcoxon-significant under epi-exclusion. The β trace lives in non-epi tissue; epi-exclusion functions as a denoiser for β.
 
 **Per-patient at k=40 (mid-window, epi-X):**
-- Most patients trace-positive with strong z; cohort agreement preserved at 8/10 below own surrogate.
+- Most patients trace-positive with strong z; cohort agreement preserved at 8/10 above own surrogate.
 - Pat_15 (anti-aligned, 0 epi) is the identity-transform anchor; the epi-exclusion is the identity for Pat_15 by construction.
 
 #### Reading
 The β Grassmann trace is **multiscale and matched-strength + epi-X-robust**:
 - **Multiscale**: 29 contiguous k cells at the manuscript window, spanning ~26% of the full k spectrum.
 - **Subspace-mode origin**: principal-angle decomposition shows the cohort-median ΔT_i(k) concentrates along the diagonal i ≈ k — the trace contribution at each k comes from the most-misaligned shared direction.
-- **Matched-strength-controlled**: surrogate cohort-medians at k=40 (−0.166) sit well above zero, meaning strength evolution alone produces a partial subspace rotation; the observed signal (−0.489) clears the surrogate by 2.94× at cohort median.
+- **Matched-strength-controlled**: surrogate cohort-medians at k=40 (+0.166) sit well above zero, meaning strength evolution alone produces a partial subspace rotation; the observed signal (+0.489) clears the surrogate by 2.94× at cohort median.
 - **Epi-X-robust**: 100% retention in the manuscript window plus 17 emergent cells under epi-exclusion.
 
 #### Cache + script provenance
@@ -387,11 +387,32 @@ The β trace is multiscale in **both** the per-pair (cophenet merge-height) and 
 
 (The VI(k) partition-cut probe used in earlier drafts is retired with the 2026-05-18 revision; its multiscale content is subsumed by `D_coph` at the per-pair level. The KC tree distance is retired for the same reason.)
 
-## 5. Anatomical distribution: localized to a distributed cortical network on both probes
+## 5. Anatomical distribution — ~~localized to a distributed cortical network~~ **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01**
 
-The β trace is **localized to band-specific distributed cortical networks**, NOT diffuse and NOT single-region. The two probes read different anatomical sub-networks of the same β reorganization.
+> ⚠️ **RETRACTED — the β trace is anatomically DELOCALIZED, on BOTH probes.** The
+> "strong localized to a distributed cortical network" claim and the two region tables
+> below do **not** survive a signed, threshold-free localization test and are retracted.
+> They were built on **top-decile** `|Δρ|` + A1 hypergeometric/A3 enrichment on **endpoint
+> counts** — a direction-blind, magnitude-thresholded, count-based pipeline that
+> manufactures apparent localization (it tracks region sampling/degree and high-strength
+> edges, not trace concentration). The corrected tests find:
+> (a) **cohort:** 0/7 cophenet and 0/7 Grassmann regions reach a defensible cohort
+> localization — no DK region is sampled by >5/10 patients and the locked regions rest on
+> 1–4 (`ctx-rh-insula` = Pat_10 alone, the β-anti patient; `ctx-lh-insula` Grassmann is
+> *anti*-localized). Hip crosses on only 3–5/10 = a marginal hint, not a localization.
+> (b) **per-patient:** 0/10 patients have a region beating their own implant-shuffle null,
+> on cophenet AND on the Grassmann cross-phase trace (`s_i=(p^task−p^pre)(p^post−p^pre)`).
+> (c) the residual between-region η² "concentration" is **electrode-shaft autocorrelation**
+> (anatomy-free shaft partition reproduces it; NMI 0.65), not anatomy.
+> The verified β trace (matched-strength, both probes) is real but **spatially distributed,
+> with no anatomical anchor at cohort or single-patient level**. The tables below are
+> retained only as historical record of the retracted pipeline. Sources:
+> `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`, `locked/ANATOMY_LEDGER.md`.
 
-Audited under `locked/ANATOMY_CONTROLS.md` (A1 hypergeometric per-region + A3 matched-strength surrogate, R=200, seed 20260511). Verdict source: `locked/ANATOMY_LEDGER.md` 2026-05-19 entry.
+~~The β trace is **localized to band-specific distributed cortical networks**, NOT diffuse and NOT single-region. The two probes read different anatomical sub-networks of the same β reorganization.~~ (retracted — see banner)
+
+Audited under `locked/ANATOMY_CONTROLS.md` (A1 hypergeometric per-region + A3 matched-strength surrogate, R=200, seed 20260511). **Verdict source NOW: `data/audit/anatomy_localization_wilcoxon/` + `data/audit/per_patient_localization/` (2026-05-30/06-01 retraction); the `ANATOMY_LEDGER.md` 2026-05-19 entry is superseded.**
 
 ### β cophenet anatomy (top-decile per-pair `|Δρ_split^coph|`)
 
@@ -407,7 +428,7 @@ Seven named Desikan–Killiany regions pass A1+A3 jointly (`q_BH<0.05` for A1; `
 | ctx-lh-entorhinal | 106 / 1186 | 1.44× | 1.18e-04 | 2.20 | 0.035 |
 | ctx-rh-rostralanteriorcingulate | 253 / 1620 | 2.52× | 1.49e-41 | 2.05 | 0.040 |
 
-Network anatomy: cingulate (left isthmus + right anterior) + medial-temporal (left parahippocampal + left entorhinal) + lateral-temporal (right insula) + sensorimotor (right postcentral) + prefrontal (left superior frontal). Cohort verdict: **strong localized** (A1+A3 join).
+~~Network anatomy: cingulate (left isthmus + right anterior) + medial-temporal (left parahippocampal + left entorhinal) + lateral-temporal (right insula) + sensorimotor (right postcentral) + prefrontal (left superior frontal). Cohort verdict: **strong localized** (A1+A3 join).~~ **RETRACTED (see §5 banner): 0/7 cohort-supported; insula = Pat_10/β-anti alone; the well-sampled entorhinal (n=5) fails. Per-patient also null.**
 
 Source: `data/audit/anatomy_beta_cophenet/cohort_summary.csv`.
 
@@ -427,7 +448,7 @@ Seven named DK regions pass A3 alone (A1 too sparse with top-decile-per-patient 
 | ctx-lh-superiortemporal | 3 / 32 | 0.91× | 28.28 | 0.005 |
 | ctx-rh-rostralmiddlefrontal | 8 / 33 | 2.36× | 5.21 | 0.010 |
 
-Network anatomy: **Hippocampus** (subcortical, KC-era memory retained) + temporal cortex (left middle + left superior) + orbitofrontal (left lateral + right medial) + insula (left, opposite hemisphere to cophenet) + rostral middle frontal. Cohort verdict: **strong localized** under A3 alone. ctx-rh-rostralmiddlefrontal strengthens under `S(β)` (z = 3.58 → 5.21, p_emp = 0.030 → 0.010).
+~~Network anatomy: **Hippocampus** (subcortical, KC-era memory retained) + temporal cortex (left middle + left superior) + orbitofrontal (left lateral + right medial) + insula (left, opposite hemisphere to cophenet) + rostral middle frontal. Cohort verdict: **strong localized** under A3 alone.~~ **RETRACTED (see §5 banner): 0/7 cohort-supported; `ctx-lh-insula` (n=4) is *anti*-localized; Hip crosses on only 3–5/10 = marginal hint, not a localization. This is the phase-AVERAGED anchor quantity; the proper cross-phase Grassmann TRACE is also 0/10 per-patient. Per-patient null on both.**
 
 A3 p_emp = 0.005 is the audit floor (`(1 + 0)/(R + 1)` with R=200). "Very large" obs_z entries are cases where all 200 surrogate enrichments fall strictly below the observation, yielding effectively infinite z — read as "categorically distinguishable from any matched-strength surrogate".
 
@@ -438,7 +459,7 @@ Source: `data/audit/anatomy_beta_grassmann_clusterext/cohort_summary.csv` (audit
 - **Hippocampus** (Grassmann): survives from KC-era memory `result_2_lrg_beta_trace.md`.
 - **Left fusiform** (KC-era memory): **does NOT survive** at A1+A3 at either probe. The KC-era "left fusiform" claim is retracted — left fusiform passes A1+A3 in γ_l Grassmann + δ Grassmann instead, not β.
 - **Insula**: cross-probe-consistent at the DK label (right at cophenet, left at Grassmann — opposite hemispheres; note this is a label match, not a contact-set match).
-- Net: cingulate + parahippocampal + entorhinal + Hippocampus + insula define a **β medial-temporal + cingulate + insular cortical network** under matched-strength.
+- ~~Net: cingulate + parahippocampal + entorhinal + Hippocampus + insula define a **β medial-temporal + cingulate + insular cortical network** under matched-strength.~~ **RETRACTED — no such network survives the signed localization test (cohort or per-patient); the cross-probe "consistency" above was an artifact of the shared top-decile/count pipeline. See §5 banner.**
 
 ### Reading
 

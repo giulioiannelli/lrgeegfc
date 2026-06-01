@@ -57,13 +57,26 @@ them.
 - β Grassmann: unchanged at strong, but now LOO-robust (`p_mass` and
   LOO max both = 0.005, no single-patient leverage).
 
-**Anatomy localization is locked separately in [`ANATOMY_LEDGER.md`](ANATOMY_LEDGER.md)**
-under the [`ANATOMY_CONTROLS.md`](ANATOMY_CONTROLS.md) battery (A1 hypergeometric +
+**Anatomy localization is locked separately in [`ANATOMY_LEDGER.md`](ANATOMY_LEDGER.md).**
+
+> ⚠️ **ANATOMY FULLY RETRACTED (2026-05-30) + DELOCALIZED (2026-06-01).** The trace
+> verdicts in the table above are **unaffected** and stand — only the *where* is
+> retracted. The signed, threshold-free localization audit found **no DK region reaches
+> a defensible cohort localization** in any band/probe (max coverage 5/10; locked regions
+> rest on 1–4 patients; several anti-localized), and **per-patient localization is also
+> null** on both cross-phase probes (cophenet + Grassmann trace: 0–1/10 patients beat
+> their own implant-shuffle null in every band; β 0/10 on both). The verified β/α trace
+> is **spatially DELOCALIZED** — a distributed network reorganization with no anatomical
+> anchor at cohort or single-patient level; the only above-chance spatial structure is
+> electrode-shaft autocorrelation (NMI 0.65 region↔shaft), not anatomy. The
+> `strong/weak/not localized` tiers and all region lists are **superseded**. Sources:
+> `ANATOMY_LEDGER.md`, `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`.
+
+The original battery: [`ANATOMY_CONTROLS.md`](ANATOMY_CONTROLS.md) (A1 hypergeometric +
 A2 sampling-corrected + A3 matched-strength **mandatory** + A4 implant-geometry
-regression). Per-(band, probe) verdicts: `strong localized` / `weak localized` /
-`not localized`. As of 2026-05-19, anatomy audits are scoped but not yet run;
-KC-era anatomy artifacts at `data/audit/lrg_localization_anatomy/` are retired
-and not citable.
+regression); KC-era anatomy artifacts at `data/audit/lrg_localization_anatomy/` are
+retired and not citable.
 
 ---
 
@@ -692,3 +705,21 @@ not re-derive it.
   Pat_08 leverage at full data, which the C5 epi-X analysis subsequently
   resolves — a methodologically clean attribution of the leverage to
   epi-zone interactions rather than the true biological trace.
+- **2026-05-30 → 2026-06-01 — ANATOMY localization RETRACTED + trace shown
+  DELOCALIZED. No trace-verdict flips (the table above stands).** A signed,
+  threshold-free localization audit (`diag_anatomy_localization_wilcoxon.py`)
+  retracted all 6 locked anatomy cells: no DK region reaches a defensible cohort
+  localization (max coverage 5/10; locked regions rest on 1–4 patients; several
+  anti-localized; Hip crosses on only 3–5/10 = marginal hint). The per-patient
+  test (`diag_per_patient_localization.py`) found localization **also null at the
+  single-patient level** on both cross-phase probes — cophenet AND Grassmann trace
+  (`s_i = (p^task−p^pre)(p^post−p^pre)`): 0–1/10 patients beat their own
+  implant-shuffle null in every band; β 0/10 on both; holds at lobe granularity.
+  An apparent between-region η² "concentration" is electrode-shaft spatial
+  autocorrelation (anatomy-free shaft partition reproduces it; region↔shaft
+  NMI 0.65), not anatomy. **Verdict: the verified β/α trace is spatially
+  DELOCALIZED — distributed reorganization, no anatomical anchor at cohort or
+  single-patient level.** Verified by workflow `wf_ddbfbe43-da7` (5 adversarial
+  lenses + shaft control). Reports: `data/audit/anatomy_localization_wilcoxon/README.md`,
+  `data/audit/per_patient_localization/README.md`. Anatomy `strong/weak/not
+  localized` tiers + region lists superseded; see `ANATOMY_LEDGER.md`.

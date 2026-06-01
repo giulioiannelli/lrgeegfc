@@ -26,7 +26,7 @@ sources:
 
 ## Head
 
-Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy controls, **β is the only band with a trace at both probes; α adds a strong-but-cophenet-only trace; γ_l and δ carry weak Grassmann-only traces; θ and γ_h carry no trace on either probe.** Where a trace exists, it is **anatomically localized to a band-specific distributed cortical network** — never single-region, never diffuse-brain-wide. The cophenet wrap (`D_coph = cophenet(UPGMA(D(τ_max)))`) is responsible for **band resolution at the LRG-multiscale layer**: raw FC and raw `D(τ_max)` detect every band at 6-8/10 cohort agreement, but only the cophenet wrap demotes δ/θ/γ_h to non-trace and preserves β at 7/10.
+Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy controls, **β is the only band with a trace at both probes; α adds a strong-but-cophenet-only trace; γ_l and δ carry weak Grassmann-only traces; θ and γ_h carry no trace on either probe.** Where a trace exists, it is ~~**anatomically localized to a band-specific distributed cortical network**~~ **anatomically DELOCALIZED — RETRACTED 2026-05-30/06-01** (no DK region reaches cohort localization, 0–1/10 per-patient on both probes; the trace is a distributed network reorganization with no anatomical anchor — see §1 banner + §5). The cophenet wrap (`D_coph = cophenet(UPGMA(D(τ_max)))`) is responsible for **band resolution at the LRG-multiscale layer**: raw FC and raw `D(τ_max)` detect every band at 6-8/10 cohort agreement, but only the cophenet wrap demotes δ/θ/γ_h to non-trace and preserves β at 7/10.
 
 ## 1. Locked verdict matrix
 
@@ -34,14 +34,23 @@ Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy control
 
 | Band | Range (Hz) | D_coph trace | Grassmann trace | Anatomy verdict | Coverage tag |
 |---|---|---|---|---|---|
-| **β** | 13–30 | **strong** | **strong** | strong localized, both probes (7+7 named DK regions) | **strong trace, both probes** |
-| α | 8–13 | **strong** (epi-X strengthens 8.3× → 27.7×) | no trace | strong localized; C5 epi-X reproduces identically (11 named DK regions both) | **strong trace, only D_coph** |
-| γ_l | 30–80 | no trace | **strong** | strong localized, occipito-temporal + frontal + medial-OFC (7 named DK regions under `S(γ_l)`) | **strong trace, only Grassmann** ↑ |
-| δ | 0.53–4 | no trace | **weak** | strong localized, full ≠ epi-X (4+3 regions, **0 shared** under `S(δ)`) | **weak trace, only Grassmann** |
+| **β** | 13–30 | **strong** | **strong** | ~~strong localized, both probes (7+7 DK regions)~~ **RETRACTED — DELOCALIZED** (0/7 + 0/7 cohort; 0/10 per-patient both probes) | **strong trace, both probes** |
+| α | 8–13 | **strong** (epi-X strengthens 8.3× → 27.7×) | no trace | ~~strong localized (11 DK regions)~~ **RETRACTED — DIFFUSE** (0/11 cohort; 1/10 per-patient = chance) | **strong trace, only D_coph** |
+| γ_l | 30–80 | no trace | **strong** | ~~strong localized (7 DK regions)~~ **RETRACTED** (0/7 cohort; per-patient null) | **strong trace, only Grassmann** ↑ |
+| δ | 0.53–4 | no trace | **weak** | ~~strong localized, full ≠ epi-X~~ **RETRACTED** (0/4 + 0/3 cohort, anti-localized; per-patient null; epi-X mask bug) | **weak trace, only Grassmann** |
 | γ_h | 80–300 | no trace | no trace (borderline, cluster_p = 0.055) | n/a | **no trace** |
 | θ | 4–8 | no trace | no trace | n/a | **no trace** |
 
-Verdicts locked in `locked/VERDICT_LEDGER.md` (trace, 2026-05-18 + 2026-05-19 cluster-extent revision) and `locked/ANATOMY_LEDGER.md` (anatomy, 2026-05-19). Briefs document them; they do not re-derive them.
+> ⚠️ **ANATOMY column RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01.** The **trace** verdicts
+> (D_coph / Grassmann / coverage tag) stand. The **anatomy** verdicts are all retracted: no DK
+> region reaches a defensible cohort localization (max coverage 5/10; locked regions 1–4
+> patients; several anti-localized) and per-patient localization is **also null** on both
+> cross-phase probes (0–1/10 every band; β 0/10 on both). The verified β/α trace is spatially
+> **delocalized** (network-level, no anatomical anchor); the only above-chance spatial structure
+> is electrode-shaft autocorrelation, not anatomy. Sources:
+> `data/audit/anatomy_localization_wilcoxon/README.md`, `data/audit/per_patient_localization/README.md`.
+
+Trace verdicts locked in `locked/VERDICT_LEDGER.md`. **Anatomy verdicts: see the retraction above + `locked/ANATOMY_LEDGER.md` (the 2026-05-19 "strong localized" entries are superseded).**
 
 ## 2. Headline methodological argument — the cophenet step is responsible for band resolution at LRG layer
 
@@ -84,16 +93,16 @@ Reading: β dominates on every statistic (29-cell run, `T_G^* = 0.273` ≈ 9× n
 ## 4. Per-band trace synthesis (one paragraph each)
 
 ### β — strong trace, both probes
-β is the only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes. `ρ_split^coph` cohort-paired Wilcoxon p = 0.005 (ratio 23.7×, 7/10 above own surrogate, passes C1 split + C2 drift + C3 matched-strength + C4 cross-probe). Grassmann cluster-extent permutation p = 0.005 (LR and mass both at audit floor, 29-cell contiguous run at k = 27..55, **strengthening to 36 cells at k = 21..56 under C5 epi-X**). The trace is localized to a distributed cortical network: isthmus cingulate + rostral anterior cingulate + parahippocampal + entorhinal + insula + postcentral + superior frontal (cophenet probe, 7 named DK regions); Hippocampus + temporal cortex + orbitofrontal + insula + rostral middle frontal (Grassmann probe, 7 named DK regions). β is the primary finding of the manuscript.
+β is the only band whose post-task structural trace survives matched-strength surrogacy at both LRG probes. `ρ_split^coph` cohort-paired Wilcoxon p = 0.005 (ratio 23.7×, 7/10 above own surrogate, passes C1 split + C2 drift + C3 matched-strength + C4 cross-probe). Grassmann cluster-extent permutation p = 0.005 (LR and mass both at audit floor, 29-cell contiguous run at k = 27..55, **strengthening to 36 cells at k = 21..56 under C5 epi-X**). ~~The trace is localized to a distributed cortical network: ... (7 named DK regions per probe).~~ **Anatomy RETRACTED 2026-05-30/06-01 — the β trace is spatially DELOCALIZED: 0/7 + 0/7 cohort-supported, 0/10 per-patient on both probes (see §5 banner + `data/audit/per_patient_localization/README.md`).** β is the primary finding of the manuscript (trace; the anatomy is delocalized).
 
 ### α — strong trace, only D_coph (anchored at C3 alone)
 α `ρ_split^coph` passes all four primary controls at full cohort: C1 p=.010, C2 p=.007, **C3 paired Wilcoxon p=.002 (verdict gate; ratio 8.3×)**, C4 paired-Wilcoxon non-degradation. The per-patient `n_above_surrogate` at C3 is 5/10 — descriptive auxiliary statistic only, not a verdict modifier (patient-count thresholds retired 2026-05-19, reaffirmed 2026-05-28). Secondary mechanistic observation (C5 epi-X, audit_68): effect-size ratio strengthens 8.3× → 27.7×, Wilcoxon-on-epi-X p = 0.0098, 9 of 11 named DK cophenet regions reproduce — supportive of α being a non-epi-cortex cingulate-temporo-parietal phenomenon. Per amended Decision 10 / retracted Decision 1 (2026-05-28), C5 is never a verdict-promoter; the α verdict is anchored at C3 alone. No Grassmann trace at α (4-cell run within null distribution).
 
-### γ_l — strong trace, only Grassmann ↑; occipito-temporal + frontal anatomy
-γ_l cophenet has no trace (C3 p=0.116). Grassmann cluster-extent permutation passes the cohort gate at **cluster_p_mass = 0.005** (cluster_p_LR = 0.015 as descriptive co-statistic; full-cohort `|S(γ_l)| = 41` cells of `T_G^*` support). Full-data LOO max `p_mass = 0.040 (Pat_05)` passes the Decision-12 LOO precondition (< 0.05). C5 epi-X (secondary mechanistic observation, not verdict-promoter): trace contracts (raw mass 66.14 → 32.75, `p_mass^epi-X = 0.030 < 0.05` cohort gate held; LOO under epi-X max = 0.159 Pat_05 is fragile). Anatomy under `S(γ_l)` is **occipito-temporal + frontal + medial-OFC** (7 named DK regions): left lateral occipital + left cuneus + left middle + superior temporal + left rostral middle frontal + right pars triangularis + right medial OFC. The KC-era "Hippocampus + left fusiform" claim is **fully retracted** — left fusiform does not appear under `S(γ_l)` (the locked contiguous-window analysis had picked it up but the all-clusters cluster-extent rerun does not).
+### γ_l — strong trace, only Grassmann ↑ ~~; occipito-temporal + frontal anatomy~~ (anatomy RETRACTED)
+γ_l cophenet has no trace (C3 p=0.116). Grassmann cluster-extent permutation passes the cohort gate at **cluster_p_mass = 0.005** (cluster_p_LR = 0.015 as descriptive co-statistic; full-cohort `|S(γ_l)| = 41` cells of `T_G^*` support). Full-data LOO max `p_mass = 0.040 (Pat_05)` passes the Decision-12 LOO precondition (< 0.05). C5 epi-X (secondary mechanistic observation, not verdict-promoter): trace contracts (raw mass 66.14 → 32.75, `p_mass^epi-X = 0.030 < 0.05` cohort gate held; LOO under epi-X max = 0.159 Pat_05 is fragile). ~~Anatomy under `S(γ_l)` is **occipito-temporal + frontal + medial-OFC** (7 named DK regions).~~ **Anatomy RETRACTED 2026-05-30/06-01 — 0/7 cohort-supported (well-sampled middletemporal n=5 fails), per-patient null; the trace is delocalized (see §5 banner).** (left fusiform appears nowhere — already retracted.)
 
-### δ — weak trace, only Grassmann; full and epi-X read DISJOINT NETWORKS
-δ cophenet has no trace (C3 p=0.278; obs/surr ratio 0.98×, observation indistinguishable from surrogate). Grassmann cluster-extent passes the cohort gate at **cluster_p_mass = 0.005** (cluster_p_LR = 0.025 as descriptive co-statistic; full-cohort `|S(δ)| = 23` cells of `T_G^*` support). **Full-data LOO max `p_mass = 0.055 (Pat_08)` fails the Decision-12 LOO precondition** (≥ 0.05) — the verdict is "weak" rather than "strong" precisely because of this single-patient leverage. C5 epi-X (secondary mechanistic observation, not verdict-promoter): raw mass strengthens 38.07 → 43.99, `p_mass^epi-X = 0.005`, LOO max under epi-X = 0.005 (Pat_02) fully robust — the full-data Pat_08 leverage is attributable to epi-zone interactions rather than the true trace; `|S^epiX(δ)| = 22` cells (per-k Wilcoxon on `grassmann_epi_exclusion/per_patient_per_band_per_k.csv`, support spans k=[2, 34–52, 87, 88]). Anatomy under `S(δ)` (full): 4 regions — left inferior temporal + left inferior parietal + right pars triangularis + left superior temporal. Anatomy under `S^epiX(δ)` (epi-X): 3 regions — left superior parietal + right rostral middle frontal + left superior frontal. **Zero regions are shared** between the two networks (was 2/6 under the retired `K*(δ)` windows; the dissociation strengthens to **fully disjoint** under the cluster-extent paradigm). The "anchor anatomy" (Amy + cingulate + fusiform) of the retired δ-full ledger is **not supported** under `S(δ)`. Separately, the C4 cross-probe `ρ_xprobe = +0.032` at 6/10 +sign is the known-biology δ anchor anatomy at the substrate layer (`memory/epileptic_imcoh_universal.md` 1.55× cross-probe ratio), reported as descriptive only (LEDGER Decision 5); this substrate-layer observation is independent of the Grassmann anatomy result and is not affected by the cluster-extent cascade.
+### δ — weak trace, only Grassmann ~~; full and epi-X read DISJOINT NETWORKS~~ (anatomy RETRACTED)
+δ cophenet has no trace (C3 p=0.278; obs/surr ratio 0.98×, observation indistinguishable from surrogate). Grassmann cluster-extent passes the cohort gate at **cluster_p_mass = 0.005** (cluster_p_LR = 0.025 as descriptive co-statistic; full-cohort `|S(δ)| = 23` cells of `T_G^*` support). **Full-data LOO max `p_mass = 0.055 (Pat_08)` fails the Decision-12 LOO precondition** (≥ 0.05) — the verdict is "weak" rather than "strong" precisely because of this single-patient leverage. C5 epi-X (secondary mechanistic observation, not verdict-promoter): raw mass strengthens 38.07 → 43.99, `p_mass^epi-X = 0.005`, LOO max under epi-X = 0.005 (Pat_02) fully robust — the full-data Pat_08 leverage is attributable to epi-zone interactions rather than the true trace; `|S^epiX(δ)| = 22` cells (per-k Wilcoxon on `grassmann_epi_exclusion/per_patient_per_band_per_k.csv`, support spans k=[2, 34–52, 87, 88]). ~~Anatomy under `S(δ)` (full): 4 regions ... Anatomy under `S^epiX(δ)` (epi-X): 3 regions ... **Zero regions shared** ... **fully disjoint**.~~ **Anatomy RETRACTED 2026-05-30/06-01 — 0/4 full and 0/3 epi-X cohort-supported (well-sampled regions anti-localized), per-patient null; the epi-X network rested on a no-op masking bug (fixed). The "two disjoint networks" framing does not survive (see §5 banner).** Separately, the C4 cross-probe `ρ_xprobe = +0.032` at 6/10 +sign is the known-biology δ anchor anatomy at the substrate layer (`memory/epileptic_imcoh_universal.md` 1.55× cross-probe ratio), reported as descriptive only (LEDGER Decision 5); this substrate-layer observation is independent of the Grassmann anatomy result and is not affected by the cluster-extent cascade.
 
 ### γ_h — no trace (borderline; Decisions 6 + 8 demotion 2026-05-19)
 γ_h cophenet has no trace (C3 p=0.246). Grassmann cluster-extent permutation is borderline (cluster_p_LR = 0.055, just outside the 0.05 gate; cluster_p_mass = 0.060 fails the Decision-8 mass-only gate). 9-cell observed run at k = 19..27. Under C5 epi-X the run shifts to k = 19..28 with 6 cells persisting + 8 new emergent cells at neighboring k. Demoted to "no trace" in the 2026-05-19 cluster-extent revision (Decisions 6 + 8) — the 8-cell hardcoded threshold of audit_66 had read this as "weak"; under cluster-extent permutation the cohort signal is not distinguishable from the matched-strength null at the 0.05 level. γ_h is the closest miss in the manuscript and is the borderline case worth flagging in discussion.
@@ -101,9 +110,22 @@ Reading: β dominates on every statistic (29-cell run, `T_G^* = 0.273` ≈ 9× n
 ### θ — no trace
 θ has no trace on either probe. Cophenet C3 p=0.722 (obs_median ≈ surr_median; cohort sign agreement 2/10). Grassmann cluster-extent permutation cluster_p_LR = 0.099, cluster_p_mass = 0.144 — well within the null distribution. The cleanest negative reference for the manuscript and a band-specificity benchmark for β and α.
 
-## 5. Cross-band anatomy synthesis (regions named)
+## 5. Cross-band anatomy synthesis ~~(regions named)~~ — **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01**
 
-### Region recurrence across trace-positive bands
+> ⚠️ **ENTIRE SECTION RETRACTED.** The region-recurrence table and its reading below rest
+> on the per-band "strong localized" region lists, which are all **retracted**: no DK region
+> reaches a defensible cohort localization in any band/probe (0/7 β-coph, 0/7 β-Grass, 0/11
+> α, 0/7 γ_l, 0/4+0/3 δ; max coverage 5/10; locked regions 1–4 patients; several
+> anti-localized), and per-patient localization is **also null** on both cross-phase probes
+> (0–1/10 every band; β 0/10 on both). There is **no cross-band region motif** to synthesize —
+> the apparent recurrences (cingulate, medial-temporal, parietal…) were artifacts of a
+> direction-blind, top-decile, count-based enrichment, and the only above-chance spatial
+> structure is electrode-shaft autocorrelation, not anatomy. The trace is spatially
+> **delocalized**. The table + reading are retained only as historical record of the
+> retracted analysis. Sources: `data/audit/anatomy_localization_wilcoxon/README.md`,
+> `data/audit/per_patient_localization/README.md`, `locked/ANATOMY_LEDGER.md`.
+
+### Region recurrence across trace-positive bands ~~(RETRACTED — see §5 banner)~~
 
 Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_k}` aggregation, `data/audit/anatomy_<band>_grassmann{_epiX}_clusterext/cohort_summary.csv`, 2026-05-19 pm). The retired `K*(b)` (longest-contiguous-significant) windows are not used. See `directives/writing_directive_2026-05-19_anatomy_clusterext_rerun.md` for the methodology cascade.
 
@@ -129,7 +151,7 @@ Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_
 
 - **Cingulate** is at β cophenet + α cophenet — bilateral anterior cingulate + isthmus + posterior cingulate. The δ Grassmann full caudal ACC entry of the retired ledger is **not** preserved under `S(δ)`. The cingulate signature is now a per-pair-multiscale-only motif (cophenet probe).
 - **Medial-temporal** (Hippocampus + parahippocampal) appears at β and α — β-and-α medial-temporal involvement supports β-α coupling in task-trace retention.
-- **Fusiform** appears **nowhere** under the cluster-extent paradigm. The KC-era "Hippocampus + left fusiform" β claim is fully retracted (Hippocampus survives at β Grassmann; fusiform retracts at γ_l and δ alike under `S(b)`). The retraction is one of the cleanest worked-examples of why the methodology cascade was necessary.
+- **Fusiform** appears **nowhere**. ~~The KC-era "Hippocampus + left fusiform" β claim is fully retracted (Hippocampus survives at β Grassmann; fusiform retracts).~~ **FULLY RETRACTED 2026-05-30/06-01: neither survives — Hippocampus crosses the cohort test on only 3–5/10 patients (marginal hint, not a localization) and is null per-patient; fusiform appears nowhere. No β localization survives on either probe.**
 - **Insula** appears only at β (both probes, opposite hemispheres — a label match, not contact-set match).
 - **Amygdala** appears **nowhere** under the cluster-extent paradigm. The δ Grassmann full "anchor anatomy" framing (Amy + cingulate + fusiform) of the retired ledger is **not supported** under `S(δ)`. The δ cross-probe 1.55× known biology (`memory/epileptic_imcoh_universal.md`) is a **separate substrate-layer observation** and is unaffected by this cascade.
 - **Parietal cortex** (inferior + superior + postcentral) appears at β cophenet + α cophenet + δ Grassmann full (left inferior) + δ Grassmann epi-X (left superior) — a recurring sensorimotor + parietal motif across bands where the trace localizes outside epi zones.
