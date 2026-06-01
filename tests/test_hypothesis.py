@@ -10,6 +10,7 @@ from lrg_eegfc.utils.metrics.hypothesis import (
     cluster_stats,
     loo_sensitivity,
     rank_biserial,
+    regression_slope_through_origin,
     surrogate_p_value,
     wilcoxon_z,
 )
@@ -150,3 +151,77 @@ def test_loo_sensitivity_handles_test_fn_failure():
     assert np.isnan(res["loo"][0])  # dropping idx 0 leaves [2,3], triggers flaky
     assert np.isfinite(res["loo"][1])
     assert np.isfinite(res["loo"][2])
+
+
+# ---------------------------------------------------------------------------
+# regression_slope_through_origin  (s_TR measure — never call the slope "beta")
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("alpha", [-2.0, 0.5, 1.0, 3.0])
+def test_slope_exact_proportional(alpha):
+    rng = np.random.default_rng(7)
+    x = rng.normal(size=200)
+    y = alpha * x  # perfectly proportional through the origin
+    slope, r2 = regression_slope_through_origin(x, y)
+    assert slope == pytest.approx(alpha, abs=1e-12)
+    assert r2 == pytest.approx(1.0, abs=1e-12)
+
+
+def test_slope_matches_lstsq_through_origin():
+    rng = np.random.default_rng(11)
+    x = rng.normal(size=500)
+    y = 0.4 * x + rng.normal(scale=0.5, size=500)  # noisy through-origin
+    slope, r2 = regression_slope_through_origin(x, y)
+    # numpy lstsq on the no-intercept design X = x[:, None]
+    coef, *_ = np.linalg.lstsq(x[:, None], y, rcond=None)
+    assert slope == pytest.approx(float(coef[0]), abs=1e-12)
+    # r_squared is the mean-centred Pearson squared
+    r = np.corrcoef(x, y)[0, 1]
+    assert r2 == pytest.approx(r * r, abs=1e-12)
+
+
+def test_slope_is_asymmetric():
+    rng = np.random.default_rng(13)
+    x = rng.normal(size=100)
+    y = rng.normal(size=100)
+    s_xy, _ = regression_slope_through_origin(x, y)
+    s_yx, _ = regression_slope_through_origin(y, x)
+    # equal only when ‖x‖ == ‖y‖, which is measure-zero for random draws
+    assert s_xy != pytest.approx(s_yx, abs=1e-6)
+    # closed form: s_xy / s_yx == <y,y> / <x,x>
+    assert s_xy / s_yx == pytest.approx(np.dot(y, y) / np.dot(x, x), rel=1e-9)
+
+
+def test_slope_drops_nonfinite_pairwise():
+    x = np.array([1.0, 2.0, np.nan, 4.0, 5.0])
+    y = np.array([2.0, 4.0, 100.0, 8.0, np.inf])
+    slope, r2 = regression_slope_through_origin(x, y)
+    # only the (1,2),(2,4),(4,8) pairs survive → exact slope 2.0
+    assert slope == pytest.approx(2.0, abs=1e-12)
+    assert r2 == pytest.approx(1.0, abs=1e-12)
+
+
+def test_slope_edge_cases_return_nan():
+    # length mismatch
+    assert all(np.isnan(v) for v in regression_slope_through_origin(
+        np.array([1.0, 2.0]), np.array([1.0])))
+    # empty
+    assert all(np.isnan(v) for v in regression_slope_through_origin(
+        np.array([]), np.array([])))
+    # fewer than two finite pairs
+    assert all(np.isnan(v) for v in regression_slope_through_origin(
+        np.array([1.0, np.nan]), np.array([np.nan, 2.0])))
+    # zero predictor norm → slope undefined
+    slope, r2 = regression_slope_through_origin(
+        np.array([0.0, 0.0, 0.0]), np.array([1.0, 2.0, 3.0]))
+    assert np.isnan(slope) and np.isnan(r2)
+
+
+def test_slope_anti_trace_negative():
+    rng = np.random.default_rng(17)
+    x = rng.normal(size=300)
+    y = -0.6 * x + rng.normal(scale=0.1, size=300)
+    slope, r2 = regression_slope_through_origin(x, y)
+    assert slope < 0  # anti-trace direction
+    assert 0.0 <= r2 <= 1.0

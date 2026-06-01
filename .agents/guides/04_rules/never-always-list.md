@@ -299,6 +299,18 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   `make_axes_locatable` / `fig.add_axes([...])` pattern. The helper is
   the canonical choice for any *single-imshow* axis. Locked 2026-05-28.
   See `feedback_imshow_colorbar_caxdivider_scope.md`.
+- **Never use the bare letter `β` for a regression slope, OLS
+  coefficient, or any non-band-name numerical quantity.** The letter
+  is reserved for the 13–30 Hz EEG band throughout the codebase,
+  manuscript, CSV files, figure axes, prose, and memory. The
+  asymmetric pair-trace recovery slope `⟨Δ_task, Δ_rest⟩ / ‖Δ_task‖²`
+  is named `s_TR` (math, `s_{\mathrm{TR}}`) / `slope` (code, CSV
+  columns, helper args) / "asymmetric pair-trace slope" or "recovery
+  slope" (prose). The helper at `src/lrg_eegfc/utils/metrics/hypothesis.py`
+  is `regression_slope_through_origin`, NEVER `beta_slope`. Same rule
+  for any future asymmetric measure — pick a letter that does not
+  collide with the seven band symbols. Locked 2026-05-30. See
+  `feedback_no_beta_for_regression_slope.md`.
 
 ## Always
 

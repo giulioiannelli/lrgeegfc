@@ -29,6 +29,7 @@ __all__ = [
     "cluster_stats",
     "surrogate_p_value",
     "loo_sensitivity",
+    "regression_slope_through_origin",
 ]
 
 
@@ -263,3 +264,64 @@ def loo_sensitivity(
         "worst": float(loo[worst_idx]),
         "worst_patient": labels[worst_idx],
     }
+
+
+def regression_slope_through_origin(
+    x: np.ndarray, y: np.ndarray
+) -> tuple[float, float]:
+    """Through-origin regression slope and r-squared of ``y ≈ slope · x``.
+
+    The slope is the ordinary-least-squares coefficient of the no-intercept
+    model ``y = slope · x + ε``, i.e. the projection of ``y`` onto ``x``::
+
+        slope     = <x, y> / <x, x>
+        r_squared = pearson(x, y) ** 2
+
+    ``slope`` is **asymmetric** in ``x ↔ y`` (``slope(y, x) = <x, y> / <y, y>``);
+    by convention ``x`` is the cause / predictor and ``y`` the response. When
+    ``(x, y) = (Δ_task, Δ_rest)`` on a per-pair LRG distance, ``slope`` reads as
+    the fraction of the task-induced per-pair shift recovered in the post-task
+    rest. ``r_squared`` is the mean-centred Pearson squared (fraction of the
+    response variance linearly explained); it is rotation-invariant and so the
+    cross-primitive-comparable companion to the magnitude-bearing ``slope``.
+
+    NOTE — naming: this is the ``s_TR`` measure. The bare letter ``β`` is
+    reserved for the 13–30 Hz band project-wide; never name a regression slope
+    ``beta`` (see ``feedback_no_beta_for_regression_slope``).
+
+    Parameters
+    ----------
+    x, y : np.ndarray
+        Paired 1-D vectors of equal length. Non-finite entries in either
+        vector are dropped pairwise before the fit.
+
+    Returns
+    -------
+    tuple[float, float]
+        ``(slope, r_squared)``. Returns ``(nan, nan)`` when the inputs are
+        empty, length-mismatched, reduce to fewer than two finite pairs, or
+        when ``<x, x> == 0`` (no predictor variation, slope undefined).
+    """
+    x = np.asarray(x, dtype=float).ravel()
+    y = np.asarray(y, dtype=float).ravel()
+    if x.shape != y.shape or x.size == 0:
+        return np.nan, np.nan
+
+    finite = np.isfinite(x) & np.isfinite(y)
+    x = x[finite]
+    y = y[finite]
+    if x.size < 2:
+        return np.nan, np.nan
+
+    xx = float(np.dot(x, x))
+    if xx == 0.0:
+        return np.nan, np.nan
+    slope = float(np.dot(x, y) / xx)
+
+    # r_squared = mean-centred Pearson², guarded against zero-variance y.
+    if np.ptp(x) == 0.0 or np.ptp(y) == 0.0:
+        r_squared = np.nan
+    else:
+        r = float(np.corrcoef(x, y)[0, 1])
+        r_squared = r * r
+    return slope, r_squared
