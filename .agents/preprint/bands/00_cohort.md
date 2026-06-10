@@ -26,7 +26,9 @@ sources:
 
 ## Head
 
-Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy controls, **β is the only band with a trace at both probes; α adds a strong-but-cophenet-only trace; γ_l and δ carry weak Grassmann-only traces; θ and γ_h carry no trace on either probe.** Where a trace exists, it is ~~**anatomically localized to a band-specific distributed cortical network**~~ **anatomically DELOCALIZED — RETRACTED 2026-05-30/06-01** (no DK region reaches cohort localization, 0–1/10 per-patient on both probes; the trace is a distributed network reorganization with no anatomical anchor — see §1 banner + §5). The cophenet wrap (`D_coph = cophenet(UPGMA(D(τ_max)))`) is responsible for **band resolution at the LRG-multiscale layer**: raw FC and raw `D(τ_max)` detect every band at 6-8/10 cohort agreement, but only the cophenet wrap demotes δ/θ/γ_h to non-trace and preserves β at 7/10.
+Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy controls, **β is the only band with a trace at both probes; α adds a strong-but-cophenet-only trace; γ_l and δ carry weak Grassmann-only traces; θ and γ_h carry no trace on either probe.** Where a trace exists, the multi-region DK lists are retracted (2026-05-30/06-01), but **the β cophenet trace localizes to ORBITOFRONTAL CORTEX** (matched-strength R=1000, BH q≈0.01 across the 9 a-priori systems within β, 4/5 implanted, leave-one-out + shaft-collapse robust, low-strength; `localization_atlas/README.md`, 2026-06-10); **α/γ_l/δ have no FDR-surviving localization**, and the cross-phase Grassmann subspace probe does not localize in any band. Hippocampus/MTL is a real but sub-threshold β hint. So the trace is **OFC-localized at β** and otherwise undersampled/delocalized — see §1 banner + §5. The cophenet wrap (`D_coph = cophenet(UPGMA(D(τ_max)))`) is responsible for **band resolution at the LRG-multiscale layer**: raw FC and raw `D(τ_max)` detect every band at 6-8/10 cohort agreement, but only the cophenet wrap demotes δ/θ/γ_h to non-trace and preserves β at 7/10.
+
+**Epi-independence is a primary cross-band interpretive lens (PI directive 2026-06-05; see §4.5).** The trace is a property of **healthy network reorganization that the epileptic zone partly masks, not an epileptiform artefact**: excluding the clinically labeled epileptogenic contacts leaves the β and α traces intact and *strengthens* them (β +0.221 → +0.275, α +0.105 → +0.187, both matched-strength-significant, both robust to leave-one-patient-out) and *unmasks* a low-γ trace the epileptic zone had concealed (null → significant, 8/10; see `03_gammalow.md`). The trace is carried by healthy↔healthy cortex and the epi↔non-epi interface, not by the epileptic core — with one exception: **α uniquely also recruits the epileptic tissue (epi↔epi +0.404, p=0.0059), whereas β spares it.** This pre-empts the obvious "is this just pathological-network reorganization?" reviewer attack.
 
 ## 1. Locked verdict matrix
 
@@ -34,14 +36,16 @@ Across 6 frequency bands × 2 LRG probes × 5 trace controls + 4 anatomy control
 
 | Band | Range (Hz) | D_coph trace | Grassmann trace | Anatomy verdict | Coverage tag |
 |---|---|---|---|---|---|
-| **β** | 13–30 | **strong** | **strong** | ~~strong localized, both probes (7+7 DK regions)~~ **RETRACTED — DELOCALIZED** (0/7 + 0/7 cohort; 0/10 per-patient both probes) | **strong trace, both probes** |
+| **β** | 13–30 | **strong** | **strong** | ~~strong localized, both probes (7+7 DK regions)~~ → **REINSTATED 2026-06-10: cophenet trace → OFC system** (matched-strength R=1000, BH q≈0.01 across 9 systems, 4/5, LOO+shaft-robust, low-strength). Multi-region lists stay retracted; Hip sub-threshold; Grassmann probe not localized. | **strong trace, both probes** |
 | α | 8–13 | **strong** (epi-X strengthens 8.3× → 27.7×) | no trace | ~~strong localized (11 DK regions)~~ **RETRACTED — DIFFUSE** (0/11 cohort; 1/10 per-patient = chance) | **strong trace, only D_coph** |
 | γ_l | 30–80 | no trace | **strong** | ~~strong localized (7 DK regions)~~ **RETRACTED** (0/7 cohort; per-patient null) | **strong trace, only Grassmann** ↑ |
 | δ | 0.53–4 | no trace | **weak** | ~~strong localized, full ≠ epi-X~~ **RETRACTED** (0/4 + 0/3 cohort, anti-localized; per-patient null; epi-X mask bug) | **weak trace, only Grassmann** |
 | γ_h | 80–300 | no trace | no trace (borderline, cluster_p = 0.055) | n/a | **no trace** |
 | θ | 4–8 | no trace | no trace | n/a | **no trace** |
 
-> ⚠️ **ANATOMY column RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01.** The **trace** verdicts
+> ✅ **UPDATE 2026-06-10 — β cophenet anatomy REINSTATED → ORBITOFRONTAL CORTEX (the "delocalized" blanket below was over-aggressive for β).** A sampling-conditioned, matched-strength-gated re-analysis (`data/audit/localization_atlas/README.md`) shows the **β cophenet trace localizes to the OFC system**: the right denominator is patients *implanted* in the region (not /10), and under the mandatory matched-strength surrogate at **R=1000** with rank concordance and a **canonical observed trace**, OFC clears **BH q=0.009–0.013 across the 9 a-priori systems within β**, in all four contact/shaft-collapsed × epi-include/exclude conditions; 4/5 implanted positive, leave-one-out robust, **shaft-collapse robust**, low-strength (non-hub). **Hippocampus/MTL = sub-threshold hint** (p≈0.4, LOO-fragile); **occipital = K=3 low-coverage secondary**; "distributed paralimbic ring", **α** (pars opercularis fails BH over 53 regions), low-γ, and the **Grassmann subspace** probe do **not** localize. The multi-region DK *lists* below stay retracted; the per-patient/shaft-autocorrelation framing applied to coarse DK regions, not to the system-level OFC result. Six-rung control gate + self-audit (canonical-trace fix, shaft-collapse, R=1000, correct within-β multiplicity). This **supersedes** the 2026-06-01 "delocalized" verdict for β.
+>
+> ⚠️ **ANATOMY column RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01 (historical; superseded for β by the 2026-06-10 update above).** The **trace** verdicts
 > (D_coph / Grassmann / coverage tag) stand. The **anatomy** verdicts are all retracted: no DK
 > region reaches a defensible cohort localization (max coverage 5/10; locked regions 1–4
 > patients; several anti-localized) and per-patient localization is **also null** on both
@@ -110,9 +114,41 @@ Reading: β dominates on every statistic (29-cell run, `T_G^* = 0.273` ≈ 9× n
 ### θ — no trace
 θ has no trace on either probe. Cophenet C3 p=0.722 (obs_median ≈ surr_median; cohort sign agreement 2/10). Grassmann cluster-extent permutation cluster_p_LR = 0.099, cluster_p_mass = 0.144 — well within the null distribution. The cleanest negative reference for the manuscript and a band-specificity benchmark for β and α.
 
-## 5. Cross-band anatomy synthesis ~~(regions named)~~ — **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01**
+## 4.5 Epilepsy-independence — a primary cross-band interpretive lens (PI directive 2026-06-05)
 
-> ⚠️ **ENTIRE SECTION RETRACTED.** The region-recurrence table and its reading below rest
+**Head.** The band-selective cognitive task-trace is **independent of the epileptic pathology**: it is a property of healthy network reorganization that the epileptic zone partly *masks*, not an epileptiform artefact. Excluding the clinically labeled epileptogenic contacts leaves β and α intact and *strengthens* them, *unmasks* a low-γ trace, and (pair-class decomposition) shows the trace carried by healthy cortex and the epi↔non-epi interface — **not the diseased core**, with α the lone exception that also recruits the core. This is elevated from the prior "secondary mechanistic observation" status (old Decision 10 framing) to a **primary interpretive lens** that pre-empts the #1 reviewer attack. **No trace verdict changes** — every verdict was earned at C3 on the full graph; this is an emphasis/interpretation elevation only.
+
+**Cophenetic ρ_split under epi-exclusion (audit_77, `data/audit/epi_stratified/cophenetic_cohort.csv`, six epi views × six bands × n=10, matched-strength R=200; positive = trace):**
+
+| Band | full ρ (p) | exclude-epi ρ (p) | n>surr | LO-Pat_13 p | epi verdict |
+|---|---|---|---|---|---|
+| **β** | +0.221 (0.0068) | **+0.275 (0.0029)** | 7/10 | 0.0059 | persist + strengthen |
+| **α** | +0.105 (0.0049) | **+0.187 (0.0137)** | 7/10 | 0.0039 | persist + strengthen |
+| **γ_low** | +0.083 (0.116, **null**) | **+0.174 (0.0244)** | **8/10** | 0.0371 | **EMERGES** (locked in `03_gammalow.md` + VERDICT_LEDGER) |
+
+**Pair-class decomposition (audit_77; full-graph null restricted to a node-pair class, global strength sequence held fixed; median pair counts nonepi↔nonepi 5565, cross 1050, epi↔epi 45):**
+
+| Band | NONEPI↔NONEPI ρ (p) | CROSS epi↔non ρ (p) | EPI↔EPI ρ (p) |
+|---|---|---|---|
+| **β** | +0.197 (0.0049) **carry** | +0.273 (0.0098) **carry** | +0.240 (0.150) **does NOT carry** |
+| **α** | +0.073 (0.0322) **carry** | +0.177 (0.0039) **carry** | **+0.404 (0.0059) carry (the α exception)** |
+
+Reading:
+- **β / α persist and strengthen** under epi-exclusion — the trace is not driven by diseased tissue; if anything the diseased tissue dilutes it. Both are robust to dropping Pat_13 (the 30/119-contact patient who leverages every epi config).
+- **γ_low EMERGES**: null on the full graph (p=0.116), significant after excluding epi (p=0.024, 8/10), robust to dropping Pat_13 (p=0.037) — Pat_13 (−0.042 → +0.109) and Pat_14 (−0.220 → +0.073) flip sign when epi contacts are dropped. The epileptic zone partly *masks* a healthy low-γ trace. (Locked separately in `03_gammalow.md` + `VERDICT_LEDGER.md` 2026-06-05; cross-referenced here only.)
+- **Carried by healthy + interface, not the core**: at β the trace lives in healthy↔healthy (+0.197) and the epi↔non-epi interface (+0.273); the epi↔epi core is non-significant (p=0.150) and the epi_only rebuilt subgraph weakens (−0.078).
+- **The α exception**: α uniquely *also* recruits the epileptic tissue — its epi↔epi pair class is the strongest single epi-stratified α cell (+0.404, p=0.0059, 6/9 patients individually significant), whereas β spares the core. **α recruits epileptic tissue, β spares it** — the band-specific epilepsy signature.
+- **Grassmann corroboration (audit_78)**: β exclude_epi gains a separated k-window (mass 69.76 → 89.04, p_mass 0.005, longest run 29 → 36) — the same "epi-exclusion sharpens β" direction as cophenetic.
+
+**Brutal-honesty caveats (bounding the lens).** (i) The **epi_only subgraph / epi↔epi class are underpowered** — 6–30 nodes (Pat_15 = 0), 15–435 pairs; matched-strength on such tiny graphs is near-degenerate, so the epi_only "separated"-style verdicts are exploratory and the β epi↔epi p=0.150 means "no power", not "proven absent". (ii) The **pair-class null is global-rewiring, not within-class** — it fixes the global strength sequence and asks whether class-restricted co-movement survives, but does not randomize *within* the class; so "interface-carried" and "α recruits the core" are **suggestive, not airtight** (a within-class matched-strength null is the airtight version and has not been run). (iii) Class sizes are unequal (nonepi↔nonepi always has the most pairs → the most stable Spearman); read the per-class numbers alongside n_pairs. (iv) The α epi↔epi +0.404 rests on ~45 pairs (small).
+
+Sources: `data/audit/epi_stratified/{cophenetic_cohort.csv, cophenetic_per_patient.csv, README.md}` (audit_77), `data/audit/epi_stratified/grassmann_cohort.csv` (audit_78), consolidated report `.agents/reports/2026-06-05_epilepsy-headline-and-occult-node-marker.md`. Verdicts unaffected; see `VERDICT_LEDGER.md` 2026-06-05 revision + `01_beta.md` §3.2.5 + `02_alpha.md` §3.1 + `03_gammalow.md`.
+
+## 5. Cross-band anatomy synthesis ~~(regions named)~~ — **RETRACTED 2026-05-30 / DELOCALIZED 2026-06-01; β UPDATED 2026-06-10 → OFC**
+
+> ✅ **UPDATE 2026-06-10 — there IS one localization, at the SYSTEM scale: β → orbitofrontal cortex.** The cross-band *multi-region DK motif* synthesis below stays retracted (those motifs were a direction-blind, top-decile, count-based artifact). But a sampling-conditioned, matched-strength-gated re-analysis at the a-priori *anatomical-system* scale recovers a real localization for β: **β cophenet trace → OFC system**, matched-strength R=1000, BH q=0.009–0.013 across 9 systems within β, all four conditions, 4/5 implanted, leave-one-out + shaft-collapse robust, low-strength. **No other band localizes** (α pars-opercularis fails BH over 53 regions; γ_l/δ null; Grassmann subspace null). **Hippocampus = sub-threshold hint; occipital = K=3 secondary; "distributed paralimbic ring" retracted (fails shaft-collapse).** So there is no cross-*band* motif, but there is a single, controlled, within-β **system-level** localization. Source: `data/audit/localization_atlas/README.md`.
+>
+> ⚠️ **ENTIRE SECTION RETRACTED (historical; β superseded by the 2026-06-10 update above).** The region-recurrence table and its reading below rest
 > on the per-band "strong localized" region lists, which are all **retracted**: no DK region
 > reaches a defensible cohort localization in any band/probe (0/7 β-coph, 0/7 β-Grass, 0/11
 > α, 0/7 γ_l, 0/4+0/3 δ; max coverage 5/10; locked regions 1–4 patients; several
@@ -175,6 +211,8 @@ Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_
 - **Neurophysiological reading** of the three-rung probe ladder + per-pair vs global persistence + per-band physical interpretation: `methods/methods_neurophysiological_interpretation_2026-05-26.md`.
 - Cluster-extent permutation: `data/audit/grassmann_cluster_extent/{cohort_summary.csv, null_distribution.csv, per_k_obs_p.csv, README.md}` (audit_70).
 - β β-figure scripts (parameterizable over `--band`): `scripts/02_preprint/preprint_07_beta_rho_split_figure.py`, `preprint_08_beta_grassmann_figure.py`.
+- Raw-substrate per-pair Results figures (all-bands, 2026-06-03): joint density `scripts/02_preprint/preprint_18_bands_joint_density_rawfc.py` + null triangle `preprint_21_bands_null_triangle.py --layer raw|coph` → `data/preprint/figures/all_bands/`. Captions, prose, and the verified raw→LRG inversion-**magnitude**-collapse mechanism (NOT count; never "turns gray") in `directives/writing_directive_2026-06-03_raw-substrate-results-figures.md`. Figures/narrative only — changes no verdict.
+- Cophenetic per-pair Results subsection (all-bands, 2026-06-03, the LRG twin): same scripts with `--layer coph` → `fig_bands_joint_density_empirical_coph.pdf` + `fig_bands_null_triangle_coph.pdf`. The per-pair trace clears the full control battery (matched-strength gate + drift + cross-probe) at **β primary, α secondary** only. Caption specs, three-paragraph narrative skeleton, verified gate/drift/cross-probe numbers, and the guards (**γ_l clears drift but FAILS the gate → not a third trace band**) in `directives/writing_directive_2026-06-03_coph-substrate-results-figures.md`. Figures/narrative only — changes no verdict.
 - Anatomy audits: `scripts/01_compute/audit/audit_71_anatomy_cophenet.py`, `audit_72_anatomy_grassmann.py`.
 - Cohort figures (this directory): `data/preprint/figures/cohort/F_cohort_1_three_layer.pdf`, `F_cohort_2_verdict_matrix.pdf`, `F_cohort_3_grassmann_strip.pdf` — see Phase C figures sub-task; not yet produced (figure scripts deferred until ready).
 
@@ -188,3 +226,6 @@ Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_
 ## Revision history
 
 - **2026-05-19** — Initial synthesis. All 6 bands locked at the trace level (5 in `locked/VERDICT_LEDGER.md` 2026-05-18 + γ_h demotion 2026-05-19 Decision 6 + δ promotion 2026-05-19 Decision 7 + cluster-extent disjunctive gate 2026-05-19). All trace-positive bands' anatomy locked in `locked/ANATOMY_LEDGER.md` 2026-05-19. The cophenet step's band-resolution role is the headline methodological argument.
+- **2026-06-03** — Added §7 companion pointer to the raw-substrate per-pair Results figures (joint density + raw/cophenetic null triangle) and `directives/writing_directive_2026-06-03_raw-substrate-results-figures.md`. Records the verified raw→LRG inversion-magnitude-collapse mechanism (NOT count). Figures + narrative only; no verdict change.
+- **2026-06-03** — Added §7 companion pointer to the cophenetic per-pair Results subsection (LRG twin: `--layer coph` joint density + null triangle) and `directives/writing_directive_2026-06-03_coph-substrate-results-figures.md`. β-primary/α-secondary is the matched-strength gate; γ_l drift-clears but gate-fails (not a third band). Figures + narrative only; no verdict change.
+- **2026-06-05** — **Epi-independence ELEVATED to a primary cross-band interpretive lens** (PI directive 2026-06-05; pre-empts the "isn't this pathological-network reorganization?" reviewer attack). Added new **§4.5** (epilepsy-independence synthesis: cophenetic ρ_split under epi-exclusion β/α strengthen + γ_low emerges; pair-class decomposition β carried by healthy + interface not core; α exception = α recruits epi core +0.404 while β spares it; Grassmann corroboration; brutal-honesty caveats) and an epi-independence paragraph in the Head. Cites audit_77/audit_78 (`data/audit/epi_stratified/`) + consolidated report `2026-06-05_epilepsy-headline-and-occult-node-marker.md`. γ_low emergence is locked separately (`03_gammalow.md` + VERDICT_LEDGER) and cross-referenced here only. **No trace verdict changes** — every verdict earned at C3 on the full graph; emphasis/interpretation elevation only. Caveats kept: epi_only/epi↔epi underpowered; pair-class null is global-rewiring not within-class (interface-carried + α-recruits-core = suggestive not airtight); α epi↔epi rests on ~45 pairs.

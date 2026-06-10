@@ -14,6 +14,102 @@ tau: 1/lambda_max
 
 # Anatomy verdict ledger — per-(band, probe) trace localization (locked 2026-05-19)
 
+> ## ✅ FINAL AUDITED VERDICT 2026-06-10 — β trace localizes to ORBITOFRONTAL CORTEX (matched-strength R=1000, BH q≈0.01, shaft- & LOO-robust). Supersedes the 2026-06-05 R=200 banner below; corrects the α claim.
+>
+> The 2026-06-05 exploration was carried through a **six-rung control gate + a
+> self-audit that found and fixed two real flaws**. Final state
+> (`data/audit/localization_atlas/README.md`, 2026-06-10):
+>
+> - **β → orbitofrontal cortex (OFC system).** Matched-strength surrogate
+>   (**R=1000**, fresh independent ensemble = seed-robustness check), rank
+>   concordance, **canonical observed trace** (recomputed to match the surrogate
+>   construction — fix below): **BH q = 0.009–0.013 across the 9 a-priori
+>   anatomical systems within β, in ALL FOUR conditions** (contact/shaft-collapsed
+>   × epi-include/exclude). 4/5 implanted patients positive, **leave-one-out
+>   robust** (LOO-min median ≫ 0, survives dropping the −1.5M anti patient Pat_10),
+>   **shaft-collapse robust** (multi-shaft in the two strongest patients), in
+>   **low-strength / non-hub** tissue (strength dev −0.51). This is the **only**
+>   band/region surviving the full gate.
+> - **Hippocampus / MTL — sub-threshold** (matched-strength p ≈ 0.4 at R=1000,
+>   leave-one-out fragile, Pat_02-driven). Real, strength-independent, but
+>   underpowered at n=5 — a hint, NOT the localization. (Supersedes the
+>   2026-06-05 Hip-β reinstatement banner: the matched-strength-significant β
+>   localization is **orbitofrontal**, not hippocampal.)
+> - **"Distributed paralimbic ring" — RETRACTED.** Ring-minus-OFC clears at
+>   contact level but **fails shaft-collapse** (mode-unstable, q=0.07–0.32); the
+>   pooled "limbic" supersystem clears only because OFC is in it (and itself
+>   fails shaft-collapse-include). The localization is **OFC-specific**, not a ring.
+> - **α — NO FDR-surviving localization** (CORRECTS the 2026-06-05 "α → frontal
+>   operculum" line). pars opercularis raw p=0.005 but the region family is 53 DK
+>   regions → BH q=0.066–0.26; no a-priori system clears. β localizes at the coarse
+>   *system* scale (family 9, survives); α only at a fine single region (family 53,
+>   fails).
+> - **Occipital** clears every control incl. shaft + R=1000 (q=0.006–0.045) but on
+>   only **K=3** patients → genuine low-coverage **secondary**, not headline.
+> - **low-γ** epi-mode-unstable; **Grassmann subspace** trace does not localize
+>   (single-probe, edge-cophenetic localization).
+>
+> **Self-audit fixes (2026-06-08/10):** (1) the observed trace was being read from
+> the LRG-pipeline ultrametric while the surrogate used the canonical
+> `cophenetic_condensed_from_eigs`; they differ by a per-phase ρ-trace scale that
+> perturbs cross-phase ranks (Spearman 0.92–0.99). `audit_83.obs_trace` now
+> recomputes the observed trace canonically (matches the surrogate AND the locked
+> §5.3 audit_63); OFC verdict unchanged, null now exact. (2) α demoted (above).
+> Multiplicity family is **a-priori systems within β only** — NOT bands (β is *the*
+> band; α/γ_l are separate questions), NOT nested granularities, NOT pooled epi modes.
+>
+> **Status:** the β-OFC verdict is **audited and unattackable on method**; the only
+> residual is the irreducible n=5 OFC coverage. Locked-verdicts table row for β is
+> updated below. Source: `data/audit/localization_atlas/README.md`. Cascade into
+> `00_cohort.md` / `01_beta.md` landed 2026-06-10; **commit pending user green-light**.
+>
+> ---
+
+> ## ⚠️ VERDICT CORRECTION 2026-06-05 — the 2026-05-30 retraction over-reached on "no anatomy anywhere"; Hip-β (cophenet TRACE) is a real, modest, sampling-conditioned localization
+>
+> Re-examination (user-prompted, 2026-06-05) keeps the **multi-region-list** retractions
+> below but **withdraws the blanket "spatially delocalized / no anatomy at cohort OR
+> single-patient level"** claim. Two errors in the 2026-05-30/06-01 reading:
+> 1. **Denominator.** "3–5/10 patients = marginal" uses the full cohort. The localization
+>    denominator is patients **implanted in the region**. The 5/10 ceiling is implant
+>    coverage, not a per-region weakness — so the ">5/10 or thin" bar retracts every region
+>    by construction. A cohort permutation gate on n=10 / ≤5-per-region is a structural
+>    false-negative machine (the audit's own §"methodological trap" shows both natural
+>    statistics failing oppositely). Non-significance there ≠ absence.
+> 2. **Anchor/trace conflation.** The "Hip = marginal hint" line leaned on the β **Grassmann**
+>    Hip (phase-averaged ANCHOR). The genuine signal is the β **cophenet TRACE**.
+>
+> **Corrected Hip-β cophenet (trace):** of the 5 patients implanted in hippocampus, **4/5**
+> show the β trace concentrating in Hip above their own demeaned baseline (Pat_02 +0.046,
+> Pat_08 +0.016, Pat_03 +0.007, Pat_13 +0.006; Pat_14 −0.003 only). Cohort demeaned median
+> **+0.0073 > shuffle q95 +0.0042**, **perm_p = 0.0046** (best-sampled passer of 53 regions;
+> exact one-sided Wilcoxon p = 0.0625 borderline; robust to dropping Pat_02). A **real,
+> modest hippocampal concentration of the β trace**, reported descriptively + sampling-
+> conditioned. Caveats stand: half the cohort isn't implanted there; no single patient has
+> Hip as #1 hotspot; prespecified-hippocampal framing (not 53-way fishing) is what carries it.
+> **Status:** multi-region lists stay retracted; "delocalized" framing withdrawn; a broader
+> sampling-conditioned + system-level (MTL/limbic) + epi-X-resolved localization exploration
+> is **underway (2026-06-05)** before any re-lock. Source: `data/audit/anatomy_localization_wilcoxon/README.md` (2026-06-05 banner). See Revision history.
+>
+> **⚠️ FINAL UPDATE 2026-06-05 (verified — 3 nested controls + adversarial review):** the
+> exploration ran (`audit_81` atlas + `audit_83` matched-strength + `audit_84` strength-
+> residualization). Matched-strength verdict for the **β** trace (rank-concordance,
+> strength-preserving R=200): **localizes to the ORBITOFRONTAL SYSTEM (medial+lateral OFC
+> pooled), MS_p=0.005 include & exclude-epi, leave-one-out robust, 4/5 patients** + lateral
+> temporal (superiortemporal, bankssts) at fine granularity. **α → frontal operculum**
+> (parsopercularis MS_p=0.005). **HIPPOCAMPUS/MTL is a genuine but SUB-THRESHOLD concentration**
+> (MS_p≈0.10): strength-INDEPENDENT (survives residualization; within-patient strength↔trace
+> ρ≈0.14; MTL is low-strength) — a real moderate-effect hint underpowered at n=5, **NOT a
+> strength artifact and NOT the headline**. Grassmann subspace + low-γ MTL do NOT localize
+> under matched strength. **This supersedes the Hip-β reinstatement above:** the matched-
+> strength-significant β localization is **orbitofrontal**, not hippocampal; Hip is a
+> suggestive hint. Multi-region lists stay retracted; "delocalized" withdrawn (OFC clears).
+> Adversarial review (agent a3dc4b5d) confirmed code clean + OFC LOO-robust + Hip-not-artifact.
+> Source: `data/audit/localization_atlas/README.md`. **Cascade into verdict table / 00_cohort /
+> 01_beta + commit: pending user green-light (finding flipped twice; PI should see final verdict).**
+>
+> ---
+
 > ## ⚠️ RETRACTION 2026-05-30 — the "strong localized" anatomy verdicts do NOT survive a signed, sampling-aware localization test
 >
 > A signed, threshold-free localization audit (`diag_anatomy_localization_wilcoxon.py`;
@@ -72,8 +168,8 @@ tau: 1/lambda_max
 
 | Band | Trace verdict (CONTROLS) | Probe(s) audited | Anatomy verdict (ANATOMY_CONTROLS) | Localization audit 2026-05-30 |
 |---|---|---|---|---|
-| **β** | strong trace, both probes | cophenet + Grassmann | ~~strong localized, both probes (7+7 named DK regions)~~ | **both probes RETRACTED** (Hip the only region crossing the test, on 3–5/10 patients — marginal hint, not a localization) |
-| α | strong trace, only D_coph | cophenet (full + C5 epi-X) | ~~strong localized, only D_coph (11 named regions)~~ | **RETRACTED (diffuse; 0/11 cohort-supported)** |
+| **β** | strong trace, both probes | cophenet + Grassmann | ~~strong localized, both probes (7+7 named DK regions)~~ | **REINSTATED 2026-06-10 → ORBITOFRONTAL CORTEX (cophenet).** Multi-region lists stay retracted, but the β cophenet trace localizes to the **OFC system**: matched-strength R=1000, BH q=0.009–0.013 (9 a-priori systems within β, all 4 contact/shaft × incl/excl), 4/5 implanted, LOO- & shaft-robust, low-strength. Hip/MTL = sub-threshold hint (p≈0.4); occipital = K=3 secondary; paralimbic-ring & Grassmann = not localized. See `localization_atlas/README.md`. |
+| α | strong trace, only D_coph | cophenet (full + C5 epi-X) | ~~strong localized, only D_coph (11 named regions)~~ | **RETRACTED — no FDR-surviving localization** (2026-06-10: pars opercularis fails BH over 53 regions q=0.07–0.26; no system clears. Earlier "diffuse; 0/11" and the 2026-06-05 "frontal operculum" line both withdrawn.) |
 | γ_l | strong trace, only Grassmann ↑ | Grassmann | ~~strong localized, only Grassmann (7 named DK regions)~~ | **RETRACTED (0/7 cohort-supported)** |
 | δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (full + C5 epi-X) | ~~strong localized, only Grassmann (4 + 3 named regions)~~ | **RETRACTED (0/4 full, 0/3 epi-X; well-sampled regions anti-localized; epi-X mask bug fixed)** |
 | θ | no trace | — | n/a | — |
@@ -360,6 +456,23 @@ KC-era anatomy memory entries (`result_2_lrg_beta_trace.md` "Hippocampus + left 
 - **A2 sampling-corrected bootstrap and A4 implant-geometry regression** — deferred to sensitivity supplement. The locked anatomy verdict rests on A1+A3 (cophenet probes) and A3 alone (Grassmann probes).
 
 ## Revision history
+
+- **2026-06-10** — **β anatomy REINSTATED → orbitofrontal cortex (new audited verdict; satisfies the anti-revisitation clause).** The 2026-06-05 sampling-conditioned exploration was carried through a six-rung control gate + a self-audit. New dated audits: `audit_83_localization_matched_strength.py` (now canonical observed trace + `--shaft-collapse` + `--R`), `audit_92_localization_R1000_surrogates.py` (R=1000 ensemble), `diag_localization_per_patient_decomposition.py`; CSVs + report under `data/audit/localization_atlas/`. **β cophenet trace localizes to the OFC system**: matched-strength R=1000, rank concordance, BH q=0.009–0.013 across the 9 a-priori systems within β in all four conditions; 4/5 implanted positive; leave-one-out robust; **shaft-collapse robust** (multi-shaft in the 2 strongest patients); low-strength (non-hub). **Self-audit fixes:** (1) observed trace was read from the LRG-pipeline ultrametric while the surrogate used the canonical `cophenetic_condensed_from_eigs` — they differ by a per-phase ρ-trace scale that perturbs cross-phase ranks (Spearman 0.92–0.99); `obs_trace` now recomputes canonically (matches surrogate + locked §5.3 audit_63); OFC verdict unchanged. (2) **α demoted** to no FDR-surviving localization (pars opercularis fails BH over 53 regions; corrects the 2026-06-05 "frontal operculum" line). **Retractions held:** multi-region DK lists stay retracted; "distributed paralimbic ring" retracted (fails shaft-collapse); Hip/MTL = sub-threshold hint (p≈0.4, LOO-fragile); occipital = K=3 low-coverage secondary; Grassmann subspace + low-γ do not localize. Multiplicity family = a-priori systems within β only (NOT bands, NOT nested granularities, NOT pooled epi modes). Top banner updated; β/α rows in the locked-verdicts table updated. Adversarial review (a3dc4b5d) + self-audit (2026-06-08/10). Cascade into `00_cohort.md` / `01_beta.md` landed same day; commit pending user green-light.
+
+- **2026-06-05** — **VERDICT CORRECTION (interpretation, not a new audit).** Re-examination
+  of the *same* 2026-05-30 audit CSVs (`data/audit/anatomy_localization_wilcoxon/`) plus a
+  fresh per-patient Hip-β cophenet recomputation found the retraction correct about the
+  multi-region lists but over-aggressive on "no anatomy anywhere." (1) The localization
+  denominator is patients **implanted in** a region, not /10; the 5/10 ceiling is implant
+  coverage, so the ">5/10 or thin" bar is a structural false-negative on n=10. (2) The
+  buried genuine signal is **Hip in β COPHENET (trace `s_ij=dD_task·dD_rest`)**, distinct
+  from the β Grassmann Hip (phase-avg ANCHOR) the retraction leaned on. Corrected reading:
+  **4/5 hippocampus-implanted patients** show the β trace concentrating in Hip above their
+  own baseline (median +0.0073 > q95 +0.0042, perm_p 0.0046; exact Wilcoxon 0.0625
+  borderline). **Multi-region lists stay retracted; the "spatially delocalized" blanket is
+  withdrawn**, replaced by a descriptive, sampling-conditioned frame. Broader localization
+  exploration (sampling-conditioned atlas + MTL/limbic system pooling + epi-X-resolved)
+  underway before any re-lock. Banner at top of this ledger + audit README 2026-06-05 banner.
 
 - **2026-05-19** — Ledger locked. Five audit runs landed: β cophenet (audit_71), β Grassmann (audit_72), α cophenet (audit_71, full + C5 epi-X), γ_l Grassmann (audit_72), δ Grassmann (audit_72, full k=57..63 + C5 epi-X k=33..39). All four trace-positive bands locked as **strong localized**. KC-era "Hippocampus + left fusiform" claim partially retracted (Hip retained at β Grassmann; fusiform shifts to γ_l + δ).
 
