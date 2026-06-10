@@ -209,9 +209,37 @@ right that it helps within-patient recoverability; it does not unlock cross-pati
 selection. Caveat: K=8 communities fixed a priori (a free parameter); the at-chance
 selection is robust to that, the narrowing magnitude is not finely tuned.
 
+## 9. "Mark few, discover many?" — yes, as a shortlist; not clean discovery (audit_95, 2026-06-10)
+
+VII1 (§3) hid 50 % of the SOZ — heavy seeding. The clinically exciting claim is
+stronger: mark only a FEW seeds (k=2,3,5,8) and recover the MANY remaining SOZ.
+audit_95 sweeps k, with a ranking metric (AUC of remaining-SOZ vs healthy) and the
+HONEST hard metric — precision@top-m (flag the top-m contacts, m = remaining SOZ;
+fraction truly SOZ). Numbers in `seed_curve_cohort.csv`:
+
+- **δ (best): even k=2 works** — AUC 0.73, precision@top-m 0.29 (prevalence 0.07,
+  **2.6× lift**); rising to AUC 0.85 at k=8. From 2–3 seeds the remaining SOZ are
+  recovered usefully.
+- **low-γ:** AUC 0.64→0.81 (k=2→8); precision 0.34–0.39 (**4–7× lift**) — strong
+  enrichment even at k=2.
+- **β:** AUC 0.63→0.74; precision 0.21–0.38 (**3.8–4.7× lift**).
+- **α: fails at few seeds** — AUC 0.57–0.65, lift ~1.4× (≈ prevalence).
+- Beats the node-strength baseline at every k (strength precision 0–0.16).
+
+**Honest framing.** From a few seeds, the marker produces a **prioritized shortlist**
+in which remaining SOZ are **3–5× enriched** and recovered at AUC 0.7–0.85 (δ best,
+then low-γ/β; α not). But **absolute precision is ~30 %** — flag the top-m and most
+are still false positives. So this is a genuine **search-narrowing / triage** tool
+(a 30 %-precision shortlist beats random review 3–5×), **not** a clean "find all the
+other SOZ" detector, and it is band-dependent (δ/low-γ/β, not α). That distinction
+is the difference between an honest contribution and an overclaim.
+
 ---
 
 ## Provenance (numbers in CSVs; scripts + 2026-06-08 timestamp)
+- Few-seed curve (audit_95, 2026-06-10):
+  `scripts/01_compute/audit/audit_95_epi_seed_curve.py` →
+  `data/audit/epi_marker_relational/seed_curve_{cohort,per_patient}.csv`.
 - Label-free community localization (audit_94, 2026-06-10):
   `scripts/01_compute/audit/audit_94_epi_community_localization.py` →
   `data/audit/epi_community_localization/{community_features,localization_per_patient,
