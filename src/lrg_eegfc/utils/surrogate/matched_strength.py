@@ -67,6 +67,8 @@ from __future__ import annotations
 from pathlib import Path
 
 import numpy as np
+from scipy.cluster.hierarchy import cophenet, linkage
+from scipy.spatial.distance import squareform
 
 from lrg_eegfc.config.paths import CACHE_ROOT
 
@@ -156,6 +158,65 @@ def _laplacian_eig(W: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return np.linalg.eigh(L)
 
 
+def load_or_compute_eigs_at_path(
+    path: Path,
+    W: np.ndarray,
+    n_surr: int,
+    swap_factor: int,
+    rng: np.random.Generator,
+    verbose: bool = False,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Load ``(eigvals[R, N], eigvecs[R, N, N])`` from an explicit `path`, or
+    generate-and-cache the matched-strength ensemble there.
+
+    Path-parameterized core shared by the canonical-path wrapper
+    `load_or_compute_surrogate_eigs` and by callers that need an ensemble in a
+    *non-canonical* directory — e.g. a node-subset variant (epi-excluded /
+    epi-only subgraph) whose ``N`` differs from the full graph and therefore
+    must not clobber the canonical cache. Promoted 2026-06-05 (second/third
+    callers: the epi-stratified audits) from the local ``_epiX`` copy in
+    ``audit_67_grassmann_epi_exclusion``.
+
+    If the file at `path` exists with matching ``(n_surr, N)`` /
+    ``(n_surr, N, N)`` shapes it is loaded; otherwise `n_surr` matched-strength
+    surrogates of `W` are generated (``n_swaps = swap_factor · N(N−1)/2``),
+    eigendecomposed, saved to `path`, and returned. Surrogates failing the
+    strength-tolerance check (`verify_strengths`, tol=1e-4) get NaN rows for
+    downstream masking.
+    """
+    N = W.shape[0]
+    if path.exists():
+        with np.load(path) as data:
+            evals = data["eigvals"]
+            evecs = data["eigvecs"]
+        if (evals.shape == (n_surr, N)
+                and evecs.shape == (n_surr, N, N)):
+            return evals.astype(np.float64), evecs.astype(np.float64)
+        if verbose:
+            print(f"[matched_strength] cache shape mismatch at {path}; recomputing")
+
+    n_swaps = swap_factor * (N * (N - 1)) // 2
+    evals = np.empty((n_surr, N), dtype=np.float64)
+    evecs = np.empty((n_surr, N, N), dtype=np.float64)
+    ok_count = 0
+    for r in range(n_surr):
+        W_s = strength_preserving_shuffle(W, n_swaps, rng)
+        if not verify_strengths(W, W_s, tol=1e-4):
+            evals[r, :] = np.nan
+            evecs[r, :, :] = np.nan
+            continue
+        ev, ec = _laplacian_eig(W_s)
+        evals[r, :] = ev
+        evecs[r, :, :] = ec
+        ok_count += 1
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    np.savez(path, eigvals=evals, eigvecs=evecs)
+    if verbose:
+        print(f"[matched_strength] cached {ok_count}/{n_surr} surrogates → {path.name}")
+    return evals, evecs
+
+
 def load_or_compute_surrogate_eigs(
     pat: str, band: str, phase: str,
     W: np.ndarray,
@@ -217,3 +278,56 @@ def load_or_compute_surrogate_eigs(
     if verbose:
         print(f"[matched_strength] cached {ok_count}/{n_surr} surrogates → {path.name}")
     return evals, evecs
+
+
+# ---------------------------------------------------------------------------
+# Reconstruct downstream objects from a cached Laplacian eigendecomposition
+# (so a surrogate ensemble cached for one statistic can drive another without
+#  re-running the strength-preserving shuffle).
+# ---------------------------------------------------------------------------
+def adjacency_from_laplacian_eigs(
+    eigvals: np.ndarray, eigvecs: np.ndarray, w_max: float = 1.0,
+) -> np.ndarray:
+    """Recover the symmetric, zero-diagonal adjacency ``W`` from a Laplacian
+    eigendecomposition.
+
+    For ``L = D − W = V diag(λ) Vᵀ`` the off-diagonal of ``−L`` is ``W``.
+    Used to recover a matched-strength surrogate adjacency from its cached
+    eigendecomposition without re-running `strength_preserving_shuffle`, so
+    raw-adjacency statistics and LRG statistics can share one ensemble.
+    Clipped to ``[0, w_max]`` and symmetrized to absorb float64 noise.
+    """
+    L = (eigvecs * eigvals) @ eigvecs.T
+    W = -L
+    np.fill_diagonal(W, 0.0)
+    W = np.clip(W, 0.0, w_max)
+    return 0.5 * (W + W.T)
+
+
+def cophenetic_condensed_from_eigs(
+    eigvals: np.ndarray, eigvecs: np.ndarray,
+) -> np.ndarray:
+    """LRG ultrametric (cophenetic) condensed distance from a Laplacian
+    eigendecomposition, at ``τ = 1/λ_max``.
+
+    The cheap tail of `lrg_ultrametric_condensed` (audit_63): the ``eigh`` is
+    already cached, so this only forms the propagator
+    ``ρ = V diag(e^{−τλ}) Vᵀ / tr``, the communication distance ``T = 1/ρ``
+    (upper-max-symmetrized), and the average-linkage cophenetic distance.
+    Returns the condensed (upper-triangular) cophenetic vector, identical in
+    construction to the observed per-pair cophenetic shift vectors.
+    """
+    lam_max = eigvals[-1]
+    tau = 1.0 / lam_max
+    diag_exp = np.exp(-tau * eigvals)
+    rho = (eigvecs * diag_exp) @ eigvecs.T
+    rho /= np.trace(rho)
+    with np.errstate(divide="ignore"):
+        Trho = 1.0 / rho
+    Trho = np.maximum(Trho, Trho.T)
+    np.fill_diagonal(Trho, 0.0)
+    finite = np.isfinite(Trho)
+    if not finite.all():
+        cap = np.nanmax(Trho[finite]) if finite.any() else 1e6
+        Trho = np.where(finite, Trho, cap)
+    return cophenet(linkage(squareform(Trho, checks=False), method="average"))

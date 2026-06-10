@@ -6,6 +6,9 @@ already-computed FC adjacency matrices.
 """
 from .matched_strength import (
     SURROGATE_LRG_CACHE,
+    adjacency_from_laplacian_eigs,
+    cophenetic_condensed_from_eigs,
+    load_or_compute_eigs_at_path,
     load_or_compute_surrogate_eigs,
     strength_preserving_shuffle,
     surrogate_cache_path,
@@ -14,6 +17,9 @@ from .matched_strength import (
 
 __all__ = [
     "SURROGATE_LRG_CACHE",
+    "adjacency_from_laplacian_eigs",
+    "cophenetic_condensed_from_eigs",
+    "load_or_compute_eigs_at_path",
     "load_or_compute_surrogate_eigs",
     "strength_preserving_shuffle",
     "surrogate_cache_path",

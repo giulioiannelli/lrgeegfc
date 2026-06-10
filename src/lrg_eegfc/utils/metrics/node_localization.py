@@ -35,6 +35,7 @@ Inputs (read-only; no FC/LRG recomputation)
 """
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import numpy as np
@@ -180,3 +181,79 @@ def grassmann_participation_contributions(pat: str, band: str, root: Path,
     dev = part - part.mean()                                # signed deviation
     node_idx = np.arange(part.shape[0])
     return dev, node_idx, node_region
+
+
+# ---------------------------------------------------------------------------
+# spatial-grouping primitives for localization / concentration tests
+# (promoted from diag_per_patient_concentration_control.py — ≥2 callers:
+#  the shaft control + the localization atlas). General names, no manuscript scope.
+# ---------------------------------------------------------------------------
+
+_SHAFT_RE = re.compile(r"\s*([A-Za-z]+'?)")
+
+
+def shaft_of(label_raw: str) -> str:
+    """Electrode-shaft id = leading letters (+ optional prime) of a clinical label.
+
+    ``'A 1,G2'`` → ``'A'``; ``"B' 3,G2"`` → ``"B'"``. A shaft is a purely spatial
+    unit (where the surgeon placed the depth electrode); contacts on one shaft are
+    spatially adjacent and measure near-identical signal.
+    """
+    m = _SHAFT_RE.match(str(label_raw))
+    return m.group(1) if m else str(label_raw)
+
+
+def eta2(values: np.ndarray, group_codes: np.ndarray, n_codes: int) -> float:
+    """Between-group variance fraction (size-weighted) of ``values``.
+
+    ``eta^2 = Σ_g n_g (mean_g − grand_mean)^2 / Σ_i (x_i − grand_mean)^2`` ∈ [0,1].
+    """
+    grand = values.mean()
+    sums = np.bincount(group_codes, weights=values, minlength=n_codes)
+    counts = np.bincount(group_codes, minlength=n_codes).astype(np.float64)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        means = np.where(counts > 0, sums / counts, grand)
+    between = float(np.sum(counts * (means - grand) ** 2))
+    total = float(np.sum((values - grand) ** 2))
+    return between / total if total > 0 else 0.0
+
+
+def perm_p_eta2(values, label_vec, node_idx, n_perm, rng):
+    """Floor-free permutation p (greater) for ``eta2`` under a label shuffle.
+
+    ``label_vec`` is the length-N node→group label vector (region / shaft /
+    system); contributions are grouped by ``label_vec[node_idx]``. The shuffle
+    permutes ``label_vec`` (preserves the group-size multiset), matching the
+    localization null exactly. Returns ``(obs_eta2, perm_p, n_groups)``.
+    """
+    uniq, codes = np.unique(label_vec, return_inverse=True)
+    R = uniq.size
+    obs = eta2(values, codes[node_idx], R)
+    ge = 0
+    for _ in range(n_perm):
+        cs = rng.permutation(codes)
+        if eta2(values, cs[node_idx], R) >= obs:
+            ge += 1
+    return obs, (1 + ge) / (n_perm + 1), R
+
+
+def nmi(a_labels: np.ndarray, b_labels: np.ndarray) -> float:
+    """Normalized mutual information between two node partitions (sklearn-free).
+
+    ``NMI = I(A;B) / sqrt(H(A) H(B))`` ∈ [0,1]; 1.0 = identical partitions
+    (collinear, e.g. regions that exactly follow shafts).
+    """
+    a_u, a = np.unique(a_labels, return_inverse=True)
+    b_u, b = np.unique(b_labels, return_inverse=True)
+    n = a.size
+    Pa = np.bincount(a) / n
+    Pb = np.bincount(b) / n
+    joint = np.zeros((a_u.size, b_u.size))
+    for i, j in zip(a, b):
+        joint[i, j] += 1
+    joint /= n
+    Ha = -np.sum(Pa[Pa > 0] * np.log(Pa[Pa > 0]))
+    Hb = -np.sum(Pb[Pb > 0] * np.log(Pb[Pb > 0]))
+    nz = joint > 0
+    I = float(np.sum(joint[nz] * np.log(joint[nz] / np.outer(Pa, Pb)[nz])))
+    return I / np.sqrt(Ha * Hb) if Ha > 0 and Hb > 0 else 0.0

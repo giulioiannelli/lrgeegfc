@@ -125,6 +125,90 @@ def _hemisphere(region: str) -> str:
     return "?"
 
 
+#: A priori anatomical *systems* (hemisphere-collapsed, single-valued partition).
+#: Defined from the Desikan-Killiany atlas — NOT data-driven, so no selection
+#: circularity. Tokens are matched against the hemisphere-stripped region base
+#: (``ctx-lh-entorhinal`` → ``entorhinal``) OR the short subcortical label
+#: (``Hip``, ``Amy``). MTL keeps hippocampus + amygdala + entorhinal +
+#: parahippocampal together, so "different DK region per patient" can still pool
+#: into one medial-temporal system. Each region maps to exactly one system.
+ANATOMICAL_SYSTEMS = {
+    "MTL": ("Hip", "Amy", "entorhinal", "parahippocampal"),
+    "lateral_temporal": ("superiortemporal", "middletemporal",
+                          "inferiortemporal", "bankssts", "fusiform",
+                          "temporalpole", "transversetemporal"),
+    "OFC": ("medialorbitofrontal", "lateralorbitofrontal"),
+    "PFC": ("superiorfrontal", "rostralmiddlefrontal", "caudalmiddlefrontal",
+            "parsopercularis", "parstriangularis", "parsorbitalis",
+            "frontalpole"),
+    "sensorimotor": ("precentral", "postcentral", "paracentral"),
+    "parietal": ("superiorparietal", "inferiorparietal", "supramarginal",
+                 "precuneus"),
+    "occipital": ("lateraloccipital", "cuneus", "pericalcarine", "lingual"),
+    "cingulate": ("rostralanteriorcingulate", "caudalanteriorcingulate",
+                  "posteriorcingulate", "isthmuscingulate"),
+    "insula": ("insula",),
+    "subcortical_other": ("Thal", "Thalamus", "Put", "Putamen", "Pall",
+                          "Pallidum", "Caud", "Caudate", "Accumbens"),
+}
+
+#: Systems whose contacts are deep depth-electrode targets (the electrode IS the
+#: structure — shaft-level concentration there is the localization, not a
+#: spatial-adjacency confound). Used to flag the shaft control's scope.
+DEEP_TARGET_SYSTEMS = frozenset({"MTL", "subcortical_other"})
+
+#: Coarser pooling of :data:`ANATOMICAL_SYSTEMS` into *super*-systems. The only
+#: non-identity merge pools the Mesulam paralimbic belt + medial-temporal core
+#: (orbitofrontal + cingulate + insula + MTL) into a single ``"limbic"`` unit;
+#: every other system maps to itself. Used to ask whether a localization that
+#: appears in one paralimbic system (e.g. β → OFC) is sharper or more diffuse
+#: when the whole paralimbic ring is pooled. Still a single-valued partition.
+SUPERSYSTEMS = {
+    "MTL": "limbic",
+    "OFC": "limbic",
+    "cingulate": "limbic",
+    "insula": "limbic",
+    "lateral_temporal": "lateral_temporal",
+    "PFC": "PFC",
+    "sensorimotor": "sensorimotor",
+    "parietal": "parietal",
+    "occipital": "occipital",
+    "subcortical_other": "subcortical_other",
+    "other": "other",
+    "non_anatomical": "non_anatomical",
+}
+
+_NON_ANATOMICAL_REGIONS = frozenset({"Wm", "Unk", "unknown",
+                                     "Left-Cerebral-White-Matter",
+                                     "Right-Cerebral-White-Matter"})
+
+
+def system_of(region: str) -> str:
+    """Map a DK / subcortical region label to its a priori anatomical system.
+
+    Hemisphere-collapsed, single-valued. Returns ``"non_anatomical"`` for
+    white-matter / unknown, ``"other"`` for an unmatched cortical region.
+    """
+    if region in _NON_ANATOMICAL_REGIONS:
+        return "non_anatomical"
+    base = region
+    if base.startswith("ctx-lh-") or base.startswith("ctx-rh-"):
+        base = base[7:]
+    for system, tokens in ANATOMICAL_SYSTEMS.items():
+        if region in tokens or base in tokens:
+            return system
+    return "other"
+
+
+def supersystem_of(system: str) -> str:
+    """Map an :func:`system_of` system to its super-system (see SUPERSYSTEMS).
+
+    Identity for everything except the paralimbic ring + MTL core, which pool
+    into ``"limbic"``. Unknown systems fall through to ``"other"``.
+    """
+    return SUPERSYSTEMS.get(system, "other")
+
+
 def load_channel_regions(patient: str,
                             data_root: Path = SEEG_DATAPATH) -> pd.DataFrame:
     """Return a DataFrame indexed by FC-matrix row order with columns:
@@ -163,8 +247,10 @@ def load_channel_regions(patient: str,
                       on="_norm", how="left")
     merged["region"] = merged["region"].fillna("unknown")
     merged["lobe"] = merged["region"].map(_coarse_lobe)
+    merged["system"] = merged["region"].map(system_of)
+    merged["supersystem"] = merged["system"].map(supersystem_of)
     merged["hemisphere"] = merged["region"].map(_hemisphere)
     merged = merged.rename(columns={"_norm": "label"})
     cols = ["label_raw", "label", "region", "region_weight",
-             "lobe", "hemisphere", "x", "y", "z"]
+             "lobe", "system", "supersystem", "hemisphere", "x", "y", "z"]
     return merged[cols].reset_index(drop=True)
