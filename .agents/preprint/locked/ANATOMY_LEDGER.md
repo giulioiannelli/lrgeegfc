@@ -14,13 +14,16 @@ tau: 1/lambda_max
 
 # Anatomy verdict ledger — per-(band, probe) trace localization (locked 2026-05-19)
 
-> ## ✅ FINAL AUDITED VERDICT 2026-06-10 — β trace localizes to ORBITOFRONTAL CORTEX (matched-strength R=1000, BH q≈0.01, shaft- & LOO-robust). Supersedes the 2026-06-05 R=200 banner below; corrects the α claim.
+> ## ✅ FINAL AUDITED VERDICT 2026-06-10 — β trace is brain-wide but CONCENTRATES in ORBITOFRONTAL CORTEX (matched-strength R=1000, BH q≈0.01, shaft- & LOO-robust). Concentration above a distributed baseline, not exclusive presence; bilateral, peaks at the *system* scale. Supersedes the 2026-06-05 R=200 banner below; corrects the α claim.
 >
 > The 2026-06-05 exploration was carried through a **six-rung control gate + a
 > self-audit that found and fixed two real flaws**. Final state
 > (`data/audit/localization_atlas/README.md`, 2026-06-10):
 >
-> - **β → orbitofrontal cortex (OFC system).** Matched-strength surrogate
+> - **β trace concentrates in orbitofrontal cortex (OFC system)** above its
+>   brain-wide baseline (the trace exists cohort-wide; this measures above-baseline
+>   *concentration*, per-patient demeaned — even within OFC the lean is ≈0.59,
+>   ~41% anti). Matched-strength surrogate
 >   (**R=1000**, fresh independent ensemble = seed-robustness check), rank
 >   concordance, **canonical observed trace** (recomputed to match the surrogate
 >   construction — fix below): **BH q = 0.009–0.013 across the 9 a-priori
@@ -28,8 +31,11 @@ tau: 1/lambda_max
 >   × epi-include/exclude). 4/5 implanted patients positive, **leave-one-out
 >   robust** (LOO-min median ≫ 0, survives dropping the −1.5M anti patient Pat_10),
 >   **shaft-collapse robust** (multi-shaft in the two strongest patients), in
->   **low-strength / non-hub** tissue (strength dev −0.51). This is the **only**
->   band/region surviving the full gate.
+>   **low-strength / non-hub** tissue (strength dev −0.51). The concentration
+>   **peaks at the *system* scale** — it is **bilateral** (no L/R lateralization,
+>   p≈0.48/0.76) and **washes out** when pooled to the whole frontal lobe (p≈0.29)
+>   or split by hemisphere; at single-region granularity it is undersampled (fails
+>   BH over 53 regions). This is the **only** band/region surviving the full gate.
 > - **Hippocampus / MTL — sub-threshold** (matched-strength p ≈ 0.4 at R=1000,
 >   leave-one-out fragile, Pat_02-driven). Real, strength-independent, but
 >   underpowered at n=5 — a hint, NOT the localization. (Supersedes the
@@ -168,7 +174,7 @@ tau: 1/lambda_max
 
 | Band | Trace verdict (CONTROLS) | Probe(s) audited | Anatomy verdict (ANATOMY_CONTROLS) | Localization audit 2026-05-30 |
 |---|---|---|---|---|
-| **β** | strong trace, both probes | cophenet + Grassmann | ~~strong localized, both probes (7+7 named DK regions)~~ | **REINSTATED 2026-06-10 → ORBITOFRONTAL CORTEX (cophenet).** Multi-region lists stay retracted, but the β cophenet trace localizes to the **OFC system**: matched-strength R=1000, BH q=0.009–0.013 (9 a-priori systems within β, all 4 contact/shaft × incl/excl), 4/5 implanted, LOO- & shaft-robust, low-strength. Hip/MTL = sub-threshold hint (p≈0.4); occipital = K=3 secondary; paralimbic-ring & Grassmann = not localized. See `localization_atlas/README.md`. |
+| **β** | strong trace, both probes | cophenet + Grassmann | ~~strong localized, both probes (7+7 named DK regions)~~ | **REINSTATED 2026-06-10 → CONCENTRATES in ORBITOFRONTAL CORTEX (cophenet).** Multi-region lists stay retracted; the brain-wide β cophenet trace **concentrates** (per-patient demeaned, above baseline — not exclusive) in the **OFC system**: matched-strength R=1000, BH q=0.009–0.013 (9 a-priori systems within β, all 4 contact/shaft × incl/excl), 4/5 implanted, LOO- & shaft-robust, low-strength, **bilateral** (peaks at *system* scale; washes out at lobe/hemisphere). Hip/MTL = sub-threshold hint (p≈0.4); occipital = K=3 secondary; paralimbic-ring & Grassmann = no concentration. See `localization_atlas/README.md`. |
 | α | strong trace, only D_coph | cophenet (full + C5 epi-X) | ~~strong localized, only D_coph (11 named regions)~~ | **RETRACTED — no FDR-surviving localization** (2026-06-10: pars opercularis fails BH over 53 regions q=0.07–0.26; no system clears. Earlier "diffuse; 0/11" and the 2026-06-05 "frontal operculum" line both withdrawn.) |
 | γ_l | strong trace, only Grassmann ↑ | Grassmann | ~~strong localized, only Grassmann (7 named DK regions)~~ | **RETRACTED (0/7 cohort-supported)** |
 | δ | weak trace, only Grassmann (LOO Pat_08 fails Decision-12 precondition) | Grassmann (full + C5 epi-X) | ~~strong localized, only Grassmann (4 + 3 named regions)~~ | **RETRACTED (0/4 full, 0/3 epi-X; well-sampled regions anti-localized; epi-X mask bug fixed)** |
@@ -456,6 +462,21 @@ KC-era anatomy memory entries (`result_2_lrg_beta_trace.md` "Hippocampus + left 
 - **A2 sampling-corrected bootstrap and A4 implant-geometry regression** — deferred to sensitivity supplement. The locked anatomy verdict rests on A1+A3 (cophenet probes) and A3 alone (Grassmann probes).
 
 ## Revision history
+
+- **2026-06-12** — **Framing clarification (no new audit; same verdict).** Reframed
+  the β verdict from "localizes to OFC" to "**brain-wide trace that concentrates in
+  OFC** above a per-patient-demeaned baseline" — OFC is a reproducible *hotspot*, not
+  a container (the trace exists cohort-wide; even within OFC the directional lean is
+  only ≈0.59). Also surfaced the **scale-dependence** from the existing atlas data:
+  the concentration **peaks at the a-priori *system* scale** and is **bilateral**
+  (no L/R lateralization, hemisphere p≈0.48/0.76), **washes out** at the whole-frontal-
+  lobe scale (p≈0.29), and is **undersampled at single-region granularity** (fails BH
+  over 53 regions — the same wall α hits). Hemisphere/lobe were descriptive
+  (label-shuffle, rung ①) only; the matched-strength gate covered
+  region/system/supersystem/paracore, and the gated coarse units (limbic supersystem,
+  paralimbic core) point back to OFC. Top banner + verdict row + `00_cohort.md` /
+  `01_beta.md` heads + `localization_atlas/README.md` updated; the 2026-06-10 entry
+  below retains its original "localizes" wording as historical record.
 
 - **2026-06-10** — **β anatomy REINSTATED → orbitofrontal cortex (new audited verdict; satisfies the anti-revisitation clause).** The 2026-06-05 sampling-conditioned exploration was carried through a six-rung control gate + a self-audit. New dated audits: `audit_83_localization_matched_strength.py` (now canonical observed trace + `--shaft-collapse` + `--R`), `audit_92_localization_R1000_surrogates.py` (R=1000 ensemble), `diag_localization_per_patient_decomposition.py`; CSVs + report under `data/audit/localization_atlas/`. **β cophenet trace localizes to the OFC system**: matched-strength R=1000, rank concordance, BH q=0.009–0.013 across the 9 a-priori systems within β in all four conditions; 4/5 implanted positive; leave-one-out robust; **shaft-collapse robust** (multi-shaft in the 2 strongest patients); low-strength (non-hub). **Self-audit fixes:** (1) observed trace was read from the LRG-pipeline ultrametric while the surrogate used the canonical `cophenetic_condensed_from_eigs` — they differ by a per-phase ρ-trace scale that perturbs cross-phase ranks (Spearman 0.92–0.99); `obs_trace` now recomputes canonically (matches surrogate + locked §5.3 audit_63); OFC verdict unchanged. (2) **α demoted** to no FDR-surviving localization (pars opercularis fails BH over 53 regions; corrects the 2026-06-05 "frontal operculum" line). **Retractions held:** multi-region DK lists stay retracted; "distributed paralimbic ring" retracted (fails shaft-collapse); Hip/MTL = sub-threshold hint (p≈0.4, LOO-fragile); occipital = K=3 low-coverage secondary; Grassmann subspace + low-γ do not localize. Multiplicity family = a-priori systems within β only (NOT bands, NOT nested granularities, NOT pooled epi modes). Top banner updated; β/α rows in the locked-verdicts table updated. Adversarial review (a3dc4b5d) + self-audit (2026-06-08/10). Cascade into `00_cohort.md` / `01_beta.md` landed same day; commit pending user green-light.
 
