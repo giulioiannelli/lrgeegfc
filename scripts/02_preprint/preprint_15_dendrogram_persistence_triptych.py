@@ -78,12 +78,13 @@ PHASE_TEX = {
 REFERENCE_TO_PHASE = {"task": "task_test", "post": "rest_post"}
 REFERENCE_TAG = {"task": "taskref", "post": "postref"}
 
-GATE_MODES = ("unilateral", "exclusive", "continuous", "discount")
+GATE_MODES = ("unilateral", "exclusive", "continuous", "discount", "excess")
 GATE_TAG = {
     "unilateral": "uni",
     "exclusive":  "excl",
     "continuous": "cont",
     "discount":   "disc",
+    "excess":     "exc",
 }
 
 METRICS = ("spearman", "pearson")
@@ -92,6 +93,13 @@ METRIC_FN = {"spearman": spearmanr, "pearson": pearsonr}
 
 PERSIST_THRESHOLD_DEFAULT = 0.35
 GRAY_RGBA = (0.80, 0.80, 0.80, 1.0)
+# 'continuous' / 'excess' modes: saturation gamma applied to the
+# min-max-scaled value before fading toward light grey.  >1 spreads the
+# bunched bulk so the modest rest_pre/rest_post offset is actually visible.
+CONTINUOUS_SAT_GAMMA = 1.8
+# 'excess' mode: colour scale anchored at this percentile of |Δρ_c| so a
+# single large-differential outlier leaf does not wash out the rest.
+EXCESS_SCALE_PCTL = 95.0
 
 
 def _threshold_tag(theta: float) -> str:
@@ -361,26 +369,44 @@ def render_triptych(patient: str, band: str, reference: str,
         rho_per_leaf[ph] = rhos
 
     # (5) Per-leaf colour assignment in each non-reference panel.
-    # Four modes:
+    # Five modes:
     #
     # * 'unilateral' (binary threshold): colour leaf c in panel X iff
     #   ρ_c(ref, X) > θ.  Legacy panel-(b) behaviour.
     # * 'exclusive' (binary threshold + AND-NOT): colour in X iff
     #   ρ_c(ref, X) > θ AND ρ_c(ref, Y) ≤ θ for the other comparison Y.
     #   Isolates leaves unique to X.
-    # * 'continuous' (no threshold): leaf colour in panel X is the
-    #   reference rainbow colour blended toward grey by
-    #   1 - clip(ρ_c(ref, X), 0, 1).  Preserved leaves stay full
-    #   rainbow; weakly-preserved fade; ρ_c ≤ 0 → fully grey.  No
-    #   cherry-picked cut.  ``threshold`` is ignored in this mode.
-    # * 'discount' (continuous + baseline-subtracted): leaf colour in
-    #   panel X is the reference rainbow colour blended toward grey by
-    #   1 - clip(ρ_c(ref, X) - ρ_c(ref, Y), 0, 1).  Anything similar to
-    #   the reference in BOTH non-reference panels (trivial structural
-    #   baseline) cancels to grey; only leaves where the reference is
-    #   genuinely closer to X than to Y (i.e. memory specifically
-    #   carried by X) retain colour.  Most-honest visual for "X carries
-    #   trace of ref that Y does not".  ``threshold`` is ignored.
+    # * 'continuous' (no threshold, min-max shade): leaf colour in panel
+    #   X is the reference rainbow hue blended toward grey by its own
+    #   ρ_c(ref, X), stretched across the observed range so the single
+    #   most task-like leaf is full hue and the least task-like leaf is
+    #   full grey.  The scale is SHARED across both non-reference panels
+    #   (one ρ_lo, ρ_hi), so a broadly-less-similar phase (e.g. rest_pre)
+    #   simply reads greyer than rest_post — the whole ρ^coph field is
+    #   shown as a saturation gradient, no cut.  ``threshold`` ignored.
+    # * 'discount' (significant-floor + head-to-head, binary render):
+    #   the direct ρ^coph reading — colour leaf c in panel X iff it is
+    #   (a) close to the reference in a significant way, ρ_c(ref, X) > θ,
+    #   AND (b) closer to the reference than the other non-reference
+    #   phase Y is, ρ_c(ref, X) > ρ_c(ref, Y).  The floor drops leaves
+    #   that merely edge Y without resembling the reference at all
+    #   (statistical significance is useless here — n ≈ N-1 makes almost
+    #   any ρ_c "significant" — so θ is a magnitude floor); the ">  Y"
+    #   term keeps only the phase that wins the head-to-head.  Kept
+    #   leaves keep their FULL reference hue, the rest go solid grey
+    #   (same opaque look as 'exclusive').  Most-honest "X resembles ref,
+    #   and more than Y does" visual.  ``threshold`` is the floor θ.
+    # * 'excess' (common-baseline-discounted, continuous shade): the
+    #   'continuous' shade applied to the EXCESS Δ = ρ_c(ref,X) −
+    #   ρ_c(ref,Y) (clipped at 0) instead of the raw ρ_c.  Leaves similar
+    #   to the reference in BOTH non-ref phases (anchors / common
+    #   baseline) → Δ≈0 → light grey in both panels; the subtraction also
+    #   cancels the trivial far-bulk structure shared by the two phases.
+    #   The winning phase keeps colour scaled by |Δ| (anchored at the
+    #   95th pct so one large-Δ leaf doesn't wash out the rest, faded to
+    #   light grey via f**gamma).  Best for SEEING the rest_pre↔rest_post
+    #   difference — it removes the "coloured everywhere" common signal.
+    #   ``threshold`` is ignored.
     leaf_colors_per_phase: dict[str, list] = {ref_phase: leaf_colors_ref}
     n_colored: dict[str, int] = {ref_phase: N}
     n_both = 0
@@ -395,39 +421,80 @@ def render_triptych(patient: str, band: str, reference: str,
 
     gray_rgb = np.array(GRAY_RGBA[:3])
 
+    # Shared min-max scale for the continuous shading: one [ρ_lo, ρ_hi]
+    # over BOTH non-reference panels so their saturations are directly
+    # comparable (the less-similar phase reads greyer, not re-stretched
+    # to full contrast on its own range).
+    _all_rho = np.concatenate([rho_per_leaf[ph] for ph in other_phases])
+    rho_lo = float(_all_rho.min())
+    rho_hi = float(_all_rho.max())
+
+    # 'excess' mode anchor: the differential Δρ_c = ρ_c(ref,X) − ρ_c(ref,Y)
+    # is mirror-symmetric across the two non-ref panels, so |Δ| is one
+    # shared set.  Anchor the colour scale at its 95th percentile (robust
+    # to a single large-differential leaf).
+    if len(other_phases) == 2:
+        _delta_all = rho_per_leaf[other_phases[0]] - rho_per_leaf[other_phases[1]]
+        excess_anchor = float(np.percentile(np.abs(_delta_all), EXCESS_SCALE_PCTL))
+    else:
+        excess_anchor = 1.0
+
     for ph_x in other_phases:
         ph_y = [p for p in other_phases if p != ph_x][0]
         cs_ph: list = []
         n_kept = 0
         for c in range(N):
             if gate_mode == "continuous":
-                # Blend each leaf's rainbow colour toward grey by its
-                # own ρ_c.  No threshold; rho_c ≤ 0 hits full grey,
-                # rho_c = 1 stays full rainbow.
+                # Min-max shade across the shared range, then fade toward
+                # the SAME light grey a gated-out leaf gets (GRAY_RGBA,
+                # 0.80) — so the least task-like leaves land on that exact
+                # light grey, not on a dark desaturated hue.  f**gamma
+                # makes the fade bite: the bunched positive-ρ bulk pulls
+                # most of the way to light grey unless ρ_c is near the
+                # top, so rest_pre reads grey and rest_post reads
+                # coloured.  No threshold.
                 rho_c = rho_per_leaf[ph_x][c]
-                f = float(max(0.0, min(1.0, rho_c)))
-                rgb_rainbow = np.array(
-                    matplotlib.colors.to_rgb(leaf_colors_ref[c])
-                )
-                blended = f * rgb_rainbow + (1 - f) * gray_rgb
+                f = (rho_c - rho_lo) / max(rho_hi - rho_lo, 1e-12)
+                f = float(max(0.0, min(1.0, f))) ** CONTINUOUS_SAT_GAMMA
+                rgb = np.array(matplotlib.colors.to_rgb(leaf_colors_ref[c]))
+                blended = f * rgb + (1.0 - f) * gray_rgb
+                cs_ph.append((blended[0], blended[1], blended[2], 1.0))
+                n_kept += 1
+            elif gate_mode == "excess":
+                # Discount the common baseline: colour leaf c in panel X
+                # only by the EXCESS of its reference-similarity over the
+                # other non-ref phase, Δ = ρ_c(ref,X) − ρ_c(ref,Y), clipped
+                # at 0.  Leaves similar to the reference in BOTH phases
+                # (anchors / common baseline) → Δ≈0 → light grey in both;
+                # this also cancels the trivial far-bulk structure shared
+                # by the two phases.  The winning phase keeps colour scaled
+                # by |Δ| (anchored at the 95th pct, faded toward light
+                # grey via f**gamma).  No threshold.
+                delta = rho_per_leaf[ph_x][c] - rho_per_leaf[ph_y][c]
+                excess = max(0.0, delta)
+                f = (min(1.0, excess / max(excess_anchor, 1e-12))
+                     ** CONTINUOUS_SAT_GAMMA)
+                rgb = np.array(matplotlib.colors.to_rgb(leaf_colors_ref[c]))
+                blended = f * rgb + (1.0 - f) * gray_rgb
                 cs_ph.append((blended[0], blended[1], blended[2], 1.0))
                 if f > 0:
                     n_kept += 1
             elif gate_mode == "discount":
-                # Subtract baseline ρ_c(ref, Y) from ρ_c(ref, X) so any
-                # leaf similarly close to ref in BOTH non-ref panels
-                # cancels to grey; only the differential — "ref is
-                # closer to X than to Y at leaf c" — keeps colour.
-                delta = (rho_per_leaf[ph_x][c]
-                         - rho_per_leaf[ph_y][c])
-                f = float(max(0.0, min(1.0, delta)))
-                rgb_rainbow = np.array(
-                    matplotlib.colors.to_rgb(leaf_colors_ref[c])
-                )
-                blended = f * rgb_rainbow + (1 - f) * gray_rgb
-                cs_ph.append((blended[0], blended[1], blended[2], 1.0))
-                if f > 0:
+                # Direct ρ^coph reading: colour leaf c in panel X iff it
+                # is (a) significantly close to the reference,
+                # ρ_c(ref, X) > θ, AND (b) closer to the reference than
+                # the other non-reference phase Y is, ρ_c(ref, X) >
+                # ρ_c(ref, Y).  The floor removes leaves that merely edge
+                # Y without resembling ref at all; the head-to-head keeps
+                # only the phase that wins.  Full opaque hue when kept,
+                # solid grey otherwise.
+                rho_x = rho_per_leaf[ph_x][c]
+                rho_y = rho_per_leaf[ph_y][c]
+                if rho_x > threshold and rho_x > rho_y:
+                    cs_ph.append(leaf_colors_ref[c])
                     n_kept += 1
+                else:
+                    cs_ph.append(GRAY_RGBA)
             else:
                 x_close = rho_per_leaf[ph_x][c] > threshold
                 y_close = rho_per_leaf[ph_y][c] > threshold
@@ -490,35 +557,37 @@ def render_triptych(patient: str, band: str, reference: str,
         rho_pair, _ = spearmanr(Dc[ref_phase][iu], Dc[ph][iu])
         if gate_mode == "continuous":
             rho_mean = float(np.mean(rho_per_leaf[ph]))
-            rho_pos = int((rho_per_leaf[ph] > 0).sum())
             print(f"    ρ^coph({ref_phase}, {ph}) = {rho_pair:+.4f}, "
                   f"mean ρ_c[{metric}] = {rho_mean:+.3f}, "
-                  f"ρ_c > 0 in {rho_pos}/{N} leaves "
-                  f"(continuous fade — no threshold)")
+                  f"min-max shaded on shared [{rho_lo:+.3f}, {rho_hi:+.3f}] "
+                  f"(no threshold — full ρ^coph field as saturation)")
         elif gate_mode == "discount":
             ph_other = [p for p in other_phases if p != ph][0]
-            delta = rho_per_leaf[ph] - rho_per_leaf[ph_other]
-            delta_mean = float(np.mean(delta))
-            delta_pos = int((delta > 0).sum())
-            delta_max = float(np.max(delta))
             print(f"    ρ^coph({ref_phase}, {ph}) = {rho_pair:+.4f}, "
-                  f"mean Δρ_c[{metric}] vs {ph_other} = {delta_mean:+.3f}, "
-                  f"Δρ_c > 0 in {delta_pos}/{N} leaves "
-                  f"(max Δρ_c = {delta_max:+.3f}, discount — no threshold)")
+                  f"colored {n_colored[ph]}/{N} leaves "
+                  f"(ρ_c[{metric}] > {threshold} AND > ρ_c(ref,{ph_other}))")
+        elif gate_mode == "excess":
+            ph_other = [p for p in other_phases if p != ph][0]
+            ex = rho_per_leaf[ph] - rho_per_leaf[ph_other]
+            print(f"    ρ^coph({ref_phase}, {ph}) = {rho_pair:+.4f}, "
+                  f"excess>0 in {int((ex > 0).sum())}/{N} leaves, "
+                  f"scale anchor |Δρ_c|·p{EXCESS_SCALE_PCTL:.0f} = "
+                  f"{excess_anchor:.3f} (common baseline discounted)")
         else:
             print(f"    ρ^coph({ref_phase}, {ph}) = {rho_pair:+.4f}, "
                   f"colored {n_colored[ph]}/{N} leaves "
                   f"(ρ_c[{metric}] > {threshold})")
-    if gate_mode not in ("continuous", "discount"):
+    if gate_mode not in ("continuous", "discount", "excess"):
         print(f"    Venn at ρ_c[{metric}] > {threshold}: "
               f"both = {n_both}/{N}, neither = {n_neither}/{N}")
 
     out_dir = (ROOT / "data" / "preprint" / "figures" / band
                / "dendrogram_persistence")
     out_dir.mkdir(parents=True, exist_ok=True)
-    # continuous/discount modes don't use the threshold — omit it from
-    # the filename to avoid implying it's part of the rendering.
-    if gate_mode in ("continuous", "discount"):
+    # continuous / excess modes don't use the threshold — omit it from
+    # the filename to avoid implying it's part of the rendering.  discount
+    # uses θ as its significance floor, so it keeps the tag.
+    if gate_mode in ("continuous", "excess"):
         fname = (f"fig_{band}_dendrogram_persistence_{patient}_"
                  f"{ref_tag}_{gate_tag}_{metric_tag}.pdf")
     else:
@@ -553,14 +622,22 @@ def main() -> Path:
              "ρ_c(ref, X) > θ AND ρ_c(ref, Y) ≤ θ for the other "
              "comparison Y — isolates leaves unique to X by removing "
              "the 'preserved everywhere' background.  "
-             "'continuous': blend each leaf toward grey by "
-             "1 - clip(ρ_c(ref, X), 0, 1), no threshold.  "
-             "'discount': blend each leaf toward grey by "
-             "1 - clip(ρ_c(ref, X) - ρ_c(ref, Y), 0, 1) — subtracts "
-             "the baseline similarity present in BOTH non-ref panels, "
-             "so only the differential memory carried by X retains "
-             "colour.  Most-honest visual for 'X carries trace of ref "
-             "that Y does not'.  Threshold is ignored.",
+             "'continuous': min-max shade — blend each leaf toward grey "
+             "by its ρ_c(ref, X) stretched over the observed range "
+             "(shared across both non-ref panels), most-similar leaf "
+             "full hue, least-similar (incl. negative ρ_c) full grey, "
+             "no threshold.  "
+             "'discount': the direct ρ^coph reading — colour leaf c in "
+             "panel X iff ρ_c(ref, X) > θ (significantly close to the "
+             "reference) AND ρ_c(ref, X) > ρ_c(ref, Y) (closer than the "
+             "other non-ref phase Y).  Full opaque hue when kept, solid "
+             "grey otherwise.  θ is the --threshold floor (a magnitude "
+             "floor — statistical significance is meaningless at n≈N-1).  "
+             "'excess': the 'continuous' shade applied to the EXCESS "
+             "Δ = ρ_c(ref,X) − ρ_c(ref,Y) (clipped at 0) — discounts the "
+             "common baseline so anchors similar in BOTH phases go light "
+             "grey and only the rest_pre↔rest_post difference shows; "
+             "scale anchored at the 95th pct of |Δ|, no threshold.",
     )
     parser.add_argument(
         "--threshold", type=float, default=PERSIST_THRESHOLD_DEFAULT,
