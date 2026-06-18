@@ -304,6 +304,22 @@ def adjacency_from_laplacian_eigs(
     return 0.5 * (W + W.T)
 
 
+def cophenetic_condensed_from_adjacency(W: np.ndarray) -> np.ndarray:
+    """LRG ultrametric (cophenetic) condensed distance straight from a weighted
+    adjacency ``W`` (symmetric, non-negative, zero-diagonal), at ``τ = 1/λ_max``.
+
+    Thin wrapper: ``L = diag(W·1) − W``, ``eigh``, then
+    :func:`cophenetic_condensed_from_eigs`. The public ``W``-entry promoted from
+    the script-local ``lrg_ultrametric_condensed`` copies in
+    ``audit_63_split_baseline_surrogate`` and the CRC pilot/cohort runners
+    (3rd caller, 2026-06-08). Use this for observed and surrogate adjacencies so
+    the observed and both null pipelines share one cophenetic construction.
+    """
+    L = np.diag(W.sum(axis=1)) - W
+    eigvals, eigvecs = np.linalg.eigh(L)
+    return cophenetic_condensed_from_eigs(eigvals, eigvecs)
+
+
 def cophenetic_condensed_from_eigs(
     eigvals: np.ndarray, eigvecs: np.ndarray,
 ) -> np.ndarray:
@@ -331,3 +347,76 @@ def cophenetic_condensed_from_eigs(
         cap = np.nanmax(Trho[finite]) if finite.any() else 1e6
         Trho = np.where(finite, Trho, cap)
     return cophenet(linkage(squareform(Trho, checks=False), method="average"))
+
+
+def coupled_surrogate_cophenet(
+    W_by_phase: dict[str, np.ndarray],
+    n_surr: int, swap_factor: int, seed: int,
+    coupled: bool = True, verbose: bool = False,
+) -> dict[str, list]:
+    """Cross-phase strength-preserving surrogate cophenetic distances.
+
+    Generates, per surrogate realization, one rewired adjacency per phase and
+    returns its LRG cophenetic condensed vector, so a cross-phase statistic
+    (anchor / reset / trace / reorganize, ρ_split, cross-phase ρ^coph) can be
+    recomputed on matched-strength nulls.
+
+    Parameters
+    ----------
+    W_by_phase : dict phase -> (N, N) adjacency
+        The observed FC matrices for the phases to surrogate (e.g.
+        ``{"rest_pre_A":…, "rest_pre_B":…, "task_test":…, "rest_post":…}``).
+        All phases must share ``N`` (same patient).
+    coupled : bool, default True
+        - ``True``  — **coordinated cross-phase** null: share ONE 4-cycle swap
+          sequence ``Q`` (identical node quadruples *and* frac draws) across all
+          phases, with a phase-specific feasible ``δ``. Preserves each phase's
+          node strength exactly **and** the shared cross-phase backbone (the same
+          edge locations are perturbed in every phase), so it is the fair null
+          for the *similarity* channels (anchor, reset). This is the audit_63
+          "apply the SAME structural permutation to the phases" construction that
+          was previously left unbuilt (the coordinated-cross-phase gap).
+        - ``False`` — independent per-phase rewiring (the audit_63 default null);
+          decorrelates the phases. Used as the lower-bound reference in the
+          validation gate.
+
+    Returns
+    -------
+    dict phase -> list of length ``n_surr``; each entry is the condensed
+    cophenetic vector for that (phase, realization), or ``None`` if the surrogate
+    failed the strength-preservation check.
+
+    Notes
+    -----
+    Coupling is realized by re-seeding an identical ``np.random.default_rng`` per
+    phase: ``strength_preserving_shuffle`` draws its node quadruples and fracs
+    from the generator up front, so the same SeedSequence ⇒ the same ``Q`` and
+    fracs, while the feasible ``δ`` interval (which depends on each phase's
+    weights) makes the applied perturbation phase-specific. The independent
+    variant spawns a distinct stream per (realization, phase).
+
+    Validation gate (run before trusting any similarity-channel p-value): the
+    coupled surrogate's cross-phase ρ^coph must bracket the observed level and
+    sit well above the independent variant; otherwise the coupling is
+    mis-specified.
+    """
+    phases = list(W_by_phase)
+    N = W_by_phase[phases[0]].shape[0]
+    n_swaps = swap_factor * (N * (N - 1)) // 2
+    out: dict[str, list] = {ph: [] for ph in phases}
+    n_ok = 0
+    for r in range(n_surr):
+        for k, ph in enumerate(phases):
+            spawn = [seed, r] if coupled else [seed, r, k]
+            rng_r = np.random.default_rng(spawn)
+            W_s = strength_preserving_shuffle(W_by_phase[ph], n_swaps, rng_r)
+            if not verify_strengths(W_by_phase[ph], W_s, tol=1e-4):
+                out[ph].append(None)
+            else:
+                out[ph].append(cophenetic_condensed_from_adjacency(W_s))
+                n_ok += 1
+    if verbose:
+        kind = "coupled" if coupled else "independent"
+        print(f"[matched_strength] {kind} surrogate: "
+              f"{n_ok}/{n_surr * len(phases)} phase-realizations ok")
+    return out

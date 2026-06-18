@@ -60,6 +60,9 @@ from .spectral import (
     chordal_from_angles,
     grassmann_to_coord_subspace,
     chordal_full_vs_resect,
+    participation_number,
+    node_set_mode_mass,
+    subspace_displacement,
 )
 
 __all__ = [
@@ -107,4 +110,7 @@ __all__ = [
     "chordal_from_angles",
     "grassmann_to_coord_subspace",
     "chordal_full_vs_resect",
+    "participation_number",
+    "node_set_mode_mass",
+    "subspace_displacement",
 ]

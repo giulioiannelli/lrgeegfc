@@ -26,7 +26,113 @@ __all__ = [
     "chordal_from_angles",
     "grassmann_to_coord_subspace",
     "chordal_full_vs_resect",
+    "participation_number",
+    "node_set_mode_mass",
+    "subspace_displacement",
 ]
+
+
+def participation_number(V: np.ndarray) -> np.ndarray:
+    """Per-mode participation number (inverse participation ratio reciprocal).
+
+    For each column ``v_k`` of an eigenvector matrix ``V`` (``N × M``, columns
+    unit-norm), returns
+
+        PR_k = (Σ_i v_k(i)²)² / Σ_i v_k(i)⁴
+
+    the standard solid-state *participation number* (Edwards & Thouless 1972).
+    Range ``[1, N]``: ``PR_k = 1`` ⇔ all mass on one node (maximally
+    localized); ``PR_k = N`` ⇔ uniform spread (maximally extended). For
+    unit-norm columns ``Σ v_k(i)² = 1`` so ``PR_k = 1 / Σ_i v_k(i)⁴``; the
+    explicit numerator keeps the definition correct for non-normalized inputs.
+
+    The raw inverse participation ratio ``IPR_k = Σ_i v_k(i)⁴`` is
+    ``1 / PR_k`` for unit-norm columns; ``PR`` is reported because it is in
+    interpretable node units (small = localized) and is comparable across
+    patients with different ``N`` only after normalization by ``N`` if needed.
+
+    Parameters
+    ----------
+    V : (N, M) ndarray
+        Eigenvector matrix; each column an eigenmode. The trivial constant
+        zero-mode (if present) should be dropped by the caller before
+        interpreting localization.
+
+    Returns
+    -------
+    (M,) ndarray
+        ``PR_k`` per column; ``nan`` where a column has zero ℓ⁴ norm.
+    """
+    if V.ndim != 2:
+        raise ValueError(f"V must be 2-D (N, M); got shape {V.shape}")
+    v2 = V * V
+    s2 = v2.sum(axis=0)
+    s4 = (v2 * v2).sum(axis=0)
+    return np.where(s4 > 0, (s2 * s2) / s4, np.nan)
+
+
+def node_set_mode_mass(V: np.ndarray, node_idx: np.ndarray) -> np.ndarray:
+    """Per-mode squared mass on a node subset: ``m^S_k = Σ_{i∈S} v_k(i)²``.
+
+    For unit-norm columns ``m^S_k ∈ [0, 1]`` is the fraction of mode ``k``'s
+    squared amplitude on the nodes ``node_idx``. Sign-invariant by
+    construction (squared amplitude); invariant to within-degenerate-block
+    eigenvector rotation only when summed over the whole degenerate block.
+
+    Parameters
+    ----------
+    V : (N, M) ndarray
+        Eigenvector matrix (columns = modes).
+    node_idx : array-like of int or bool
+        Row indices (or boolean row mask) of the node subset ``S``.
+
+    Returns
+    -------
+    (M,) ndarray
+        ``m^S_k`` per mode.
+    """
+    if V.ndim != 2:
+        raise ValueError(f"V must be 2-D (N, M); got shape {V.shape}")
+    idx = np.asarray(node_idx)
+    block = V[idx, :]                       # |S| × M
+    return (block * block).sum(axis=0)
+
+
+def subspace_displacement(V_a: np.ndarray, V_b: np.ndarray) -> np.ndarray:
+    """Per-mode cross-phase displacement of each column of ``V_b`` from the
+    span of ``V_a`` (both ``N × M``, orthonormal columns in a common ``R^N``).
+
+    For each mode ``k`` (column of ``V_b``):
+
+        displacement_k = 1 − max_j |⟨v_b^k, v_a^j⟩|
+
+    i.e. one minus the best single-mode overlap with the other phase's
+    eigenbasis. Range ``[0, 1]``: ``0`` ⇔ the mode is unchanged (a perfect
+    match exists in ``V_a``); large ⇔ the mode reorganized across phases.
+    Sign-invariant (absolute overlap). This is a per-mode reduction of the
+    cross-phase rotation that the leading-subspace chordal Grassmann distance
+    aggregates over a fixed top-k block; here it is resolved mode-by-mode so
+    it can be correlated against per-mode localization.
+
+    Parameters
+    ----------
+    V_a, V_b : (N, M) ndarray
+        Eigenvector matrices for the two phases (e.g. rest_pre and rest_post),
+        nontrivial modes only, in a common ambient ``R^N``.
+
+    Returns
+    -------
+    (M,) ndarray
+        Per-mode displacement of ``V_b`` columns.
+    """
+    if V_a.ndim != 2 or V_b.ndim != 2:
+        raise ValueError("V_a and V_b must be 2-D (N, M)")
+    if V_a.shape[0] != V_b.shape[0]:
+        raise ValueError(
+            f"ambient mismatch: V_a rows {V_a.shape[0]} != V_b rows {V_b.shape[0]}"
+        )
+    overlap = np.abs(V_b.T @ V_a)           # M_b × M_a
+    return 1.0 - overlap.max(axis=1)
 
 
 def principal_angles(V_a: np.ndarray, V_b: np.ndarray) -> np.ndarray:
