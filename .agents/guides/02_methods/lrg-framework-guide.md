@@ -8,9 +8,17 @@ updated: 2026-04-29
 pointers:
   - .agents/guides/02_methods/imcoh-guide.md
   - .agents/guides/02_methods/probe-bias-guide.md
+  - .agents/guides/02_methods/linearity-and-higher-order-structure.md
   - .agents/guides/task-persistence-investigation/2026-04-29_decision-rules.md
   - .agents/guides/task-persistence-investigation/2026-04-29_measure-correctness-audit.md
 ---
+
+> **What this pipeline does/doesn't capture (read before writing "nonlinear" /
+> "higher-order" in the manuscript):** `|ImCoh|` is second-order (lagged ≠
+> nonlinear); LRG is *linear* diffusion (`e^{−τL}`, Laplacian eigenbasis) but a
+> *nonlinear map* of `W` that builds higher-order **graph** features (multi-step
+> paths, communities) — **not** higher-order signal statistics. See
+> [`linearity-and-higher-order-structure.md`](linearity-and-higher-order-structure.md).
 
 # LRG framework — single source of truth
 
