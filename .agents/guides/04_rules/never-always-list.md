@@ -28,6 +28,20 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
 - Never start a new scalar hypothesis test when the signal is visible
   in existing VI(k) / partition-multiscale / H2d-θ artifacts — surface
   the existing signal first.
+- Never build opaque matrix-level surrogate nulls (e.g. Haar-rotation
+  coherency surrogates). Default null is **matched-strength**; a null must
+  be explainable in one sentence and not swingable by an unconstrained
+  modelling knob. **Validate any NEW null on synthetic ground-truth
+  (a must-be-positive case + a must-be-null case) BEFORE running it on
+  real data and reporting verdicts.** Phase-randomized physical surrogates
+  do not help an `|ImCoh|` pipeline (multivariate PR preserves the
+  cross-spectrum exactly → no-op; univariate destroys all connectivity) and
+  are not a substitute for matched-strength. The "task-specific trace vs
+  stable trait fingerprint" separation has no clean null without a task-free
+  control session — state it as a one-sentence limitation, don't surrogate
+  around it. (CRC + coordinated SB-CRC archived 2026-06-12;
+  `feedback_no_opaque_matrix_nulls`,
+  `scripts/archive/2026-06_opaque-matrix-nulls/POSTMORTEM.md`.)
 - Never delete files that document research history — `git mv` to
   `<parent>/archive/YYYY-MM/` instead.
 - Never pool metrics into a consensus scalar (explicitly forbidden by
@@ -194,6 +208,28 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   2026-05-11 because matched-strength produced ≈50% of the observed
   tree-distance shift on its own. See `audit_65_kc_matched_strength_verdict.md`,
   `feedback_matched_strength_mandatory.md`.
+- **Never attribute an "exclude subset X → the trace strengthens /
+  emerges" result to tissue X without first running a size-matched
+  random-node-decimation control.** Rebuilding the LRG on a node
+  submatrix changes the renormalization for *any* subset removed — the
+  cophenetic ρ_split rises as the graph shrinks regardless of which
+  nodes go. So the full-vs-exclude *change* is confounded with node
+  count. The control: drop K = #X nodes **at random** R≥200 times,
+  recompute the statistic, and compare the observed `exclude_X` value
+  to that distribution (cohort `p_dec`); `< 0.05` = tissue-specific,
+  `≈0.5` = generic node-count (demote the claim), `≈1` = tissue-carried.
+  This is the COMPLEMENT of matched-strength (which holds per-node
+  strength fixed, not node count) — both are required for an
+  exclusion-contrast claim. Survival (does the trace clear
+  matched-strength on the reduced graph) is a SEPARATE within-subset
+  question and is not threatened by this. Same-graph **pair-class /
+  pair-restriction** analyses have NO node-count confound and are
+  exempt. Caught 2026-06-12: the C6 WM-X "sharpening" AND the C5 epi-X
+  "strengthens/emerges" (a PRIMARY interpretive lens) were BOTH generic
+  node-count, not tissue-specific (audit_85: WM/epi cophenet `p_dec`
+  0.13–0.39, none `< 0.05`); only the raw-substrate WM β/γ_l (`p_dec`
+  0.000/0.030) was tissue-specific. See
+  `feedback_decimation_control_for_subset_exclusion.md`.
 - **Never stack hardcoded patient-count / fractional-agreement /
   magnitude-ratio filters on top of a statistical test for any
   cohort verdict that ships to a writeup, manuscript, errata, or

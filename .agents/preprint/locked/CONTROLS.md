@@ -9,9 +9,10 @@ companion: VERDICT_LEDGER.md
 
 # Control battery for the LRG trace probes (locked 2026-05-18)
 
-**Head.** Four primary controls + one sensitivity layer constitute the entire
-control battery for the preprint trace claims. No additional controls are
-required and no claim is upgraded above what these controls support.
+**Head.** Four primary controls + two sensitivity layers (C5 epi-zone exclusion,
+C6 white-matter exclusion) constitute the entire control battery for the preprint
+trace claims. The two sensitivity layers are mechanistic/robustness observations,
+not verdict gates. No claim is upgraded above what these controls support.
 Verdicts are tagged `strong trace` / `weak trace` / `no trace` per probe
 (cophenet `ρ_split^coph` on `D_coph`; Grassmann `d_G(k)` on `U_k`) and combined
 into a per-band coverage tag (both probes / only `D_coph` / only Grassmann / none).
@@ -70,7 +71,7 @@ full-pair cohort median.
   for sign and magnitude?" without any hardcoded count cutoff.
   See `feedback_no_hardcoded_test_thresholds.md`.
 
-## The sensitivity layer
+## The sensitivity layers
 
 ### C5 — Epi-zone exclusion (paired Wilcoxon on per-patient trace under epi-X)
 Recompute the probe with epileptogenic-zone contacts removed per patient
@@ -107,6 +108,97 @@ biological-attribution layer.
   principled answer to the same question ("does the trace direction
   survive without the epi zone?") with no hardcoded threshold.
   See `feedback_no_hardcoded_test_thresholds.md`.
+- **Node-count control on the cophenet "strengthens under epi-X" claim
+  (2026-06-12, `audit_85_wm_decimation_control.py --stratify epi` — NB distinct
+  from the same-numbered `audit_85_epi_propagator_recovery.py`).** The 2026-06-05
+  PI directive elevated epi-X to a
+  PRIMARY interpretive lens partly on "the cophenet trace *strengthens* when the
+  diseased zone is excluded". A size-matched random-node-decimation control shows
+  **that subgraph strengthening is NOT epi-specific** — it is a generic
+  node-count effect. epi-X drops only ~9.5 % of nodes (median), yet removing the
+  same number of *random* nodes reproduces the cohort ρ_split: cophenet
+  `cohort_p_dec` = α 0.135, β 0.390, γ_l 0.130 (all `generic_nodecount`, none
+  < 0.05; `data/audit/epi_stratified/decimation_control_cohort.csv`). Raw δ/θ are
+  `epi_carried` (removing epi *hurts* — consistent with δ as the epi channel).
+  **What this means:** the *subgraph* `exclude_epi` strengthening/emergence
+  (β/α strengthen, γ_l emerge) is demoted to "not epi-specific". The PRIMARY-lens
+  "healthy-reorganization-the-epilepsy-masks" interpretation must be **re-anchored
+  on the PAIR-CLASS decomposition** (audit_77: trace carried by NONEPI healthy
+  cortex + the epi↔non-epi CROSS interface, EPI↔EPI diseased core n.s. for β; α
+  recruits epi↔epi), which is a **same-graph** analysis with **no node-count
+  confound** and remains the unconfounded epi-informative evidence. ⚠ This touches
+  the 2026-06-05 PI directive — flagged for PI review (demote vs re-anchor). The
+  IDENTICAL confound was found and resolved for C6/WM the same day.
+
+### C6 — White-matter exclusion (paired Wilcoxon on per-patient trace under exclude_wm)
+Recompute the probe with **dominant-white-matter contacts removed** per patient
+(`load_channel_regions(pat)["region"] == "Wm"`, atlas argmax of Desikan-Killiany
+tissue weights, PTD excluded); cached surrogate eigvecs at
+`data/cache/matched_strength_surrogate_wm_excluded_lrg/Pat_NN/{band}_{phase}_wmX_R200_swap20_seed20260608_imcoh_abs.npz`.
+WM is **30–57 % of every montage** (cohort ≈40 %; median 117→74 nodes under
+`exclude_wm`), so this is a structural cut, not a fine perturbation. Because
+ImCoh is **pairwise**, the gray-only FC equals the gray-only submatrix of the
+cached FC to numerical precision — `exclude_wm` is therefore the exact "drop WM
+channels before computing FC" test; only the node-coupled LRG step changes. The
+gate asks whether the trace direction survives a gray-only montage —
+recording-substrate-attribution layer (the WM analogue of C5's
+biological-attribution layer).
+- **Status — SECONDARY, mechanistic (not a verdict gate).** Like the amended C5
+  (Decision 10, 2026-05-28), C6 is a mechanistic/robustness observation
+  documenting whether the trace strengthens, persists, or weakens when
+  white-matter contacts are removed. It is **NOT a primary verdict gate** and
+  changes **no** locked verdict. It is **not** elevated to a primary interpretive
+  lens (unlike epi-exclusion under the 2026-06-05 PI directive) — the node-count
+  caveat below precludes that.
+- **Gate (cophenet)**: cohort one-sided paired Wilcoxon of per-patient
+  `ρ_split^coph` (exclude_wm) vs own matched-strength surrogate median, regenerated
+  on the gray-only submatrix; passes iff `paired_wilcoxon_p < 0.05`. LOO line:
+  leave-Pat_15-out p (Pat_15 has the most WM, 57 %, and is the β-LRG anti-aligned
+  patient).
+- **Gate (Grassmann) — now on the locked C3 gate (audit_86, 2026-06-12).** The
+  C6-Grassmann verdict is the audit_70 cluster-extent permutation **mass** gate
+  (`cluster_p_mass^wmX < 0.01` strong / `< 0.05` weak) re-run on the `exclude_wm`
+  per-`k` T_G curves — the SAME gate as the locked C3 Grassmann verdict.
+  **β and low-γ re-pass the gate** (`cluster_p_mass^wmX = 0.005` both, strong,
+  LOO-robust); **δ fails** (0.105, no_trace — the WM-dependent cross-probe
+  epi-biology channel, LEDGER Decision 5); γ_h emerges (0.005) but LOO-fragile
+  (0.050); α/θ absent both. The earlier per-`k` Wilcoxon count (β 40→40 etc.) is
+  retained as a co-statistic in `grassmann_cohort.csv`, but the gate verdict is
+  the cluster mass. Source: `data/audit/wm_stratified/grassmann_cluster_extent_wmX.csv`.
+- **Source (cophenet + raw)**: `data/audit/wm_stratified/cophenetic_raw_cohort.csv`
+  (cols `paired_wilcoxon_p`, `lopat15_wilcoxon_p`, `obs_median`, `sensitivity_flag`,
+  per (substrate ∈ {cophenetic, raw}, band, config ∈ {full, exclude_wm, wm_only,
+  gray_gray, cross, wm_wm})). **Source (Grassmann)**:
+  `data/audit/wm_stratified/grassmann_cohort.csv`. Full report:
+  `.agents/reports/2026-06-08_white-matter-exclusion.md`. Audits: `audit_83`
+  (cophenetic + raw), `audit_84` (Grassmann per-`k`), `audit_85`
+  (random-node-decimation control → `decimation_control_cohort.csv`, flag A),
+  `audit_86` (Grassmann C3 cluster-extent gate → `grassmann_cluster_extent_wmX.csv`,
+  flag B).
+- **What it shows (2026-06-08, amended 2026-06-12).** WM removal does **not**
+  weaken the trace — the trace **survives** a gray-only montage: cophenet α/β
+  still clear matched-strength on the gray-only submatrix (α p 0.005→0.014,
+  LO-P15 0.027; β obs +0.22→+0.32, full-cohort p=0.053 marginal but LO-P15 0.037,
+  `gray_gray` p=0.032, raw-β p=0.024 — a small-n power crossing, preserved not
+  lost), and **β/low-γ Grassmann re-pass the locked C3 cluster-extent gate**
+  (audit_86, `cluster_p_mass^wmX`=0.005 both, strong, LOO-robust). The **only**
+  WM-dependent trace component is **δ Grassmann** (fails the gate, 0.105; per-`k`
+  23→7) — the cross-probe epi-biology channel (LEDGER Decision 5), not the task
+  trace.
+  **What we do NOT claim (amended 2026-06-12, flag A resolved by audit_85).** The
+  apparent cophenetic *sharpening* (α/β rise, γ_l/θ "emerge") is **not
+  WM-specific** — a size-matched random-node-decimation control reproduces it by
+  removing *any* ~40 % of nodes (cohort `p_dec`: β 0.145, α 0.305, γ_l 0.185 —
+  none < 0.05 ⇒ `generic_nodecount`). So WM is **neither carrying nor diluting**
+  the cophenetic trace (it is not WM_carried either: `p_dec`≁1). The earlier
+  "WM removal sharpens the trace / gray-resident-because-it-sharpens" framing is
+  **withdrawn** for the cophenetic substrate; the load-bearing C6 claim is
+  **survival/robustness**, not sharpening. The **one** genuinely WM-specific
+  effect is the **raw |ImCoh| substrate**: raw β/γ_l clear matched-strength only
+  after WM removal and ARE WM-specific (decimation `p_dec` 0.000/0.030,
+  `WM_specific`) — the raw substrate's weakness genuinely was WM strength-
+  structure. `wm_only` carries weaker traces of its own, so the trace is
+  gray-matter-**dominant**, not gray-matter-**exclusive**.
 
 ## Verdict vocabulary (locked)
 

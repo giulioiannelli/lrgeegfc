@@ -47,6 +47,7 @@ one — the default).
 - [`methods/methods_grassmann_cluster_extent.md`](methods/methods_grassmann_cluster_extent.md) — locked Grassmann probe methodology (subspace `U_k`, chordal distance, per-`k` Wilcoxon, cluster-extent permutation null, Decision-8 mass-only gate + Decision-12 LOO precondition). **Defines the k-independent band-level scalar `T_G^*(b)` normalized to `[0,1]` per C1** that the manuscript reports for the Grassmann probe.
 - [`methods/methods_section_review_2026-05-19.md`](methods/methods_section_review_2026-05-19.md) — historical methods-section review (`status: mostly_superseded`; live items now in `METHODS_AUDIT_ISSUES.md`).
 - [`methods/methods_neurophysiological_interpretation_2026-05-26.md`](methods/methods_neurophysiological_interpretation_2026-05-26.md) — band-by-band neurophysiological reading of each verdict (mechanism candidates, what "trace" / "no trace" mean at each frequency band).
+- [`methods/methods_displacement_taxonomy_2026-06-03.md`](methods/methods_displacement_taxonomy_2026-06-03.md) — **`status: draft`** — descriptive decomposition of `ρ_split^coph` into anchor/reset/trace/random per band (β = TRACE, θ = RANDOM, γ_h = BIMODAL). Enriches the locked "no trace" verdicts with a mechanism; **changes no verdict**, stays out of `locked/` and the briefs until its magnitude axis is matched-strength-validated.
 - [`METHODS_AUDIT_ISSUES.md`](METHODS_AUDIT_ISSUES.md) — live methods-section audit issues + C1 normalization lock + cascade tracking (2026-05-20+).
 
 ## Naming convention
