@@ -17,14 +17,21 @@ marker that recovers held-out SOZ within patient and transfers across patients**
 Part A is now airtight: the epi block survives the full C1–C5 battery, including the
 new **C5 spatial-matched null** (δ/β/low-γ + α survive; high-γ a clean null). Part B
 delivers the marker: strength-orthogonal relational features separate epi from non
-at AUC 0.74–0.86; a masking experiment recovers hidden SOZ at AUC 0.72–0.82
-(beating the hubness baseline); an **interpretable leave-one-patient-out logistic**
-predicts SOZ cross-patient at AUC 0.68–0.81 (permutation-p = 0) where node strength
-is at chance; and the calibrated P(SOZ) ranks **occult (unlabelled) candidates** with
-plausible anatomy (e.g. Pat_06 medial-OFC, P=0.87, 3.5 mm from a labelled SOZ).
+at AUC 0.70–0.84; a masking experiment recovers hidden SOZ at AUC 0.59–0.81
+(beating the hubness baseline); an **interpretable logistic** shows the
+affinity-to-SOZ-community → SOZ relationship is **consistent across patients**
+(held-out coefficients; AUC 0.62–0.73, perm-p = 0) — but **label-free prediction in a
+*new* patient does not work** (audit_94); and the calibrated P(SOZ) ranks **occult (unlabelled) candidates** with
+plausible anatomy (e.g. Pat_06 medial-OFC, P=0.79, 4 mm from a labelled SOZ).
 **Honest scope:** the marker is *seed-based* — it needs a few labelled SOZ per
 patient to define the community; it is not a from-scratch detector, and occult
 candidates are hypotheses (no resection/outcome ground truth in this cohort).
+
+> **AUC ranges above are the n=10 values (2026-06-11 update).** §1–9 below were
+> written on the n=9 snapshot (Pat_15 had 0 SOZ labels); the
+> **2026-06-11 update section** immediately below records the n=9→n=10 transition
+> after Pat_15's SOZ were labelled. **Conclusions unchanged; magnitudes softened**
+> because Pat_15 is a second hub-patient (non-responder, like Pat_10).
 
 Numbers live in CSVs (no tables here), each with its generating script + a
 2026-06-08 timestamp. Pointers in §Provenance.
@@ -41,6 +48,42 @@ Numbers live in CSVs (no tables here), each with its generating script + a
 5. **It proposes occult SOZ candidates** — ranked, with proximity + region + reasons.
 6. **What it is not** — seed-based, not from-scratch; candidates are hypotheses.
 7. **Outliers, bands, and the honest caveats.**
+
+---
+
+## UPDATE 2026-06-11 — Pat_15 SOZ labels added (n=9 → n=10)
+
+A collaborator supplied the **SOZ-marked implant file for Pat_15** (previously 0
+labelled SOZ → it was *structurally* excluded from the epi-marker, distinct from its
+biology-driven dropout in the cross-phase β trace). The file was integrity-checked
+(144 labels, identical coordinates to the on-disk implant, only red SOZ marks added),
+installed at the canonical path, and the whole marker pipeline (audit_89→95, +98)
+re-run. Pat_15 now contributes **17 SOZ contacts** (~14% prevalence; O8 absent from
+the 118 FC channels). **No new surrogate computation** was needed — the matched-strength
+eigs are epi-agnostic and were already cached.
+
+**Verdict: every claim survives; magnitudes soften; Pat_15 is a second hub-patient.**
+Pat_15's SOZ are high-degree hubs, not a diffusion community — on the decisive C3
+metric its δ epi block is *below* the healthy block (z(EE−NN) = −2.95), and in the
+deployment pipeline (audit_98) its SOZ are predicted by **strength** (prec 0.71 at δ)
+not by the propagator (AUC 0.26). It joins Pat_10/Pat_07 as the non-responder pole.
+
+| measure (τ-max / cohort median) | n=9 | **n=10** | verdict |
+|---|---|---|---|
+| **C5 spatial null** δ / β / low-γ | +3.05(.020) / +1.59(.006) / +3.38(.002) | **+2.06(.042) / +1.47(.003) / +2.92(.002)** | all survive; **δ now marginal** |
+| C5 high-γ (internal null) | null (p.455) | **null (p.423, 1/10)** | clean negative holds |
+| **Relational sep** (f_aff) δ/β/α | 0.863 / 0.818 / 0.827 | **0.835 / 0.790 / 0.754** | holds, > strength ~0.6 |
+| **Masking recovery** δ/low-γ/β | 0.823 / 0.795 / 0.721 | **0.807 / 0.752 / 0.684** | holds (α weakest 0.587) |
+| **LOPO AUC** (headline) β/δ/low-γ | 0.766 / 0.806 / 0.752 | **0.725 / 0.714 / 0.699** | perm-p=0 all; **range 0.62–0.73** |
+| LOPO strength baseline | 0.40–0.52 (chance) | **0.45–0.63** (δ str rose to 0.631) | mostly chance; δ less clean |
+| Occult Pat_06 medial-OFC P | 0.87 | **0.79** [0.59,0.91] stab 1.00, 4 mm | top candidate holds |
+| Label-free selection (audit_94) | at chance (p~1) | **at chance (p>0.4, lift<1)** | unchanged: narrows, can't select |
+
+**The honest headline shift:** cross-patient LOPO drops from **0.68–0.81 → 0.62–0.73**.
+The claim still stands (perm-p = 0 in 5/6 bands; strength near chance; high-γ null), but
+adding a genuine out-of-distribution hub-patient lowers the numbers — the *right*
+direction for honesty. δ's C5 is now **marginal (p=0.042)**; β and low-γ remain the
+solid airtight bands. Numbers in the same CSVs (re-run, 2026-06-11 timestamp).
 
 ---
 
@@ -109,22 +152,44 @@ The dissociation is clean per-patient: Pat_02's hidden SOZ are recovered by `res
 (0.80) not strength (0.40, below chance); Pat_10's by strength (0.80) not `resid`
 (0.63) — Pat_10's epi are hubs, not a community (the C3/C5 non-responder).
 
+**Read it by patient, not by p-value (δ, n=10).** The δ masking recovers held-out SOZ
+in **8 of 10 patients** (median AUC 0.81). The **two exceptions are the hub-patients** —
+Pat_15 (0.24) and Pat_07 (0.49) — whose SOZ are hubs, not a community, and where plain
+node-strength predicts instead (Pat_15 strength AUC 0.93, the cleanest hub case in the
+cohort). The mechanism predicts *which* patients it should fail on, and it does. This
+"8/10, hubs are the exception" reading is more informative — and more persuasive — than
+the cohort p (0.010, which is **floored by n=10** and dragged down by the two
+hub-patients, not by a weak effect). Reporting the effect size + the named exceptions is
+the house style ([[feedback_regularity_over_bh_null]]); the p is a footnote.
+
 ## 4. Cross-patient classifier + calibrated P(SOZ) (audit_93, VI2/VI3)
 
 An **interpretable logistic** on `z_f_aff_mean` + `z_f_seg_mean`, leave-one-patient-
-out (a patient's own nodes never train its scores). Numbers in `classifier_lopo.csv`:
+out **for the coefficients** (a patient's nodes never train its *weights* — but its
+features still use its own SOZ labels; see the correction below). Numbers in
+`classifier_lopo.csv`:
 
 - LOPO ROC-AUC: δ 0.806, β 0.766, low-γ 0.752, α 0.689, θ 0.677 — **permutation-p =
   0** (within-patient label shuffle). **high-γ 0.482 (perm-p 1.0) — null.**
 - **Strength fails cross-patient** (AUC 0.40–0.52, ~chance) — reproducing audit_80's
-  cross-patient failure for node-intrinsic markers; the **relational** features are
-  what transfer. `strength+relational ≈ relational` (strength adds nothing, even
-  hurts low-γ) — odds ratios: affinity and segregation both > 1.
+  cross-patient failure for node-intrinsic markers; the **relational** features
+  carry the cross-patient-consistent signal. `strength+relational ≈ relational`
+  (strength adds nothing, even hurts low-γ) — odds ratios: affinity and segregation
+  both > 1. **Caveat:** this is not a fair *deployment* comparison — the relational
+  features are **label-informed** (built from the SOZ set), strength is not.
 - P(SOZ) is reasonably **calibrated** (`classifier_calibration.csv`; β top bin
   predicts 0.39 / observes 0.45; known epi median P 0.21 vs non-epi 0.067).
 
-This is the surprising, strong result: a per-node SOZ probability that **generalises
-to patients it was never trained on**, where hubness does not.
+**What this does and does not show (corrected 2026-06-11).** The leave-one-patient-out
+holds out only the *classifier coefficients*; the test patient's **features still use
+that patient's own SOZ labels** (`f_aff` = affinity to its SOZ set). So this is evidence
+that the *relationship* "affinity-to-own-community → SOZ" is **consistent across
+patients** — a node-level confirmation of the audit_89 community — **not** label-free
+prediction in a new patient. The genuinely label-free cross-patient test is audit_94, and
+it **fails at chance** (§8). The honest *predictive* evidence is the within-patient
+masking recovery (§3) and the few-seed curve (§9), both of which hold out the target SOZ.
+(Earlier drafts called this "generalises to patients it was never trained on, where
+hubness does not" — that overstated it and is withdrawn.)
 
 ## 5. Occult-candidate discovery (audit_93, VII2/VII4)
 

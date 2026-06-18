@@ -2,18 +2,144 @@
 name: epi-eigenmode-localization
 type: scope
 era: IMCOH_ABS × COHORT_N10
-status: draft
+status: implemented
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-06-05
 pointers:
   - .agents/plans/active/2026-05-08_lrg-epilepsy-research-directions.md
   - .agents/plans/active/2026-04-29_eigenvector-direct-pivot-plan.md
   - .agents/guides/task-persistence-investigation/2026-04-29_e1-spectral-subspace-alignment.md
   - .agents/reports/2026-05-07_epileptic-n10-revisit.md
+  - .agents/reports/2026-06-05_eigenmode-localization.md
   - .agents/guides/02_methods/lrg-framework-guide.md
 ---
 
 # Epi eigenmode localization — IPR / projection mass on E_p
+
+## STATUS 2026-06-05 — implemented; both hypotheses NEGATIVE
+
+`audit_91_eigenmode_localization.py` ran the full battery from the cached
+matched-strength eigenvectors. The two scientific hypotheses below
+(Q1 mechanistic, Q2 epi-trapping) are **both falsified**, while a strong
+strength-independent *structural* localization fact is confirmed. Report:
+`.agents/reports/2026-06-05_eigenmode-localization.md`.
+
+- **Structural fact (10/10 both α and β):** observed FC-Laplacian eigenmodes
+  are 3–6× MORE localized (participation number PR ≈ 3–5 of N≈115) than the
+  degree/strength-matched null (PR ≈ 8–27). Strong, not a strength artefact.
+  But it is a generic property of every band/phase, NOT band-specific and NOT
+  trace-specific.
+- **Q1 FALSIFIED (the a-priori headline).** Hypothesis was: α's per-pair
+  cophenetic trace lives in *localized, non-leading* modes while the *leading
+  extended* subspace stays put (⇒ Grassmann null at α). Two independent
+  refutations: (i) the leading (slowest-λ) modes are the MOST localized, not
+  extended (PR_lead < PR_bulk in 10/10, K∈{5,10,20}); (ii) cross-phase mode
+  displacement *increases* with PR — `ρ_spearman(PR, displacement) = +0.66`
+  (α) / `+0.68` (β), positive in 10/10 — i.e. the EXTENDED modes carry the
+  cross-phase change, the localized modes are stable. The α Grassmann/cophenet
+  dissociation is **not** a localized-vs-extended split.
+- **Q2 CLEAN NEGATIVE.** Epi mode-mass `m^E_k` does not exceed the
+  strength-matched null (≤1/9 patients at p<0.05 in any band). No
+  Anderson-style epileptic trapping beyond degree. Consistent with the
+  established spatial-delocalization verdict (per-patient localization null
+  0–1/10; anatomy retracted).
+
+The 5-point preamble (below, added 2026-06-05) was written **before** the
+code; the negative outcome is what the preamble's falsification clause
+predicted as the honest possibility.
+
+## 5-point critical preamble (added 2026-06-05, BEFORE code)
+
+Covers BOTH Q1 (does the trace live in localized non-leading modes — the
+mechanistic explanation of the α dissociation) and Q2 (do localized modes
+concentrate on epileptic nodes — the Anderson-trap analogy).
+
+**(1) Claim.**
+- *Q1 (priority):* the α-band task→rest_post trace, which is visible per-pair
+  (`ρ^coph`) but invisible in the leading-subspace Grassmann probe, is carried
+  by **localized, non-leading** eigenmodes (high inverse participation,
+  low PR); the leading (dominant) subspace is **extended** and unchanged,
+  which is why the leading-subspace Grassmann probe is null at α. β, which
+  shows both probes, would then carry its trace partly in the leading
+  subspace too.
+- *Q2:* localized eigenmodes concentrate their squared mass on the epileptic
+  node set beyond chance — `m^E_k = Σ_{i∈E} v_k(i)²` exceeds expectation —
+  i.e. the epi zone acts as an eigenmode trap (graph analogue of Anderson
+  localization).
+- *Structural pre-claim (shared):* observed FC-Laplacian modes are more
+  localized than a degree/strength-matched graph.
+
+**(2) Null (mandatory, identical for all three).** The degree/strength-
+preserving matched-strength surrogate (4-cycle ±δ rewiring, audit_63 family),
+whose Laplacian eigendecomposition is ALREADY cached at R=200
+(`data/cache/matched_strength_surrogate_lrg/Pat_NN/{band}_{phase}_R200_swap20_seed20260511_imcoh_abs.npz`,
+keys `eigvals (R,N)`, `eigvecs (R,N,N)`). The null preserves every node's
+exact strength while randomizing edge placement, so it isolates whatever
+localization survives degree. Empirical p-floor `1/(R+1)=0.005`. For Q2 the
+null is the **same epi indices** evaluated on the surrogate eigenvectors
+(so the epi set's strength profile is preserved by construction — high-
+strength nodes carry more mass with no trapping mechanism, and the null
+subtracts exactly that).
+
+**(3) Strongest plausible alternative the null must control for.**
+- *Structural / Q1 / Q2 all share it:* **high-strength (high-degree) nodes
+  accumulate eigenmode mass with no localization/trapping mechanism.** In a
+  weighted graph the leading modes preferentially load on the heaviest nodes;
+  any "localization" or "epi mass excess" could be a pure degree re-read. This
+  is the same confound that sank the KC β headline and that the per-node
+  epi-marker gate (audit_79) was built around.
+- *Q2-specific:* **sEEG electrode-shaft spatial autocorrelation** — epi
+  contacts cluster on a few probes, and same-probe contacts are spatially
+  adjacent, so mode mass that pools on a probe will pool on its epi contacts
+  for purely geometric reasons (the established NMI=0.65 shaft autocorrelation).
+- *Q1-specific:* the leading/non-leading split could be an artefact of how
+  "leading" is defined (slowest-λ vs largest-mass); robustness over the cut K
+  and over the displacement metric is required.
+
+**(4) Does the null mechanically control it — and what it CANNOT reject.**
+- The matched-strength surrogate **preserves per-node strength exactly**
+  (`verify_strengths` tol 1e-4), so the degree confound is removed *by
+  construction* for the structural, Q1, and Q2 mass-excess tests — an
+  observed PR below the surrogate PR, or an `m^E` above the surrogate `m^E`,
+  cannot be explained by degree. This is mechanical, not vibes.
+- What it **cannot** reject: (a) the surrogate randomizes *which* edges carry
+  the weight but not the *spatial* layout, so it does NOT control electrode-
+  shaft autocorrelation for Q2 — a positive Q2 would still need whole-shaft
+  masking (audit_80-style) before any "epi trap" claim. The honest design
+  therefore treats a *negative* Q2 as conclusive (no excess even before the
+  geometric control) and a *positive* Q2 as merely a candidate. (b) The null
+  says nothing about the Q1 *mechanism* claim directly — Q1 is a structural
+  question about the observed spectrum (where on the λ axis the localized
+  modes sit, and whether cross-phase movement tracks localization). Q1 is
+  answered by *observed-only* geometry (leading-vs-bulk PR; PR-vs-displacement
+  rank correlation), with the surrogate used only to certify that the modes
+  are localized at all. (c) Neither null distinguishes "localized because of
+  genuine mesoscale FC structure" from "localized because of near-degenerate
+  eigenvalues / Wigner-bulk mode mixing" — flagged as a caveat, not resolved.
+
+**(5) Falsification + remaining limitations.**
+- *Q1 falsified if:* the leading modes are NOT systematically more extended
+  than the bulk (cohort ≤ ~6/10), OR cross-phase mode displacement does NOT
+  concentrate on localized modes (`ρ(PR, displacement) ≥ 0` cohort-wide) —
+  either kills the "trace lives in localized non-leading modes" story.
+  **[OUTCOME: falsified — leading modes are the most localized AND
+  displacement increases with PR.]**
+- *Q2 falsified if:* `m^E_k` does not exceed the strength-matched null in a
+  cohort-consistent (≥8/10) band×λ regime — report the clean negative; the
+  delocalization prior makes this the likely outcome. **[OUTCOME: falsified
+  — ≤1/9 patients in any band.]**
+- *Structural claim falsified if:* observed PR is within surrogate spread
+  cohort-wide. **[OUTCOME: confirmed, 10/10 — observed far below null.]**
+- *Remaining limitations:* (i) no spatial-shaft control was needed because Q2
+  was negative; (ii) τ fixed at 1/λ_max (the eigenvectors are τ-independent —
+  IPR is a property of the Laplacian eigenbasis, not of τ — so this caveat is
+  weaker here than for cophenetic distances); (iii) eigenvector ordering at
+  near-degenerate λ is non-unique, mitigated by mass-based (sign- and
+  rotation-tolerant within a degenerate block via the participation diagonal)
+  statistics where possible and flagged where not; (iv) "localization" in a
+  fully-connected weighted graph is a loose analogy to solid-state Anderson
+  localization — the empirical claim is strictly "PR below degree-matched
+  null", never a literal localization transition.
 
 ## Renormalization head
 
