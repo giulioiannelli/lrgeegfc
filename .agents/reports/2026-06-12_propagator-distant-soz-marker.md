@@ -103,6 +103,35 @@ selection-verified. **Lesson (persist):** for any seed-based epileptic-node disc
 evaluate **leave-one-shaft-out / off-shaft only** — the all-contacts metric is a labelling
 tautology.
 
+## 7. Deployment — honest precision, the compound, P(SOZ) (added 2026-06-16; audit_103/104)
+
+Turning the verified ranker into a tool, evaluated OFF-SHAFT throughout:
+
+- **Precision is real but concentrated.** Off-shaft SOZ prevalence ≈ 4%; cohort-median
+  **lift@5 ≈ 2.2× (responders), recall@10 ≈ 0.34**. Strongly **bimodal**: Pat_08/14/05 get
+  9–15× lift, several patients ≈0 at the top-5 even with decent AUC (precision@k with tiny
+  targets-per-shaft is brutal). A good ranker, a concentrated shortlist — not a clean catch.
+- **Compound: switch, don't blend.** Propagator and strength are complementary (propagator =
+  responders, strength = hub-patients). A **hard seed-regime SWITCH** — use strength when the
+  seeds are hub-like (mean seed strength-percentile r ≥ 0.70), else the pure propagator —
+  lifts AUC **0.716 → 0.750, 9/10**, *preserving* the strong responders (Pat_08 stays 0.95)
+  and rescuing the one recoverable hub-patient (Pat_15 0.21 → 0.93). A continuous **blend is
+  misleading** — it raises cohort *lift* but **damages the best responders** (Pat_08 0.95 →
+  0.56); the cohort median hid it. Regime detector imperfect: Pat_10 unrecoverable (both
+  signals fail), borderline r ≈ 0.72 patients ambiguous.
+- **P(SOZ) is emittable, calibrated-at-top, modest.** A leave-one-patient-out logistic on
+  [affinity, strength] gives a probability that tracks the diagonal at the high end (P≈0.13 →
+  13% observed) and transfers for responders (held-out AUC median 0.79) but not hubs; absolute
+  values are small (top candidates ~0.1–0.35) and Brier ≈ the 4%-prevalence floor. It is a
+  triage score, not a per-node verdict.
+- **Effective-marker path:** adopt the switch; filter white-matter contacts; more seeds across
+  more shafts; the real ceiling is the two-population structure + the absence of
+  surgical-outcome ground truth (precision here is an upper bound on true occult discovery).
+- Figures: `preprint_39` (core marker) + `preprint_40` (deployment). Audits: `audit_103`
+  (precision + candidate shortlists), `audit_104` (compound + probability). READMEs in
+  `data/audit/epi_marker_{precision,compound}/`. Walkthrough:
+  `.agents/reports/2026-06-16_epi-distant-marker-walkthrough.md`.
+
 ## Provenance (numbers in CSVs; scripts + 2026-06-12)
 - 16-operator sweep: `scripts/01_compute/audit/audit_101_epi_marker_library.py` →
   `data/audit/epi_marker_library/marker_library_{per_patient,cohort}.csv`.
