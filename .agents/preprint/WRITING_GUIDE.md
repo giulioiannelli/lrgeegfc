@@ -45,6 +45,9 @@ beside them.
 │   ├── 05_gammah.md
 │   └── 06_delta.md
 │
+├── headlines/              # one self-contained report per headline research question
+│                           #   of the multiscale-Laplacian programme (paper narrative spine)
+│
 ├── methods/                # long-lived methods companions (one per probe family)
 │   ├── methods_revision_2026-05-18_cophenet.md
 │   ├── methods_grassmann_cluster_extent.md
@@ -106,6 +109,17 @@ file"** — only create a new file when the decision tree explicitly says so.
   the response live in their canonical home, not in the response file —
   the response file points to them.
 
+### A headline result (full research-question report for the multiscale-Laplacian paper) → `headlines/` (new file)
+- One file per research question (e.g. `epi-marker-analysis.md`; the β trace).
+- Self-contained and brutally honest: core observation → findings+quantities →
+  verification → honest scope → discussion/positioning → literature (real DOIs,
+  **never invented**) → next steps.
+- The locked ledgers (`locked/`) and per-band briefs (`bands/`) remain the operational
+  sources of truth; the headline file is the narrative synthesis that **cites** them,
+  it does not re-derive verdicts.
+- Filename: descriptive kebab-case (`<topic>_<probe-or-band>.md`), no date prefix
+  (these are living syntheses, not dated handoffs).
+
 ### A figure → not here
 - Per-band figures: `data/preprint/figures/<band>/`.
 - Cohort figures: `data/preprint/figures/cohort/`.
@@ -128,7 +142,7 @@ frontmatter:
 name: <short-kebab-case-slug>
 era: IMCOH_ABS_COHORT_N10
 status: <current | superseded | draft>
-kind: <verdict | controls | brief | methods | directive | response | guide>
+kind: <verdict | controls | brief | methods | directive | response | guide | headline>
 scope: <one line on what this file covers>
 ---
 ```

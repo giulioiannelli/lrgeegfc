@@ -20,6 +20,7 @@ This folder gathers the **frozen per-band result reports** that the preprint man
 ├── EVALUATION_PROTOCOL.md  # protocol Claude runs on writing-agent LaTeX output
 │
 ├── locked/                 # locked sources of truth (VERDICT_LEDGER, CONTROLS, ANATOMY_*)
+├── headlines/              # one self-contained report per headline research question (multiscale-Laplacian paper spine)
 ├── bands/                  # the 7 fixed per-band briefs (00_cohort + 01_beta … 06_delta)
 ├── methods/                # long-lived methods companions (cophenet directive, Grassmann methodology, methods review)
 ├── directives/             # dated writing-agent directives (writing_directive_YYYY-MM-DD_*.md)
