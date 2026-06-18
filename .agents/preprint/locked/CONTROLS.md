@@ -121,14 +121,34 @@ biological-attribution layer.
   < 0.05; `data/audit/epi_stratified/decimation_control_cohort.csv`). Raw δ/θ are
   `epi_carried` (removing epi *hurts* — consistent with δ as the epi channel).
   **What this means:** the *subgraph* `exclude_epi` strengthening/emergence
-  (β/α strengthen, γ_l emerge) is demoted to "not epi-specific". The PRIMARY-lens
-  "healthy-reorganization-the-epilepsy-masks" interpretation must be **re-anchored
-  on the PAIR-CLASS decomposition** (audit_77: trace carried by NONEPI healthy
-  cortex + the epi↔non-epi CROSS interface, EPI↔EPI diseased core n.s. for β; α
-  recruits epi↔epi), which is a **same-graph** analysis with **no node-count
-  confound** and remains the unconfounded epi-informative evidence. ⚠ This touches
-  the 2026-06-05 PI directive — flagged for PI review (demote vs re-anchor). The
-  IDENTICAL confound was found and resolved for C6/WM the same day.
+  (β/α strengthen, γ_l emerge) is demoted to "not epi-specific". The interpretation
+  is **re-anchored on the same-graph PAIR-CLASS decomposition** (no node-count
+  confound).
+- **PI resolution + pair-count control (2026-06-18, `audit_85 --mode pairclass`).**
+  PI decision: epi-exclusion is **demoted from the 2026-06-05 "primary interpretive
+  lens" to a SECONDARY control** (mechanistic / tissue-characterization layer,
+  parallel to C6) — cohort-wide (α/β/γ_l); the genuine pair-class findings are
+  retained as reported secondary characterizations. The pair classes were re-run at
+  the current **n=10** (Pat_15 now SOZ-labelled; `audit_77` regenerated — no
+  matched-strength flag flips vs n=9) and put through a **pair-count control** (is a
+  class more trace-bearing than a random subset of the same number of pairs?).
+  Resolved β reading (stated on the cophenetic object `D_coph`; raw |ImCoh| is the
+  comparison baseline only, never a result): **the β cophenetic trace is gray-
+  cortical-dominant** — the genuine pair-count hotspot is gray↔gray coupling
+  (`p_pair`<0.001; wm↔wm depleted; C6 gray/WM split). The **diseased seizure core
+  does NOT carry the trace** — epi↔epi fails its matched-strength null (`weaken`,
+  +0.142 p=0.16) and is not a pair-count hotspot; it *trends* depleted (cophenet
+  `p_pair`=0.945) but does **not** clear the 0.95 gate, so "core spared" is
+  directional only, **not** a significant result. **A second withdrawal:** the
+  "epi↔non-epi CROSS interface is the strongest carrier" sub-claim does NOT survive
+  the pair-count control (interface not a hotspot: cophenet `p_pair`=0.093). α
+  `epi_epi` is genuinely `concentrated` (pair-count `p_pair`<0.001): **α RECRUITS the
+  diseased core whereas β spares it** — a reported secondary tissue-characterization
+  (the α-specific contrast), not part of the β headline. Cascaded into
+  `bands/01_beta.md` (§3.2.5 + Head + frontmatter). Source
+  `data/audit/epi_stratified/{cophenetic_cohort.csv, pairclass_decimation_cohort.csv}`;
+  handoff `.agents/reports/2026-06-12_decimation-controls-handoff.md`. The IDENTICAL
+  node-count confound was found and resolved for C6/WM the same day (2026-06-12).
 
 ### C6 — White-matter exclusion (paired Wilcoxon on per-patient trace under exclude_wm)
 Recompute the probe with **dominant-white-matter contacts removed** per patient
@@ -148,8 +168,9 @@ biological-attribution layer).
   documenting whether the trace strengthens, persists, or weakens when
   white-matter contacts are removed. It is **NOT a primary verdict gate** and
   changes **no** locked verdict. It is **not** elevated to a primary interpretive
-  lens (unlike epi-exclusion under the 2026-06-05 PI directive) — the node-count
-  caveat below precludes that.
+  lens — the node-count caveat below precludes that. (Epi-exclusion's 2026-06-05
+  elevation to a primary lens was likewise demoted to secondary on 2026-06-18, so
+  C5 and C6 now sit at the same secondary tier.)
 - **Gate (cophenet)**: cohort one-sided paired Wilcoxon of per-patient
   `ρ_split^coph` (exclude_wm) vs own matched-strength surrogate median, regenerated
   on the gray-only submatrix; passes iff `paired_wilcoxon_p < 0.05`. LOO line:

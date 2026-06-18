@@ -18,12 +18,12 @@ canonical_subspace_object: "U_k = span{phi_2, ..., phi_{k+1}}"
 **Head.** The 6 bands × 2 probes (cophenet `D_coph` per-pair multiscale +
 Grassmann `d_G(k)` whole-network mode subspace) decompose cleanly under the
 locked 5-control battery (`CONTROLS.md`). β is `strong, both probes`. α is
-`strong, only D_coph` — the cophenet trace strengthens under epi-zone
-exclusion, identifying α as a non-epi-cortex per-pair phenomenon hidden by
-epileptic patients in the full cohort. γ_l carries a strong Grassmann-only
-subspace trace plus a per-pair cophenet trace that **emerges under epi-zone
-exclusion** (audit_77, 2026-06-05); δ carries a weak Grassmann-only subspace
-trace under cluster-extent permutation (audit_70). γ_h and θ have
+`strong, only D_coph` — a non-epi-cortex per-pair phenomenon that uniquely also
+recruits the epileptic core (epi↔epi concentrated; C5 epi-X is a secondary
+characterization, demoted 2026-06-18). γ_l carries a strong Grassmann-only
+subspace trace (its apparent per-pair cophenet "emergence under epi-zone
+exclusion" was withdrawn 2026-06-12 as generic node-count, audit_85); δ carries a
+weak Grassmann-only subspace trace under cluster-extent permutation (audit_70). γ_h and θ have
 no trace on either probe (γ_h's contiguous run is at the null 95th percentile,
 cluster p = 0.055). α has no Grassmann trace.
 
@@ -32,8 +32,8 @@ cluster p = 0.055). α has no Grassmann trace.
 | Band | Range (Hz) | D_coph (cophenet per-pair) | Grassmann (whole-network modes) | **Coverage tag** |
 |---|---|---|---|---|
 | **β** | 13–30 | **strong trace** | **strong trace** (LOO-robust) | **strong trace, both probes** |
-| α | 8–13 | **strong trace** (epi-X strengthens) | no trace | **strong trace, only D_coph** |
-| γ_l | 30–80 | no trace (full graph); **EMERGES under epi-exclusion** (audit_77: p=0.024, 8/10, Pat_13/14 sign-flip) | **strong trace** ↑ (mass-only gate, LOO-robust) | **Grassmann trace + epi-X-gated cophenet trace** ↑ |
+| α | 8–13 | **strong trace** (epi-X = secondary; α uniquely recruits epi core) | no trace | **strong trace, only D_coph** |
+| γ_l | 30–80 | no trace (full graph); epi-X "emergence" **WITHDRAWN** (node-count, audit_85) | **strong trace** ↑ (mass-only gate, LOO-robust) | **strong trace, only Grassmann** ↑ |
 | δ | 0.53–4 | no trace | **weak trace** (cohort gate clears at `p_mass = 0.005` floor; full-data LOO max p_mass = 0.055 Pat_08 fails Decision-12 < 0.05 LOO precondition — Decision-8 strong promotion retracted; C5 epi-X strengthens and LOO resolves, secondary mechanistic observation per Decision 10) | **weak trace, only Grassmann** |
 | γ_h | 80–300 | no trace | no trace (`p_mass` = 0.060) | **no trace** |
 | θ | 4–8 | no trace | no trace | **no trace** |
@@ -214,7 +214,7 @@ leverage.
 | C4 cross-probe (Wilcoxon, descriptive — C3 fails so C4 is moot) | paired Wilcoxon p = 0.500 ⇒ no degradation; rho_split_median = +0.140, rho_xprobe_median = +0.143 (sign agree); LOO max p = 0.715 (Pat_08) | `ctm_triangle/c4_wilcoxon_cohort.csv` low_gamma | paired_p ≥ 0.05 + sign | ✓ (moot) |
 | C5 epi-X cophenet (audit_77, run 2026-06-05) | matched-strength Wilcoxon on `obs_rho^epi-X`: **p = 0.024**; obs_rho_median^epi-X = +0.174 (vs full +0.083 — **emerges from null**); 8/10 above own surrogate; LO-Pat_13 p = 0.037 | < 0.05 | ✓ (epi-X) |
 
-C3 fails on the **full graph** → cophenet **no trace (full graph)**. **But under epi-zone exclusion the cophenet trace EMERGES** (audit_77, 2026-06-05): matched-strength Wilcoxon p = 0.024, 8/10 above own surrogate, median +0.174 (vs full +0.083); Pat_13 (−0.042→+0.109) and Pat_14 (−0.220→+0.073) *flip sign* when epileptic contacts are dropped — the epileptic zone was **masking/inverting** a healthy-tissue γ_l per-pair trace. Per the 2026-06-05 PI directive elevating epi-exclusion to a primary interpretive lens, this is reported as a primary γ_l finding (conditional on epi-zone exclusion), not a secondary footnote.
+C3 fails on the **full graph** → cophenet **no trace (full graph)**. **But under epi-zone exclusion the cophenet trace EMERGES** (audit_77, 2026-06-05): matched-strength Wilcoxon p = 0.024, 8/10 above own surrogate, median +0.174 (vs full +0.083); Pat_13 (−0.042→+0.109) and Pat_14 (−0.220→+0.073) *flip sign* when epileptic contacts are dropped — the epileptic zone was **masking/inverting** a healthy-tissue γ_l per-pair trace. **⚠ WITHDRAWN 2026-06-12 / demoted 2026-06-18:** this cophenet "emergence" is generic node-count, not epi-specific (audit_85 --stratify epi, p_dec = 0.130) — γ_l has **no per-pair cophenet trace** and its verdict rests on the Grassmann probe alone. Epi-exclusion is a **secondary control** (demoted from the 2026-06-05 "primary interpretive lens", parallel to C6).
 
 **Grassmann `d_G(k)` — cluster-extent permutation (audit_70, mass-only gate locked 2026-05-19) + C5 epi-X (audit_72):**
 
@@ -840,3 +840,35 @@ not re-derive it.
   same day — the general lesson: any "exclude-nodes → trace strengthens/emerges"
   claim must pass a size-matched random-node-decimation control before the change
   is attributed to the removed tissue.
+- **2026-06-18 — PI decision: epi-exclusion DEMOTED to SECONDARY (parallel to C6),
+  cohort-wide; pair-count control added; two sub-claims withdrawn; no verdict
+  flips.** PI decision on the re-anchoring (above): epi-exclusion is **demoted from
+  the 2026-06-05 "primary interpretive lens" to a secondary control** (mechanistic /
+  tissue-characterization layer, parallel to C6), cohort-wide (α/β/γ_l); the genuine
+  pair-class findings are retained as reported secondary characterizations. Built the **pair-count control**
+  (`audit_85 --mode pairclass`, R=1000: is a pair class more trace-bearing than a
+  random subset of the same number of pairs?) and **regenerated `audit_77` epi
+  pair-class at n=10** (Pat_15 now SOZ-labelled → 17 epi nodes; no matched-strength
+  flag flips vs n=9; Jun-5 CSVs backed up `cophenetic_*_n9_2026-06-05.bak.csv`).
+  **Resolved β reading** (on the cophenetic object `D_coph`; raw |ImCoh| is the
+  comparison baseline only, never a result): **the β cophenetic trace is gray-
+  cortical-dominant** — the genuine pair-count hotspot is **gray↔gray cortical
+  coupling** (`p_pair`<0.001; wm↔wm depleted; C6 gray/WM split). The diseased
+  seizure core does NOT carry the trace — epi↔epi fails its matched-strength null
+  (`weaken` +0.142 p=0.16) and is not a pair-count hotspot; it *trends* depleted
+  (cophenet `p_pair`=0.945) but does **not** clear the 0.95 gate, so "core spared"
+  is directional only, **not** a significant result. **Two withdrawals:** (a)
+  "epi-X *strengthens* the trace" (node-count, above); (b) "epi↔non-epi CROSS
+  interface is the strongest carrier" — interface not a pair-count hotspot (cophenet
+  `p_pair`=0.093).
+  α `epi_epi` IS genuinely `concentrated` (pair-count `p_pair`<0.001): **α RECRUITS
+  the diseased core whereas β spares it** — a reported secondary tissue-
+  characterization (α-specific contrast), not part of the β headline. **Verdict tags
+  UNCHANGED** (β `strong trace, both probes`; α `strong trace, only D_coph`; γ_l
+  `strong trace, only Grassmann`). Cascaded into `CONTROLS.md` §C5 + briefs
+  `bands/01_beta.md`, `bands/02_alpha.md`, `bands/03_gammalow.md` (frontmatter + Head
+  + status + revision history). The line-107 C5 cophenet entry
+  in this ledger's β table still quotes the node-count "strengthens +0.221→+0.275"
+  numbers as the as-of-2026-05-26 record — read it with this amendment. Source
+  `data/audit/epi_stratified/{cophenetic_cohort.csv, pairclass_decimation_cohort.csv}`;
+  handoff `.agents/reports/2026-06-12_decimation-controls-handoff.md`.
