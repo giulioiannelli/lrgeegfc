@@ -14,7 +14,7 @@ pointers:
   - .agents/reports/2026-06-18_consolidation-arc-handoff.md
 ---
 
-# Where the β inference-mark sits — it dissociates from OFC into the cingulate
+# Where the β inference-mark sits — directionally cingulate, but the localization does NOT survive the duration control (memorizing→OFC does)
 
 **Head.** Within the β band the offline trace **splits by what it carries**: the
 standard trace and the **encoding** component (the memorised pairs) over-accumulate
@@ -22,21 +22,34 @@ in **orbitofrontal cortex** (OFC), but the **inference-specific** component — 
 figured-out relations, with encoding statistically removed — over-accumulates in
 the **CINGULATE**. This is an *accumulation hotspot on a distributed trace*
 (per-patient demeaned, [[feedback-localization-is-overexpression-not-container]]),
-not a container. **At R=1000 the dissociation is BH-significant on both sides:**
-encoding/standard → OFC (q=0.010), inference → cingulate (**q=0.050 epi-include**,
-borderline q=0.060 epi-exclude). The cingulate inference hotspot is robust across
-all four conditions (contact/shaft × epi-in/out), strength-independent (dev +0.04),
-K=8/10, 5/8 patients, leave-one-out-robust median, and survives a length-equalized
-duration control (audit_113, below). (Earlier R=200 framing of
-"suggestive, q≈0.10–0.20" was a floor artifact — the true tail sat below the
-1/201 R=200 resolution; R=1000 resolved it to p=0.005.) The corroborating evidence
-is a **double dissociation** — the cingulate carries *inference* in β but
-*encoding* in α/low-γ — which independently re-derives the consolidation arc's band
-dissociation ([[arc-inference-consolidation-2026-06-18]]) from anatomy alone.
+not a container. **At full length both sides were BH-significant (R=1000):** encoding/standard → OFC
+(q=0.010), inference → cingulate (q=0.050 epi-include, q=0.060 epi-exclude — already
+the marginal piece). **A duration control then SPLIT these two verdicts** (`task_test`
+runs 1.35–2.53× longer than `task_learn` in every patient — a real, one-directional
+data-amount asymmetry feeding `f = D_taskTest − D_taskLearn`; audit_113/113b below):
 
-This localizes the arc result: β does not just consolidate "the inference" as an
-abstract component — that component has an anatomical home, the cingulate, distinct
-from where the memorised material consolidates (OFC).
+- **Memorizing → OFC SURVIVES.** Truncating `task_test` to `task_learn`'s length and
+  re-running the matched-strength null, the **standard** trace's OFC hotspot still
+  clears (q=0.025 incl / 0.050 excl), and **encoding** is duration-invariant by
+  construction (`e = D_taskLearn − D_preA` has no `task_test` term → bit-identical;
+  its full-length q=0.010 stands). The memorizing localization is duration-robust.
+- **Inference → cingulate does NOT survive.** At matched length the cingulate
+  inference component sits **inside** its strength null (p=0.124 incl / 0.179 excl,
+  q=0.42/0.76) and is no longer even the top-ranked inference system (insula/MTL/
+  occipital rank above it; none clear BH). The cingulate stays the **directional**
+  best guess (audit_113 stage-1: 8/8 cingulate-sampling patients keep the sign,
+  per-patient values track full at ρ=0.74), but its STATISTICAL significance is not
+  separable from `task_test`'s longer recording.
+
+**Honest verdict: inference → cingulate is a directional hint, NOT an established
+q<0.05 localization once the duration confound is controlled; only memorizing → OFC
+is duration-robust.** The double dissociation's *encoding* arms (the cingulate
+carrying encoding in α/low-γ — both ⊥ `task_test`) are unaffected; its β-*inference*
+arm is downgraded to directional. **Upstream flag:** the consolidation arc itself
+([[arc-inference-consolidation-2026-06-18]]) is built on the same `f = D_TT − D_TL`
+and has NOT yet been duration-tested — the whole-brain "β consolidates an
+inference-specific component" headline now needs the same length-matched control
+before it can be called duration-robust (open: a stage-2-arc).
 
 **Band picture (a focal trace can hide under a null whole-brain trace).** Cohort
 whole-brain trace clears only in α (encoding+standard) and β (all three); low-γ is
@@ -85,6 +98,10 @@ encoding); BH q across the 9 systems within β:
   patients positive, cohort median positive under every leave-one-out drop,
   survives the shaft-collapse control that killed the earlier "distributed ring".
   OFC drops to p=0.13–0.15 for the inference component (the dissociation).
+  **⚠ FULL-LENGTH result — superseded for the inference row.** The duration control
+  (audit_113b, below) puts inference → cingulate back inside its null at matched
+  length (p=0.124 incl, q=0.42); the standard/encoding OFC rows survive. Read this
+  table as the full-length analysis, NOT the duration-controlled verdict.
 
 ### The double dissociation (the strong evidence) — cingulate role-flip by band
 
@@ -142,51 +159,77 @@ Yet within-system:
   scipy Spearman to ~2e-3 (tie-correction). The localization is tied to the
   validated arc numbers.
 
-## Duration / length-equalized control (audit_113) — content, not data-amount
+## Duration / length-equalized control (audit_113 + audit_113b) — it SPLITS the verdict
 
 `task_test` is **1.35–2.53× longer than `task_learn` in all 10 patients** (median
-1.57×), so the inference vector `f = D_taskTest − D_taskLearn` pairs a `task_test`
-cophenetic estimated from ~1.6× more Welch segments against a noisier `task_learn`
-one — a systematic data-amount asymmetry that could inflate the cingulate inference
-hotspot independent of content. audit_113 truncates `task_test` to `task_learn`'s
-sample count (3 window placements head/center/tail), recomputes ONLY that phase's
-canonical cophenetic, and reruns the exact audit_110 localization. Two built-in
-checks pass: the full-length recompute reproduces the cached cophenetic **exactly**
-(Spearman ρ=1.000000, max|Δ|≈1.5e-4 = float32 rounding, on all 3 validation
-patients spanning the ratio range); and the **encoding** target (no `task_test`
-dependence) is bit-identical full-vs-matched, as it must be.
+1.57×), so `f = D_taskTest − D_taskLearn` pairs a `task_test` cophenetic from ~1.6×
+more Welch segments against a noisier `task_learn` one — a one-directional data-amount
+asymmetry that could inflate the inference localization independent of content. (The
+prior handoff called this control "moot by band/target specificity"; the durations
+show it is **not** — the confound is real.) Two stages.
 
-**Verdict: the β cingulate inference hotspot SURVIVES length-matching — content-
-driven, not a duration artifact.** Of the 8 patients that sample the cingulate, all
-**8/8 keep the sign** of their per-patient demeaned inference value; the cohort
-median stays positive at **0.61× full** (+4.36e5→+2.67e5 epi-include;
-+4.90e5→+2.97e5 epi-exclude); per-patient full-vs-matched values correlate at
-**ρ=0.74–0.76**; and a paired Wilcoxon finds matched **indistinguishable from full
-(p≈0.95)**. The 5/8-positive cohort split is reproduced exactly. The OFC standard
-hotspot likewise survives (0.83–0.87× full, sign 5/5, ρ=0.90–1.0); OFC encoding is
-identical by construction. **Direction of bias:** truncation discards data →
-noisier `D_TT'` → biases the concordance toward zero, so the ~40% point-estimate
-attenuation is the expected (statistically non-significant) noise penalty, not a
-collapse; survival under the noisier matched length is conservative evidence.
+**Stage 1 — observed robustness (audit_113).** Truncate `task_test` to `task_learn`'s
+sample count (3 placements head/center/tail), recompute ONLY that phase's canonical
+cophenetic, rerun the audit_110 localization. Built-in checks pass: full-length
+recompute reproduces the cached cophenetic exactly (Spearman ρ=1.000000, max|Δ|≈1.5e-4
+= float32 rounding; 3 validation patients), and **encoding** (no `task_test` term) is
+bit-identical full-vs-matched. Result: the cingulate inference **DIRECTION** is
+preserved — 8/8 cingulate-sampling patients keep the sign, per-patient values track
+full at ρ=0.74, cohort median 0.61× full. A paired Wilcoxon finds matched
+indistinguishable from full (p≈0.95) — but at K=8 that test is underpowered: it shows
+the point estimate did not significantly *drop*, NOT that it still beats a null. Data
+`length_control.csv`.
 
-**Stage limit:** observed-statistic robustness only — it does NOT regenerate the
-matched-strength surrogate on truncated `task_test`, so it yields no new BH q at
-matched length. Given the observed value barely moves (ρ_fm=0.74, paired p≈0.95,
-8/8 sign), a surrogate-on-truncated stage would be expected to reproduce q≈0.05;
-it is available if a referee insists. Data: `length_control.csv` (540 rows).
+**Stage 2 — matched-length strength null (audit_113b), the decisive test.**
+Regenerate the matched-strength surrogate ON the truncated `task_test` (canonical
+4-cycle ±δ, swap 20, seed 20260511; non-canonical cache path so the canonical
+ensemble is untouched), keep the cached full-length surrogates for the four unchanged
+phases, recompute per-system matched-strength p + BH q at matched length (R=200, head
+placement). **The two sides split:**
+
+| target (β, matched length) | KEY system | matched-strength p | BH q | survives? |
+|---|---|---|---|---|
+| standard | OFC | 0.005 / 0.005 | **0.025 / 0.050 ✓** | YES |
+| encoding | OFC | 0.010 (R=200 floor) | full-length q=0.010 (⊥`task_test`) | YES (by construction) |
+| inference_pe | cingulate | **0.124 / 0.179** | **0.42 / 0.76 ✗** | **NO** |
+
+- **Memorizing → OFC SURVIVES the matched-length null.** Standard-trace OFC still
+  clears (q=0.025 incl / 0.050 excl); encoding is duration-invariant (its full-length
+  R=1000 q=0.010 is unchanged — the q=0.100 shown at R=200 is only the floor, not a
+  real move). The pipeline produces significance when warranted (OFC standard +
+  occipital both clear) → the inference failure is NOT a dead test.
+- **Inference → cingulate does NOT survive.** At matched length the cingulate
+  inference component is **inside** its strength null (p=0.124 incl / 0.179 excl),
+  ranks only 3rd/2nd among inference systems (insula p=0.025, MTL p=0.040 sit above
+  it), and **no system clears BH for inference**. The full-length q=0.050 was
+  **duration-assisted** — its significance depended on `task_test`'s extra data
+  sharpening `D_TT`. R won't rescue it (p=0.12 is far from the 1/(R+1) floor); nor
+  will placement (the strongest placement's observed ≈0.6× full cannot reach the BH
+  threshold, which needs ≈the full-length value). Data
+  `lenmatched_null_R200_{include,exclude}.csv`.
+
+**Reading stages 1+2 together:** the cingulate is the inference component's
+*directional* home (sign-robust 8/8, ρ=0.74 with full), but its significance is not
+separable from the longer test recording — so **inference → cingulate is a directional
+hint, not an established localization.** Whether the full-length q=0.050 was a pure
+duration artifact or a real-but-data-hungry signal cannot be distinguished here;
+either way the clean q<0.05 claim does not hold at matched length. (R=1000 would
+sharpen the numbers but cannot change this negative; optional.)
 
 ## Honest limits
 
-- **β cingulate inference clears BH only at the boundary** (q=0.050 epi-include,
-  q=0.060 epi-exclude) — established but marginal, not the decisive q=0.010 the
-  OFC encoding/standard hotspots reach. The corroboration is the 4-condition
-  consistency + the double dissociation, not just the corrected p.
-- **Duration controlled, not surrogate-re-nulled (audit_113).** `task_test` runs
-  1.5–2.5× longer than `task_learn`; the cingulate inference (and OFC) hotspots
-  survive length-matching `task_test` (8/8 sign-preserved, matched indistinguishable
-  from full p≈0.95), excluding the data-amount confound — but this is the observed-
-  statistic stage; the matched-strength surrogate was not regenerated on truncated
-  data.
+- **β inference → cingulate does NOT survive the duration control (the headline
+  caveat).** Full length it was already marginal (q=0.050/0.060); the matched-length
+  strength null (audit_113b) puts it inside its null (p=0.124/0.179, q≥0.42) — its
+  significance was duration-assisted. It remains directionally robust (8/8 sign,
+  ρ=0.74) but is a **directional hint, not an established localization**. Only
+  memorizing → OFC is duration-robust (standard OFC q=0.025–0.050 at matched length;
+  encoding ⊥`task_test`).
+- **The consolidation arc shares this confound (open).** The arc's
+  `T_infspec = concordance(f, p | e)` is built on the same `f = D_TT − D_TL`; it has
+  NOT been duration-tested. The whole-brain "β consolidates an inference-specific
+  component" headline needs the same length-matched null (a stage-2-arc) before it is
+  duration-robust — flagged, not yet run.
 - **System scale only.** Region-level cingulate sub-regions are all K≤2 (implant
   ceiling) and individually n.s. — no anterior-vs-posterior cingulate claim; the
   signal is the pooled cingulate **system** (same as the OFC verdict's system
@@ -213,11 +256,21 @@ it is available if a referee insists. Data: `length_control.csv` (540 rows).
    focal trace (q=0.035, epi-robust). Refresh the figure glow from the R=1000 CSV.
 2. (Deferred, needs behavior) does the cingulate β inference-mark predict
    inference success / the symbolic-distance effect? — behavioral TC1.
-3. ✅ DONE — length-equalized duration control (audit_113): `task_test` is
-   1.35–2.53× longer than `task_learn` (the confound was real, NOT moot), but the
-   cingulate inference and OFC hotspots survive truncating `task_test` to
-   `task_learn` length (8/8 cingulate-sampling patients sign-preserved; matched
-   indistinguishable from full, p≈0.95) → duration confound excluded (observed
-   stage). Low-γ cingulate-encoding focal trace (no whole-brain trace) remains a
-   candidate result in its own right — worth a dedicated within-region writeup if
-   pursued.
+3. ✅ DONE — duration control, BOTH stages. Stage 1 (audit_113, observed): direction
+   robust (8/8 sign). Stage 2 (audit_113b, matched-length strength null, R=200): the
+   two sides split — **memorizing → OFC survives** (standard q=0.025/0.050; encoding
+   ⊥`task_test`), **inference → cingulate does NOT** (p=0.124/0.179, q≥0.42, not even
+   top inference system). The inference→cingulate localization is downgraded to a
+   directional hint. The confound was real, not moot.
+4. ⚠ OPEN (raised by #3) — duration-test the consolidation ARC itself (audit_103,
+   same `f = D_TT − D_TL`): a stage-2-arc whole-brain matched-length null. Until run,
+   the "β consolidates an inference-specific component" headline is duration-uncontrolled.
+5. Optional: R=1000 matched-length null (sharpens audit_113b numbers, cannot change
+   the negative — cingulate p=0.12 is far from the floor).
+6. (Deferred, needs behavior) behavioral TC1 — does the β cingulate inference value
+   predict inference success? Low-γ cingulate-encoding focal trace (audit_112, ⊥
+   `task_test`, unaffected by all this) remains a candidate result on its own.
+7. ⚠ Figures `brain_inference_dissociation_beta.pdf` / `systems_inference_dissociation.pdf`
+   still show the inference→cingulate BH ring from the full-length result — regenerate
+   without the inference-row significance ring (or annotate "full length") to match the
+   duration-controlled verdict.

@@ -46,13 +46,16 @@ weaker bands are locally strong**.
   whole-brain averaging hides. α is *clear* overall and concentrated in
   temporal-limbic cortex — not murky.
 - The recurring hub across all of it is the **cingulate**.
-- **Duration confound checked and EXCLUDED (audit_113, NEW 2026-06-19).** `task_test`
-  is 1.5–2.5× longer than `task_learn` in every patient, so the inference vector
-  could in principle reflect data-amount not content. It doesn't: cutting `task_test`
-  down to `task_learn`'s length keeps the cingulate inference hotspot positive in
-  8/8 cingulate-sampling patients (sign-preserved), and the length-matched values
-  are statistically indistinguishable from full (p≈0.95). The β content
-  dissociation is content-driven.
+- **⚠ Duration control SPLITS the verdict (audit_113 + audit_113b, 2026-06-19).**
+  `task_test` is 1.35–2.53× longer than `task_learn` in every patient (confound real,
+  NOT moot). The matched-length strength null (audit_113b) splits the two sides:
+  **memorizing → OFC SURVIVES** (standard OFC q=0.025/0.050; encoding ⊥`task_test`),
+  but **inference → cingulate does NOT** — at matched length it sits inside its
+  strength null (p=0.124 incl / 0.179 excl, q≥0.42) and isn't even the top inference
+  system. The cingulate stays the *directional* home (stage-1: 8/8 sign, ρ=0.74) but
+  its significance was duration-assisted → **inference → cingulate is downgraded to a
+  directional hint, not an established localization.** ⚠ The consolidation ARC
+  (audit_103) uses the same `f = D_TT − D_TL` and is NOT yet duration-tested.
 
 ## Honest limits (carry these forward)
 
@@ -82,16 +85,25 @@ weaker bands are locally strong**.
    *encoding* focal trace (no whole-brain trace) is a result in its own right.
    Data ready in `within_system_trace_include.csv` / `_exclude.csv`. Would need a
    dedicated within-region figure + short report; decide framing with PI first.
-3. **✅ DONE — length-equalized control (audit_113, 2026-06-19).** `task_test` is
-   1.35–2.53× LONGER than `task_learn` in all 10 pts (NOT moot — the confound was
-   real). Truncating `task_test` to `task_learn` length (3 placements) keeps the β
-   cingulate inference hotspot positive in 8/8 cingulate-sampling pts (sign-
-   preserved), cohort median 0.61× full, matched indistinguishable from full
-   (paired p≈0.95); OFC survives, encoding bit-identical. Full-recompute==cache
-   ρ=1.0. ⇒ duration confound EXCLUDED (observed stage; surrogate-on-truncated not
-   run). CSV `data/audit/inference_localization/length_control.csv`; cascaded into
-   the report's "Duration / length-equalized control" section. Stage-2 (regen
-   surrogate on truncated `task_test`) is the only remaining rigor add, optional.
+3. **✅ DONE — duration control, BOTH stages (audit_113 + audit_113b, 2026-06-19).**
+   `task_test` 1.35–2.53× LONGER than `task_learn` (NOT moot). Stage 1 (audit_113,
+   observed, 3 placements): cingulate inference DIRECTION robust (8/8 sign, ρ=0.74,
+   median 0.61× full; matched-vs-full paired p≈0.95 but underpowered K=8 = "didn't
+   drop" ≠ "beats null"). Stage 2 (audit_113b, matched-strength null regen ON
+   truncated `task_test`, R=200 head) = DECISIVE: verdict SPLITS — **standard→OFC
+   survives** (p=0.005, q=0.025/0.050), **encoding→OFC** duration-invariant
+   (⊥`task_test`, full q=0.010 stands), **inference→CINGULATE does NOT survive**
+   (p=0.124/0.179, q=0.42/0.76; ranks 3rd/2nd, insula+MTL above; no system clears BH
+   for inference). ⇒ inference→cingulate DOWNGRADED to directional hint; memorizing→OFC
+   stays robust. Full-recompute==cache ρ=1.0. CSVs `length_control.csv`,
+   `lenmatched_null_R200_{include,exclude}.csv`; cascaded into the report (head, title,
+   Duration §, honest-limits, next-steps), memory, MEMORY.md, arc memory.
+4. **⚠ NEW TOP CONTROL — stage-2-arc.** The arc (audit_103) uses the same
+   `f = D_TT − D_TL`; duration-test the whole-brain `T_infspec·e` (β-vs-α dissociation)
+   with a length-matched null — reuse audit_113b's truncated-`task_test` surrogate.
+   Until then the arc headline is duration-uncontrolled.
+5. Optional: R=1000 audit_113b (sharpens, cannot change the negative). Figures still
+   show the full-length inference→cingulate BH ring — regenerate/annotate "full length".
 
 ---
 
