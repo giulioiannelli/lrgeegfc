@@ -2,9 +2,9 @@
 name: cophenetic-consolidation-arc
 type: scope
 era: IMCOH_ABS / COHORT_N10
-status: active
+status: result
 created: 2026-06-12
-updated: 2026-06-12
+updated: 2026-06-18
 pointers:
   - scripts/01_compute/audit/audit_83_wm_stratified_cophenetic.py
   - scripts/01_compute/audit/audit_63_split_baseline_surrogate.py
@@ -29,6 +29,19 @@ This is a **result-first** investigation: the LRG/cophenetic machinery is the
 microscope; the deliverable is a statement about the brain. Scope companion to
 `.agents/reports/2026-06-12_trace-impact-and-leverage.md` (Route-1-arc, the
 behavior-free half of the consolidation route).
+
+> **VERDICT (2026-06-18, audit_103 --null).** My pre-registered claim — that the
+> INFERENCE-specific component preferentially persists — is only **partly** right,
+> and the truth is sharper: a **band dissociation**. `T_learn` (encoding echo)
+> clears matched-strength in **α (p=0.014) and β (p=0.014)**; `T_infspec·e`
+> (inference-specific, controlling encoding) clears **β only (p=0.0068, LO-P15
+> 0.014, 7/10)**, not α (0.080). So **α consolidates encoding; β consolidates
+> encoding + the inference-specific reorganization.** Validated: observed `T_test`
+> = audit_83 to 1e-16; null `T_test` cohort = audit_83 cached exactly (6/6 bands).
+> Confound (iii) defused by band-specificity (task_test 1.4–2.5× longer than
+> task_learn, but band-independent ⇒ cannot make a β-specific effect). Pending:
+> length-equalized subsample; OFC localization of `f`; behavioral TC1.
+> Result memory: [[arc_inference_consolidation_2026_06_18]].
 
 ---
 

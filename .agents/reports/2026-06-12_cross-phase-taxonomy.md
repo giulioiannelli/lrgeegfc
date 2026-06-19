@@ -16,28 +16,32 @@ pointers:
   - src/lrg_eegfc/utils/surrogate/matched_strength.py                  # coupled_surrogate_cophenet
   - scripts/01_compute/audit/audit_105_cross_phase_taxonomy.py           # step 1
   - scripts/01_compute/audit/audit_106_coupled_null_validation.py       # step 2 (gate)
-  - scripts/01_compute/audit/audit_107_taxonomy_localization.py         # step 3
+  - scripts/01_compute/audit/audit_107_taxonomy_localization.py         # step 3 (geometry baseline)
+  - scripts/01_compute/audit/audit_110_taxonomy_matched_strength.py     # step 4 VERIFICATION (kills reset/anchor)
+  - scripts/01_compute/audit/audit_109_taxonomy_brain_figure.py         # brain figure
   - data/audit/cross_phase_taxonomy/                                    # all outputs
   - localization_audit_plan_2026_05_29.md                              # locked beta->OFC trace
 ---
 
 # Cross-phase taxonomy — anchor / trace / reset / reorganize (results)
 
-**Head.** The per-pair cophenetic signal that carries the validated β trace
-decomposes — exactly, with no residual — into a rigid **anchor** backbone plus
-two orthogonal fluctuation contrasts, **trace** (persistence φ₁, = ρ_split) and
-**reset** (excursion φ₂). Three findings: (1) the decomposition **reproduces the
-locked trace bit-exact in all 60 cells** and the trace energy **peaks at β**, with
-anchor dominating every band (the Gratton "stable backbone" picture) except the
-high-γ noise band; (2) at β the channels **localize to distinct systems** — trace
-→ **OFC** (reproduced), reset → **lateral temporal**, anchor → **insula** — and
-**anchor localizes to limbic systems across bands** (insula β, MTL α/low-γ), the
-"anatomical backbone" hypothesis; (3) the attempted **coupled-cross-phase
-matched-strength null fails its validation gate**, confirming audit_63's claim
-that a coordinated strength-preserving cross-phase null is not viable, so the
-similarity channels rest on the geometry baseline. **Only the trace channel is
-verified**; reset and anchor are new, **unverified** (geometry baseline controls
-contact count, not strength or a temporal null).
+**Head (updated 2026-06-18).** The per-pair cophenetic signal that carries the
+validated β trace decomposes — exactly, with no residual — into a rigid **anchor**
+backbone plus two orthogonal fluctuation contrasts, **trace** (persistence φ₁, =
+ρ_split) and **reset** (excursion φ₂). The decomposition is sound (reproduces the
+locked trace bit-exact in 60/60 cells; trace energy peaks at β; anchor dominates —
+the Gratton stable-backbone picture). The localization looked like a **3-way β
+dissociation** (trace→OFC, reset→lateral-temporal, anchor→insula) under the
+geometry baseline — **but that was retracted by the mandatory matched-strength
+test (audit_110, §5): only trace → OFC survives the strength null.** reset and
+anchor were **node-strength artifacts** of the geometry baseline (which controls
+contact count, not strength) — the KC-style failure the matched-strength rule
+exists to catch. **Publishable result: none that is new** — trace→OFC is the
+already-locked one. What's left is a clean *framing* (the flow decomposition) and
+the honest node-flow conclusion that **only the persistent component is
+anatomically specific beyond connectivity strength; reversible/rigid flow is
+strength-organized**. The coupled-cross-phase null also failed its own gate
+(confirming audit_63), so no temporal null is available either.
 
 ---
 
@@ -150,43 +154,93 @@ single-shaft artifacts** — multi-shaft anatomical concentration. They land
 and R=200 coarsens the floor), so the dissociation is robust but **not
 overwhelming**; R=1000 + LOO-patient would firm it up before any headline.
 
-## 5. Honest verdict
+## 5. Honest verdict — UPDATED 2026-06-18 by the matched-strength test (audit_110)
 
-- **Verified:** the trace channel = the locked β→OFC result; the decomposition is
-  exact and reproduces it 60/60.
-- **New + unverified (geometry baseline only, no temporal null):**
-  - **reset → lateral temporal + sensorimotor at β** — a genuine trace/reset
-    *anatomical dissociation*: distinct from the OFC trace, and it **survives
-    shaft-collapse** (q≈0.05). Reset is otherwise modest in magnitude (cohort
-    reset energy ≤0.11 except the high-γ noise band) and α/low-γ reset is
-    non-significant. The single most promising *new* result; firm up with
-    R=1000 + LOO before any headline.
-  - **anchor → limbic across bands** — insula (β, survives shaft-collapse
-    q≈0.05), MTL (α/low-γ, q=0.04). The "anatomical backbone" hypothesis holds,
-    but partly a strength/backbone story (geometry baseline does not control
-    strength; cohort r(anchor,strength) 0.05–0.38).
-- **Null by construction:** reorganize = the noise floor (high-γ is the exemplar:
-  anchor 0.19, everything moves, no direction).
-- **Framing:** RPre→Task→RPost as a hysteresis loop — trace = hysteretic
-  (non-returning) branch, reset = reversible branch, anchor = rigid, reorganize =
-  noise. Literature: flexibility/allegiance (Mattar/Braun) with the strength null
-  those lack; Gratton stable-backbone (anchor dominance, confirmed); Tambini
-  post-task persistence (trace); Kim/Lee/Mashour hysteresis (trace vs reset).
+**The dissociation did NOT survive the mandatory matched-strength null. Only
+trace → OFC stands.** audit_107 localized reset/anchor with the GEOMETRY baseline
+only (controls contact count, not node strength). audit_110 reran the localization
+of every channel against the STRENGTH-PRESERVING surrogate (the locked null behind
+β→OFC, R=200 cached; R=1000 available). Result:
 
-- **Cognitive reading (task = transitive inference; OFC = cognitive map, see
-  `task_paradigm_transitive_inference`).** The dissociation lines up cleanly: the
-  **persistent trace sits in OFC** — the learned relational hierarchy / cognitive
-  map is what *consolidates* offline into rest_post; the **reversible reset sits in
-  lateral-temporal / sensorimotor** — the perceptual/motor machinery that runs the
-  task and then reverts; the **rigid anchor is limbic** (insula/MTL) — the
-  state-invariant backbone. So the taxonomy reads as: the cognitive map is retained
-  (trace) while the task's perceptual scaffolding is released (reset). This is a
-  *post hoc* interpretation, not a tested claim.
+| β channel | geometry baseline (audit_107) | **matched-strength (audit_110)** | verdict |
+|---|---|---|---|
+| **trace → OFC** | p=0.008, q=0.040 | **p=0.005, q=0.025, LOO≤0.005, str−0.51** | **SURVIVES** (low-strength, LOO-robust) |
+| reset → lateral_temporal | p=0.002, q=0.020 | **p=0.104, q=0.55** | **FAILS** — strength artifact |
+| reset_dom → lat_temp / sensorimotor | p=0.002–0.010 | p=0.10 / 0.18, q≈0.50 | FAILS |
+| anchor → insula | p=0.002, q=0.020 | **p=0.31, q=0.63** | **FAILS** — strength artifact (as predicted) |
+| persist → MTL/cingulate | p=0.02–0.03 | p≈0.13, q=0.66 | FAILS |
 
-## 6. Next (if the user wants to proceed)
+- **Verified (and only this):** **trace → OFC** = the locked β→OFC result.
+  Reproduces under matched-strength (p=0.005, **LOO-robust**, strength_dev −0.51 =
+  OFC contacts are *below* average strength, so not a hub artifact). The
+  decomposition is exact (reproduces the locked trace 60/60). This is the
+  **existing** result, not new.
+- **FALSIFIED — reset / anchor dissociation.** The geometry-baseline significance
+  was **node-strength**: lateral-temporal's reset excursion and insula's anchor
+  rigidity are reproduced by strength-matched surrogate graphs. This is exactly the
+  KC-style failure mode the matched-strength rule exists to catch (the geometry
+  baseline didn't reach the strength alternative). The trace/reset *anatomical
+  dissociation* is **retracted** — not publishable. (anchor failing was expected:
+  −var ≈ rigid backbone ≈ strength.)
+- **Null by construction:** reorganize = the noise floor (high-γ exemplar).
+- **What this leaves:** the per-pair flow decomposition (anchor/trace/reset) is a
+  clean *framing* of the existing OFC result; the **only strength-independent,
+  anatomically-specific node-flow signature is the persistent (trace) component →
+  OFC**. The reversible (reset) and rigid (anchor) components are **strength-
+  organized, not region-specific**. That is the honest node-flow characterization
+  (see §6.5) — a nuanced/partly-negative result, not the 3-way dissociation.
+- **Cognitive reading** (task = transitive inference; OFC = cognitive map): the
+  *persistent* component consolidates in OFC. The earlier "reversible reset sits in
+  lateral-temporal / rigid anchor in limbic" reading is **withdrawn** (strength
+  artifact). Only "the cognitive map (persistent flow) is retained in OFC" stands.
+
+## 6. Brain figure (audit_109) — the dissociation, on the brain
+
+The catchy anatomical figure the taxonomy was built for (prior 3D / trajectory
+attempts failed — phase-states are near-equidistant, so the trace is a subtle
+rank-level pull, not a geometric collapse; see `cross_phase_taxonomy_2026_06_12`).
+Pools all 10 patients' contacts into approximate MNI space (the per-patient
+DK-anchored affine in `visuals.spatial_coords` — adequate for a cohort glass
+brain, not mm-precise) and lights up each contact by its anatomical SYSTEM's
+**incident-edge enrichment** — how strongly the channel concentrates on the
+EDGES incident to that system (the audit_107 edge→endpoint incidence,
+geometry-baseline `−log10 p`); white-matter / non-enriched contacts are faint
+grey context; systems passing **BH q<0.05** get a black ring. **The taxonomy is
+per-PAIR, never per node:** a contact's colour is its system's incidence
+enrichment, *not* a node classification — a system/node has three independent
+incidence scores (trace / reset / anchor), not one label, which is why the
+figure is three separate maps. This is the same edge→endpoint step behind the
+locked β→OFC verdict, so "trace → OFC" means *edges incident to OFC carry the
+trace* (relational, "concentration not container"), not "OFC nodes are trace
+nodes". It is a *result-at-system-granularity* map (the granularity audit_107
+verified), **not** a per-contact field — single-contact cophenetic values are
+too noisy to read (audit_76/108).
+
+- `figures/brain_dissociation_beta.pdf` — 3 rows (trace / reset / anchor), β.
+  The rows glow in three distinct territories. **⚠ SUPERSEDED for the reset/anchor
+  rows** — that dissociation FAILED matched-strength (§5, audit_110); the figure
+  shows the *geometry-baseline* glow, which is strength-confounded for reset/anchor.
+  Only the **trace → OFC** row is a verified result. Do not present the 3-row
+  dissociation as a finding; if used, keep the trace row only (or relabel
+  reset/anchor "strength-baseline, not strength-controlled").
+- `figures/brain_trace_bands.pdf` — trace channel, α / β / low-γ. Only **β**
+  rings/glows (OFC + occipital); α and low-γ are empty grey context →
+  **β-specificity** of the localized trace.
+
+**Read with the locked caveats.** trace → **OFC** is the verified/locked result
+(K=5 implanted, survives shaft-collapse, matched-strength R=1000, BH q≈0.01);
+**occipital glows equally here but is K=3** and geometry-baseline-only — a
+secondary hint, not co-equal with OFC (per `localization_audit_plan_2026_05_29`).
+reset (lateral-temporal) and anchor (insula/sensorimotor) are **new and
+UNVERIFIED** — geometry baseline only (the legend says so), no temporal null
+(audit_106 coupled null failed its gate). The figure is the cleanest statement
+of the *exploratory* dissociation, not a verification.
+
+## 7. Next (if the user wants to proceed)
 
 - shaft-collapse + LOO-patient robustness on the reset dissociation before any
   claim beyond "hint".
-- decide preprint placement (candidate §5.x decomposition) — exploration first.
+- decide preprint placement (candidate §5.x decomposition + the brain figure)
+  — exploration first.
 - optional: a genuine coordinated null via the shared-backbone-deviation /
   SB-CRC route (`coherency_surrogate.py`) rather than coupled rewiring.
