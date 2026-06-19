@@ -11,7 +11,7 @@ fc_method: imcoh_abs
 tau: 1/lambda_max
 canonical_lrg_object: "D_coph = cophenet(UPGMA(D(tau_max)))"
 canonical_subspace_object: "U_k = span{phi_2, ..., phi_{k+1}}"
-verdict_tag: "Grassmann trace (full graph) + cophenet trace emergent under epi-exclusion (audit_77, 2026-06-05)"
+verdict_tag: "strong trace, only Grassmann (full graph); the cophenet 'emergence under epi-exclusion' reported 2026-06-05 is WITHDRAWN 2026-06-12 as generic node-count (audit_85 --stratify epi, p_dec=0.130), so γ_l has no cophenet per-pair trace — verdict rests on the Grassmann probe alone"
 verdict_source: VERDICT_LEDGER.md (locked 2026-05-18, revised 2026-05-19 + Decision 12 2026-05-26)
 verdict_layers:
   substrate_rank: trace_direction_borderline (raw FC ρ_split^raw matched-strength p=0.053 at 7/10 cohort; ratio 53.9× but at significance threshold)
@@ -114,7 +114,7 @@ Same as α/β: `Δ_task = D_coph^taskT − D_coph^rsPre_A`, `Δ_rest = D_coph^rs
 | C3 n_above_surrogate (per-patient) | 5/10 | same |
 | C4 cross-probe rho_xprobe | +0.1430 | `ctm_triangle/cohort_summary.csv` low_gamma |
 | C4 n_trace_xprobe | 7/10 (+sign matches +0.140) | same |
-| C5 epi-X cophenet (audit_77, 2026-06-05) | **EMERGES**: matched-strength Wilcoxon p=0.024, 8/10 above own surrogate, median +0.174 (vs full +0.083), LO-Pat_13 p=0.037; Pat_13/Pat_14 sign-flip | data/audit/epi_stratified/cophenetic_cohort.csv |
+| C5 epi-X cophenet (audit_77, 2026-06-05) | reported "EMERGES" (p=0.024, median +0.174) — **WITHDRAWN 2026-06-12 as generic node-count** (audit_85 --stratify epi, p_dec=0.130; not epi-specific) → γ_l has NO cophenet trace, full or epi-X | data/audit/epi_stratified/{cophenetic_cohort.csv, decimation_control_cohort.csv} |
 
 C1, C2, and C4 all pass; C3 (the mandatory matched-strength control per `feedback_matched_strength_mandatory.md`) fails decisively. The cohort-median ρ ≈ +0.08 is 30× larger than the surrogate median in absolute terms, but per-patient variability is high enough that only 5/10 patients sit above their own surrogate and the paired Wilcoxon p = 0.116. Under the locked C3 rule, this fails the trace gate → **no trace at the cophenet probe**.
 
@@ -286,7 +286,7 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 | C3 matched-strength surrogate `ρ_split^coph` | ✗ ratio 30.2×, 5/10, p = 0.116 — **fails** | `matched_strength_surrogate_split_baseline` low_gamma |
 | C3 matched-strength surrogate Grassmann (cluster-extent) | ✓ cluster_p_mass = 0.005, cluster_p_LR = 0.015, 13-cell run k=12..23, LOO max p_mass = 0.040 Pat_05 | `grassmann_cluster_extent` low_gamma |
 | C4 cross-probe restriction | ✓ +0.143, 7/10 +sign (matches +0.140) | `ctm_triangle` low_gamma (rho_xprobe column) |
-| C5 epi-X `ρ_split^coph` | ✓ **EMERGES** p=0.024, 8/10 (audit_77, 2026-06-05) | data/audit/epi_stratified/cophenetic_cohort.csv |
+| C5 epi-X `ρ_split^coph` | ✗ reported "EMERGES" p=0.024 (2026-06-05) **WITHDRAWN 2026-06-12** as generic node-count (audit_85 --stratify epi, p_dec=0.130) → no cophenet trace | data/audit/epi_stratified/{cophenetic_cohort.csv, decimation_control_cohort.csv} |
 | C5 epi-X Grassmann (secondary observation per Decision 10) | cohort gate held p_mass^epi-X = 0.030; raw mass contracts 66.14 → 32.75; LOO under epi-X 0.159 Pat_05 fragile — mechanistic, not verdict-demoter | `grassmann_epi_exclusion/c5_wilcoxon_cohort.csv` |
 | Three-layer cohort table (raw FC / raw D / cophenet) | substrate borderline → raw D passes → cophenet demotes — **band-selective opposite of β** | headline section above |
 

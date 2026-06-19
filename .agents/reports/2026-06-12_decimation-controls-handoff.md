@@ -96,15 +96,34 @@ random-decimation distribution; cohort `p_dec`).
      vs random pairs both substrates (p_pair=1.0). The two nulls are orthogonal:
      β trace is gray-DOMINANT, WM-WM a below-average (strength-clean) contributor.
      Confirms "gray-dominant-not-exclusive" + adds the unconfounded "WM-WM depleted".
-2. **PI decisions (user's call — NOW INFORMED by item 1, flagged ⚠ in C5 + briefs):**
-   (a) the pair-class CAN carry a re-anchored C5 lens, but the headline is a **band
-   dissociation**, not one "epi-X strengthens" lens: **α RECRUITS the core**
-   (epi_epi concentrated), **β SPARES it** (epi_epi depleted). Decide: keep C5
-   *primary* re-anchored on this α-recruits/β-spares pair-class dissociation, or
-   demote to *secondary* like C6. (b) "β spares the diseased core" → **CORROBORATE**
-   (raw depleted p=1.0; cophenet p=0.945; matched-strength epi_epi β `weaken`), do
-   NOT soften to "underpowered". (c) ✅ DONE — audit_77 regenerated at n=10, no flag
-   flips (see item 1). **(a) still open: re-anchor framing held for PI discussion.**
+2. **PI decisions — RESOLVED 2026-06-18.**
+   (a) ✅ DECIDED: the epi result is a **major component FOLDED INTO the main β
+   trace result** (not a standalone "primary lens", not demoted to a side control).
+   ⚠ FRAMEWORK-PURITY (user directive 2026-06-18, [[feedback_results_only_in_laplacian_framework]]):
+   results are stated ONLY on the cophenetic/Grassmann objects — **raw FC is the
+   baseline, never a result**. So the β-relevant claim is **gray-cortical-dominant**
+   (gray↔gray cophenet pair-count hotspot p_pair<0.001, wm↔wm depleted — the
+   SIGNIFICANT result), and **the diseased core does NOT carry it** (epi↔epi
+   matched-strength `weaken`; trends depleted cophenet p_pair=0.945, NOT significant).
+   "Core spared" is directional only, NOT a significant result. The α-recruits-core
+   finding is a **secondary-band aside**, NOT in the β headline.
+   (b) ✅ "β spares the core" is a TREND on cophenet (p_pair=0.945, n.s.) + matched-
+   strength `weaken` — directional, NOT softened to "underpowered" but NOT a
+   significant depletion either. (The raw depleted p_pair=1.0 is BASELINE only, not
+   citable as a result.) The significant, framework-clean result is gray-dominance.
+   (c) ✅ DONE — audit_77 regenerated at n=10, no flag flips (item 1).
+   **CASCADED 2026-06-18** into `bands/01_beta.md` (Head + frontmatter
+   `rho_split_coph_epi_excluded` + §3.2.5 header/status/withdrawal-banner/pair-class
+   table/caveats/provenance + revision history + §8 control-gate line), `locked/
+   CONTROLS.md` §C5 (PI-resolution bullet, ⚠ flag cleared), `locked/
+   VERDICT_LEDGER.md` (2026-06-18 amendment). **Two sub-claims withdrawn:** "epi-X
+   strengthens" (node-count) and "CROSS interface is the strongest carrier" (not a
+   pair-count hotspot). β verdict tag UNCHANGED throughout.
+   **Remaining cleanup (not blocking):** `02_alpha.md` + `03_gammalow.md` still carry
+   the old "epi-X strengthens / interface carries" entries + the ⚠ PI-review flag
+   (α/γ_l were out of scope for the β fold) — cascade the same correction there in a
+   later pass. Ledger β-table line 107 still quotes the node-count "+0.221→+0.275"
+   as the historical record (amendment note added).
 3. **Commit:** nothing committed; branch `audit/cohort-n10-diagnostic`. Three new
    scripts (audit_85 +node+pairclass modes, audit_86) + 2 data dirs + the cascade +
    memory are all uncommitted.

@@ -230,6 +230,22 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   0.13–0.39, none `< 0.05`); only the raw-substrate WM β/γ_l (`p_dec`
   0.000/0.030) was tissue-specific. See
   `feedback_decimation_control_for_subset_exclusion.md`.
+- **Never state a result on the raw functional-connectivity substrate.**
+  Results are given ONLY in the introduced LRG/Laplacian framework —
+  the cophenetic communication distance `D_coph` (`ρ_split^coph`) and
+  the Grassmann leading-mode subspace (`d_G(k)`/`T_G`). Raw FC (raw
+  |ImCoh|, `d_S`) is the **comparison baseline only** ("does the LRG
+  layer add over raw?"), never a result and never load-bearing evidence
+  for a claim. If a finding is significant on raw but only a *trend* on
+  the cophenetic/Grassmann objects, the honest verdict is the
+  cophenetic/Grassmann trend, NOT the raw significance — do not write
+  "decisive on raw, a trend on cophenet" as if raw rescues the claim.
+  Locked 2026-06-18 (user directive). Caught the same day: the epi
+  "core spared" claim had been leaned on raw `p_pair`=1.0; on the
+  cophenetic framework it is only a trend (`p_pair`=0.945) + matched-
+  strength `weaken`, so the real result is gray-dominance (gray↔gray
+  cophenetic pair-count hotspot), not "core spared". See
+  `feedback_results_only_in_laplacian_framework.md`.
 - **Never stack hardcoded patient-count / fractional-agreement /
   magnitude-ratio filters on top of a statistical test for any
   cohort verdict that ships to a writeup, manuscript, errata, or
@@ -350,6 +366,20 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
 
 ## Always
 
+- **Always frame anatomical localization as an OVEREXPRESSION /
+  ACCUMULATION hotspot on top of a trace distributed across the whole
+  network — never as an exclusive container or as "absent elsewhere".**
+  "β trace → OFC" means OFC accumulates *more* trace than matched-strength
+  predicts (within-OFC lean ≈0.59 — most trace mass is OUTSIDE OFC), not
+  that the trace lives only in OFC. Report concentration *above the
+  distributed baseline* (per-patient demeaned, matched-strength R=1000),
+  never exclusive region membership. Language: "concentrates / accumulates
+  / overexpressed in S", never "localized to S exclusively" / "absent
+  outside S". Figures show the distributed field across all nodes with the
+  hotspot glowing on top, never a binary region mask implying emptiness
+  elsewhere. Carries into the β inference-mark localization and every
+  future localization. Locked 2026-06-18 (user directive). See
+  `feedback_localization_is_overexpression_not_container.md`.
 - Always show ≥3 patients / bands / phases in published figures (no
   Pat_02-only / beta-only / rest_pre-only plots).
 - Always route data loading through `workflow.fc.load_fc_matrix`.
