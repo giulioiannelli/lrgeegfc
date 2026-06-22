@@ -23,39 +23,47 @@ patient is given novel pairs and must *work out* the answer (this is
 **both** task phases, and that is the whole point — `task_learn` is the reference
 that lets us subtract "what was merely seen" from "what was figured out."
 
-What the brain keeps offline splits cleanly:
+**The headline: the brain files different task content into different rhythms.**
 
-- **The α rhythm keeps the *memorised* material only.**
-- **The β rhythm keeps the memorised material *and* the *inferred* relations.**
+- **Alpha keeps the *memorised* material** — and only that. *(Solid.)*
+- **Beta keeps the memorised material *and* the *inferred* relations.** The
+  figured-out part appears in **beta and no other band**. *(Solid.)*
+- **Low-gamma looks empty whole-brain, but hides a real, focal *memory* trace in
+  the cingulate** (8 of 8 patients) — visible only because the method reads one
+  region instead of averaging the whole brain. A clean "other band" result, and a
+  showcase for why the method matters. *(Solid; `audit_112`.)*
 
-So the inference-specific residue — a trace of *what the patient worked out*, not
-just what they saw — lives specifically in **β**. The β-specificity is itself the
-defense against the boring explanation: a recording-length difference would
-affect all rhythms, not one. **This defense is now empirically confirmed**
-(§C, duration control resolved 2026-06-22): the test phase is 1.35–2.53× longer
-than the learn phase, but the β inference residue does **not** scale with that
-length difference across patients, whereas **α** — the band that would have to
-inflate to break β-specificity — does show the duration-tracking trend. The
-confound that could fake the effect rides α, not β.
+The beta-only inference result is the one a longer test recording (1.35–2.53×)
+could have faked. **It didn't:** beta's inference signal does *not* grow with
+recording length across patients, whereas alpha — the only band that could have
+inflated to mimic it — *does* show the length-tracking trend. So the confound
+would have surfaced in alpha; beta is clean. *(Solid; resolved 2026-06-22, see N2.5.)*
 
-Where the two kinds of content sit also differs:
+**Where the content sits — and the interesting twist:**
 
-- **Encoding** concentrates in **orbitofrontal cortex** (the same OFC locus as the
-  main β trace) — this is **robust**.
-- **Inference** leans toward the **cingulate** — but this is currently a
-  **directional hint, not an established localization** (see §C: the duration
-  control demoted it).
-- The cingulate carries *encoding* in α and low-γ but flips to *inference* in β —
-  a content-by-frequency double dissociation derived from anatomy alone.
+- **Memory → orbitofrontal cortex** (the brain's "map-making" hub — fitting for
+  learning an order). *(Solid.)* And the OFC anchor is set by the **learning phase
+  itself**: the pure memorising phase (`rest → learn → rest`, no inference) already
+  leaves its own persistent trace into OFC, in α and β, before any reasoning is
+  demanded — so the hotspot is not an artifact of reading the longer test recording.
+  *(Solid; `audit_103/110/113b`, see N2.6.)*
+- **Reasoning → cingulate.** *(Directional hint only — NOT an established
+  location; the duration check demoted it.)*
+- Read together, the **cingulate behaves like a hub that changes its job with the
+  rhythm**: it carries *memory* at low-gamma (**solid**) and, more tentatively,
+  *reasoning* at beta (**the hint above**). A "same region, different content by
+  frequency" reading — **suggestive, not locked**, precisely because the
+  reasoning-location half is only a hint.
 
 **Why it matters:** this turns "a trace persists" (N1) into "the trace carries the
-*cognitive product* of the task." **It holds up under the duration control** (§C,
-resolved 2026-06-22 — β is duration-robust). So this is an offline neural signature
-of **consolidating an inferred relational structure** — the cognitive climax of the
-paper. *Honest ceiling:* the inference component is distributed with **no
-established anatomical hotspot** (cingulate is a directional hint) and **no
-behavioral validation** (performance data unavailable); sell it as a signature of
-inference-specific reorganization, never as a localized or behaviorally-tied effect.
+*cognitive product* of the task — and the brain sorts memory from reasoning by
+rhythm." That frequency-division of cognitive content, plus a single hub that
+appears to switch content by band, is the exciting core (and it holds up under the
+duration check — N2.5). *Honest ceiling:* reasoning has **no established anatomical
+home** (cingulate is a hint), and there is **no behavioral data** (we cannot and
+will not tie mark strength to performance). Sell it as a frequency-organised
+signature of memory vs inference — never as a pinned-down location or a behaviour
+correlation.
 
 ## §B — Technical statement (per subheadline)
 
@@ -124,6 +132,22 @@ that asymmetry. The verdict, across two levels:
   **β inference-specific arc as duration-ROBUST and α as duration-suspect** — so
   N2.2 ships **duration-controlled, not provisional.**
 
+**N2.6 — The learning phase leaves its OWN OFC trace (closes the open item).**
+`T_learn = ρ(e,p)` is the locked N1 trace with `task_learn` swapped for `task_test`
+(`g→e`), so it *is* the literal `rest_pre → task_learn → rest_post` trace — and the
+split-half baseline makes it the rigorous version. It clears matched-strength in **α
+(+0.22, p=0.014, LO-P15 0.010) and β (+0.25, p=0.014, LO-P15 0.014)**; δ a marginal
+hint (p=0.097); others null (`arc_null_per_patient.csv`). The localizer's `encoding`
+target is its per-system map: the β learning-trace lands on **OFC** — the only system
+clearing BH in both epi modes (R=1000, q=0.010, low-strength −0.51/−0.57, not
+hub-driven) — the **same hotspot** the test-phase trace uses (`audit_83`, q≈0.01), so
+OFC is anchored by **both** task phases. It survives the duration control (encoding→OFC
+β: epi-exclude q=0.050 clears, epi-include q=0.099 BH-borderline but raw MS_p≈0.010);
+`e` uses the *shorter* learn phase and carries no test/learn length asymmetry, so the
+duration confound never touched it. **Reading:** the OFC consolidation anchor is set
+by memorising itself, in α and β, before inference — and inference adds the β-only
+component on top. Backing report `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
+
 ## §C — Critical issues & powerful strengths
 
 **Strengths:** the encoding side (encoding echo + encoding→OFC) is robust and
@@ -170,9 +194,12 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   ~430 Welch segments → reliably estimated. The duration asymmetry is *relative*
   (test/learn ratio 1.35–2.53×), not a learn-phase quality problem; no new dropout.
   Report `.agents/reports/2026-06-22_task-learn-length-quality-audit.md`.
-- [ ] **`task_learn`'s own trace (still open):** whether `rest_pre → task_learn →
-  rest_post` leaves its own encoding-trace and whether it localizes to OFC
-  (coordinate with N1 §G).
+- [x] **`task_learn`'s own trace (DONE 2026-06-22, N2.6):** `rest_pre → task_learn →
+  rest_post` **does** leave its own trace — clears matched-strength in α & β
+  (`T_learn` p=0.014 both, LO-P15 robust) and the β trace localizes to **OFC**
+  (R=1000 q=0.010, low-strength, epi-robust, duration-survives at exclude q=0.050).
+  Already in the encoding-component artifacts — surfaced, no new compute. Report
+  `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
 - [x] **τ-sweep of the arc (DONE 2026-06-22): decomposition is SCALE-ROBUST.**
   β `T_infspec·e` positive+significant across τ ∈ [1,10]×(1/λ_max); α/β dissociation
   holds at every scale; other bands null throughout; correctness anchor 1e-16;
@@ -227,9 +254,10 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   stays unified, count stays 4 (§D).
 - **No behavioral anchor** — performance data unavailable (PI 2026-06-22); the
   inference claim rests on neural decomposition + anatomy + literature.
-- **`task_learn`'s own trace** (open) — length/quality audit DONE 2026-06-22
-  (clean; report in §D), but whether `rest_pre → task_learn → rest_post` leaves its
-  own OFC-localizing trace is unrun.
+- ~~**`task_learn`'s own trace**~~ **DONE 2026-06-22 (N2.6)** — it *does* leave its
+  own trace (α & β, `T_learn` p=0.014) localizing to **OFC** (R=1000 q=0.010,
+  duration-survives epi-exclude q=0.050); already in the encoding-component artifacts,
+  surfaced not recomputed. Report `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
 - **No anatomical home for inference** — cingulate is a directional hint; whether a
   cleaner localizer recovers one is open. (The **τ-sweep** ran 2026-06-22: the
   decomposition is scale-robust; a mild mesoscale hint for β inference exists but
