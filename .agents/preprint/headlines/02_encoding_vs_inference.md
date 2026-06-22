@@ -3,7 +3,7 @@ name: headline-n2-encoding-vs-inference
 era: IMCOH_ABS_COHORT_N10
 status: current
 kind: headline
-scope: N2 — what the persistence is ABOUT. The four-phase design (rest→LEARN→TEST→rest) and task_learn as the encoding reference let the trace be decomposed into memory encoding vs relational inference, separating by frequency and cortical territory. Duration control is live (audit_103b).
+scope: N2 — what the persistence is ABOUT. The four-phase design (rest→LEARN→TEST→rest) and task_learn as the encoding reference let the trace be decomposed into memory encoding vs relational inference, separating by frequency and cortical territory. Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect.
 owner_agent: inference (consolidation arc) chat
 updated: 2026-06-22
 ---
@@ -76,6 +76,9 @@ controlled (resolved 2026-06-22, §N2.5):** the β component does not scale with
 test/learn length ratio across patients (Spearman ρ≈+0.25, n.s.), while α — the
 only other candidate — carries the duration-tracking trend (ρ≈+0.53). So β-only is
 the *duration-clean* verdict, not an artifact of the longer test recording.
+**Scale-robust (τ-sweep `audit_103c`, 2026-06-22):** β `T_infspec·e` stays positive
+and observed-significant across τ ∈ [1,10]×(1/λ_max) and the α/β dissociation holds
+at every diffusion time — the decomposition is not an artifact of the finest scale.
 
 **N2.3 — Content localizes differently.** Feeding the localizer the encoding vs
 inference per-pair vectors (`audit_110`, β at R=1000): **standard/encoding →
@@ -170,10 +173,12 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
 - [ ] **`task_learn`'s own trace (still open):** whether `rest_pre → task_learn →
   rest_post` leaves its own encoding-trace and whether it localizes to OFC
   (coordinate with N1 §G).
-- [ ] **τ-sweep of the arc (scoped 2026-06-22, code pending):** is the
-  encoding/inference decomposition scale-robust, and is inference-specific
-  consolidation fine-scale or mesoscale? Scope
-  `.agents/guides/task-persistence-investigation/2026-06-22_tau-sweep-consolidation-arc.md`.
+- [x] **τ-sweep of the arc (DONE 2026-06-22): decomposition is SCALE-ROBUST.**
+  β `T_infspec·e` positive+significant across τ ∈ [1,10]×(1/λ_max); α/β dissociation
+  holds at every scale; other bands null throughout; correctness anchor 1e-16;
+  no degenerate regime. Mild mesoscale hint (β peaks at τ≈2.6/6.8) — observed-only,
+  needs surrogate to claim. Report `.agents/reports/2026-06-22_tau-sweep-arc-result.md`;
+  scope `.agents/guides/task-persistence-investigation/2026-06-22_tau-sweep-consolidation-arc.md`.
 - [ ] Re-verify all cited inference CSVs against the locked N1 trace (the exact
   reproduction is a selling point — keep it true).
 
@@ -226,5 +231,6 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   (clean; report in §D), but whether `rest_pre → task_learn → rest_post` leaves its
   own OFC-localizing trace is unrun.
 - **No anatomical home for inference** — cingulate is a directional hint; whether a
-  cleaner localizer or the **τ-sweep** (scoped 2026-06-22 — diffusion timescale is
-  unexplored for the arc; is inference fine-scale or mesoscale?) recovers one is open.
+  cleaner localizer recovers one is open. (The **τ-sweep** ran 2026-06-22: the
+  decomposition is scale-robust; a mild mesoscale hint for β inference exists but
+  needs a surrogate null at the peak τ before it can be claimed — a clean follow-up.)

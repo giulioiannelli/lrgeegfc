@@ -2,8 +2,9 @@
 name: tau-sweep-consolidation-arc
 type: scope
 era: IMCOH_ABS × COHORT_N10
-status: active
+status: executed_2026-06-22
 created: 2026-06-22
+result: .agents/reports/2026-06-22_tau-sweep-arc-result.md
 extends: .agents/guides/task-persistence-investigation/2026-06-22_tau-sensitivity-cophenetic-trace.md
 pointers:
   - scripts/01_compute/audit/audit_103_cophenetic_consolidation_arc.py
