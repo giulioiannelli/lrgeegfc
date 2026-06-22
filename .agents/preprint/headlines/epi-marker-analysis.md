@@ -8,6 +8,13 @@ scope: HEADLINE — the COMPLETE epileptic-marker investigation on the LRG Lapla
 
 # The epileptic marker — full investigation analysis
 
+> **Role:** detailed backing / evidence appendix for **headline N3**
+> ([`03_epileptogenic_markers.md`](03_epileptogenic_markers.md)). N3 is the
+> crystallized paper headline; this file is the full audit-by-audit history. The
+> current deployable state is `data/audit/epi_propagator_detector/README.md`
+> (6-band seed-based detector, `audit_117`) plus the live seed-free audits
+> (`audit_118/119/120/121`, 2026-06-22).
+
 **Head.** We asked whether the Laplacian density matrix ρ(τ) = e^{−τL}/Z (the LRG
 diffusion propagator) can flag epileptic (seizure-onset, SOZ) contacts. The honest
 arc, in one breath: a **node-by-node** dynamics marker **does not exist** — within a
