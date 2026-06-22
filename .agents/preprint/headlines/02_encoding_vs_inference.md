@@ -85,10 +85,14 @@ length). Double dissociation: cingulate = encoding in α/low-γ, inference in β
 **N2.4 — A focal low-γ encoding trace hidden by whole-brain averaging.** There is
 *no* whole-brain low-γ trace, yet an **absolute** within-region test
 (`audit_112`, no demeaning) finds a genuine **focal cingulate encoding trace** in
-low-γ (8/8 patients; survives SOZ-contact removal). A real trace that cohort-wide
-averaging conceals — and an argument for the per-region read-out. (Power floor:
-systems sampled by ≤5 patients can't reach significance on this absolute test, so
-OFC's evidence stays the demeaned localization of N2.3, not this.)
+low-γ (ρ≈+0.39, 8/8 patients, q≈0.035; epi-excluded ρ≈+0.51 7/8 — a *larger* effect
+on fewer contacts, so not epi-driven; cingulate *inference* is null here →
+encoding-specific). A real trace that cohort-wide averaging conceals — the cleanest
+argument for the per-region read-out. **Encoding-only ⇒ duration-immune** (no
+`task_test` term). (Power floor: systems sampled by ≤5 patients can't reach
+significance on this absolute test, so OFC's evidence stays the demeaned
+localization of N2.3, not this.) Backing report
+`.agents/reports/2026-06-22_lowgamma-focal-cingulate-encoding.md`.
 
 **N2.5 — The duration confound (RESOLVED 2026-06-22).** `task_test` is **1.35–2.53×
 longer** than `task_learn` in every patient, and `f = D_test − D_learn` inherits
@@ -158,8 +162,18 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   headline next to N1. Headline count stays **4**.
 - [ ] ~~Behavioral TC1~~ **REMOVED** — TI performance data is unavailable
   (PI 2026-06-22). There is no brain–behavior test; do not re-scope one.
-- [ ] **`task_learn` audit:** lengths, quality, and whether a `rest_pre →
-  task_learn → rest_post` encoding-trace localizes to OFC (coordinate with N1 §G).
+- [x] **`task_learn` length/quality audit (DONE 2026-06-22):** all 10 learn
+  recordings clean (0 % NaN), median 720 s (431–837 s); even the shortest affords
+  ~430 Welch segments → reliably estimated. The duration asymmetry is *relative*
+  (test/learn ratio 1.35–2.53×), not a learn-phase quality problem; no new dropout.
+  Report `.agents/reports/2026-06-22_task-learn-length-quality-audit.md`.
+- [ ] **`task_learn`'s own trace (still open):** whether `rest_pre → task_learn →
+  rest_post` leaves its own encoding-trace and whether it localizes to OFC
+  (coordinate with N1 §G).
+- [ ] **τ-sweep of the arc (scoped 2026-06-22, code pending):** is the
+  encoding/inference decomposition scale-robust, and is inference-specific
+  consolidation fine-scale or mesoscale? Scope
+  `.agents/guides/task-persistence-investigation/2026-06-22_tau-sweep-consolidation-arc.md`.
 - [ ] Re-verify all cited inference CSVs against the locked N1 trace (the exact
   reproduction is a selling point — keep it true).
 
@@ -208,8 +222,9 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   stays unified, count stays 4 (§D).
 - **No behavioral anchor** — performance data unavailable (PI 2026-06-22); the
   inference claim rests on neural decomposition + anatomy + literature.
-- **`task_learn`'s own trace** and length/quality audit (the duration asymmetry
-  makes `task_learn`'s recording length per patient worth auditing).
+- **`task_learn`'s own trace** (open) — length/quality audit DONE 2026-06-22
+  (clean; report in §D), but whether `rest_pre → task_learn → rest_post` leaves its
+  own OFC-localizing trace is unrun.
 - **No anatomical home for inference** — cingulate is a directional hint; whether a
-  cleaner localizer (or a τ-sweep — diffusion timescale is unexplored for the arc)
-  recovers one is open.
+  cleaner localizer or the **τ-sweep** (scoped 2026-06-22 — diffusion timescale is
+  unexplored for the arc; is inference fine-scale or mesoscale?) recovers one is open.
