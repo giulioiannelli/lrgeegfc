@@ -29,9 +29,12 @@ epileptogenic diffusion community**. One description, multiple read-outs.
 - [`epi-marker-analysis.md`](epi-marker-analysis.md)
   — the **complete** epileptic-marker investigation on ρ(τ)=e^{−τL}/Z (all bands,
   every audit): node-intrinsic markers fail (= hubness + electrode depth); the
-  relational δ diffusion community is the surviving finding (distant SOZ, AUC 0.72,
-  8/10, strength-orthogonal, phase-stable); includes the retraction ledger. Seed-based
-  triage, not outcome-validated. Headline #1.
+  relational δ diffusion community is the surviving structural finding (distant SOZ,
+  AUC 0.72, 8/10, strength-orthogonal, phase-stable); the deployable endpoint (Act V)
+  is a coordinate-free, 6-band, leave-one-patient-out **calibrated P(SOZ) detector**
+  at **AUC 0.81 / precision@5 60%** (leak caught+fixed; GBM 0.86 rejected as overfit),
+  with anatomically-coherent occult-SOZ candidates (OFC, hippocampus/amygdala). Seed-based
+  triage, clinical-label (not outcome) validated; precision ceiling-bound. Headline #1.
 - (planned) the β-band cross-phase trace headline — to be migrated/condensed
   here from `../bands/01_beta.md` + `../locked/VERDICT_LEDGER.md` when the
   user asks.

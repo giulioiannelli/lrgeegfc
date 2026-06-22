@@ -3,7 +3,7 @@ name: epi-marker-analysis
 era: IMCOH_ABS_COHORT_N10
 status: current
 kind: headline
-scope: HEADLINE — the COMPLETE epileptic-marker investigation on the LRG Laplacian density matrix ρ(τ)=e^{−τL}/Z (all bands, all audits). The full honest arc: node-intrinsic markers fail (= hubness + electrode depth); the relational diffusion COMMUNITY is the real finding (survives strength + spatial nulls); an all-contacts proximity confound was caught and withdrawn; the clean survivor is the δ off-shaft distant marker (AUC 0.72, 8/10), seed-based and phase-stable. Math + plain language.
+scope: HEADLINE — the COMPLETE epileptic-marker investigation on the LRG Laplacian density matrix ρ(τ)=e^{−τL}/Z (all bands, all audits). The full honest arc: node-intrinsic markers fail (= hubness + electrode depth); the relational diffusion COMMUNITY is the real finding (survives strength + spatial nulls); an all-contacts proximity confound was caught and withdrawn; the clean off-shaft marker (δ AUC 0.72, 8/10) is the isolated signal; the deployable endpoint (Act V) is a coordinate-free, 6-band, leave-one-patient-out calibrated P(SOZ) DETECTOR at AUC 0.81 / precision@5 60% — seed-based triage, clinical-label (not outcome) validated, precision ceiling-bound. Math + plain language.
 ---
 
 # The epileptic marker — full investigation analysis
@@ -22,9 +22,15 @@ SOZ — on separate electrodes, with spatial proximity removed by construction �
 **stable across rest and task**, with a label-shuffle null at p = 0.000. Along the
 way we **caught and withdrew** an inflated "all-contacts" version of the marker
 (a proximity tautology) and a label-free cross-patient detector (fails at chance).
-**What it is:** a mechanistic, multiscale, strength-orthogonal, *seed-based*
-triage/hypothesis tool, validated against clinical SOZ labels — **not** an
-outcome-validated, from-scratch clinical localiser.
+Pushed to a **deployable** form (Act V), the same propagator features — now fused
+across **all six bands** and scoring **every** held-out SOZ (nearby included, but with
+coordinates kept entirely out of the method) — give a coordinate-free, **calibrated
+P(SOZ)** detector trained leave-one-patient-out at **AUC 0.81 / precision@5 60%
+(~7× chance), 9/10 patients**, label-shuffle null 0.48. (A first 0.97 was a label-leak,
+caught and fixed.) **What it is:** a mechanistic, multiscale, strength-orthogonal,
+*seed-based* triage/hypothesis tool, validated against clinical SOZ labels — **not** an
+outcome-validated, from-scratch clinical localiser. Precision is **ceiling-bound** by
+target-rarity × ranker-quality (no filter rescues it; ~60% is the n=10 data ceiling).
 
 ---
 
@@ -109,7 +115,7 @@ coarse/global structure." We scan a per-patient grid
 $$ \tau \in \mathrm{geomspace}\big(1/\lambda_{\max},\; 10/\lambda_{\max},\; 6\big),
 \qquad \tau_0=\text{fast} \ \ldots\ \tau_5=\text{slow}. $$
 This continuous scale flow is the multiscale part — no fixed number of clusters or
-components is ever chosen (the contrast with PCA / spectral clustering; §8).
+components is ever chosen (the contrast with PCA / spectral clustering; §9).
 
 **Three ways we read the propagator** (this is the spine of the whole story):
 1. **Node-intrinsic** — each node summarised by its *own* diffusion (return
@@ -154,9 +160,13 @@ $$ \mathrm{AUC} = \frac{\#\{\text{SOZ}>\text{healthy}\} + \tfrac12\#\{\text{ties
 | 102 | is it a fluke? | label-shuffle null + nested LOPO | **null p=0.000; LOPO 0.716, heat selected 9/10** |
 | 103 | honest precision + candidate shortlists (off-shaft) | precision@k / lift | real but **concentrated** (cohort flat ~1.2×; responders ~2.2× via 3 pts) |
 | 104 | propagator+strength **compound** + calibrated P(SOZ) | off-shaft AUC / Brier | **switch** 0.716→0.750; P(SOZ) calibrated-at-top, modest |
+| 113 | off-shaft **few-seed** reconstruction curve | recall/AUC vs k | monotone k=2→5 AUC 0.66→0.72; triage, not full recovery |
+| 114/115 | recall + **growth** vs rank depth (off-shaft) | recall(N), depth-to-X% | responders ~50% recall by 15% depth; **precision ~9% at full recall** (rare target) |
+| 116 | **diffusion-only** detector, ALL held-out SOZ, **no coords** | AUC / prec@5 | δ 0.76 / β 0.71 / γ_l 0.70; beats strength (p≈.03) + shuffle (p≈.002) |
+| 117 | **cross-patient LOPO calibrated P(SOZ)** detector | LOPO AUC / prec@5 / Brier | **6-band logistic 0.81 / 60% / 0.080**; leak caught+fixed; GBM 0.86 rejected (overfit) |
 
-(Numbers verified against the raw CSVs in-session 2026-06-18 for audits 101–104 and
-the phase check; audits 80–95 are transcribed from their dated reports.)
+(Numbers verified against the raw CSVs in-session 2026-06-18/19 for audits 101–104 and
+113–117 + the phase check; audits 80–95 are transcribed from their dated reports.)
 
 ---
 
@@ -291,7 +301,7 @@ diffusion community** (the propagator works, strength is at chance). Pat_10 & Pa
 **SOZ = network hubs** (node strength predicts, the propagator anti-predicts —
 Pat_15 affinity 0.21 vs strength 0.93). This is the same split seen across the whole
 investigation, and it maps onto the literature's "hyperconnected hub vs isolated
-community" debate (§8).
+community" debate (§9).
 
 ### Few-seed reconstruction — "start with a few, rank the rest" (off-shaft, honest)
 
@@ -434,7 +444,100 @@ signal, not proof.)
 
 ---
 
-## 6. Honest scope (all the limitations, first-class)
+## 6. Act V — the cross-patient calibrated DETECTOR (the sellable tool, audit_116/117)
+
+**Why this act exists.** Acts III–IV scored the marker *off-shaft* — deleting every SOZ on
+a seed-bearing electrode to kill the proximity tautology. That was right for *isolating* the
+diffusion signal but **wrong as a detector**: (i) it leaves only ~4 distant targets per
+patient → no power, precision@k ~9%; (ii) a real detector must also find the **nearby** SOZ.
+The fix is **not** to add proximity back as a feature (a trivial bias) but to **keep all SOZ
+as targets while keeping coordinates out of the method entirely** — and let the |ImCoh|
+substrate guarantee proximity cannot sneak in (zero-lag coupling contributes nothing,
+Nolte 2004). This act is the deployable endpoint: *new patient + a few seeds →
+**P(SOZ)** for every contact.*
+
+**The detector.** For every non-seed contact, build a per-node feature vector **relative to
+the k seeds** from the propagator and its derivatives — multiscale heat-affinity
+$[e^{-\tau L}]_{\cdot,S}$ (fast/mid/slow τ), personalized PageRank, Katz, communicability,
+−commute/resistance distance, diffusion-distance; the relational contrasts
+**segregation** $=\mathrm{aff}(\cdot,S)-\mathrm{aff}(\cdot,\overline{S})$ (reference =
+non-seed nodes, **deploy-legal**) and **diffusion-share** to $S$; plus seed-free
+heat-return, slow-mode participation, and node strength. Stack these across **all six
+bands** (partly-independent information), z-score **within patient** (kills cross-patient
+FC-scale drift), and train an L2-logistic **leave-one-PATIENT-out**:
+$$ P(\mathrm{SOZ}\mid i) = \sigma\!\Big(b_0 + \textstyle\sum_f b_f\, z_f(i)\Big),
+\qquad \sigma(x)=\frac{1}{1+e^{-x}}. $$
+The held-out patient never trains the model. This is coordinate-free and strength-aware
+(strength is one feature, so hub-patients are handled in-model, not by a separate switch).
+
+**Result (canonical: 6-band, L2-logistic, k=3, LOPO, n=10):**
+
+| metric | value | reading |
+|---|---|---|
+| mean / median LOPO AUC | **0.81 / 0.87** | competitive with the interictal-network field (0.70–0.86) |
+| precision@5 | **60%** (chance ≈ 9%) | ~7× enrichment — 3 of the top-5 are real SOZ |
+| patients AUC > 0.5 | 9/10 | only hub Pat_10 dips (0.49) |
+| P(SOZ): true vs healthy | **0.38 vs 0.08** | calibrated, not just a ranking; Brier 0.080 |
+| label-shuffle null | **0.476** | permuted-label SOZ collapses to chance |
+| regularization | AUC 0.80–0.81 for C=0.03→1.0 | not an overfit of 78 features on 10 patients |
+
+**A leak caught and fixed (the process working).** The first draft scored AUC **0.97** — fake:
+the `segregation` feature referenced the *full SOZ label set* (unavailable at deploy time),
+smuggling the answer in (coef +7.5). Corrected so the reference is the **seeds only**; AUC
+dropped to the honest 0.81. **The shuffle-null landing at 0.48 is the certificate the leak is
+gone** (a leak would survive label permutation).
+
+**Model selection — why logistic, not the higher-AUC GBM.** A gradient-boosted model reaches
+**AUC 0.86** but (i) does **not** improve precision@5 (54% vs the logistic's 60% — the GBM's
+gain is recall), (ii) is nonlinear on n=10 (overfit-risk a referee will flag), and (iii)
+discards the **interpretability** that is the whole framework's selling point vs opaque PCA.
+The linear, regularization-stable, readable-coefficient logistic is the **reliable** choice.
+
+**Where the lift comes from (and an honest negative).** Within a single band, 13 propagator
+features do **no better than one** (δ: 0.76 either way) — the slow seed-affinity is the whole
+single-band signal. The jump to 0.81 / 60% is **cross-band fusion**, not feature-stacking; and
+adding seeds (k=5) did **not** help.
+
+**Precision is ceiling-bound — no filter rescues it.** The user's instinct ("remove false
+positives → precision jumps") was tested and **fails**, for an instructive reason:
+
+| lever | precision@5 | why |
+|---|---|---|
+| white-matter filter | **0.46 ↓** | **41% of true SOZ (53/129) are WM-labelled** — filtering deletes targets |
+| responder-gating | 0.58 | the failures are few; barely moves the mean |
+| confidence abstain (P≥0.6) | 0.62 | only by flagging 45 contacts cohort-wide, recall → 22% |
+
+Precision@top is bounded by **ranker AUC × target rarity (~5–11%)**. Pushing AUC 0.76→0.86
+moved precision@5 only 34%→~60%. **~60% is the data ceiling**; beyond it needs **more patients**
+(n=10 caps the cross-patient model) and **outcome labels** (so occult candidates stop counting
+as errors) — *acquisition, not analysis.*
+
+**Occult candidates — the deployment endpoint, regenerated under the clean detector.** Ranking
+every **unmarked** contact by P(SOZ) (gray-matter-filtered; the raw top is WM-contaminated)
+gives anatomically coherent leads — **none outcome-validated**:
+
+| patient | top unmarked candidate | P(SOZ) | read |
+|---|---|---|---|
+| Pat_06 | R **medial / lateral orbitofrontal** (L3 / J2) | 0.79 / 0.65 | echoes the β-trace OFC locus |
+| Pat_13 | **hippocampus** (B′5 / B′3) | 0.84 / 0.77 | classic occult mesial-temporal |
+| Pat_14 | **hippocampus / amygdala** (B′1 / B′4) | 0.78 / 0.54 | classic occult mesial-temporal |
+| Pat_08 | L superior-temporal (U3) | 0.60 | plausible temporal-plus |
+| Pat_03 | L lingual / cuneus (L1 / P1) | 0.997 / 0.95 | high P but atypical — **caution** |
+
+The hippocampus/amygdala leads (where occult mesial-temporal SOZ hides) and the medial-OFC
+lead (cross-consistent with the β-trace localisation) are the strongest. Because some of these
+"false positives" may be **true-but-unmarked** SOZ, the measured 60% precision is a **lower
+bound** — a point we state once and do not lean on (no resection/outcome exists to prove it).
+
+**What Act V is, in one line.** A coordinate-free, strength-aware, volume-conduction-immune,
+**cross-patient calibrated SOZ detector** — *seed-based triage* at AUC 0.81 / precision@5 60%,
+competitive with the field, interpretable, leak-checked — **not** a standalone clinical
+localiser. The honest sell is *a mechanism + a proof-of-concept triage tool whose ceiling to
+clinical grade is more patients and outcome validation.*
+
+---
+
+## 7. Honest scope (all the limitations, first-class)
 
 1. **n = 10**; responder subgroup 8; precision carried by 3. Power is thin.
 2. **No surgical-outcome ground truth** (no resection margin / Engel-ILAE). All metrics
@@ -450,7 +553,7 @@ signal, not proof.)
 
 ---
 
-## 7. Retraction ledger (what was withdrawn, and why — the process working)
+## 8. Retraction ledger (what was withdrawn, and why — the process working)
 
 | withdrawn | why | replaced by |
 |---|---|---|
@@ -467,7 +570,7 @@ The relational **community** finding (Act II, audit_89/90) and the δ off-shaft
 
 ---
 
-## 8. Discussion — positioning in the multiscale-Laplacian programme
+## 9. Discussion — positioning in the multiscale-Laplacian programme
 
 **The unification (the sellable core).** The *same* density operator ρ̂(τ)=e^{−τL̂}/Z
 that organises the cross-phase **β trace** (its multiscale cophenetic structure) also,
@@ -506,11 +609,15 @@ having to *control for* degree/strength (Doss pins the hyperconnected-vs-sink di
 on "measuring strength vs counting connections"; Shah 2019 needs a spatial null). Our
 read is **strength-orthogonal by construction, proximity-free, null-verified, and
 phase-stable** — the cleanest available answer to the confound the field keeps fighting.
-**Our AUC 0.72 sits at the lower edge of the field's 0.70–0.86 band.**
+**The isolated off-shaft marker sits at the lower edge (AUC 0.72); the deployable
+cross-patient detector (Act V, 6-band LOPO) reaches AUC 0.81 / precision@5 60% — mid-band
+of the field's 0.70–0.86 — while staying strength-orthogonal and coordinate-free.** The
+honest gap to the field's *top* numbers is that theirs are **outcome-validated** (Engel/ILAE)
+and we have only **clinical SOZ labels** + n=10.
 
 ---
 
-## 9. Literature to attach to and cite
+## 10. Literature to attach to and cite
 
 > **Provenance.** Papers and reported effect sizes are carried from the
 > deep-research-verified positioning report
@@ -568,7 +675,7 @@ phase-stable** — the cleanest available answer to the confound the field keeps
 > SOZ**. Run a **dedicated negative search** for "communicability / heat-kernel /
 > random-walk diffusion + SOZ/epilepsy" before asserting priority.
 
-## 10. Open questions / highest-value next steps
+## 11. Open questions / highest-value next steps
 
 1. **Make "more principled than PCA" a demonstration.** Run a Doss-style
    PCA-on-connectivity (and a fixed-k spectral-clustering comparator) for SOZ separation
@@ -602,9 +709,23 @@ phase-stable** — the cleanest available answer to the confound the field keeps
 - **Few-seed reconstruction (off-shaft):** `audit_113_epi_fewseed_offshaft.py` →
   `data/audit/epi_marker_fewseed/` (δ, k=2/3/5, strength-residual, 300 draws,
   seed 20260618; computed 2026-06-18).
+- **Recall + growth curves (off-shaft):** `audit_114_epi_recall_curve.py` →
+  `data/audit/epi_marker_recall/`; `audit_115_epi_recall_growth_curve.py` →
+  `data/audit/epi_marker_recall_growth/` (recall(N), depth-to-X%; computed 2026-06-19).
+- **Act V detector:** `audit_116_epi_combined_detector.py` →
+  `data/audit/epi_combined_detector/` (diffusion-only, all-SOZ, no coords, per-band);
+  `audit_117_epi_propagator_detector.py` → `data/audit/epi_propagator_detector/`
+  (cross-patient LOPO calibrated P(SOZ); canonical = 6-band L2-logistic, k=3, seed
+  20260619; `detector_node_predictions.csv`, `occult_candidates_graymatter.csv`;
+  computed 2026-06-19; **leak caught + fixed**, shuffle-null 0.48 certifies clean).
 - **Figures:** `scripts/02_preprint/preprint_36/39/40_*.py` →
-  `data/preprint/figures/all_bands/fig_epi_*.pdf`.
+  `data/preprint/figures/all_bands/fig_epi_*.pdf` (Act V figure TODO).
 - **Literature:** `.agents/reports/2026-06-11_epi-soz-marker-literature-positioning.md`.
 - **Honesty lessons:** node-intrinsic = strength + depth; proximity is a labelling
   tautology (evaluate off-shaft); cohort-median AUC/lift can lie (check per-patient);
-  switch ≠ blend; matched-strength is the mandatory null at every layer.
+  switch ≠ blend; matched-strength is the mandatory null at every layer; **a detector
+  must score ALL SOZ (off-shaft is for isolation, not deployment); keep proximity OUT of
+  the method but nearby SOZ IN as targets; a deploy-illegal reference set is a label-leak
+  (shuffle-null is the detector); precision@top is rarity×AUC-bound — no filter beats it,
+  WM can't be excluded (41% of SOZ are WM); prefer interpretable-logistic over higher-AUC
+  GBM on n=10.**
