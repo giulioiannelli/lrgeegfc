@@ -87,6 +87,15 @@ the *duration-clean* verdict, not an artifact of the longer test recording.
 **Scale-robust (τ-sweep `audit_103c`, 2026-06-22):** β `T_infspec·e` stays positive
 and observed-significant across τ ∈ [1,10]×(1/λ_max) and the α/β dissociation holds
 at every diffusion time — the decomposition is not an artifact of the finest scale.
+**Mesoscale verified (`audit_103d`, 2026-06-22):** the sweep's mild coarse-scale bump
+is real — β `T_infspec·e` clears the **matched-strength null at the mesoscale**
+(τ≈2.6 p=0.014, τ≈6.8 p=0.010, LO-P15 robust), with effect size *modestly larger*
+than fine-scale (obs−null gap +0.11→+0.15), **while every control band (α, δ, θ,
+low-γ, high-γ) stays null** at the mesoscale — so it is not coarse-graining geometry
+(δ did *not* false-positive, unlike the retired truncation null). Reading:
+inference-specific consolidation is **multiscale, mildly favouring the mesoscale** —
+the scale signature of integration over multi-step relational paths. *(Mesoscale-
+robust, not mesoscale-exclusive; significance comparable across scales.)*
 
 **N2.3 — Content localizes differently.** Feeding the localizer the encoding vs
 inference per-pair vectors (`audit_110`, β at R=1000): **standard/encoding →
@@ -260,5 +269,8 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   surfaced not recomputed. Report `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
 - **No anatomical home for inference** — cingulate is a directional hint; whether a
   cleaner localizer recovers one is open. (The **τ-sweep** ran 2026-06-22: the
-  decomposition is scale-robust; a mild mesoscale hint for β inference exists but
-  needs a surrogate null at the peak τ before it can be claimed — a clean follow-up.)
+  decomposition is scale-robust.)
+- ~~**Mesoscale hint for β inference**~~ **VERIFIED 2026-06-22 (`audit_103d`, N2.2):**
+  the mesoscale bump clears the matched-strength null (τ≈2.6 p=0.014, τ≈6.8 p=0.010,
+  LO-P15; controls all null) → inference-specific consolidation is multiscale, mildly
+  mesoscale-favouring. Report `.agents/reports/2026-06-22_arc-mesoscale-inference-null.md`.

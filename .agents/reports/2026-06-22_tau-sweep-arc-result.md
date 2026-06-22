@@ -51,12 +51,15 @@ spectral-extreme artifact.
 - **Encoding echo `T_learn` is scale-robust too** — positive and mostly significant
   for α, β (and δ at larger τ) across the window; duration-immune at every τ by
   construction (no `task_test` term).
-- **A mild mesoscale hint (not a claim).** β inference shows shallow local maxima at
-  τ ≈ 2.6 (+0.145) and τ ≈ 6.8 (+0.153) — slightly above the fine-scale +0.122. This
-  is *consistent with* inference being integration over multi-step relational paths
-  (which slower diffusion captures), but it is a small, observed-only bump.
-  **Asserting a τ ≠ 1 peak as a result requires the matched-strength surrogate at
-  that τ** — deferred; not claimed here.
+- **A mesoscale bump — now VERIFIED (`audit_103d`, 2026-06-22).** β inference shows
+  shallow local maxima at τ ≈ 2.6 (+0.145) and τ ≈ 6.8 (+0.153) — above the
+  fine-scale +0.122. This observed-only bump was deferred to the mandatory referee;
+  that referee has now run: β `T_infspec·e` **clears the matched-strength null at the
+  mesoscale** (τ≈2.6 p=0.014, τ≈6.8 p=0.010, LO-P15 robust), effect size modestly
+  larger than fine-scale, **while every control band stays null** (δ did not
+  false-positive). So inference-specific consolidation is multiscale, mildly
+  mesoscale-favouring — *consistent with* integration over multi-step relational
+  paths. Result `.agents/reports/2026-06-22_arc-mesoscale-inference-null.md`.
 
 ## Why it matters
 
