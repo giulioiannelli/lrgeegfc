@@ -18,7 +18,11 @@ updated: 2026-06-22
 ## §A — Result in plain language
 
 The same lens that finds the cognitive trace also finds the **seizure-onset zone
-(SOZ)**. The honest arc, in one breath:
+(SOZ)**. For a neuroscience (not engineering) audience, **lead with the finding,
+not the detector**: epileptogenic tissue is **not identifiable node-by-node** — it
+is organized **relationally**, as a strength-independent, spatially-irreducible
+**diffusion community**. That is the brain-organization claim; the calibrated
+detector below is its *application*. The honest arc, in one breath:
 
 - A **node-by-node** "is this contact epileptic?" marker **does not exist** beyond
   trivial confounds (within a patient it reduces to hubness + electrode depth;

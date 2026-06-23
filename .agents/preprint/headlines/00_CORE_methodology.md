@@ -103,6 +103,31 @@ important multiscale information is only disentangled by tracing **per-pair path
 through the propagator**. This is the methodological reason the paper exists, and
 it is the cited justification inside N1 (β both probes) and the framing of N2/N3.
 
+**Head-to-head confirmation — the external baseline (`audit_143`, 2026-06-22).**
+To meet the obvious referee demand (*"run an actual spectral-clustering / PCA
+baseline"*), we put a literal **leading-k spectral embedding** (the NJW-normalized
+representation k-means clusters) through the **same `ρ_split` statistic** as the
+cophenetic distance — swapping *only* the per-pair distance (cophenetic = all N−1
+scales; embedding = leading-k modes; with raw-FC and single-τ diffusion arms).
+Cophenetic reproduced its locked α/β `ρ_split` per-patient **bit-exact** (the
+correctness gate). Findings, honest limit first:
+- **β is a tie** — the leading-k embedding recovers β as well as cophenetic; the
+  method-superiority claim is **never** made on β magnitude.
+- **α is cophenetic-only across *both* spectral read-outs** — *neither* the per-pair
+  embedding *nor* the subspace Grassmann recovers α, while the full multiscale
+  cophenetic does (BH-clears within band). A standard spectral-clustering / PCA
+  analysis would **not see the α trace at all** — the sharpest single proof the
+  multiscale step is necessary.
+- **Selectivity is the cleaner edge** — cophenetic fires on *exactly* the two signal
+  bands (α, β); the spectral read-outs either miss α (Grassmann) or **over-detect
+  into the null band** (the embedding fires on θ, where cophenetic and Grassmann are
+  both null) — so the team's Grassmann is itself a *better-behaved* spectral
+  baseline than the textbook embedding. A diffusion-τ arm localizes the advantage in
+  the **multiscale UPGMA aggregation**, not the heat kernel: single-τ diffusion gets
+  α only weakly and leaks into γ_low; UPGMA sharpens α *and* adds the selectivity —
+  so it is *multiscale*, not *diffusion*, doing the work.
+  Numbers: `data/audit/spectral_distance_swap/cohort_summary.csv`.
+
 **Claim 2 — Band resolution, not amplification.** A three-layer contrast (raw FC
 → raw `D(τ_max)` → cophenet `ρ^coph`) shows raw FC already "detects" change in
 essentially every band at 6–8/10 cohort agreement; the cophenet/multiscale wrap
@@ -122,6 +147,15 @@ method, not just a caveat.
   It must be defended as adequate (on-manifold CRC cross-check reproduces it;
   `crc_onmanifold_surrogate_2026_06_10`). The **null-model design is the live
   topic** of the preprint-general-questioning chat — keep it there.
+- **Whole-brain concordance is corruptible; the demeaned per-system read-out is
+  not** (lesson from N2.5, 2026-06-22). A contiguous-window *truncation* null
+  injected a common-mode structural shift that an **un-demeaned** whole-brain
+  concordance read as fake signal (it false-positived a dead-null band, δ); the
+  **per-patient demeaned** read-out was immune — which is why the demeaned
+  localization null stayed clean while the truncation arc-null did not. Reusable
+  rule: prefer demeaned per-unit read-outs + artifact-free controls (e.g. a
+  length-ratio regression) over un-demeaned global concordance whenever a null
+  perturbs global structure. Worth one Methods sentence.
 - **Grassmann is an anchor-flavored, phase-quantity in some uses** — be careful
   the global probe is a genuine *cross-phase* trace, not a phase-averaged anchor
   (this conflation caused an anatomy retraction). State exactly which Grassmann
@@ -133,9 +167,11 @@ method, not just a caveat.
 
 ## §D — To-dos & verifiables (owner: preprint-general-questioning / null model)
 
-- [ ] Write the **non-redundancy argument** as a standalone Methods-Results
-  paragraph: tabulate (in the CSV, cite here) the band × probe dissociation and
-  state the "global-spectral misses α / misreads γ_low,δ" conclusion explicitly.
+- [x] **(DONE 2026-06-22, `audit_143`)** Non-redundancy argument written into
+  Claim 1: the internal band × probe dissociation **plus** the external leading-k
+  spectral-embedding head-to-head (α cophenetic-only across both spectral read-outs;
+  selectivity; β tie stated honestly). Drive any panel from
+  `data/audit/spectral_distance_swap/cohort_summary.csv`, not hardcoded.
 - [ ] **Defend the matched-strength null** against the obvious referee attacks
   (degree-preservation sufficiency; independence per phase vs coordinated
   cross-phase — the audit_63 coordinated-null gap is open).
@@ -143,9 +179,10 @@ method, not just a caveat.
   outlier/layer-driven? Resolve before any θ statement.
 - [ ] **τ-robustness** writeup from `audit_121` (fine-scale, collapse-artifact at
   coarse τ); decide if it's a Methods figure or supplement.
-- [ ] Explicit **interpretability contrast** vs PCA/spectral-clustering: a worked
-  example where the global modes look unchanged but ρ^coph localizes a real
-  per-pair reorganization (α is the natural candidate).
+- [~] Explicit **interpretability contrast** vs PCA/spectral-clustering — the
+  *significance* half is **DONE** (`audit_143` α head-to-head); the *localization*
+  vignette still open: a worked example where the global modes look unchanged but
+  ρ^coph localizes the α reorganization to a region (α is the natural candidate).
 
 ## §E — Figure / representation ideas
 
@@ -158,6 +195,11 @@ method, not just a caveat.
 - **Three-layer band-resolution** strip (raw FC → raw D(τ) → cophenet) showing
   the selective demotion.
 - A **global-modes-look-the-same-but-per-pair-moved** α vignette.
+- **Three-way head-to-head** (`audit_143`): cophenetic vs leading-k spectral
+  embedding vs Grassmann, per band — α caught by cophenetic *only*; the selectivity
+  contrast (cophenetic = α,β only; embedding leaks into θ). Drive from
+  `spectral_distance_swap/cohort_summary.csv`. A strong companion to the dissociation
+  matrix — it answers "did you compare to actual spectral clustering?" in one panel.
 - Do **not** make a C4 cross-probe figure; **do** keep C5 X-epi panels (README §5).
 
 ## §F — Provenance (CSV · script · timestamp)
@@ -180,11 +222,21 @@ method, not just a caveat.
 - τ-robustness → `audit_121_tau_sweep_cophenetic_trace.py` · 2026-06-22 (+ figure
   `audit_121b_tau_sweep_figure.py`); memory `tau_sensitivity_trace_2026_06_22`.
 - Null adequacy cross-check → `crc_onmanifold_surrogate_2026_06_10` (audit_96/97).
+- **Spectral head-to-head (external baseline, non-redundancy)** →
+  `data/audit/spectral_distance_swap/cohort_summary.csv` ·
+  `audit_143_spectral_distance_swap_headtohead.py` · 2026-06-22 (cophenetic vs
+  leading-k embedding vs raw-FC vs single-τ diffusion, all on the same `ρ_split`;
+  cophenetic arm reproduces audit_63 α/β per-patient bit-exact). Precursor
+  `audit_141_spectral_clustering_headtohead.py` (v1, triangle+ARI/NMI — superseded:
+  wrong statistic).
 
 ## §G — Missing parts / open
 
 - The **coordinated cross-phase null** (audit_63 gap) — matched-strength is
   per-phase independent; a referee may ask for a jointly-coordinated null.
-- A crisp, citable **PCA/spectral-clustering baseline** run on the same data, to
-  make Claim 1 a head-to-head rather than an argument from the probe dissociation
-  alone.
+- ~~A crisp, citable PCA/spectral-clustering baseline run on the same data~~
+  **DONE 2026-06-22 (`audit_143`)** — the leading-k spectral-embedding head-to-head
+  closes this: α is cophenetic-only across *both* spectral read-outs (embedding +
+  Grassmann), β is a tie, and selectivity is the edge. What remains open is only the
+  **interpretability/localization vignette** (§D) — showing the global modes look
+  unchanged while ρ^coph localizes the α reorganization to a region.

@@ -1,22 +1,59 @@
 ---
 name: headline-n4-replay-states
 era: IMCOH_ABS_COHORT_N10
-status: scoped_not_executed
+status: executed_not_supported
 kind: headline
-scope: N4 (★ the paper's central idea) — the task-state RE-ENTERS rest as transient, recurring multiscale-multiband reorganization "states" (replay/reinstatement). Identifiable specifically because the LRG characterizes them as multiscale + multiband patterns. Dynamic complement to N1's static trace. Infra exists; NOT yet executed.
+scope: N4 — EXECUTED + ARCHIVED 2026-06-22 (audit_124–140). Transient/bursty replay STATES = rigorous cohort NEGATIVE across 5 distinct LRG-PROPAGATOR representations (cophenetic, magnetic/directional, raw, subspace, normalized) × all diffusion scales × all targets × OFC carrier, and FORECLOSED by an upstream measurement floor (α/β need ≥10 s windows > replay-event length). Directional-flow candidate RETRACTED (magnitude-inherited, audit_140). What survives = SUSTAINED reinstatement (rest_post DWELLS in the task ρ^coph config, 10/10 p=0.001) = N1 dynamically, now multi-representation + SCALE-INVARIANT. PI accepted foreclosure + archived N4 (folds into N1; paper drops to 3 content headlines N1–N3 + methods core).
 owner_agent: dynamic-FC / replay agent (new) + null-model chat
 canonical_scope: .agents/guides/task-persistence-investigation/2026-06-22_replay-states-multiscale-reinstatement.md
+verdict: .agents/reports/2026-06-22_replay-states-verification.md
 updated: 2026-06-22
 ---
 
-# N4 ★ — Replay states: the task configuration transiently re-enters rest as recurring multiscale-multiband reorganization
+# N4 — Conditional extension: does the reinstatement ALSO occur as transient bursts?
 
-> **This is the paper's central idea** (PI, 2026-06-22). N1 establishes the
-> *static, phase-averaged* task signature; N4 asks whether that signature recurs
-> as discrete *states* in time-resolved rest. **STATUS: scoped, infra exists, NOT
-> yet executed.** No results below are claimed — this file crystallizes the
-> headline and points to the execution+verification brief (canonical scope, see
-> frontmatter). Everything here is hypothesis + plan.
+> **⛔ EXECUTED 2026-06-22 — transient replay states NOT SUPPORTED.** Verdict ledger:
+> `.agents/reports/2026-06-22_replay-states-verification.md` (audit_124–132). The
+> §A–§G text below is the ORIGINAL plan/idea, **preserved untouched** for the PI's
+> later structure decision (fold into N1 vs standalone rewrite); it is **no longer the
+> live claim**. What the data actually show:
+>
+> - **Transient / bursty replay STATES = rigorous cohort NEGATIVE.** No burstiness,
+>   no separable states, no isolated flashes — at 20 s (α/β), at 2 s (low *and* high
+>   γ), or restricted to OFC. Every make-or-break detector (AC1 vs time-shuffle,
+>   k-means, shift-decomposition, excess-flash) misses. The only flicker is high-γ
+>   excess-flash (8/10, p=0.065, sub-threshold, looks like vigilance drift).
+> - **SUSTAINED reinstatement = strongly POSITIVE.** rest_post *dwells* in the task
+>   ρ^coph configuration window-by-window: **10/10, p=0.001** — the brain *holds* the
+>   task state, it does not *flash* it. This is **N1 expressed dynamically**, not a
+>   new independent result (the "tighter attractor" excess over N1 is only p=0.08).
+> - **It has the trace's anatomy** (B1): OFC is the #1 β system for the dwelling in
+>   both epi modes (epi-excl 4/5, p=0.094) — directionally consistent with the static
+>   OFC trace carrier, but **underpowered** (OFC implanted in only K=5).
+> - **Timescale physics (refined 2026-06-23, audit_141):** the ≥10 s floor is **α/β-only**.
+>   High γ is feasible to **0.2 s** — the actual ripple-replay timescale — and was swept
+>   L=0.2→2 s (PI pushback): **still no replay state** (burst null, target-non-specific; the
+>   2 s flash hint did NOT sharpen toward the ripple scale — noise shape). The honest floor
+>   is "0.2 s for high-γ connectivity," and the whole resolvable sub-second range tested
+>   clean-negative. Only a single ~100 ms ripple sits below the *coherence* floor itself
+>   (unmeasurable by ANY connectivity method). γ is not a trace band regardless.
+>
+> - **PROPAGATOR-PORTFOLIO FORECLOSURE (audit_133–140, PI "don't stop until found
+>   within a Laplacian-propagator approach").** 5 genuinely-distinct propagator
+>   representations — combinatorial-cophenetic, **magnetic/directional `D̄−iA`**, **raw
+>   propagator `1/ρ̂` (no dendrogram)**, **subspace/Grassmann**, **normalized
+>   `I−D⁻½WD⁻½`** — each with time-shuffle + node-permuted-placebo gates, across every
+>   diffusion scale: **transient ✗ in all five; sustained ✓ in all five** (the hold is
+>   now multi-representation + SCALE-INVARIANT). The directional-flow candidate was
+>   **retracted** under a magnitude-matched control (audit_140: excess-beyond-|A| p=0.138).
+>   The block is UPSTREAM of every propagator (the ≥10 s α/β window floor), so a transient
+>   α/β replay state is **not findable by any propagator-based method** — a principled
+>   foreclosure, not a try-harder. (Last unrun lead, Hodge curl, sits behind the same
+>   floor; PI accepted the foreclosure rather than spend it.)
+>
+> **Bottom line:** the reinstatement is a *sustained, scale-invariant state* the brain
+> *holds*, not a *replay process*. N4 archived; folds into N1. The paper does not depend
+> on transient bursts.
 
 ## §A — The idea, in plain language
 

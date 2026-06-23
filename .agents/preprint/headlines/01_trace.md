@@ -5,10 +5,10 @@ status: current
 kind: headline
 scope: N1 — the band-specific, multiscale persistence trace left by a transitive-inference task in post-task rest; β on both probes; over-expressed in OFC; carried by healthy gray-matter cortical coupling; emergent (not raw-strength); invisible to edge-wise comparison.
 owner_agent: localization + white-matter + preprint-general-questioning(null)
-updated: 2026-06-22
+updated: 2026-06-23
 ---
 
-# N1 — A transitive-inference task leaves a multiscale connectivity trace that persists into rest, peaks in β, and over-expresses in orbitofrontal cortex
+# N1 — A transitive-inference task leaves a multiscale connectivity trace that persists into rest as a sustained state the brain holds, peaks in β, and over-expresses in orbitofrontal cortex
 
 > Emerges from CORE. Numbers live in cached CSVs (§F). Raw FC is the baseline,
 > never the result.
@@ -33,7 +33,10 @@ Three things make this a real result rather than a measurement artifact:
    level of raw connectivity, β is actually the *weakest* band; the clean
    persistence only appears once we read the multiscale hierarchy, and it
    **survives the strength-matched surrogate** — so it is not just "the strong
-   edges moved around." Plain edge-by-edge comparison would miss it.
+   edges moved around." Plain edge-by-edge comparison would miss it — **and so
+   would an off-the-shelf spectral-clustering / PCA pipeline.** The α companion of
+   the trace is the cleanest proof: it is recovered by the full multiscale read-out
+   *only*, invisible to the leading-mode spectral view however you read it (N1.2b).
 
 3. **It has an address and a tissue type.** The persistent β reorganization is
    brain-wide but **over-expresses in orbitofrontal cortex (OFC)** — a hub for
@@ -44,9 +47,23 @@ Three things make this a real result rather than a measurement artifact:
    band-dependent** — β *spares* the diseased core while α *recruits* it (N1.6) —
    the bridge from this cognitive trace to the epileptogenic read-out (N3).
 
+4. **It is a state the brain *holds*, not a fading echo.** Watching rest unfold in
+   time (20 s windows), the post-task rest does not merely drift near the task
+   pattern on average — it **dwells** there, window after window (**10/10 patients,
+   p=0.001**), at *every* scale of the hierarchy. We tested hard for the opposite —
+   that the trace flashes back in brief, replay-like *bursts* — across every
+   representation, scale, band, and timescale down to the ripple range; there are
+   **no bursts**. So the trace is a **sustained reinstatement** the brain settles
+   into and holds offline, not a transient replay process (N1.7).
+
 **Why it matters:** an offline, multiscale, cortical trace of a reasoning task,
-sitting in the β band and the orbitofrontal map system — a candidate signature of
-**memory/inference consolidation** read directly from intracranial connectivity.
+sitting in the β band and the orbitofrontal map system, that the resting brain
+**actively holds as a state** — the resting network does **not** return to where it
+started (a non-ergodic, held reorganization), read directly from intracranial
+connectivity. **This sets up the flagship (N2):** N1 establishes that the brain
+*holds a structure offline* and that our method can *see* it; **N2 asks what that
+held structure *is* — and finds it is an abstraction: the relations the brain
+reasoned out, not just the pairs it saw.**
 
 ## §B — Technical statement (per subheadline; reference CSVs, no tables)
 
@@ -62,6 +79,19 @@ and **α** (cophenet-only). On the global-mode Grassmann probe, **β** also pass
 contrast (raw FC → raw `D(τ_max)` → cophenet) shows β is the *weakest* band at
 raw FC yet clears matched-strength at the cophenet layer — the multiscale wrap
 resolves it. The matched-strength pass rules out a degree-reorganization account.
+
+**N1.2b — Invisible to spectral clustering / PCA, not just edge-wise (the α proof).**
+A head-to-head (`audit_143`) puts a literal **leading-k spectral embedding** (the
+representation k-means clusters) and the subspace Grassmann through the **same
+`ρ_split` statistic** as cophenetic, swapping only the per-pair distance (the
+cophenetic arm reproduces the locked α/β `ρ_split` bit-exact). **α is recovered by
+the full multiscale cophenetic distance alone** — *both* spectral read-outs (per-pair
+embedding *and* subspace Grassmann) miss it — so a standard spectral-clustering / PCA
+analysis would not see the α trace at all. Cophenetic is also uniquely **selective**:
+it fires on exactly the two signal bands (α, β) while the textbook embedding
+over-detects into the null band (θ). *(Honest limit: **β is a tie** — the leading-k
+embedding recovers β as well, so the spectral-superiority claim rests on α +
+selectivity, never on β.)* Numbers: `data/audit/spectral_distance_swap/cohort_summary.csv`.
 
 **N1.3 — Concentrates in orbitofrontal cortex.** The brain-wide β cophenet trace
 concentrates, **above each patient's own demeaned baseline**, in the OFC system
@@ -101,6 +131,26 @@ diseased tissue while the diffuse memory band (α) pulls it in: the cognitive tr
 and the epileptogenic network are **not independent**. Present this as the bridge,
 not an aside. *(Verification brief: `verification/verify_beta_spares_alpha_recruits.md`.)*
 
+**N1.7 — The trace is a SUSTAINED STATE the brain holds (dynamical reinstatement),
+not a transient replay.** Resolving rest into 20 s windows, the per-window task-
+likeness contrast `g = ρ^coph(window, task) − ρ^coph(window, rest_pre)` is higher in
+post-task rest than in pre-task rest across the cohort (**10/10, p=0.001, LOO 0.002**;
+`audit_125`/`audit_129`) — i.e. N1 expressed *dynamically*: rest_post **dwells** in
+the task configuration. The hold is **scale-invariant and representation-invariant**:
+the per-window level is positive at every diffusion scale τ and in **five distinct
+Laplacian-propagator read-outs** — cophenetic, magnetic/directional, raw propagator,
+subspace/Grassmann, normalized (`audit_133`–`139`, shift +8–10/10, p≤0.007 throughout).
+The complementary **transient/replay** reading is a *rigorous cohort negative*: no
+burstiness, no separable states, no isolated flashes, no sequence — across every
+collapsed axis (scale, target, per-pair/OFC), every band, and the whole resolvable
+timescale from 20 s down to the **high-γ coherence floor at ~0.2 s** (the ripple
+regime; `audit_124`–`141`), each gated by a time-shuffle + node-permuted-placebo null.
+So the reinstatement is a *held state*, not a flashing process. **Inherits N1's
+matched-strength** (it is the same `ρ^coph` effect at finer temporal resolution, not a
+new FC quantity); a dedicated window-level matched-strength is the one optional control
+to make N1.7 fully standalone (§D). The directional-flow variant was tested and
+**retracted** (magnitude-inherited, `audit_140`).
+
 ## §C — Critical issues & powerful strengths
 
 **Airtight:** band-specificity; matched-strength pass on both probes (β);
@@ -117,6 +167,12 @@ shaft-collapse + R=1000 + LOO; volume-conduction-immune substrate; τ-robust.
   only. This reference-phase choice must be justified (see §G); it is the bridge
   to N2.
 - **θ is not simply "anti-trace"** — characterize, don't assert (README §5).
+- **N1.7 sustained-state framing**: the *level* (rest_post dwells in the task config)
+  is essentially N1 dynamically — its strength is robustness (5 representations, all
+  scales) + the clean transient-negative boundary, **not** a new independent effect.
+  The genuinely-beyond-static-N1 piece ("rest_post is a *tighter* attractor than
+  rest_pre") is only a weak trend (A2b p=0.08) — do **not** claim "tighter," claim
+  "held." Window-level matched-strength not yet run (inherits the static C3); see §D.
 
 ## §D — To-dos & verifiables
 
@@ -129,6 +185,9 @@ shaft-collapse + R=1000 + LOO; volume-conduction-immune substrate; τ-robust.
 - [ ] **(`task_learn` gap)** does `rest_pre → task_learn → rest_post` leave its
   own β trace, and does it localize to OFC too? Decide whether N1's "task" should
   be test-only, learn-only, or both — coordinate with N2.
+- [ ] **(N1.7 optional bulletproof)** window-level matched-strength surrogate on the
+  per-window `g` (make the sustained-state claim standalone, not inheriting C3).
+  Cheap; only needed if a referee treats N1.7 as independent of static N1.
 
 ## §E — Figure / representation ideas
 
@@ -162,14 +221,20 @@ shaft-collapse + R=1000 + LOO; volume-conduction-immune substrate; τ-robust.
   · 2026-06-08…12.
 - τ-robustness → `audit_121_tau_sweep_cophenetic_trace.py` · 2026-06-22; memory
   `tau_sensitivity_trace_2026_06_22`.
+- Spectral head-to-head (N1.2b: α cophenetic-only; selectivity; β tie) →
+  `data/audit/spectral_distance_swap/cohort_summary.csv` ·
+  `audit_143_spectral_distance_swap_headtohead.py` · 2026-06-22.
+- N1.7 sustained reinstatement (dynamical trace; held-not-flashed) →
+  `data/audit/replay_states/{sustained_reinstatement_cohort,cohort_verdict,
+  tau_resolved_cohort,directional_cohort,raw_propagator_cohort,subspace_cohort,
+  normlap_cohort,subsecond_gamma_cohort}.csv` · `audit_124`–`141` · 2026-06-22/23.
+  Full verdict ledger: `.agents/reports/2026-06-22_replay-states-verification.md`.
+  Transient-replay investigation CLOSED (negative); sustained = the headline finding.
 
 ## §G — Missing parts / open
 
 - **`task_learn`** as a trace probe in its own right (above) — the single
   biggest under-explored dimension of N1.
-- The **dynamic complement** — does this static signature recur as transient
-  *states* in time-resolved rest? — is now headline **N4 (replay states)**; N1
-  establishes the multiscale-multiband signature N4 searches for.
 - **No behavioral anchor exists** — TI performance data is unavailable and will
   not be obtained (PI 2026-06-22); the "consolidation" framing rests on the
   task-phase decomposition (N2) + anatomy + literature, never a performance

@@ -34,16 +34,17 @@ and **what to return**. No brief is run in the crystallization chat.
   epileptogenic community fragment the network beyond a matched node-removal null?
   *(New; mechanistic validation of N3.)* Owner: epi-marker-trace-analysis.
 - **`verify_stage2_arc_duration.md`** — gates N2's inference component: does the
-  whole-brain inference-specific arc survive a length-matched null? *(audit_103b is
-  live.)* Owner: inference chat.
+  whole-brain inference-specific arc survive a length-matched null? *(RESOLVED
+  2026-06-22 — truncation null found invalid & retired; β arc duration-robust via
+  length-ratio regression + full-length matched-strength.)* Owner: inference chat.
 - **`verify_seedfree_epi_and_rigidity.md`** — N3.3 + a candidate sub-result: can
   the SOZ community be found seed-free, and is epileptic routing rigid across
   phases? *(audit_118/119/120/121 live.)* Owner: epi-marker-trace-analysis.
 
-**Replay (N4)** has its execution+verification brief at the canonical task-trace
-scope location:
-`../../../guides/task-persistence-investigation/2026-06-22_replay-states-multiscale-reinstatement.md`
-(task-trace tooling scope lives there by project rule).
+*(Replay (former N4) removed from the paper 2026-06-22 — bursty test cohort-negative;
+its scope/brief is kept as a restore point at
+`../../../guides/task-persistence-investigation/2026-06-22_replay-states-multiscale-reinstatement.md`,
+not an active investigation.)*
 
 ## Two standing rules for every brief
 

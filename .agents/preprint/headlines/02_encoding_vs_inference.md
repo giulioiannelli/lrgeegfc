@@ -3,67 +3,100 @@ name: headline-n2-encoding-vs-inference
 era: IMCOH_ABS_COHORT_N10
 status: current
 kind: headline
-scope: N2 — what the persistence is ABOUT. The four-phase design (rest→LEARN→TEST→rest) and task_learn as the encoding reference let the trace be decomposed into memory encoding vs relational inference, separating by frequency and cortical territory. Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect.
+scope: N2 — THE FLAGSHIP. What the held structure (N1) IS: an offline abstraction of a learned structure — the brain keeps the relations it INFERRED, not just the pairs it saw. The four-phase design (rest→LEARN→TEST→rest) + task_learn as encoding reference decompose the trace into encoding vs inference; the inference-specific component persists (β-only), favours the mesoscale of multi-step integration, and anchors in the OFC cognitive map. Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect. Reframed to flagship 2026-06-23.
 owner_agent: inference (consolidation arc) chat
-updated: 2026-06-22
+updated: 2026-06-23
 ---
 
-# N2 — The persistent trace decomposes into cognitive content: memory *encoding* vs relational *inference*, separating by frequency and cortical territory
+# N2 — Offline abstraction of a learned structure: the persistent trace carries the relations the brain *inferred*, not just the pairs it was shown
 
-> Emerges from N1: once we know a trace persists, we ask *what it is a trace of*.
-> The four-phase design — and `task_learn`, which N1 ignored — is what makes the
-> decomposition possible. Numbers in cached CSVs (§F).
+> **The flagship.** N1 showed the resting brain *holds* a reorganization offline;
+> N2 shows *what it is holding* — not a replay of the premises it saw, but the
+> relational structure it had to *compute*. The four-phase design
+> (rest→LEARN→TEST→rest) and `task_learn` as the encoding reference are what make
+> the "seen vs figured-out" split possible. Numbers in cached CSVs (§F).
 
 ## §A — Result in plain language
 
-The task has four recordings: **rest → learn → test → rest**. In **learning** the
-patient is *shown* premise pairs (this is **encoding**). In **testing** the
-patient is given novel pairs and must *work out* the answer (this is
-**inference**). N1 measured persistence using the test phase only; N2 uses
-**both** task phases, and that is the whole point — `task_learn` is the reference
-that lets us subtract "what was merely seen" from "what was figured out."
+**The claim — and its ceiling, first.** After reasoning through a transitive-
+inference task, the resting brain keeps a reorganization that is **specific to the
+relations the patient had to *work out*** — over and above what it keeps from merely
+being *shown* the premise pairs. We read this as an **offline signature of
+abstracting a learned structure**: the brain consolidates the *inferred order*, not
+just the *seen pairs*. **Ceiling, up front:** this is a signature of
+inference-*specific reorganization that persists*; there is **no behavioral data**
+(TI performance is unavailable and will not be obtained — PI 2026-06-22), so the
+claim can **never** be tied to inference *success*, and the inferred relations have
+**no pinned-down anatomical home** (cingulate is a directional hint only).
+"Abstraction" is an **interpretation** of a persistence result — licensed by the task
+structure and the anatomy, not a decoded representation.
 
-**The headline: the brain files different task content into different rhythms.**
+**How the four phases separate "seen" from "figured out."** The recording runs
+**rest → learn → test → rest**. In **learning** the patient is *shown* premise pairs
+("A beats B, B beats C, …") — **encoding**. In **testing** the patient gets *novel*
+pairs never seen and must *reason out* the answer (A vs D?) — **inference**.
+`task_learn` is the reference that subtracts "what was merely seen" from "what was
+computed." N1 used the test phase only; N2 uses both — that is the whole point.
 
-- **Alpha keeps the *memorised* material** — and only that. *(Solid.)*
-- **Beta keeps the memorised material *and* the *inferred* relations.** The
-  figured-out part appears in **beta and no other band**. *(Solid.)*
-- **Low-gamma looks empty whole-brain, but hides a real, focal *memory* trace in
-  the cingulate** (8 of 8 patients) — visible only because the method reads one
-  region instead of averaging the whole brain. A clean "other band" result, and a
-  showcase for why the method matters. *(Solid; `audit_112`.)*
+**The load-bearing result — the brain keeps what it reasoned out.** Splitting the
+persistent trace into an encoding part and an inference-specific part (encoding
+controlled *out* of inference), the **inference-specific component itself persists
+into post-task rest — in β, and in no other band** (p≈0.007, leave-one-out robust,
+clears the mandatory matched-strength null, and **duration-robust** — it does not
+grow with the longer test recording; N2.2 / N2.5). So the offline trace is not just a
+re-exposure echo of the premises: it carries a component tied specifically to the
+*inference* process. *(Solid.)*
 
-The beta-only inference result is the one a longer test recording (1.35–2.53×)
-could have faked. **It didn't:** beta's inference signal does *not* grow with
-recording length across patients, whereas alpha — the only band that could have
-inflated to mimic it — *does* show the length-tracking trend. So the confound
-would have surfaced in alpha; beta is clean. *(Solid; resolved 2026-06-22, see N2.5.)*
+**The scale signature points straight at relational integration.** That
+inference-specific β component is **multiscale and mildly mesoscale-favouring** — it
+clears matched-strength most strongly at intermediate diffusion scales
+(`audit_103d`), while every control band stays null there. The mesoscale is the
+natural scale of **multi-step paths** through the network — and multi-step chaining
+(A>B, B>C ⇒ A>D) *is* transitive inference. The consolidation signal sits at the
+scale of the computation it is meant to reflect. *(Verified; mesoscale-robust, not
+-exclusive.)*
 
-**Where the content sits — and the interesting twist:**
+**The consolidation sits in the brain's map-making hub.** The encoding component
+concentrates in **orbitofrontal cortex** — the hub for building relational
+"cognitive maps" — and that OFC anchor is set by **learning itself**: the pure
+memorising phase (`rest → learn → rest`, no reasoning) already leaves its own
+persistent α/β trace into OFC, the *same* hotspot the test-phase trace uses, so OFC
+is anchored by **both** task phases (N2.3 / N2.6). Inference then adds the β-only
+component on top. *(Solid for the OFC encoding anchor.)*
 
-- **Memory → orbitofrontal cortex** (the brain's "map-making" hub — fitting for
-  learning an order). *(Solid.)* And the OFC anchor is set by the **learning phase
-  itself**: the pure memorising phase (`rest → learn → rest`, no inference) already
-  leaves its own persistent trace into OFC, in α and β, before any reasoning is
-  demanded — so the hotspot is not an artifact of reading the longer test recording.
-  *(Solid; `audit_103/110/113b`, see N2.6.)*
-- **Reasoning → cingulate.** *(Directional hint only — NOT an established
-  location; the duration check demoted it.)*
-- Read together, the **cingulate behaves like a hub that changes its job with the
-  rhythm**: it carries *memory* at low-gamma (**solid**) and, more tentatively,
-  *reasoning* at beta (**the hint above**). A "same region, different content by
-  frequency" reading — **suggestive, not locked**, precisely because the
-  reasoning-location half is only a hint.
+**The brain files task content by rhythm — the supporting cast.**
 
-**Why it matters:** this turns "a trace persists" (N1) into "the trace carries the
-*cognitive product* of the task — and the brain sorts memory from reasoning by
-rhythm." That frequency-division of cognitive content, plus a single hub that
-appears to switch content by band, is the exciting core (and it holds up under the
-duration check — N2.5). *Honest ceiling:* reasoning has **no established anatomical
-home** (cingulate is a hint), and there is **no behavioral data** (we cannot and
-will not tie mark strength to performance). Sell it as a frequency-organised
-signature of memory vs inference — never as a pinned-down location or a behaviour
-correlation.
+- **Alpha keeps the *memorised* material** — and only that (encoding-only). *(Solid.)*
+- **Beta keeps the memorised material *and* the *inferred* relations** — the
+  load-bearing result above. *(Solid.)*
+- **Low-gamma looks empty whole-brain but hides a real, focal *memory* trace in the
+  cingulate** (8 of 8 patients; `audit_112`) — visible only because the method reads
+  one region instead of averaging the brain. The cleanest "averaging-hides-it"
+  showcase for why the method matters. *(Solid.)*
+
+**The honest twist.** Read together, the **cingulate looks like a hub that switches
+its job with the rhythm** — *memory* at low-γ (**solid**) and, more tentatively,
+*inference* at β (**a hint**). Suggestive, not locked — precisely because the
+inference-location half is only a directional hint (the duration check demoted it).
+
+**Why it matters — the flagship.** This is the paper's center. N1 showed the resting
+brain *holds* a reorganization offline; **N2 shows that what it holds is an
+abstraction** — the relational order the brain *computed*, beyond the pairs it was
+*shown*, consolidated at the scale of multi-step integration and anchored in the
+orbitofrontal cognitive-map hub. That is the cognitive-neuroscience payload the
+method was built to reach: a content-specific, scale-resolved, offline fingerprint of
+*what was learned*, read directly from intracranial connectivity — and reached
+without behavioral labels, purely from the geometry of the held connectivity state.
+
+**Literature home (to cite — verify exact refs at write-up).** The natural framing is
+the relational **cognitive-map / schema / geometry-of-abstraction** line: Behrens et
+al. (cognitive maps as relational structure for inference), Schuck & Niv / Schuck et
+al. (OFC as a map of task state-space), Bernardi et al. (the *geometry of
+abstraction* — neural geometries that generalize to unseen combinations). Those
+characterize how such maps are built and used **online**; our contribution is the
+**offline, post-task complement** — the inferred relational structure *persists as a
+held state once reasoning stops*. *(Full literature triangulation is a pending
+deep-research pass — on PI go; do not over-cite until verified.)*
 
 ## §B — Technical statement (per subheadline)
 
@@ -163,6 +196,13 @@ component on top. Backing report `.agents/reports/2026-06-22_learning-phase-own-
 duration-invariant; the four-phase decomposition is exact (reproduces N1);
 β-specificity is a strong intrinsic argument against generic confounds; the
 low-γ focal encoding trace is a clean "averaging hides it" demonstration.
+**The flagship rests on three solid legs:** (1) the inference-specific β component
+*persists* (matched-strength + duration-robust, N2.2 / N2.5); (2) it is
+**mesoscale-favouring** — the scale of multi-step relational integration (`audit_103d`,
+N2.2); (3) the encoding anchor is the **OFC cognitive-map hub**, set by learning
+itself (N2.3 / N2.6). The "abstraction" reading is an *interpretation* layered on
+these three legs, bounded by the no-behavior ceiling below — **sell the legs, frame
+the abstraction.**
 
 **Lead-with weaknesses:**
 - **The inference story is now duration-controlled but anatomically/behaviorally
@@ -192,10 +232,12 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
   verdict is carried by the clean ratio regression + full-length matched-strength →
   **β inference arc is duration-robust; α duration-suspect.** N2.2 ships
   duration-controlled.
-- [x] **Split decision (DONE 2026-06-22): N2 stays unified — do NOT spin out a 5th
-  headline.** Inference is duration-controlled enough to be N2's confident climax,
-  but too thin anatomically (no hotspot) and behaviorally (no data) to carry its own
-  headline next to N1. Headline count stays **4**.
+- [x] **Split decision (DONE 2026-06-22): N2 stays unified — do NOT spin the
+  inference component into a separate headline.** Inference is duration-controlled
+  enough to be N2's confident climax, but too thin anatomically (no hotspot) and
+  behaviorally (no data) to carry its own headline next to N1. **Neuroscience
+  headline count stays 3 (N1 trace + N2 content + N3 epilepsy) + the methods core**
+  (replay N4 archived 2026-06-22).
 - [ ] ~~Behavioral TC1~~ **REMOVED** — TI performance data is unavailable
   (PI 2026-06-22). There is no brain–behavior test; do not re-scope one.
 - [x] **`task_learn` length/quality audit (DONE 2026-06-22):** all 10 learn
@@ -260,7 +302,7 @@ low-γ focal encoding trace is a clean "averaging hides it" demonstration.
 - ~~Stage-2-arc result~~ **RESOLVED 2026-06-22** — β inference arc is
   duration-robust (N2.5); the gate is closed.
 - ~~Whether inference deserves its own headline~~ **DECIDED 2026-06-22** — no; N2
-  stays unified, count stays 4 (§D).
+  stays unified; 3 neuroscience headlines (N1–N3) + methods core (§D).
 - **No behavioral anchor** — performance data unavailable (PI 2026-06-22); the
   inference claim rests on neural decomposition + anatomy + literature.
 - ~~**`task_learn`'s own trace**~~ **DONE 2026-06-22 (N2.6)** — it *does* leave its
