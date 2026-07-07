@@ -37,7 +37,7 @@ pointers: []
 - Record defaults for development and final runs.
 - Extract correlation comparison settings from notebooks (abs/threshold/cleaned).
 - Capture default `nperseg`, `noverlap`, and surrogate policy per band.
-- Record dev vs final settings in `.agents/plans/active/2026-01-10_fc_params.md`.
+- Record dev vs final settings in `.agents/plans/archive/setup-era/2026-01-10_fc_params.md`.
 
 2) Surrogate scaling tests
 - Create `tests/` (if missing) and add a timing/stability harness for MSC.
@@ -97,7 +97,7 @@ pointers: []
 - MSC methodology guide under `.agents/guides/`.
 
 ## Suggested files
-- `.agents/plans/active/2026-01-10_fc_params.md`
+- `.agents/plans/archive/setup-era/2026-01-10_fc_params.md`
 - `tests/test_msc_surrogates_scaling.py`
 - `.agents/guides/msc-method-guide.md`
 

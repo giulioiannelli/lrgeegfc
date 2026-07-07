@@ -2,11 +2,29 @@
 name: README
 type: writing-bundle
 era: IMCOH_ABS × COHORT_N10
-status: current
+status: historical
 created: 2026-04-30
+updated: 2026-07-04
 ---
 
 # Raw-FC phase-distance audit — writing bundle
+
+> **⚠ Historical (banner added 2026-07-04, `.agents/` reorg).** This bundle is
+> **substrate context, not a standalone result.** Three things below are
+> superseded:
+> 1. **Framing.** "Raw FC as headline Result 1" is retired — since 2026-06-18
+>    (`feedback_results_only_in_laplacian_framework`) raw FC is the **comparison
+>    baseline, never a result**. The trace result lives in the LRG/Laplacian
+>    framework (cophenetic `ρ^coph` + Grassmann); see `.agents/preprint/headlines/`.
+> 2. **`imcoh_sq` substrate.** The "two FC substrates" section is unsupported —
+>    no `*_imcoh_sq.pdf` or `data/audit/raw_fc_phase_distance_imcoh_sq/` exists.
+>    Only `imcoh_abs` remains.
+> 3. **Figure names + Pat_03.** The canonical renders are the **`_imcoh_abs`**
+>    PDFs in this folder; the 7 old unsuffixed duplicates were archived to
+>    `archive/superseded-renders/`. Body references to `figN_*.pdf` (unsuffixed)
+>    and to "Pat_03 = 1024 Hz outlier" are stale (Pat_03 is a full cohort member).
+>
+> The `imcoh_abs` figures + numbers are kept as accurate substrate context.
 
 **Self-contained handoff for the writing agent.** One README +
 parallel sets of figures for **two FC substrates** as a

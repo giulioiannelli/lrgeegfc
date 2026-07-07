@@ -23,7 +23,7 @@ pointers: []
 
 ## Current status
 - Data inventory run completed and summarized in:
-  - `.agents/plans/active/2026-01-10_data_inventory.md`
+  - `.agents/plans/archive/setup-era/2026-01-10_data_inventory.md`
 - Issues detected in Pat_05/06/07/08 (missing `fs`, missing phases, missing labels).
 - Pat_03 has likely transposed `task_learn`/`task_test` shapes.
 - Decisions: default missing `fs` to 2048 Hz; auto-transpose when channel

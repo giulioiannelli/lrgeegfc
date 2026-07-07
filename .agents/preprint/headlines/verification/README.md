@@ -43,7 +43,7 @@ and **what to return**. No brief is run in the crystallization chat.
 
 *(Replay (former N4) removed from the paper 2026-06-22 — bursty test cohort-negative;
 its scope/brief is kept as a restore point at
-`../../../guides/task-persistence-investigation/2026-06-22_replay-states-multiscale-reinstatement.md`,
+`../../../guides/task-persistence-investigation/archive/replay-n4/2026-06-22_replay-states-multiscale-reinstatement.md`,
 not an active investigation.)*
 
 ## Two standing rules for every brief

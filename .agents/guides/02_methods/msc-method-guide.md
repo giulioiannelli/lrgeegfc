@@ -70,4 +70,4 @@ Marchenko–Pastur noise. Correlation matrices may require MP cleaning; MSC does
 
 ## TODO
 - Run surrogate scaling test and update `n_surrogates` target in
-  `.agents/plans/active/2026-01-10_fc_params.md`.
+  `.agents/plans/archive/setup-era/2026-01-10_fc_params.md`.

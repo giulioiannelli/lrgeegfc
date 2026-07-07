@@ -137,7 +137,7 @@ multiscale measure on this project, per the never-always rule).
   Grassmann distance. Cohort regularity: cohort-median Grassmann
   distance vs random-leaf-subset null at matched size.
 - **Connection.** E1 spectral subspace alignment scope at
-  `.agents/guides/task-persistence-investigation/2026-04-29_e1-spectral-subspace-alignment.md`
+  `.agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_e1-spectral-subspace-alignment.md`
   has the cross-phase version; this is the cross-region version.
   Same Grassmann primitive, different leaf-set partitioning.
 - **Feasibility.** Eigenvectors already cached (audit_48 reads
@@ -155,7 +155,7 @@ multiscale measure on this project, per the never-always rule).
 - **Primitive.** `m^E_k` per mode; binned on `λ̂` grid;
   strength-stratified null (Q=5 quintiles, R=100 draws).
 - **Status.** Scope at
-  `.agents/guides/task-persistence-investigation/2026-05-08_epi-eigenmode-localization.md`
+  `.agents/guides/task-persistence-investigation/archive/epi-negatives/2026-05-08_epi-eigenmode-localization.md`
   (audit_57 to be assigned; old slot 55 taken by
   `audit_55_ctm_per_pair_scatter.py`).
 - **C1** (static) is independent; **C2** (cross-phase shift) is

@@ -9,8 +9,9 @@ pointers:
   - .agents/guides/02_methods/imcoh-guide.md
   - .agents/guides/02_methods/probe-bias-guide.md
   - .agents/guides/02_methods/linearity-and-higher-order-structure.md
-  - .agents/guides/task-persistence-investigation/2026-04-29_decision-rules.md
-  - .agents/guides/task-persistence-investigation/2026-04-29_measure-correctness-audit.md
+  - .agents/guides/02_methods/multiscale-notions-propagator-vs-grassmann.md
+  - .agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_decision-rules.md
+  - .agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_measure-correctness-audit.md
 ---
 
 > **What this pipeline does/doesn't capture (read before writing "nonlinear" /
@@ -372,7 +373,7 @@ Per §6 above, our case sits outside the LRG-paper sweet spot. The dendrogram at
 - **Whole-tree distance** between phase-pairs → L3 measures (Kendall–Colijn λ-sweep, Matching-Cluster).
 - **Whole-tree communication distance matrix** (the cached `ultrametric_matrix`) → L1 measures (continuous H2c).
 
-These rungs are codified in the rebuild plan (`/home/giulio/.claude/plans/i-think-there-are-binary-puppy.md` §2) and the decision-rules scope (`.agents/guides/task-persistence-investigation/2026-04-29_decision-rules.md`).
+These rungs are codified in the rebuild plan (`/home/giulio/.claude/plans/i-think-there-are-binary-puppy.md` §2) and the decision-rules scope (`.agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_decision-rules.md`).
 
 ---
 
@@ -404,8 +405,8 @@ These are NOT settled by the framework guide; they are flagged for explicit inve
 
 ## 11. Cross-references
 
-- Implementation correctness audit (Phase 0): `.agents/guides/task-persistence-investigation/2026-04-29_measure-correctness-audit.md`.
-- Decision rules for cohort verdicts: `.agents/guides/task-persistence-investigation/2026-04-29_decision-rules.md`.
+- Implementation correctness audit (Phase 0): `.agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_measure-correctness-audit.md`.
+- Decision rules for cohort verdicts: `.agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-29_decision-rules.md`.
 - Our outlier case in detail: `memory/lrg_outlier_case_fully_connected.md`.
 - τ choice options: `memory/lrg_tau_choice.md`.
 - ImCoh derivation: `.agents/guides/02_methods/imcoh-guide.md`.

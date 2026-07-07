@@ -62,7 +62,7 @@ Skill entry point: `/plotguide`. Read this folder before any new figure code.
 | Guide | What it covers |
 |-------|---------------|
 | [README.md](task-persistence-investigation/README.md) | **Canonical home for every multiscale measure built to investigate task-induced reorganization in `rest_post`.** All new task-trace tooling MUST land here as a mathematically rigorous scope report (notation → predicates → properties → caveats → pseudocode → visualization → prior-tool connection → open questions) BEFORE any code. |
-| [2026-04-25_module-retention-landscape.md](task-persistence-investigation/2026-04-25_module-retention-landscape.md) | **MRL** — `M̄(b, ξ) ∈ [0, 1]` cohort field counting `task_test` subtrees absent from `rest_pre` and present in `rest_post` (Jaccard match threshold τ). Multiscale, band-specific, no scalar gate. Status: `draft`. |
+| [2026-04-25_module-retention-landscape.md](task-persistence-investigation/archive/scalar-vi-era/2026-04-25_module-retention-landscape.md) | **MRL** — `M̄(b, ξ) ∈ [0, 1]` cohort field counting `task_test` subtrees absent from `rest_pre` and present in `rest_post` (Jaccard match threshold τ). Multiscale, band-specific, no scalar gate. Status: `draft`. |
 
 ## ../reports/ — Investigation results
 
