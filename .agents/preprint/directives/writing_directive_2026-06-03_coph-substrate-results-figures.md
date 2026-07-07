@@ -76,9 +76,11 @@ structural enrichment, not resolution of θ/γ).
 
 **GUARD 4 — this is the all-band cohort overview. No anatomy, no per-patient,
 no per-band deep-dives here.** Per the user's framing, per-band subsections land
-later. In particular: do **not** add any anatomical localization — cohort and
-per-patient localization are **RETRACTED** (the trace is spatially delocalized;
-see [[localization_audit_plan_2026_05_29]] / [[preprint_referee_review_2026_06_01]]).
+later. In particular: do **not** add any anatomical localization in this (substrate)
+subsection — anatomy lands in its own subsection. (⚠ the "spatially delocalized" claim
+here is SUPERSEDED 2026-06-10: the multi-region DK lists stay retracted, but β concentrates
+in the OFC *system*; α/γ_l/δ have no localization — see `ANATOMY_LEDGER.md` / `HANDOFF_INDEX.md`;
+[[localization_audit_plan_2026_05_29]] / [[preprint_referee_review_2026_06_01]]).
 Keep the claim at "a cohort-wide, band-selective per-pair trace at α/β."
 
 ---

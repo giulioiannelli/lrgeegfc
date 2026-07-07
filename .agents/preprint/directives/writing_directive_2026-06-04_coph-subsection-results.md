@@ -77,8 +77,10 @@ are corroborating, not promoting.)
 ## 4. Guards
 
 - Headline is **"mainly β, secondarily α."** No third trace band.
-- **No anatomy, no per-patient localization** — both retracted/null this era
-  (the trace is spatially delocalized). Keep this subsection cohort-level.
+- **No anatomy in this (coph-substrate) subsection** — keep it cohort-level; anatomy
+  goes in its own subsection. (⚠ This 2026-06-04 directive's "the trace is spatially
+  delocalized" is SUPERSEDED 2026-06-10: β concentrates in the OFC *system*; α/γ_l/δ have
+  no FDR-surviving localization — see `ANATOMY_LEDGER.md` / `HANDOFF_INDEX.md`.)
 - Do not re-state the raw→coph difference as a count change or "lines turning
   gray"; it is **selectivity** — the signal concentrates onto α/β.
 - One back-reference for the copula render ("rendered as in

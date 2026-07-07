@@ -1,0 +1,164 @@
+%% ============================================================================
+%%  math_commands.tex  —  custom math macros
+%%
+%%  Layout (each block sorted alphabetically by command name):
+%%    (1) \let ..........  base symbols (a single letter or command) and
+%%                         primitive aliases
+%%    (2) \newcommand ...  aesthetic transformations built on the symbols above,
+%%                         plus short upright-text tags
+%%    (3) mathtools .....  \DeclareMathOperator, \DeclarePairedDelimiter and
+%%                         \NewDocumentCommand definitions
+%% ============================================================================
+
+
+%% ---------------------------------------------------------------------------
+%%  (1) \let : base symbols and primitive aliases
+%% ---------------------------------------------------------------------------
+\let\adjacencymatrixsymb A
+\let\bigOnotationsymb O
+\let\continuousfieldsymb \psi
+\let\couplingmatrixsymb J
+\let\critsymb c
+\let\de \partial
+\let\degreematsymb D
+\let\densitymatrixsymb \rho
+\let\diracdeltasymb \delta
+\let\distancematrixsymbol D
+\let\edgesetsymb E
+\let\entropysymb S
+\let\graphsignsymb \sigma
+\let\graphsymb G
+\let\hamiltoniansymb H
+\let\Im \relax            % clear amsmath's \Im so it can be redeclared in (3)
+\let\laplaciansymb L
+\let\nodedegreesymb k
+\let\partitionfunctionsymb Z
+\let\probabilitysymb P
+\let\propagatorsymbol K
+\let\quenchavg \overline
+\let\signedgraphsymb \Gamma
+\let\sinkoperatorsymb S
+\let\spinsymb \sigma
+\let\transp \intercal
+\let\vec \bm
+\let\vertexsymb V
+\let\weightedadjacencymatrixsymb W
+
+
+%% ---------------------------------------------------------------------------
+%%  (2) \newcommand : aesthetic transformations and upright-text tags
+%% ---------------------------------------------------------------------------
+\newcommand{\adj}{\adjacencymatrixsymb}
+\newcommand{\Adjacency}{\wadj}                  % adjacency matrix (alias for \wadj)
+\newcommand{\Band}{\mathcal{B}}                 % frequency band
+\newcommand{\cfield}{\continuousfieldsymb}
+\newcommand{\crit}{{\rm \critsymb}}
+\newcommand{\Dcoph}{\tilde{\distm}}             % cophenetic communication distance matrix
+\newcommand{\ddelta}{\diracdeltasymb}
+\newcommand{\degm}{\degreematsymb}
+\newcommand{\degreeshrt}{deg}
+\newcommand{\diagonalmatrixshrt}{diag}
+\newcommand{\dil}{{\rm \dilutedshrt}}
+\newcommand{\dilutedshrt}{dil}
+\newcommand{\distm}{\mathcal{\distancematrixsymbol}}
+\newcommand{\dm}{\hat{\densitymatrixsymb}}
+\newcommand{\edges}{\edgesetsymb}
+\newcommand{\eff}{{\rm \effectiveshrt}}
+\newcommand{\effectiveshrt}{eff}
+\newcommand{\ent}{\entropysymb}
+\newcommand{\graph}{\mathcal{\graphsymb}}
+\newcommand{\ham}{\mathscr{\hamiltoniansymb}}
+\newcommand{\highgamma}{\gamma_{\rm h}}
+\newcommand{\imcoh}{\(|\mathrm{ImCoh}|\)}
+\newcommand{\jij}{\couplingmatrixsymb}
+\newcommand{\lapl}{\laplaciansymb}
+\newcommand{\lowgamma}{\gamma_{\rm l}}
+\newcommand{\MSC}{\Coherence}                   % alias for the \Coherence operator in (3)
+\newcommand{\ndegree}{\nodedegreesymb}
+\newcommand{\ord}{\bigOnotationsymb}
+\newcommand{\partf}{\partitionfunctionsymb}
+\newcommand{\Phase}{\Phi}
+\newcommand{\pmassemp}{{p_{\rm mass}}}
+\newcommand{\prob}{\probabilitysymb}
+\newcommand{\propag}{\propagatorsymbol}
+\newcommand{\rew}{{\rm \rewiringshrt}}
+\newcommand{\rewiringshrt}{rew}
+\newcommand{\rhocoph}{{\rho}^{\rm coph}}        % per-pair multiscale shift correlation
+\newcommand{\rhodrift}{{\rho}_{\rm drift}}      % drift-floor null
+\newcommand{\rhoraw}{{\rho}^{\rm raw}}
+\newcommand{\rhoxprobe}{{\rho}_{\rm xp}}        % cross-probe restriction
+\newcommand{\sdegm}{\bar{\degm}}
+\newcommand{\setmea}{\abs}                      % alias for the \abs delimiter in (3)
+\newcommand{\signshrt}{sign}
+\newcommand{\sink}{{\rm \sinkshrt}}
+\newcommand{\sinkop}{\sinkoperatorsymb}
+\newcommand{\sinkshrt}{snk}
+\newcommand{\Slapl}{\bar{\lapl}}
+\newcommand{\SoftMask}{\mathbf{G}}              % soft mask
+\newcommand{\spin}{\spinsymb}
+\newcommand{\Surrogates}{\wadj^{\mathrm{null}}}
+\newcommand{\TimeSeries}{\mathbf{X}}            % multichannel timeseries matrix
+\newcommand{\TimeSeriesSingle}{x}               % single-channel signal
+\newcommand{\traceshrt}{Tr}
+\newcommand{\txtacr}[1]{\text{\acrshort{#1}}}
+\newcommand{\vertexs}{\vertexsymb}
+\newcommand{\wadj}{\weightedadjacencymatrixsymb}
+
+
+%% ---------------------------------------------------------------------------
+%%  (3) mathtools : operators, paired delimiters, document commands
+%% ---------------------------------------------------------------------------
+
+% --- math operators (alphabetical) ---
+\DeclareMathOperator{\Coh}{Coh}
+\DeclareMathOperator{\Coherence}{MSC}
+\DeclareMathOperator{\corr}{corr}
+\DeclareMathOperator{\degree}{\diagonalmatrixshrt}
+\DeclareMathOperator{\diag}{\diagonalmatrixshrt}
+\DeclareMathOperator{\Im}{Im}
+\DeclareMathOperator{\ImCoh}{ImCoh}
+\DeclareMathOperator{\Lapl}{\nabla^2}
+\DeclareMathOperator{\mthdef}{\;\overset{\mathrm{def}}{=}\;}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\sign}{\signshrt}
+\DeclareMathOperator{\Tr}{Tr}
+
+% --- paired delimiters (alphabetical) ---
+\DeclarePairedDelimiter{\abs}{|}{|}
+\DeclarePairedDelimiter{\avg}{\langle}{\rangle}
+\DeclarePairedDelimiter{\bra}{\langle}{\rvert}
+\DeclarePairedDelimiterX{\braket}[2]{\langle}{\rangle}{#1\,\delimsize\vert\,\mathopen{}#2}
+\DeclarePairedDelimiter{\ket}{|}{\rangle}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+\DeclarePairedDelimiter{\qua}{[}{]}
+
+% --- document commands: differentials and derivatives (alphabetical) ---
+% Define differential operator
+\NewDocumentCommand{\dd}{s o m}{
+  \IfBooleanTF{#1} % Check if * is used
+    {\mathrm{d}#3} % No space for inline form
+    {\IfNoValueTF{#2} % Check if power is given
+      {\mathrm{d}#3} % Normal differential
+      {\mathrm{d}^{#2}#3} % Differential with power
+    }
+}
+
+% Define total derivative
+\NewDocumentCommand{\dv}{s o m m}{
+  \IfBooleanTF{#1} % Check if * is used (inline form)
+    {{\mathrm{d}#3}/{\mathrm{d}#4}} % Inline derivative
+    {\IfNoValueTF{#2} % If no order is given
+      {\frac{\mathrm{d}#3}{\mathrm{d}#4}} % First derivative
+      {\frac{\mathrm{d}^{#2}#3}{\mathrm{d}#4^{#2}}} % Higher-order derivative
+    }
+}
+
+% Define partial derivative
+\NewDocumentCommand{\pdv}{s o m m}{
+  \IfBooleanTF{#1} % Check if * is used (inline form)
+    {{\partial #3}/{\partial #4}} % Inline partial derivative
+    {\IfNoValueTF{#2} % If no order is given
+      {\frac{\partial #3}{\partial #4}} % First partial derivative
+      {\frac{\partial^{#2} #3}{\partial #4^{#2}}} % Higher-order partial derivative
+    }
+}

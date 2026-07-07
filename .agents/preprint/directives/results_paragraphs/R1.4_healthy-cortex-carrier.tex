@@ -1,0 +1,32 @@
+% =====================================================================
+% R1.4 — "The β trace is carried by healthy cortical coupling"
+% Tissue-type paragraph-block of Result 1 (follows R1.3; same \subsection).
+%
+% ESTIMATOR = rho_sym (MIGRATED 2026-07-06, audit_156 — reruns audit_77/83/85 pairclass
+%   with the symmetric per-class concordance; arm1 reproduces rho_split bit-for-bit; numba
+%   kernel bit-identical to scipy). NO rho_split number in this paragraph.
+% Numbers (data/audit/epi_wm_stratified_rhosym/pairclass_rhosym_cohort.csv; report
+%   .agents/reports/2026-07-06_epi-wm-stratification-rhosym-migration.md; verified 2026-07-06):
+%   gray↔gray β: CONCENTRATED p_pair<0.001 + clears matched-strength Wilcoxon p=0.042 (THE result).
+%   wm↔wm β: depleted vs random pairs (p_pair=1.0), matched-strength n.s. (p=0.065) → below-average
+%     contributor. NOTE: under rho_sym wm_wm β NO LONGER clears MS (rho_split was p=0.007
+%     'separated'); the 'WM is strength-clean' sub-claim is DROPPED.
+%   epi↔epi β: carries no more than random pairs (p_pair=0.93) + MS n.s. (p=0.31) → the seizure
+%     core does NOT carry β = DIRECTIONAL sparing, NOT a significant depletion.
+%   exclude-SOZ leaves cohort β/α intact; apparent strengthening on exclusion = NODE-COUNT
+%     (random-decimation control reproduces it, audit_85; p_dec β 0.145/0.390 n.s.).
+% FRAMEWORK PURITY (PI 2026-06-18, [[feedback_results_only_in_laplacian_framework]]): results on
+%   COPHENETIC objects only; RAW FC is baseline, NEVER cited as a result.
+% Read matched-strength off the paired one-sided Wilcoxon p (the TEST is the gate); the
+%   'separated' label also needs n_above>=8 (descriptive, never the gate) so reads 'intermediate'.
+% α recruits the core → DEFERRED to R1.6 (secondary-band aside, not the β headline).
+% WITHDRAWN (do NOT reintroduce): "epi-X strengthens the trace" (node-count) and
+%   "healthy↔diseased interface is the strongest carrier" (not a pair-class concentration).
+% Guardrails: LRG framework; matched-strength named; "core spared" DIRECTIONAL only; no
+%   behavioural claim; verdict-flip history NOT aired (article) — state controls as
+%   finding-properties, not "we withdraw an earlier reading".
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The \(\beta\) trace is carried by healthy cortical coupling.}
+We have placed the \(\beta\) trace in \gls{ofc} and shown that it lives in the network's multiscale geometry rather than its raw edges; both readings have treated it as a neural signal. But these recordings come from epilepsy patients, implanted because of pathology, which raises a confound specific to clinical data: the persistence we attribute to reasoning could instead ride the epileptogenic network that motivated the implant. Telling the two apart means asking not merely whether the trace is present but which tissue carries it. We labeled every node pair by the tissue it links --- cortical gray matter, white matter, or the clinically defined \gls{soz} --- and asked which classes carry the \(\beta\) trace more strongly than a random set of pairs of the same size drawn from the whole network (a pair-class control, \(R = 1000\)). The answer is healthy cortex: the \(\beta\) trace concentrates in coupling between gray-matter contacts, which carry it well above the random-pair baseline (\(p < 0.001\)) and clear the strength-matched surrogate (\(p = 0.042\)). The other tissue classes carry less of the \(\beta\) trace: white-matter coupling sits below the random-pair baseline, and pairs internal to the \gls{soz} carry no more of it than a random set of the same size (\(p = 0.93\)); neither class clears the strength-matched null. Removing the seizure-onset contacts from the network altogether leaves both the cohort \(\beta\) and \(\alpha\) traces intact; any apparent change in magnitude on exclusion is accounted for by node count alone, as a random-decimation control reproduces it. The \(\beta\) trace is therefore a property of coupling among healthy cortex --- neither a pathology artifact nor an everywhere-and-nowhere effect.

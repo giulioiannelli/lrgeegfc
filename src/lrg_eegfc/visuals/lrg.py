@@ -12,8 +12,14 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 import scipy.io
+from matplotlib.colors import to_rgb
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from scipy.cluster.hierarchy import dendrogram, fcluster, optimal_leaf_ordering
+from scipy.cluster.hierarchy import (
+    dendrogram,
+    fcluster,
+    leaves_list,
+    optimal_leaf_ordering,
+)
 from scipy.spatial.distance import squareform
 
 from lrg_eegfc.config.paths import CORR_CACHE, LRG_CACHE, MSC_CACHE, SEEG_DATAPATH, FIGURES_ROOT
@@ -25,6 +31,7 @@ __all__ = [
     "plot_lrg_entropy_curves",
     "plot_lrg_dendrogram",
     "plot_lrg_dendrogram_shaft_colored",
+    "plot_circular_dendrogram",
     "plot_ultrametric_heatmap",
 ]
 # plot_lrg_full_panel moved to lrg_panels.py on 2026-05-29 (Phase 4-B split 4/7).
@@ -709,3 +716,143 @@ def plot_ultrametric_heatmap(
     plt.close(fig)
 
     return output_path
+
+
+def plot_circular_dendrogram(
+    ax,
+    Z,
+    *,
+    leaf_colors=None,
+    leaf_labels=None,
+    leaf_order=None,
+    h_max_override=None,
+    r_outer=1.0,
+    r_inner=0.08,
+    line_width=0.95,
+    node_size=18.0,
+    label_fontsize=4.2,
+    label_offset=1.04,
+):
+    """Draw a circular (fan) dendrogram from a scipy linkage on ``ax``.
+
+    Equiangular leaves in ``leaves_list(Z)`` order around the unit circle;
+    internal nodes at radius ``r_outer * (1 - h / h_max)``; each merge draws two
+    radial spokes from children to the merge radius plus one CCW arc joining them.
+    Every branch segment is coloured by the size-weighted RGB mean of its
+    descendant leaves: pure subtrees keep a vibrant hue, mixed subtrees grey out —
+    so a structurally coherent (e.g. anatomically pure) module lights up.
+
+    Parameters
+    ----------
+    ax : matplotlib Axes (drawn in data coordinates; set to equal aspect here).
+    Z : (N-1, 4) scipy linkage matrix (e.g. ``load_lrg_result(...).linkage_matrix``).
+    leaf_colors : optional per-leaf colours, indexed by leaf id 0..N-1.
+    leaf_labels : optional per-leaf label strings (radial, rotated).
+    leaf_order : optional fixed angular ordering of leaf ids. When several trees
+        are drawn with the SAME order, a leaf sits at the SAME angle in each, so
+        preserved clades appear as matching arcs and reorganised ones tangle —
+        the direct visual of cross-phase structural similarity. Defaults to this
+        tree's own ``leaves_list(Z)``.
+    h_max_override : normalise radii by this height instead of the root merge.
+
+    Returns
+    -------
+    theta_of_leaf : (N,) array of leaf angles (radians), indexed by leaf id.
+    """
+    Z = np.asarray(Z)
+    N = int(Z.shape[0]) + 1
+    h_max = float(h_max_override) if h_max_override is not None else float(Z[-1, 2])
+    n_total = 2 * N - 1
+
+    if leaf_order is None:
+        leaf_order = [int(x) for x in leaves_list(Z)]
+    else:
+        leaf_order = [int(x) for x in leaf_order]
+    n_leaves = len(leaf_order)
+    pos_in_order = {lf: idx for idx, lf in enumerate(leaf_order)}
+
+    def _angle(slot_f):
+        return 2 * np.pi * slot_f / n_leaves - np.pi / 2
+
+    theta_of_leaf = np.zeros(N)
+    for slot, lf in enumerate(leaf_order):
+        theta_of_leaf[lf] = _angle(slot)
+
+    node_r = np.zeros(n_total)
+    node_theta = np.zeros(n_total)
+    idx_min = np.zeros(n_total, dtype=int)
+    idx_max = np.zeros(n_total, dtype=int)
+    for i in range(N):
+        node_r[i] = r_outer
+        node_theta[i] = theta_of_leaf[i]
+        idx_min[i] = idx_max[i] = pos_in_order[i]
+    for r in range(Z.shape[0]):
+        node_id = N + r
+        h = float(Z[r, 2])
+        c1, c2 = int(Z[r, 0]), int(Z[r, 1])
+        node_r[node_id] = r_outer - (h / max(h_max, 1e-12)) * (r_outer - r_inner)
+        idx_min[node_id] = min(idx_min[c1], idx_min[c2])
+        idx_max[node_id] = max(idx_max[c1], idx_max[c2])
+        node_theta[node_id] = _angle(0.5 * (idx_min[node_id] + idx_max[node_id]))
+
+    # size-weighted subtree RGB
+    if leaf_colors is None:
+        leaf_rgb_arr = np.full((N, 3), 0.35)
+        leaf_colors = ["0.35"] * N
+    else:
+        leaf_rgb_arr = np.array([to_rgb(c) for c in leaf_colors])
+    node_rgb = np.zeros((n_total, 3))
+    node_size_w = np.zeros(n_total)
+    for i in range(N):
+        node_rgb[i] = leaf_rgb_arr[i]
+        node_size_w[i] = 1.0
+    for r in range(Z.shape[0]):
+        node_id = N + r
+        c1, c2 = int(Z[r, 0]), int(Z[r, 1])
+        s1, s2 = float(node_size_w[c1]), float(node_size_w[c2])
+        node_rgb[node_id] = (s1 * node_rgb[c1] + s2 * node_rgb[c2]) / (s1 + s2)
+        node_size_w[node_id] = s1 + s2
+
+    for r in range(Z.shape[0]):
+        node_id = N + r
+        c1, c2 = int(Z[r, 0]), int(Z[r, 1])
+        c_left, c_right = (c1, c2) if idx_min[c1] <= idx_min[c2] else (c2, c1)
+        merge_r = node_r[node_id]
+        for c in (c_left, c_right):
+            cr, th = node_r[c], node_theta[c]
+            ax.plot([cr * np.cos(th), merge_r * np.cos(th)],
+                    [cr * np.sin(th), merge_r * np.sin(th)],
+                    color=tuple(node_rgb[c]), lw=line_width, zorder=3,
+                    solid_capstyle="round")
+        dth = (node_theta[c_right] - node_theta[c_left]) % (2 * np.pi)
+        arc_th = node_theta[c_left] + np.linspace(0.0, dth, 48)
+        ax.plot(merge_r * np.cos(arc_th), merge_r * np.sin(arc_th),
+                color=tuple(node_rgb[node_id]), lw=line_width, zorder=3,
+                solid_capstyle="round")
+
+    leaf_x = r_outer * np.cos(theta_of_leaf)
+    leaf_y = r_outer * np.sin(theta_of_leaf)
+    ax.scatter(leaf_x, leaf_y, c=leaf_colors, s=node_size,
+               edgecolors="white", linewidths=0.55, zorder=5)
+
+    if leaf_labels is not None:
+        for i in range(min(N, len(leaf_labels))):
+            if not leaf_labels[i]:
+                continue
+            th = float(theta_of_leaf[i])
+            lr = r_outer * label_offset
+            ang = np.degrees(th)
+            rot, ha = (ang, "left") if -90 < ang <= 90 else (ang + 180, "right")
+            ax.text(lr * np.cos(th), lr * np.sin(th), leaf_labels[i],
+                    rotation=rot, rotation_mode="anchor", ha=ha, va="center",
+                    fontsize=label_fontsize, color=leaf_colors[i], zorder=6,
+                    clip_on=False)
+
+    ax.set_xlim(-r_outer * 1.13, r_outer * 1.13)
+    ax.set_ylim(-r_outer * 1.13, r_outer * 1.13)
+    ax.set_aspect("equal")
+    ax.set_xticks([])
+    ax.set_yticks([])
+    for s in ax.spines.values():
+        s.set_visible(False)
+    return theta_of_leaf

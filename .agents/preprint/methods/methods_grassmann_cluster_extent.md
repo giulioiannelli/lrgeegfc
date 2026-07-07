@@ -135,23 +135,24 @@ not used by the Grassmann probe.)
 
 ## 3 Per-`k` trace statistic `T_G(k)`
 
-The **per-patient per-`k` trace statistic** is
+The **per-patient per-`k` trace statistic** is (project-wide sign
+convention, `feedback_td_sign_convention.md`: `T > 0 = TRACE`)
 
 ```
-T_G(patient, band, k) = d_G^{task→post}(k) − d_G^{pre→task}(k)
+T_G(patient, band, k) = d_G^{pre→task}(k) − d_G^{task→post}(k)
 ```
 
-A negative `T_G(k)` means `rsPost` is *closer* to `task_test` than
+A **positive** `T_G(k)` means `rsPost` is *closer* to `task_test` than
 `rsPre_A` is to `task_test` at subspace dimension `k` — the trace
 direction. The cohort-level statistic at fixed `k` is the paired
 one-sided Wilcoxon
 
 ```
-p_k(band) = P_paired-Wilcoxon[T_G^obs(k) <_{cohort} T_G^surr-mean(k)]
+p_k(band) = P_paired-Wilcoxon[T_G^obs(k) >_{cohort} T_G^surr-mean(k)]
 ```
 
 against the matched-strength surrogate mean across R=200 surrogates per
-patient (audit_70.wilcoxon_per_k_less, alternative='less'). The
+patient (audit_70.wilcoxon_per_k_greater, alternative='greater'). The
 matched-strength surrogate is the same 4-cycle ±δ rewiring used at every
 other LRG-layer probe (audit_63 / audit_67), with parameters
 
@@ -267,7 +268,7 @@ each of the R=200 matched-strength surrogates `r ∈ {1, …, R}` as a
 for r = 1 .. R:
     phantom[k]  = surr_T_G[r, patient, k]           (one-of-R picked out)
     reference[k] = mean_{r' ≠ r} surr_T_G[r', patient, k]
-    p^{phantom}_k(r) = paired Wilcoxon (less) over patients
+    p^{phantom}_k(r) = paired Wilcoxon (greater) over patients
     LR^null(r)       = longest run of {p^{phantom}_k(r) < α_k}
     mass^null(r)     = Σ_{k : p^{phantom}_k(r) < α_k} (−log10 p^{phantom}_k(r))
 ```

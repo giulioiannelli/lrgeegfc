@@ -1,0 +1,90 @@
+% =====================================================================
+% METHODS INSERT (NEW SUBSECTION) — Encoding vs. inference decomposition of the trace
+% Drafted 2026-07-07. ρ_sym-NATIVE rewrite 2026-07-07 (was single-arm/ρ_split-framed).
+% Supports Results R2.1–R2.4 (offline abstraction of a learned structure).
+%
+% WHAT CHANGED IN THE ρ_sym REWRITE (the reason for this file's second version)
+%   The first draft wrote T_enc / T_inf as SINGLE-ARM Spearman/partial-Spearman
+%   (eq used Δ_enc^A, Δ_rest^B) and mentioned arm-symmetrization only in prose. But the
+%   RESULTS (R2.1–R2.4) are computed under the arm-symmetric ρ_sym estimator of record
+%   (audit_152 _sym_functionals), exactly as the primary trace ρ^coph is (eq:methods_rho_coph).
+%   So the DEFINING equations are now the symmetric ½[·+(A↔B)] forms; single-arm is a supplement.
+%   Verbatim source: audit_152 _arm_functionals / _sym_functionals / _partial_rho.
+%     arm1: (task-side baseline = rspre_A, rest-side baseline = rspre_B)
+%     arm2: (A↔B swapped); T_x = ½(arm1+arm2), applied identically to obs and every surrogate.
+%     e = D_taskl − D_bt (task-side half), p = D_rspost − D_br (rest-side half),
+%     f = D_taskt − D_taskl (NO rspre half → arm-invariant); T_inf partials e out of (f,p).
+%   KEY SUBTLETY kept: because f is arm-invariant, T_inf's A↔B swap moves only the p- and
+%     e-baseline halves (narrower de-bias than T_enc, whose two shifts both carry a half).
+%     audit_152 docstring point 4 states this explicitly — do NOT drop it (brutal honesty).
+%
+% INSERTION (no existing text to replace): paste the \subsection block below into Methods,
+%   AFTER ssec:methods_compare and (per the review) BEFORE ssec:methods_epi, so Methods run
+%   R1 → R2 → R3. The anatomy \subsubsection should be lifted OUT of this subsection (its own
+%   \subsection or under methods_compare) — see the localization sheet.
+%
+% NAMING: manuscript symbols are T_enc / T_inf (clean, self-descriptive). Do NOT import the
+%   repo tokens T_learn / T_infspec_pe (the "_pe" = partial-out-encoding is an implementation
+%   tag; feedback_no_repo_or_code_technicalities_in_paper). Results prose is symbol-free, so
+%   there is no cross-reference conflict.
+%
+% BEFORE COMPILING
+%   (1) NO new acronym: taskl, taskt, rspre, rspost already exist.
+%   (2) NO new math macros: \Dcoph, \rho_{S}, \txtacr{}, \Phase, \Tr, \lapl, \tau_{\min},
+%       \lambda_{\max}. New eq label eq:methods_arc_partial (first-order partial Spearman).
+%   (3) Cross-refs: ssec:methods_compare, sssec:methods_compare_perpair (split-baseline +
+%       arm symmetrization + eq:methods_rho_coph), sssec:methods_compare_ctm, eq:methods_rho_coph,
+%       sssec:methods_compare_stats (matched-strength gate). Fix \ref targets to the Overleaf labels.
+%
+% GUARDRAILS honored
+%   - NO results in Methods: no p-values / effect sizes / band verdicts / patient counts.
+%     Method PARAMETERS kept (four phases, τ scales c ∈ {1, 2.6}, matched-strength gate).
+%   - Symmetric estimator is the object of record; single-arm kept as supplement (mirrors
+%     ρ^coph_split). f arm-invariance stated once + its weaker-de-bias consequence.
+%   - SCALE claim = MULTISCALE ROBUSTNESS, never "strongest at the mesoscale" (peak retracted
+%     2026-07-07). Describe the two tested scales + the Z_eff bound; do not locate an optimum.
+%   - NO behavioral claim: inference-specific REORGANIZATION that persists, never inference
+%     SUCCESS (feedback_results_not_story). NO repo/code technicalities.
+%
+% Provenance (AGENT-FACING ONLY): audit_152_consolidation_arc_rhosym.py (estimator of record;
+%   supersedes audit_103 rho_split), audit_157_arc_scale_null_rhosym.py (τ-sweep matched-strength
+%   null). Results: R2.1 (inferred-not-seen), R2.2 (mesoscale/multiscale), R2.4 (duration).
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\subsection{Decomposing the trace into encoding and inference components}
+\label{ssec:methods_arc}
+
+The four-phase design --- \acrshort{rspre}, \acrshort{taskl}, \acrshort{taskt}, \acrshort{rspost} --- separates two processes the task combines. The patient first \emph{learns} a set of premise pairs by being shown them (\acrshort{taskl}), and then in the \emph{test} phase reasons about novel pairs that were never shown (\acrshort{taskt}). The primary trace of Section~\ref{ssec:methods_compare} is read from the test phase alone and therefore cannot distinguish what the network retains from \emph{seeing} the premises from what it retains of the relations it had to \emph{infer}; because the learning phase supplies a seen-only reference that requires no inference, the persistent reorganization splits into an encoding component and an inference-specific component. We reuse the split-baseline per-pair construction of Section~\ref{sssec:methods_compare_perpair} on the cophenetic communication distance \(O = \Dcoph\), writing \(\Dcoph^{\Phase}\) for the cophenetic image of phase \(\Phase\) and splitting \acrshort{rspre} into the same two independent halves \(A\) and \(B\). Alongside the task-side shift \(\Delta_{\rm task}^{A} = \Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{rspre}_{A}}\) that drives the primary trace, the design supplies an encoding shift, an inference-specific shift, and the persistence shift,
+\begin{equation}
+    \Delta_{\rm enc}^{A} = \Dcoph^{\txtacr{taskl}} - \Dcoph^{\txtacr{rspre}_{A}}, \qquad
+    \Delta_{\rm inf} = \Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{taskl}}, \qquad
+    \Delta_{\rm rest}^{B} = \Dcoph^{\txtacr{rspost}} - \Dcoph^{\txtacr{rspre}_{B}},
+    \label{eq:methods_arc_shifts}
+\end{equation}
+where the encoding shift is baselined on one \acrshort{rspre} half and the persistence shift on the other, exactly as the task and rest sides of the primary trace, while the inference-specific shift is referenced to the \emph{learning} phase and so carries no \acrshort{rspre} half at all. The encoding shift measures how the communication hierarchy is displaced while the premises are shown; the inference-specific shift retains only the further displacement added during reasoning, with the encoding displacement already differenced out.
+
+Each component is read through the arm-symmetric estimator of Section~\ref{sssec:methods_compare_perpair}: the two equally-valid assignments of the \acrshort{rspre} halves to the task and rest sides are averaged, so that the estimate is invariant to the arbitrary \(A\!\leftrightarrow\!B\) labelling, and the single-arm value is retained only as a supplement. The encoding trace is the symmetrized correlation of the encoding shift with persistence, in the rank form and sign orientation of the primary trace,
+\begin{equation}
+    T_{\rm enc} = \tfrac{1}{2}\Big[\rho_{S}\!\left(\Delta_{\rm enc}^{A},\, \Delta_{\rm rest}^{B}\right) + \big(A\!\leftrightarrow\!B\big)\Big],
+    \label{eq:methods_arc_Tenc}
+\end{equation}
+where \((A\!\leftrightarrow\!B)\) denotes the mirror arm with the two \acrshort{rspre} halves exchanged; this is the cophenetic trace of Section~\ref{sssec:methods_compare_ctm} (equation~\eqref{eq:methods_rho_coph}) with the learning phase in place of the test phase, and asks whether the change induced by seeing the premises persists into post-task rest. The inference-specific trace asks whether the change added during reasoning persists once encoding is held constant, and removes the encoding contribution a second time as a first-order partial Spearman correlation, again arm-symmetrized,
+\begin{equation}
+    T_{\rm inf} = \tfrac{1}{2}\Big[\rho_{S}\!\left(\Delta_{\rm inf},\, \Delta_{\rm rest}^{B} \,\middle|\, \Delta_{\rm enc}^{A}\right) + \big(A\!\leftrightarrow\!B\big)\Big],
+    \label{eq:methods_arc_Tinf}
+\end{equation}
+in which the first-order partial Spearman correlation of two shifts \(x,y\) controlling a third \(z\) is
+\begin{equation}
+    \rho_{S}\!\left(x, y \,\middle|\, z\right) = \frac{\rho_{S}(x, y) - \rho_{S}(x, z)\,\rho_{S}(y, z)}{\sqrt{\left[\,1 - \rho_{S}(x, z)^{2}\,\right]\left[\,1 - \rho_{S}(y, z)^{2}\,\right]}},
+    \label{eq:methods_arc_partial}
+\end{equation}
+each \(\rho_{S}\) a Spearman coefficient across all \(N(N-1)/2\) contact pairs. Encoding is thus removed twice --- once in the reference of \(\Delta_{\rm inf}\) to the learning phase, and again by partialling \(\Delta_{\rm enc}\) out of the correlation --- which is what makes \(T_{\rm inf}\) inference-specific: it isolates persistence tied to the relations the patient inferred and not to the premises the patient was shown.
+
+The two component traces symmetrize on different axes. The encoding trace \(T_{\rm enc}\), whose two shifts each carry an \acrshort{rspre} half, symmetrizes on both, exactly as the primary trace does. The inference-specific shift \(\Delta_{\rm inf}\), by contrast, is referenced to no \acrshort{rspre} half and is therefore invariant under the \(A\!\leftrightarrow\!B\) exchange, so the symmetrization of \(T_{\rm inf}\) acts only on the two shifts that do carry a half --- the persistence shift and the encoding shift that conditions it --- a narrower average than for \(T_{\rm enc}\). In both cases the arm-symmetric estimator is computed identically on the observation and on every matched-strength surrogate, and each component trace is gated per band by the matched-strength surrogate null and the one-sided cohort Wilcoxon of Section~\ref{sssec:methods_compare_stats}, identically to the primary trace, with positive values in the trace direction.
+
+\paragraph{Scale dependence.}
+The decomposition is read at the canonical fine scale \(\tau_{\min} = 1/\lambda_{\max}\) and re-evaluated at coarser diffusion times \(\tau = c/\lambda_{\max}\), \(c \ge 1\), by rebuilding each cophenetic image \(\Dcoph\) at the new \(\tau\) before recomputing the arm-symmetric \(T_{\rm enc}\) and \(T_{\rm inf}\) of \eqref{eq:methods_arc_Tenc}--\eqref{eq:methods_arc_Tinf}. Larger \(\tau\) weights longer diffusion walks and so integrates the multi-step paths along which a transitive order chains, but the accessible range is bounded by how many diffusion modes the propagator still resolves, \(Z_{\rm eff}(\tau) = \Tr e^{-\tau\lapl} \in [1, N]\): as \(\tau\) grows the propagator relaxes toward its uniform mode and the hierarchy dissolves (\(Z_{\rm eff} \to 1\)), leaving no tree to read. We therefore evaluate the surrogate gate only where a hierarchy remains --- the fine scale \(c = 1\) and a mesoscale \(c \approx 2.6\), which still resolves a tree --- and read consistency across the two scales as scale-robustness of the trace, not as the location of any single optimal scale.
+
+\paragraph{Recording-length control.}
+The test recording is longer than the learning recording, and the inference-specific shift \(\Delta_{\rm inf} = \Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{taskl}}\) inherits that asymmetry, so a component that merely grew with recording length would confound it. We test the dependence directly, regressing the per-patient arm-symmetric \(T_{\rm inf}\) on the per-patient test-to-learn duration ratio across the cohort by Spearman correlation. The encoding trace, built from the shorter learning recording against baseline alone, carries none of the test-versus-learning length difference and is duration-immune by construction.

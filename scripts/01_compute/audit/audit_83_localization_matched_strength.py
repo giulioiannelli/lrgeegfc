@@ -62,7 +62,7 @@ from scipy.stats import rankdata
 
 from lrg_eegfc.utils.io.regions import load_channel_regions
 from lrg_eegfc.utils.metrics.node_localization import (
-    NON_ANATOMICAL, epi_keep_mask, shaft_of,
+    NON_ANATOMICAL, canonical_cophenet, epi_keep_mask, rank_concordance, shaft_of,
 )
 from lrg_eegfc.utils.scripting import setup_script_env
 from lrg_eegfc.config.paths import CACHE_ROOT
@@ -119,20 +119,21 @@ def concordance(dD_task, dD_rest):
     measure (feedback_no_partition_metrics_use_rho_coph + audit_73: magnitude
     weighting reintroduces strength structure and fails matched-strength).
     c_ij > 0 = sign-consistent trace direction.
+
+    Promoted to ``node_localization.rank_concordance`` (2026-06-25, second caller
+    audit_144); this thin wrapper preserves audit_83 call sites unchanged.
     """
-    n = dD_task.size
-    mid = (n + 1) / 2.0
-    return (rankdata(dD_task) - mid) * (rankdata(dD_rest) - mid)
+    return rank_concordance(dD_task, dD_rest)
 
 
 def _canon_cophenet(W):
     """Canonical LRG cophenetic (condensed) built with the IDENTICAL function
     the surrogate uses (``cophenetic_condensed_from_eigs`` on ``eigh(L)``), so
-    observed and surrogate trace are constructed the same way."""
-    W = np.asarray(W, dtype=np.float64)
-    deg = W.sum(axis=1)
-    ev, V = np.linalg.eigh(np.diag(deg) - W)
-    return cophenetic_condensed_from_eigs(ev, V)
+    observed and surrogate trace are constructed the same way.
+
+    Promoted to ``node_localization.canonical_cophenet`` (2026-06-25); thin wrapper.
+    """
+    return canonical_cophenet(W)
 
 
 def obs_trace(pat, band):
@@ -289,6 +290,12 @@ def run_band(band, epi_excl, verbose=True, shaft_collapse=False):
             M_surr = np.median(Rmat, axis=0)                 # (R,)
             nval = M_surr.size
             p_ms = (1 + int(np.sum(M_surr >= M_obs))) / (nval + 1)
+            # lower-tail: observed unit trace BELOW its strength-matched
+            # surrogate = trace DEPLETION / anti-trace specificity. Additive
+            # column (upper-tail p_ms unchanged → OFC q=0.009 lock bit-stable);
+            # used for the sensorimotor "trace lives in the cognitive-map core,
+            # absent in sensorimotor" claim at matched-strength grade.
+            p_ms_lower = (1 + int(np.sum(M_surr <= M_obs))) / (nval + 1)
             strv = strength_um[g].get(u, {})
             str_med = (float(np.median([strv[p] for p in samplers if p in strv]))
                        if any(p in strv for p in samplers) else np.nan)
@@ -297,7 +304,8 @@ def run_band(band, epi_excl, verbose=True, shaft_collapse=False):
                 "granularity": g, "unit": u, "K_implanted": K,
                 "M_obs": M_obs, "surr_mean": float(np.mean(M_surr)),
                 "surr_median": float(np.median(M_surr)),
-                "matched_strength_p": p_ms, "n_surr": nval,
+                "matched_strength_p": p_ms,
+                "matched_strength_p_lower": p_ms_lower, "n_surr": nval,
                 "strength_dev_median": str_med,
             })
             if verbose and u in ("MTL", "Hip", "OFC", "limbic", "paralimbic_core"):
@@ -310,6 +318,11 @@ def run_band(band, epi_excl, verbose=True, shaft_collapse=False):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--band", default=None)
+    ap.add_argument("--all-bands", action="store_true",
+                    help="run all 6 bands (delta..high_gamma) for the per-band "
+                         "consistency-taxonomy lock; writes a separate "
+                         "_allbands CSV so the locked alpha/beta/low_gamma "
+                         "matched_strength_*.csv is never overwritten")
     ap.add_argument("--epi-mode", choices=["include", "exclude"], default=None)
     ap.add_argument("--shaft-collapse", action="store_true",
                     help="collapse each electrode shaft to one value before "
@@ -321,9 +334,16 @@ def main():
     args = ap.parse_args()
     global R
     R = args.R
-    bands = [args.band] if args.band else TARGET_BANDS
+    ALL_BANDS = ["delta", "theta", "alpha", "beta", "low_gamma", "high_gamma"]
+    if args.all_bands:
+        bands = ALL_BANDS
+    elif args.band:
+        bands = [args.band]
+    else:
+        bands = TARGET_BANDS
     epis = ([args.epi_mode == "exclude"] if args.epi_mode else [False, True])
-    suffix = ("_shaftcollapsed" if args.shaft_collapse else "") \
+    suffix = ("_allbands" if args.all_bands else "") \
+        + ("_shaftcollapsed" if args.shaft_collapse else "") \
         + (f"_R{args.R}" if args.R != 200 else "")
     OUT_ROOT.mkdir(parents=True, exist_ok=True)
     for epi_excl in epis:

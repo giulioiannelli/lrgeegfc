@@ -1,0 +1,40 @@
+% =====================================================================
+% R2.6 — "The inference component concentrates in the cingulate, away from the OFC anchor"
+% Sixth paragraph of Result 2 (flagship). Follows R2.5 (low-gamma cingulate memory).
+% The encoding->OFC (R2.3) vs inference->cingulate double dissociation. Sets up R2.7.
+%
+% ESTIMATOR = rho_sym (MIGRATED 2026-07-07, audit_160 — reruns audit_110's inference_pe
+%   demeaned localizer with the symmetric two-arm partial concordance; f=D_test-D_learn
+%   arm-invariant, e & p swap). NO rho_split number. Anchor PASS bit-exact: arm1
+%   inference_pe M_obs per beta/system == audit_110 inference_mark_R1000 (max|Δ|=5.8e-11).
+% NUMBERS (data/audit/inference_localization_rhosym/inference_pe_localization_rhosym_{include,exclude}.csv,
+%   R=1000, verified 2026-07-07) — beta inference_pe, demeaned system enrichment:
+%     include: CINGULATE M=+4.30e5 (arm1 +4.36e5), p_up=0.003, BH q_up=0.030, strdev=+0.04
+%              -> ONLY system clearing BH. Next: insula q=0.78. OFC p_up=0.46 (null).
+%     exclude: CINGULATE M=+4.79e5 (arm1 +4.90e5), p_up=0.004, BH q_up=0.040, strdev=+0.05
+%              -> ONLY system clearing BH. Next: occipital q=0.29. OFC p_up=0.54 (null).
+%   near-average coupling (strdev ~0), NOT hub-driven; OFC (the encoding anchor) does NOT
+%   concentrate inference. beta CINGULATE ENCODING is null (audit_158: p=0.235 incl /
+%   0.073 excl) -> cingulate carries inference, not memory, in beta (the R2.7 dissociation).
+% !!! SURPRISE vs rho_split: under rho_sym the inference->cingulate localization is STRONGER
+%   than the rho_split "BH-borderline hint" (audit_110) -- it CLEARS BH in BOTH epi modes.
+% CEILING / DIRECTIONAL LEAD not a settled location (RESOLVED 2026-07-07, audit_161):
+%   f=D_test-D_learn carries the test/learn length asymmetry. FULL-LENGTH matched-strength:
+%   cingulate CLEARS (q=0.030/0.040, audit_160), sole concentration; whole-brain beta inference
+%   is duration-clean (R2.4, rho=+0.10, p=0.78). BUT the LENGTH-MATCHED localization control under
+%   rho_sym (audit_161 -- truncate task_test to task_learn length, cached lm_head R=200 surrogate,
+%   arm1==audit_113b Δ=5.8e-11) shows cingulate does NOT survive length-matching: BH q=0.15 include
+%   (raw p=0.030 but cingulate/insula/occipital tie ~q=0.15, none clears) / q=0.30 exclude
+%   (occipital leads p=0.010 q=0.10; cingulate p=0.060 q=0.30). => the full-length concentration
+%   is LENGTH-ASSISTED, replicating the rho_split downgrade. Verdict: cingulate = DIRECTIONAL LEAD
+%   (consistent sign, away from OFC), NOT an established inference location. R2.6 reports BOTH
+%   nulls (full-length clears / length-matched does not); do NOT upgrade to a hotspot.
+% Guardrails: matched-strength IS the gate; report the length caveat on line of the claim;
+%   no behavioural claim; no absence-narration; register = NN results (feedback_results_not_story).
+% Provenance: audit_160_inference_localization_rhosym.py; audit_110 (rho_split original);
+%   headline 02_encoding_vs_inference.md (N2.3/N2.5); outline R2.6.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The inference component concentrates in the cingulate, away from the orbitofrontal anchor.}
+Encoding anchors in \gls{ofc}; the inference-specific component concentrates elsewhere. Localized with the same demeaned system-enrichment test in \(\beta\), its one cortical concentration at full length is the cingulate --- the only system clearing correction (\gls{bh} \(q = 0.030\) with all contacts, \(q = 0.040\) with the \gls{soz} excluded), in nodes of near-average coupling rather than hubs --- while \gls{ofc}, the encoding anchor, carries none of it, and the cingulate in turn carries none of the \(\beta\) memory trace. Encoding and inference thus fall in different cortex: the premises the patient was shown in \gls{ofc}, the relations the patient reasoned out in the cingulate. One control holds this to a direction rather than a fixed location. The inference contrast \(f = D_{\mathrm{test}} - D_{\mathrm{learn}}\) carries the test/learn length difference, and while the whole-brain inference component does not scale with it (above), the cingulate concentration does not survive matching the two recordings' lengths: truncating the test phase to the learning phase's length drops it below correction (\(q = 0.15\) with all contacts, \(q = 0.30\) with the \gls{soz} excluded). The direction is consistent --- inference leans to the cingulate, away from the orbitofrontal encoding anchor --- but the concentration is length-assisted, so we read the cingulate as the directional lead for the inferred relations, not an established location.

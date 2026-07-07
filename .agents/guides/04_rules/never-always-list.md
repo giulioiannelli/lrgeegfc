@@ -25,6 +25,16 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
 - Never mock FC data in hypothesis-level tests — mocks masked a prod
   migration failure once already.
 - Never run scripts outside the `lapbrain` conda env.
+- Never place repository information or code / implementation
+  technicalities in the paper — no numba/JIT, run-times or speedups
+  ("98× faster"), bit-identical / reproducibility notes, code-QA
+  parentheticals ("verified to 1e-6 per surrogate"), script / audit
+  names, or cache paths. The paper reports the scientific method + result;
+  that detail belongs in the repo, not the manuscript. Keep the
+  statistical parameters (e.g. `R = 200` surrogates, strength preserved to
+  machine precision); drop how-it-ran-fast and how-it-was-verified-in-code.
+  (Added 2026-07-07 — user deleted the numba "Reproducibility" paragraph
+  from the methods; `feedback_no_repo_or_code_technicalities_in_paper`.)
 - Never start a new scalar hypothesis test when the signal is visible
   in existing VI(k) / partition-multiscale / H2d-θ artifacts — surface
   the existing signal first.
@@ -42,10 +52,32 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   around it. (CRC + coordinated SB-CRC archived 2026-06-12;
   `feedback_no_opaque_matrix_nulls`,
   `scripts/archive/2026-06_opaque-matrix-nulls/POSTMORTEM.md`.)
+- Never run or present a spatial-/proximity-matched null on `|ImCoh|`
+  (`imcoh_abs`) findings, and never frame physical proximity as a
+  connectivity confound. `|ImCoh|` is zero-lag-immune (Nolte 2004) so
+  proximity **cannot** enter connectivity; a spatial null wrongly
+  removes **real** local connectivity — it destroys signal, not a
+  confound, and is the wrong control (not "the hardest null"). The only
+  mandatory null is **matched-strength**. For a SOZ marker the
+  CONNECTIVITY claim = all-contacts AUC vs matched-strength (audit_132,
+  multiband δ/β/low-γ); off-shaft leave-one-shaft-out answers a separate
+  CLINICAL question ("finds SOZ a distance ruler can't") and must NOT be
+  the default headline — it over-handicaps the connectivity claim.
+  (Locked 2026-06-22, refined 2026-06-23; `feedback_no_spatial_proximity_null`.)
 - Never delete files that document research history — `git mv` to
   `<parent>/archive/YYYY-MM/` instead.
 - Never pool metrics into a consensus scalar (explicitly forbidden by
   the user).
+- Never present the ρ_sym cophenet **cohort gate** as cleanly separating
+  trace bands from non-trace bands. At n=10 the signed-rank p is discrete
+  and γ_l/γ_h/δ sit at p=.080 (~1 patient from the p<.05 line); β itself
+  is only 7/10 positive and clears on **magnitude**, not count. ρ_sym also
+  COMPRESSES the separation vs ρ_split (α/β less extreme, γ/δ pulled up to
+  marginal). Present the **graded tiers** (clear α/β · marginal γ_l/γ_h/δ
+  · absent θ) + the per-patient spread — never a clean "α/β trace vs rest
+  no-trace" binary. β's flagship status rests on magnitude + Grassmann +
+  OFC convergence, NOT this single gate. (Locked 2026-07-06;
+  `feedback_rho_sym_gate_marginal_not_clean_bands`.)
 - Never skip frontmatter on a new `.agents/` .md file.
 - Never invent metric names — cite literature or existing code.
 - Never apply BH-FDR / Bonferroni / Holm (or any multiple-comparison
@@ -246,6 +278,19 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   strength `weaken`, so the real result is gray-dominance (gray↔gray
   cophenetic pair-count hotspot), not "core spared". See
   `feedback_results_only_in_laplacian_framework.md`.
+- **Never switch the core Laplacian operator without explicit user
+  sign-off.** The analysis operator is the combinatorial Villegas
+  "fluid" Laplacian `L̂ = D̂ − W` and its propagator `e^{−τL̂}` — the LRG
+  framework. Do NOT substitute a symmetric-normalized
+  (`I − D^{-1/2}WD^{-1/2}`), random-walk (`I − D^{-1}W`), signed, or
+  magnetic Laplacian to "debias strength" or for any other reason on
+  your own initiative — a result on a different operator is not an LRG
+  result and leaves the framework. When the combinatorial `D_τ` is
+  strength-confounded, address it with the matched-strength null
+  *inside* the framework, never by changing the operator. Offering an
+  operator change as an option ≠ authorization to run it. Locked
+  2026-07-07 (user washed out an unauthorized symmetric-normalized
+  diffusion detour). See `feedback_combinatorial_laplacian_only.md`.
 - **Never stack hardcoded patient-count / fractional-agreement /
   magnitude-ratio filters on top of a statistical test for any
   cohort verdict that ships to a writeup, manuscript, errata, or
@@ -299,6 +344,43 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   correction (2026-05-26 evening): not a banned-word problem, an
   evidence-weighting problem. See
   `feedback_no_qualitative_editorializing.md`.
+- **Never compress a band/cohort verdict to a single number (cohort
+  median, gate `p`, pass/fail tag, or a one-glyph figure marker) when
+  the per-patient fluctuations are large — surface the spread, it may
+  carry the result.** This extends the editorializing rule above from a
+  reporting-hygiene point to a *scientific* one: large cross-patient
+  heterogeneity is itself a candidate finding (the trace may concentrate
+  in a subset of patients — possibly implant-coverage / anatomy-driven —
+  not a uniform cohort effect), never noise to average away. Do not say
+  "trace / no trace" with ease. Evidence (2026-06-25 figure session):
+  cophenetic α *passes* (median Д=0.091, 9/10) while γ_l *fails* (median
+  Д=0.081) though γ_l carries **3 patients above β's max** effect —
+  magnitude-blind sign-consistency; on Grassmann γ_h has the **largest**
+  median per-patient effect (z≈9, 5 above β's max) yet is "no trace", and
+  a naive per-patient collapse flips the band ordering. In FIGURES: plot
+  the 10 per-patient effects so the spread is the dominant visual; the
+  verdict is subordinate annotation, never a hiding glyph (the
+  forest-corner-glyph antipattern that made δ/γ_l/γ_h look like β). The
+  locked verdicts still stand as the correct cohort tests; this governs
+  how they are *reported and drawn*. Builds on
+  `feedback_no_qualitative_editorializing` +
+  `feedback_no_single_patient_p_driven`. See
+  `feedback_fluctuations_are_signal.md`.
+- **Never narrate the study or use essayistic / literary register in
+  paper prose — present results, not a story.** When writing manuscript
+  prose the user HAS asked for, three registers are banned (PI 2026-07-06,
+  "never ever from now on"): (1) stating an absence — "there is no behavioral
+  record", "task performance was not collected / cannot be obtained", "X was
+  not available"; say what IS available, never what is not, and NOT even a
+  terse caveat in Methods (PI sharpened 2026-07-06). *Enact* a ceiling by not
+  overclaiming (make no behavioral claim); convey an absence by silence. (2) essayistic meta-framing of our own reasoning —
+  "Two cautions keep that reading within its evidence", "The second caution
+  is more fundamental and bounds the whole section"; state the finding, then
+  mark interpretation with a plain "we interpret X as Y". (3) literary /
+  poetic register — "mundane alternative", "licensed by", "a representation
+  we decode", metaphors like "echo". Register = Nature Neuroscience results
+  section. Caught 2026-07-06 in R2.1 para 2. See
+  `feedback_results_not_story.md`.
 - **Never write LaTeX prose or suggest manuscript edits unless the
   user explicitly asks.** The manuscript is the user's domain.
   Quantitative reports stop at the per-patient table + test `p` + LOO.
@@ -511,6 +593,28 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   original test result, but the manuscript text must flag it
   explicitly (e.g., *"p = 0.005 overall, p = 0.07 after dropping
   Pat_XX"*). See `feedback_no_single_patient_p_driven.md`.
+- **Always optimize heavy compute, time-estimate it on a small batch
+  first, and surface live progress + timing.** Three-part discipline for
+  any pipeline that could run more than ~1 minute (surrogates, sweeps,
+  per-patient×per-band grids, LOO, bootstraps):
+  1. **Optimize before launching, don't after.** Hot numeric loops
+     (surrogate shuffles, cophenetic reconstructions, rank stats) get a
+     numba `@njit` / vectorization / cached-eigendecomposition pass FIRST.
+     A version that would run for hours unoptimized is not acceptable to
+     launch — the numba shuffle is 98× over pure Python and bit-identical
+     (`feedback_numba_for_surrogates`). Extend that reflex to every heavy
+     kernel, not just the surrogate shuffle.
+  2. **Time a small batch, then extrapolate — never launch a long run
+     blind.** Run 1–2 units (one patient, one band, R=5) wall-clock-timed,
+     multiply out to the full job, and state the estimate BEFORE launching
+     the full pipeline. If the extrapolation is hours, stop and optimize
+     (rule 1) or shrink the job.
+  3. **Surface progress + timing in the code.** Long scripts print a live
+     `[i/N] label  elapsed=…s  ETA=…s` line per unit with **`flush=True`**
+     (block-buffered stdout under redirection hides un-flushed prints —
+     always flush), plus a total wall-clock at the end. The user must be
+     able to see where the run is at any moment, not guess. See
+     `feedback_optimize_time_and_surface_progress.md`.
 
 ## Meta-rule
 

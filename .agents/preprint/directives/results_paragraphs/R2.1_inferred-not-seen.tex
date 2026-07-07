@@ -1,0 +1,43 @@
+% =====================================================================
+% R2.1 — "What persists is the order the brain inferred, not just the pairs it saw"
+% FLAGSHIP opener of Result 2 (offline abstraction of a learned structure).
+% Follows R1 (held, multiscale, OFC-localized trace); opens the encoding-vs-inference
+% decomposition made possible by the four-phase design.
+%
+% ESTIMATOR = rho_sym (of record 2026-07-06; audit_152 consolidation-arc migration).
+%   NO rho_split number in this paragraph. Same audit_103/audit_83 matched-strength
+%   surrogate (R=200, cached, NO regeneration); arm1 reproduces audit_83 to 1e-16.
+% DECOMPOSITION (per region-pair cophenetic distance D; Methods):
+%   e = D_taskLearn - D_restPre          (encoding: change while premises SHOWN)
+%   f = D_taskTest  - D_taskLearn        (inference-specific: added change during reasoning)
+%   p = D_restPost  - D_restPre          (persistence into post-task rest)
+%   T_learn      = corr(e, p)            (does the SEEN change persist?)
+%   T_infspec_pe = partialcorr(f, p | e) (does the REASONED change persist, encoding held out?)
+% NUMBERS (data/audit/consolidation_arc_rhosym/arc_cohort_verdict.csv, verified 2026-07-06):
+%   INFERENCE-SPECIFIC T_infspec_pe (matched-strength Wilcoxon p = the GATE):
+%     beta  +0.091 vs surr +0.005, 6/10 above own null, p=0.0098, LO-P15 p=0.0195  <- THE result
+%     delta p=0.246 | alpha 0.278 | high_gamma 0.313 | theta 0.813 | low_gamma 0.935 -> beta-ONLY
+%   ENCODING ECHO T_learn (setup): alpha +0.191 p=0.014 (LO-P15 0.004);
+%     beta +0.244 p=0.032 (LO-P15 0.020); delta marginal (0.042); others null.
+%   (Full test-phase trace T_test alpha/beta p=0.032 = N1-equivalent; context only, not cited.)
+% CEILING — ENACTED, NOT NARRATED (PI 2026-07-06): make NO behavioral claim anywhere; the
+%   signature is inference-specific REORGANIZATION that persists, NEVER inference SUCCESS.
+%   Do NOT narrate the limitation in prose -- "no behavioral record" / "performance not
+%   collected/cannot be obtained" are BANNED; no essayistic meta ("two cautions keep that
+%   reading..."); no literary register ("mundane", "licensed by", "a representation we
+%   decode"). Flag abstraction as interpretation with a plain "we interpret X as Y", no more.
+%   Register = Nature Neuroscience results, not a story. See feedback_results_not_story.
+% ALTERNATIVE named: duration (task_test 1.35-2.53x longer than task_learn; f inherits the
+%   asymmetry). Deferred to R2.4 (length-ratio regression, to be re-verified under rho_sym at
+%   R2.4 draft). beta-ONLY already argues against a generic length effect.
+% Guardrails: LRG/cophenetic framework; matched-strength IS the gate (no count/magnitude
+%   filters); beta-only stated; no behavioural claim; abstraction = interpretation.
+% Provenance: audit_152_consolidation_arc_rhosym.py (supersedes audit_103 as estimator of
+%   record); headline .agents/preprint/headlines/02_encoding_vs_inference.md (§A, N2.1/N2.2).
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{What persists is the order the brain inferred, not just the pairs it saw.}
+The previous section established that a task-driven reorganization is held in post-task rest and, in \(\beta\), concentrates in \gls{ofc}; it did not establish what that reorganization represents. Answering that requires separating two processes the task combines. The patient first \emph{learns} a set of premise pairs by being shown them (\acrshort{taskl}: A above B, B above C, and so on), and then in the \emph{test} phase reasons about novel pairs that were never shown (\acrshort{taskt}: does A outrank D?). The trace of the previous section was read from the test phase alone, so it cannot separate what the brain retains from seeing the premises from what it retains of the relations it had to infer. The four-phase recording --- \acrshort{rspre}, \acrshort{taskl}, \acrshort{taskt}, \acrshort{rspost} --- separates them, because the learning phase provides a reference for the seen-only part, with no inference required. We split the persistent reorganization into an encoding component (the change while the premises were shown) and an inference-specific component (the further change during reasoning, holding the encoding change constant), and tested whether each is retained in post-task rest. Both are, in different rhythms. The encoding change persists in \(\alpha\) and \(\beta\), each against its own strength-matched surrogate (\(p = 0.014\) and \(p = 0.032\)). The inference-specific change --- what remains once the encoding change is removed --- persists in \(\beta\) alone: it clears the same surrogate at \(p = 0.010\) (6 of 10 patients above their own null), while every other band is null (next-smallest \(p = 0.25\)). In \(\beta\), then, the retained reorganization is not only the encoding of the premises the patient was shown but includes a component tied specifically to the relations the patient inferred.
+
+We interpret the persistent \(\beta\) component as an offline abstraction of the learned structure: the order the patient inferred is retained at rest, after reasoning has ended, and --- unlike the transient reinstatement ruled out earlier --- it is held rather than replayed. Its band-specificity constrains the leading alternative, that the component instead tracks the test recording being longer than the learning recording, because a difference in recording length would not be confined to \(\beta\); we test this dependence directly below.

@@ -72,8 +72,9 @@ tree is the more cophenetically task-like of the two.
   is dominated by the bulk of far-apart pairs, so a coloured leaf can still sit
   in a different local cluster. Therefore:
   - **No node-by-node narration**, no naming individual contacts as "persistent."
-  - **No anatomy / localization** read off this figure (cohort and per-patient
-    localization are null / retracted — the trace is spatially delocalized).
+  - **No anatomy / localization** read off this figure (the multi-region DK lists are
+    retracted; β's one audited localization — the OFC *system*, `ANATOMY_LEDGER.md` 2026-06-10 —
+    is a separate system-scale analysis, not read off this dendrogram).
   - **Do not** describe a *sparse set* of persistent nodes. The colour is broad
     and graded; that breadth is exactly the delocalized nature of the trace.
 - **Do not redefine the measure here** — cophenetic distance / ρ^coph belong to

@@ -1,0 +1,38 @@
+% =====================================================================
+% R3.4 — "The read-out co-locates with the clinical seizure-onset zone, and no further"
+% CLOSER of Result 3 (and of Results). Enacts the ceiling with numbers; does NOT narrate it.
+% (Was R3.5; renumbered 2026-07-07 when the seed-free negative paragraph was cut from Results.)
+%
+% READ-OUT = the detector of R3.2/R3.4. NOT rho_sym.
+% NUMBERS (verified 2026-07-07 first-hand; data/audit/epi_propagator_detector/README.md +
+%   occult_candidates_graymatter.csv):
+%   GROUND TRUTH = clinical seizure-onset labels, NOT resection + surgical outcome (Engel/ILAE).
+%   TRIAGE precision = prec@5 0.60 (the R3.2 number, restated as scope; "~7x chance" NOT repeated).
+%   PRECISION CEILING is structural (target rarity x ranker AUC); no filter rescues it:
+%     white-matter filter -> prec@5 0.46 (DOWN), because 53/129 = 41% of true SOZ are
+%       white-matter-labelled -> filtering DELETES targets.
+%     responder-gating 0.58; confidence-abstain 0.62 (only at recall 0.22) -> none lift it.
+%   OCCULT CANDIDATES = HYPOTHESES (occult_candidates_graymatter.csv), NONE outcome-validated:
+%     Pat_13 hippocampus P 0.84/0.77; Pat_14 hippocampus/amygdala 0.78/0.54;
+%     Pat_06 medial-orbitofrontal P 0.79 (echoes the beta-trace OFC locus).
+%     If any are true-but-unmarked SOZ, measured precision is a LOWER bound.
+% PI 2026-07-07: scope must LEAD with what the marker IS (mechanistic, coordinate-free,
+%   cross-patient, ONE-operator) and THEN bound it. Opening with limitations reads as
+%   self-destruction / "sells the marker as useless". BANNED phrasings: "defensible claim",
+%   "hypotheses rather than findings", any limitations-first ordering. Positive-first, honest
+%   bounds bound to numbers. Reframe WM as a PROPERTY (marker spans WM where 41% of SOZ sit),
+%   NOT as "filters fail". Occult contacts = candidate sites for prospective testing (a generative
+%   output), NOT a confession.
+% REGISTER (feedback_results_not_story -- "enact ceilings, don't narrate"):
+%   NO essay-meta ("a few cautions", "honest scope"); NO absence-narration ("we lack outcome
+%   data"). Bind every limit to a NUMBER: triage=0.60, WM=41%/0.46, occult P=0.79. End on the
+%   one-operator claim (ties R3 back to R1/R2), stated as a bounded fact, not a flourish.
+% Guardrails: clinical-label not outcome is THE binding ceiling; triage not localizer; WM is a
+%   RESULT (41%) not a lament; occult = hypotheses; no repo/script technicalities in prose.
+% Provenance: audit_117 (detector README: ceiling, WM, occult); headline 03_epileptogenic_markers.md
+%   (N3.4); outline R3.4.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{A mechanistic marker of the seizure-onset zone, calibrated for triage.}
+The marker is mechanistic and coordinate-free: it is computed only from the diffusion propagator on the volume-conduction-immune connectivity graph, carries no amplitude, tissue, or proximity prior, and transfers across patients --- a connectivity signal that co-locates with the clinically defined seizure-onset zone, read from the same operator that carries the cognitive trace. Because it is calibrated against those clinical labels rather than against resection and surgical outcome, it is a triage aid --- a top-five precision of \(60\%\), a roughly sevenfold enrichment over the base rate --- rather than a standalone localizer. It applies to gray and white matter alike: \(41\%\) of the seizure-onset contacts lie in white matter, which the marker ranks without a gray-matter prior. Its highest-ranked unmarked contacts --- in hippocampus, amygdala, and the medial orbitofrontal cortex where the \(\beta\) trace concentrates --- are candidate occult sites for prospective testing, any of which, if genuine, would raise the precision reported here.

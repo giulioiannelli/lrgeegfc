@@ -1,0 +1,52 @@
+% =====================================================================
+% R3.1 — "Seizure-onset contacts form a co-organized diffusion group, not a contact-by-contact label"
+% OPENER of Result 3 (clinical coda: the same propagator localizes epileptogenic tissue).
+% Bridges from R2 (cognitive trace) via the ONE-OPERATOR point: the same e^{-tau L} propagator.
+% CRITICAL (do NOT regress): the trace read-out rho^coph (= rho_sym) is a SPEARMAN correlation of
+% cophenetic distances ACROSS PHASES -- it is NOT the propagator and NOT "the propagator
+% reorganizing". Chain: propagator rho(tau)=e^{-tau L}/Z -> comm. distance 1/rho -> UPGMA
+% dendrogram -> cophenetic distances D_coph -> Spearman(D_coph) across phases = the trace.
+% R3 uses the propagator DIRECTLY, within one phase, as a contact-to-contact diffusion AFFINITY
+% to seeds -- none of the distance/dendrogram/cophenetic/Spearman machinery. Never conflate.
+%
+% READ-OUT = within-phase propagator heat-kernel affinity rho(tau)=e^{-tau L}/Z.
+%   NOT rho_sym / NOT a cross-phase trace estimator. No split-half; per-band, per-node.
+%   Substrate = interictal resting |ImCoh| graph (phase-stable: present in rest and task).
+% NUMBERS (verified 2026-07-07):
+%   NODE-LEVEL FAILS: within-patient collapses to coupling strength (hubness); cross-patient no
+%     transfer (audit_80/81/85/86/87). NB electrode depth is NOT a node measure and is deliberately
+%     kept OUT of this paragraph -- depth only "predicts" SOZ because shafts are implanted to reach
+%     suspected epileptic tissue (a placement confound); it belongs to the seed-free story (R3.3).
+%     Context, no number.
+%   RELATIONAL CO-ORGANIZATION MAGNITUDE (audit_132 all-contacts, matched-strength = the GATE;
+%     data/audit/epi_marker_allcontacts/allcontacts_{cohort,nulls}.csv):
+%     heat tau5 strength-RESIDUAL median AUC (SOZ vs healthy), all contacts:
+%       delta 0.801 | low_gamma 0.739 | beta 0.692 | alpha 0.598 (marginal).
+%     matched-strength label-shuffle null (N=300): null median ~0.49, p95 ~0.55-0.57;
+%       p_empirical = 0.0 (0/300 draws >= observed) for delta/low_gamma/beta/alpha
+%       -> HONEST statement = "no permutation of 300 reached the observed value" (NOT "p<0.001",
+%       which overstates 300-perm resolution).
+%     per-patient beat own matched-strength p95: delta 7/10, low_gamma 6/10, beta 7/10,
+%       alpha 6/10 (README table). Slow heat-kernel wins; PPR/comm ~0.62; strength=0.5.
+%   DISTANT / OFF-SHAFT (seed-based clinical-utility demonstration; audit_101/102;
+%     data/audit/epi_marker_library/marker_library_per_patient.csv + verify_{nulls,lopo}.csv):
+%     delta heat-kernel slow-tau, leave-one-shaft-out, strength-residual DISTANT AUC
+%     median 0.72, 8/10 patients; label-shuffle null p=0.000 (null median ~0.487);
+%     nested-LOPO held-out 0.72. delta-ONLY for distant (beta/low_g/alpha ~chance off-shaft).
+% NOT PROXIMITY: |ImCoh| is zero-lag-immune (Nolte 2004) -> volume conduction cannot enter;
+%   the off-shaft demonstration confirms it empirically. Per feedback_no_spatial_proximity_null,
+%   matched-strength is the ONLY mandatory null; DO NOT foreground a spatial-matched null
+%   (audit_90 C5 passed but is belt-and-suspenders and superseded by audit_132 framing).
+% Two-population caveat (Pat_10/15 hubs) DEFERRED to R3.4; clinical-label scope DEFERRED to R3.5.
+% Guardrails: matched-strength IS the gate; report per-band honestly (delta strongest, alpha
+%   marginal); no clinical-superiority claim (connectivity read-out only); no repo/script
+%   technicalities in prose (feedback_no_repo_or_code_technicalities_in_paper); register = NN
+%   results, ceilings enacted not narrated (feedback_results_not_story).
+% Provenance: audit_132 (all-contacts connectivity), audit_101/102 (distant marker+verify),
+%   audit_89/90 (relational co-diffusion community); headline 03_epileptogenic_markers.md (N3.1);
+%   outline R3.1. Supersedes off-shaft-only framing (memory epi_allcontacts_marker_2026_06_23).
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{Seizure-onset contacts form a co-organized diffusion group, not a contact-by-contact label.}
+The cognitive trace is a cross-phase correlation --- it measures how much the task's reorganization of the diffusion hierarchy persists into rest. That hierarchy is built from a propagator on the connectivity graph, the heat kernel \(e^{-\tau L}\); read directly instead, within a single recording, as the diffusion affinity between two contacts, the same propagator localizes epileptogenic tissue. A contact-by-contact marker of the seizure-onset zone does not exist here: within a patient any contact-level signal collapses into how strongly the contact is coupled, and across patients no contact-level rule transfers. Read relationally, the picture changes. The seizure-onset contacts diffuse together: a contact's heat-kernel affinity to the rest of the seizure set separates seizure from healthy contacts, over and above node strength --- the summed weight of a contact's connections, which by itself carries some signal because seizure tissue tends to be hyperconnected. With that strength baseline removed, the affinity still reaches \gls{auc} \(0.80\) in \(\delta\), \(0.74\) in \(\lowgamma\), and \(0.69\) in \(\beta\) --- higher, in each band, than contacts of matched coupling strength reach by chance (no reshuffle in \(300\) met it) --- holding in \(7\) of \(10\) patients for \(\delta\), \(6\) for \(\lowgamma\), and \(7\) for \(\beta\), strongest in \(\delta\) and present across several rhythms, with \(\alpha\) marginal (\(0.60\)). Because the \gls{imcoh} substrate is immune to zero-lag volume conduction, this grouping cannot be spatial proximity --- and given seizure contacts on some electrodes as seeds, the same affinity ranks the seizure contacts on \emph{other} electrodes above healthy ones (\(\delta\), \gls{auc} \(0.72\), \(8\) of \(10\) patients, a shuffle of the labels collapsing to chance), the non-trivial case in which distance to a known contact is useless. The seizure zone is thus organized as a strength-independent, distributed diffusion group, not a set of individually marked contacts.

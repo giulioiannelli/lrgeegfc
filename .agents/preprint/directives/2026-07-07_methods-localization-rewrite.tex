@@ -1,0 +1,118 @@
+% =====================================================================
+% METHODS REWRITE — Anatomical localization (sssec:methods_anatomy)
+% Drafted 2026-07-07. ρ_sym-NATIVE rewrite 2026-07-07 (was single-arm/ρ_split-framed).
+% Supports R1.2 (test-phase trace -> OFC) and R2.3 (encoding -> OFC).
+%
+% ⚠ THIS IS A REPLACEMENT, NOT AN INSERT. The current Methods subsection
+%   \subsubsection{...}\label{sssec:methods_anatomy} describes the RETRACTED localization
+%   method: top-decile |Delta rho_split| pair enrichment, counted per Desikan-Killiany REGION,
+%   Fisher/hypergeometric + BH across DK regions ("A1"). That method was retracted 2026-05-30
+%   (a structural false-negative at n=10 / <=5 contacts-per-region) and does NOT produce the
+%   OFC verdict. The Results (R1.2/R2.3) already describe the CURRENT system-level matched-
+%   strength statistic below, so Methods and Results are currently INCONSISTENT.
+%
+% WHAT CHANGED IN THE ρ_sym REWRITE (the reason for this file's second version)
+%   The first draft defined the per-pair concordance c(i,j) SINGLE-ARM (normalizing to
+%   ρ_split) and mentioned arm-symmetrization only in prose. But the localization estimator
+%   OF RECORD (audit_151 _sym_concordance) uses the SYMMETRIC per-pair concordance
+%       c = ½[ concordance(D_task−D_A, D_post−D_B) + concordance(D_task−D_B, D_post−D_A) ]
+%   applied identically to the observed trace and to every matched-strength surrogate, so it
+%   sums to ρ^coph (the symmetric trace of record), NOT ρ_split. The defining equation is now
+%   the symmetric concordance; the single-arm c^A is a supplement. This mirrors the
+%   encoding/inference sheet's ρ_sym rewrite and the primary trace's eq:methods_rho_coph.
+%   Verbatim source: node_localization.rank_concordance (centered-rank product,
+%   Σc/[P(P²−1)/12]=ρ_split) + audit_151 _sym_concordance / unit_means_from_s / p_ms tails;
+%   audit_155 (β OFC robustness: 4 conditions, LOO, shaft-collapse).
+%
+% PRECISION FIX (audit_151 semantics): in the localization the epi-{inclusion,exclusion}
+%   factor is a READOUT filter — exclusion drops seizure-onset contacts from the anatomical
+%   universe (the demean + per-system aggregation) while the concordance is computed on the
+%   FULL graph in both cases. No hierarchy is rebuilt, so (unlike the global epi-exclusion of
+%   Section stats) NO node-count decimation control is needed here. State this precisely.
+%
+% ACTION
+%   (1) Replace the ENTIRE body of the current \label{sssec:methods_anatomy} subsubsection
+%       (the retracted A1 DK-region enrichment) with the \subsubsection block below.
+%   (2) Per the review, LIFT this subsubsection OUT of ssec:methods_arc (it is currently the
+%       terminal child of the encoding/inference subsection): make it its own \subsection, or
+%       move it under ssec:methods_compare. It localizes the PRIMARY trace first (R1.2).
+%   (3) Also fix the cross-reference summary in sssec:methods_compare_stats
+%       (rho-sym sheet CHANGE 6, \paragraph{Anatomical enrichment.}), which still says
+%       "under A1 ... across DK regions per (band, probe)". Corrected one-liner at the
+%       bottom of this file (marked PATCH).
+%
+% BEFORE COMPILING
+%   (1) NO new acronym: dk, ofc, bh, fdr, loo, soz all exist.
+%   (2) NO new math macros: \rank, \Dcoph, \rho_{S}, \rho_{\mathrm{split}}, \rhocoph, \Delta,
+%       \gls, \num, \operatorname{median} (amsmath), \txtacr{}. New eq label eq:methods_anat_sym.
+%   (3) Cross-refs: sssec:methods_compare_perpair (split-baseline shifts + arm symmetrization),
+%       sssec:methods_compare_ctm (symmetric cophenetic trace ρ^coph, eq:methods_rho_coph),
+%       sssec:methods_compare_stats (matched-strength surrogate), ssec:methods_arc (encoding
+%       anchor). Fix targets to match Overleaf.
+%
+% GUARDRAILS
+%   - NO results: no q-values, no "OFC", no depleted-system names, no patient/coverage counts.
+%     Method PARAMETERS kept (ten a-priori systems, R surrogates, 4 conditions, q<0.05, tails).
+%   - Symmetric concordance is the object of record (sums to ρ^coph); single-arm c^A supplement.
+%   - Per-patient DEMEAN -> CONCENTRATION relative to each patient's brain-wide level (hotspot,
+%     not container). State this; it is the meaning.
+%   - Matched-strength surrogate is THE gate; the region-label permutation is descriptive only
+%     (feedback_matched_strength_mandatory; feedback_no_spatial_proximity_null).
+%   - NO repo/code technicalities (feedback_no_repo_or_code_technicalities_in_paper).
+%
+% Provenance (AGENT-FACING ONLY): audit_151_localization_rhosym.py + audit_155_beta_ofc_
+%   robustness_rhosym.py (current ρ_sym gate, R=200 cached, 4 conditions, LOO, shaft-collapse);
+%   node_localization.py (rank_concordance / canonical_cophenet / epi_keep_mask / shaft_of);
+%   audit_83 (ρ_split original + descriptive atlas); audit_158 (encoding anchor, phase=task_learn).
+%   Retraction of the A1 method: reports/2026-05-28_pre-preprint-cleanup.md; ANATOMY_LEDGER.md.
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\subsubsection{Anatomical localization of the trace}
+\label{sssec:methods_anatomy}
+
+The per-pair trace is localized to anatomy by decomposing it into per-contact contributions and asking which anatomical systems concentrate the trace above the patient's own brain-wide level. The same construction localizes either cross-phase trace, differing only in the task-side phase --- the test phase for the primary trace, or the learning phase for the encoding anchor of Section~\ref{ssec:methods_arc}. Writing the task-side and rest-side per-pair shifts \(\Delta_{\rm task}^{A}\) and \(\Delta_{\rm rest}^{B}\) of Section~\ref{sssec:methods_compare_perpair} in centered-rank form, the signed contribution of pair \((i,j)\) to the single-arm Spearman trace is
+\begin{equation}
+    c^{A}(i,j) = \Big[\rank(\Delta_{\rm task}^{A})_{ij} - \tfrac{P+1}{2}\Big]\Big[\rank(\Delta_{\rm rest}^{B})_{ij} - \tfrac{P+1}{2}\Big],
+    \label{eq:methods_anat_concordance}
+\end{equation}
+ranked over all \(P = N(N-1)/2\) contact pairs and normalized so that \(\sum_{i<j} c^{A}(i,j)\big/\big[P(P^{2}-1)/12\big] = \rho_{\mathrm{split}}\) returns the single-arm cophenetic trace. The contribution of record is the arm-symmetric concordance, averaging the two \acrshort{rspre}-half assignments exactly as the trace itself (Section~\ref{sssec:methods_compare_ctm}),
+\begin{equation}
+    c(i,j) = \tfrac{1}{2}\Big[c^{A}(i,j) + c^{B}(i,j)\Big],
+    \label{eq:methods_anat_sym}
+\end{equation}
+with \(c^{B}\) the mirror concordance with the two halves exchanged, so that \(\sum_{i<j} c(i,j)\big/\big[P(P^{2}-1)/12\big] = \rhocoph\) recovers the symmetric cophenetic trace of record and \(c^{A}\) is retained only as a supplement; every subsequent step is built on the symmetric \(c\). Each pair carries its concordance to both of its endpoint contacts, a contact's score is the mean concordance over the pairs incident to it, and this score is demeaned within the patient over its anatomically labeled contacts,
+\begin{equation}
+    \tilde{u}_{i} = u_{i} - \frac{1}{|V|}\sum_{k \in V} u_{k}, \qquad u_{i} = \frac{1}{N-1}\sum_{j \neq i} c(i,j),
+    \label{eq:methods_anat_node}
+\end{equation}
+so that the statistic measures where the trace \emph{concentrates} relative to the patient's brain-wide average rather than merely where it is present --- a hotspot on a distributed trace, not a container. Each contact is assigned a \gls{dk} region from its implantation tissue labels (white-matter and unlabeled contacts are excluded from the anatomical universe \(V\)) and thence to one of ten a-priori systems --- medial-temporal, lateral-temporal, orbitofrontal, prefrontal, sensorimotor, parietal, occipital, cingulate, insula, and remaining subcortex --- with \gls{ofc} pooling the medial and lateral orbitofrontal regions across hemispheres. The per-patient system mean and its cohort statistic are
+\begin{equation}
+    V_{g}^{(s)} = \frac{1}{|C_{g,s}|}\sum_{i \in C_{g,s}} \tilde{u}^{(s)}_{i}, \qquad M_{g} = \operatorname{median}_{\,s\,:\,C_{g,s} \neq \varnothing}\; V_{g}^{(s)},
+    \label{eq:methods_anat_system}
+\end{equation}
+where \(C_{g,s}\) is the set of contacts of patient \(s\) in system \(g\) and the cohort median runs over the patients implanted there; in the shaft-collapsed variant each electrode shaft is first reduced to its mean incidence and \(V_{g}^{(s)}\) averages over distinct shafts, removing within-shaft pseudoreplication.
+
+The per-system statistic is gated against the same strength-preserving matched-strength surrogate as the trace (\(4\)-cycle \(\pm\delta\) rewiring preserving every node's strength, \(R\) surrogates; Section~\ref{sssec:methods_compare_stats}), re-running the entire symmetric-concordance-to-cohort-median chain of \eqref{eq:methods_anat_concordance}--\eqref{eq:methods_anat_system} on each surrogate to build the null \(\{M_{g}^{r}\}_{r=1}^{R}\). The upper- and lower-tail empirical \(p\)-values
+\begin{equation}
+    p^{\rm up}_{g} = \frac{1 + \#\{r : M_{g}^{r} \ge M_{g}\}}{R+1}, \qquad p^{\rm lo}_{g} = \frac{1 + \#\{r : M_{g}^{r} \le M_{g}\}}{R+1}
+    \label{eq:methods_anat_pval}
+\end{equation}
+identify systems that carry the trace (upper tail) and systems significantly depleted of it (lower tail); because the surrogate preserves each node's strength exactly, a surviving system is a topological concentration of the trace and not a consequence of hub geometry. Within the band under test the two tails are separately \gls{bh}--\gls{fdr}-corrected across the covered a-priori systems --- the multi-system family being the coordinated unit of inference --- and a system localizes the trace when its corrected \(q < \num{0.05}\).
+
+\paragraph{Localization robustness.}
+The localization is reported under four conditions --- the factorial of epileptogenic-zone \{inclusion, exclusion\} with \{contact-level, shaft-collapsed\} aggregation --- epi-inclusion being primary and the remaining three corroborative. Here epileptogenic-zone exclusion removes the seizure-onset contacts from the anatomical universe \(V\) --- the demean of \eqref{eq:methods_anat_node} and the per-system aggregation --- while the symmetric concordance itself is computed on the full graph in both conditions; no diffusion hierarchy is rebuilt on a reduced contact set, so the node-count decimation control of Section~\ref{sssec:methods_compare_stats} does not apply at this layer. The localization is required to be leave-one-patient-out robust: the cohort median and its surrogate \(q\) are recomputed dropping each implanted patient in turn, and the verdict stands only when the worst-case \gls{loo} \(q\) remains below \num{0.05}. A within-patient permutation of the region labels provides a coarse atlas check but does not gate the verdict; the matched-strength surrogate of \eqref{eq:methods_anat_pval} is the gate, as everywhere in this work.
+
+
+% ---------------------------------------------------------------------
+% PATCH — sssec:methods_compare_stats, \paragraph{Anatomical enrichment.}
+% (rho-sym sheet CHANGE 6, lines 273-274). Its current text still routes anatomy through the
+% RETRACTED "A1 ... across DK regions per (band, probe)". Replace that paragraph body with:
+%
+% >>> REPLACE WITH ---------------------------------------------------
+% \paragraph{Anatomical enrichment.}
+% The per-system anatomical localization of Section~\ref{sssec:methods_anatomy} is gated by the
+% same matched-strength surrogate, with \gls{bh}--\gls{fdr} applied across the covered a-priori
+% cortical systems within each band, upper and lower tails corrected as separate families; the
+% multi-system family per band is the coordinated unit of inference.
+% =====================================================================

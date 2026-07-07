@@ -1,0 +1,35 @@
+% =====================================================================
+% R1.2 — "The trace concentrates in the orbitofrontal cognitive map"
+% Localization paragraph-block of Result 1 (follows R1.1; same \subsection).
+%
+% ESTIMATOR = rho_sym (of record 2026-07-06); beta->OFC migrates like-for-like (audit_151/155).
+% Numbers (ANATOMY_LEDGER lock + localization_atlas_rhosym CSVs, verified 2026-07-06):
+%   beta -> OFC: R=1000, BH q=0.010-0.015 (rho_sym; ~ canonical rho_split 0.009-0.013),
+%     9 a-priori systems, all 4 epi x shaft conditions;
+%     LOO-robust worst-drop q<=0.060 (3/4 conditions clear 0.05; epi-incl x contact
+%       marginal 0.060 = known n=5 OFC-coverage fragility, not an estimator effect);
+%     low-strength / non-hub (strength dev -0.51); bilateral (hemisphere p~0.48/0.76);
+%     hotspot-not-container (within-OFC lean ~0.59; washes out at whole-frontal-lobe p~0.29);
+%     OFC implanted in 5/10 patients, 4 positive.
+%   Depleted (lower tail, rho_sym): PFC + sensorimotor, q<=0.033 (R=200 0.017-0.033).
+%   alpha: NO FDR-surviving localization -> a trace without an anatomical home.
+%   gamma_low: PFC lean in a strong-tracing subgroup, NOT cohort-locked, fails LOO
+%     -> one-line honest aside (DEMOTED, PI decision 2026-07-04).
+% Citations (DOI-verified 2026-07-04 via Crossref):
+%   schuck2016human   10.1016/j.neuron.2016.08.019   (human OFC = cognitive map; fMRI)
+%   park2021inferences 10.1038/s41593-021-00916-3     (inference over a learned hierarchy; fMRI)
+%   NOTE: OFC-cognitive-map is fMRI/rodent territory (no EEG literature) -> cites the concept.
+% Guardrails: OFC = CONCENTRATION, not container; matched-strength named; no behavioural claim;
+%   result in the LRG framework; verdict-flip history NOT mentioned (it is an article).
+% SCOPE (PI 2026-07-06): R1.2 reports the FULL localization landscape -- OFC (only enrichment
+%   survivor) + PFC & sensorimotor DEPLETED (the negative complement, q<=0.033) + Hip/MTL
+%   sub-threshold hint (p~0.4, single-patient, NOT a localization) + alpha no-home +
+%   gamma_low PFC-lean-that-fails. PFC SIGN-FLIP handled explicitly: beta DEPLETES prefrontal,
+%   gamma_low's (failing) concentration is IN prefrontal -> PFC is a validated home in NO band.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The trace concentrates in the orbitofrontal cognitive map.}
+A cohort-level trace establishes that the reorganization persists, but not what it is --- the same statistic would arise whether the imprint sat in circuitry the task engages or was spread evenly across the cortex, and only the former would tie it to the reasoning that produced it. Telling these apart means asking where each surviving trace concentrates, and here \(\beta\) and \(\alpha\) part company: \(\beta\) points to a specific cortical system and \(\alpha\) to none, so we follow \(\beta\) first. Its localization is two-sided --- one system concentrates the trace while two others are significantly depleted of it. Although the \(\beta\) trace is brain-wide, it concentrates --- above each patient's own whole-brain baseline --- in \gls{ofc}. We scored each of nine a-priori cortical systems for how strongly the \(\beta\) trace enriched there relative to that baseline, tested each against a strength-matched surrogate (\(R = 1000\)), and corrected for testing all nine with a \gls{bh} \gls{fdr} procedure. \gls{ofc} was the only system to survive on the enrichment side, at corrected \(q = 0.010\)--\(0.015\) in each of the four analyses (epi-included or excluded \(\times\) contact- or shaft-level), and robust to leaving out any single patient (worst-drop \(q \le 0.060\)); its enrichment sat in nodes carrying below-average total coupling, not the most strongly coupled ones, and appeared in both hemispheres. Prefrontal and sensorimotor cortex went significantly the other way --- their \(\beta\) trace fell below the whole-brain baseline (\(q \le 0.033\)) --- so these are the systems where the reorganization is least retained, the anatomical complement of the orbitofrontal concentration. The localization is anatomically precise rather than a coarse frontal effect: it holds at the granularity of the \gls{ofc} system and disappears once the same contacts are pooled into the whole frontal lobe (\(p \approx 0.29\)). Two limits bound it honestly --- \gls{ofc} was sampled in only 5 of the 10 patients (4 of whom expressed the concentration), and a medial-temporal (hippocampal) concentration visible in the raw enrichment does not clear the surrogate (\(p \approx 0.4\)) and rests on a single patient, so it is a hint, not a localization.
+
+\gls{ofc} is implicated in building the relational ``cognitive maps'' that organize task elements into an inferable structure \cite{schuck2016human} and in supporting inference over a learned hierarchy of the kind this task required \cite{park2021inferences}. The \(\beta\) trace localizes to precisely this circuitry. The other rhythms sharpen the contrast: \(\alpha\) carries a genuine cohort trace (above) but has no anatomical home --- no system survives the same localizer, and each patient places it differently --- so \(\alpha\) is a trace without an address, while in \(\lowgamma\) a prefrontal concentration appears --- in the very cortex whose \(\beta\) trace is depleted --- but only within a strongly-tracing subgroup, and it clears neither the cohort trace gate nor \gls{loo}, so prefrontal cortex is a reproducible home for the trace in no band. \(\beta\) is thus the only band that is at once a cohort-level trace and a reproducible cortical location.

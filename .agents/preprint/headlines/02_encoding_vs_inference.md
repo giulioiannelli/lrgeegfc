@@ -5,7 +5,7 @@ status: current
 kind: headline
 scope: N2 — THE FLAGSHIP. What the held structure (N1) IS: an offline abstraction of a learned structure — the brain keeps the relations it INFERRED, not just the pairs it saw. The four-phase design (rest→LEARN→TEST→rest) + task_learn as encoding reference decompose the trace into encoding vs inference; the inference-specific component persists (β-only), favours the mesoscale of multi-step integration, and anchors in the OFC cognitive map. Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect. Reframed to flagship 2026-06-23.
 owner_agent: inference (consolidation arc) chat
-updated: 2026-06-23
+updated: 2026-07-07
 ---
 
 # N2 — Offline abstraction of a learned structure: the persistent trace carries the relations the brain *inferred*, not just the pairs it was shown
@@ -15,6 +15,31 @@ updated: 2026-06-23
 > relational structure it had to *compute*. The four-phase design
 > (rest→LEARN→TEST→rest) and `task_learn` as the encoding reference are what make
 > the "seen vs figured-out" split possible. Numbers in cached CSVs (§F).
+
+> **Estimator update (2026-07-06) — ρ_split → ρ_sym.** The cophenetic trace is now
+> estimated as **ρ_sym** (symmetric over the two split-half arms), replacing ρ_split
+> (arbitrary-half artifact; `audit_149`). The consolidation arc was re-run under ρ_sym
+> (`audit_152`) and **holds**: β `T_infspec_pe` **p=0.0098** (LO-P15 0.020), **β-only**
+> (every other band min p=0.246); learning-phase own trace α/β `T_learn` p=0.014/0.032;
+> `T_test` α/β p=0.032. arm1 reproduces the locked `audit_83` full-graph statistic to
+> 1e-16 (same pipeline, only symmetrized). The ρ_split arc numbers below (audit_103
+> series) are the supplement reference; verdicts are estimator-invariant. Panoramic
+> §2.3: `.agents/reports/2026-07-06_rho-sym-panoramic-and-methodology.md`.
+
+> **R2 write-up reconciliation (2026-07-07) — whole section drafted, 3 claims corrected.**
+> R2.1–R2.7 are drafted under ρ_sym (`results_paragraphs/R2.*.tex`; migrations `audit_157–161`,
+> all arm1==ρ_split bit-exact; report
+> `.agents/reports/2026-07-07_r2-mesoscale-encoding-rhosym-migration.md`). **Three ρ_split-era
+> claims below are SUPERSEDED:** (1) **N2.2 "mesoscale-favouring / strongest at intermediate
+> scales" is DROPPED** — the full 13-pt τ-sweep shows no interior maximum; the β inference is
+> **multiscale** (clears the null at fine τ=1 *and* mesoscale τ≈2.6 by a comparable margin,
+> controls null at both), robustness NOT a peak. (2) **N2.3/N2.5 inference→cingulate:** under
+> ρ_sym it CLEARS the full-length null (BH q=0.030 incl / 0.040 excl) but does NOT survive
+> length-matching (`audit_161`, q=0.15 / 0.30) → **directional lead, length-assisted, not an
+> established location**. (3) **N2.5 "only α tracks length" is WRONG** — high-γ tracks it harder
+> (ρ=+0.70 vs α +0.55); β is duration-flat (ρ=+0.10, p=0.78); length-tracking sits in
+> inference-NULL bands. Memory→cingulate @ low-γ is SOLID (q=0.035, 8/8, `audit_159`).
+> Details: memory `r2_cingulate_and_duration_rhosym_2026_07_07`.
 
 ## §A — Result in plain language
 
@@ -41,20 +66,21 @@ computed." N1 used the test phase only; N2 uses both — that is the whole point
 **The load-bearing result — the brain keeps what it reasoned out.** Splitting the
 persistent trace into an encoding part and an inference-specific part (encoding
 controlled *out* of inference), the **inference-specific component itself persists
-into post-task rest — in β, and in no other band** (p≈0.007, leave-one-out robust,
-clears the mandatory matched-strength null, and **duration-robust** — it does not
+into post-task rest — in β, and in no other band** (ρ_sym p=0.010, ρ_split p=0.007;
+leave-one-out robust, clears the mandatory matched-strength null, and **duration-robust** — it does not
 grow with the longer test recording; N2.2 / N2.5). So the offline trace is not just a
 re-exposure echo of the premises: it carries a component tied specifically to the
 *inference* process. *(Solid.)*
 
-**The scale signature points straight at relational integration.** That
-inference-specific β component is **multiscale and mildly mesoscale-favouring** — it
-clears matched-strength most strongly at intermediate diffusion scales
-(`audit_103d`), while every control band stays null there. The mesoscale is the
-natural scale of **multi-step paths** through the network — and multi-step chaining
-(A>B, B>C ⇒ A>D) *is* transitive inference. The consolidation signal sits at the
-scale of the computation it is meant to reflect. *(Verified; mesoscale-robust, not
--exclusive.)*
+**The scale signature points toward relational integration.** That
+inference-specific β component is **multiscale** — it clears matched-strength at the
+fine operating scale *and* at a mesoscale (τ≈2.6/λmax) by a comparable margin, while
+every control band stays null at both. The mesoscale is the natural scale of
+**multi-step paths** through the network — and multi-step chaining (A>B, B>C, C>D ⇒
+A>D) *is* transitive inference — which is why we test whether the trace survives
+coarsening; it does. That is the reading: scale-**robustness**, motivation not a
+located peak (the full τ-sweep shows no interior maximum). *(Verified; multiscale
+robustness — see 2026-07-07 banner. `audit_157`.)*
 
 **The consolidation sits in the brain's map-making hub.** The encoding component
 concentrates in **orbitofrontal cortex** — the hub for building relational
@@ -177,9 +203,9 @@ that asymmetry. The verdict, across two levels:
 **N2.6 — The learning phase leaves its OWN OFC trace (closes the open item).**
 `T_learn = ρ(e,p)` is the locked N1 trace with `task_learn` swapped for `task_test`
 (`g→e`), so it *is* the literal `rest_pre → task_learn → rest_post` trace — and the
-split-half baseline makes it the rigorous version. It clears matched-strength in **α
-(+0.22, p=0.014, LO-P15 0.010) and β (+0.25, p=0.014, LO-P15 0.014)**; δ a marginal
-hint (p=0.097); others null (`arc_null_per_patient.csv`). The localizer's `encoding`
+split-half baseline makes it the rigorous version. Under ρ_sym (`audit_152`) it clears
+matched-strength in **α (+0.19, p=0.014, LO-P15 0.004) and β (+0.24, p=0.032, LO-P15
+0.020)**; δ a marginal hint; others null (`arc_null_per_patient.csv`). The localizer's `encoding`
 target is its per-system map: the β learning-trace lands on **OFC** — the only system
 clearing BH in both epi modes (R=1000, q=0.010, low-strength −0.51/−0.57, not
 hub-driven) — the **same hotspot** the test-phase trace uses (`audit_83`, q≈0.01), so

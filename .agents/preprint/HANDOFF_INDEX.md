@@ -31,23 +31,32 @@ Read in this exact order. Skipping any step means you will produce prose that ge
 
 After reading all 9, draft Results + Methods + Discussion sections; cite CSV rows for every number.
 
-## ⚠️ ANATOMY RETRACTED (cohort 2026-05-30) + DELOCALIZED (per-patient 2026-06-01)
+## ⚠️ ANATOMY — multi-region DK lists RETRACTED (2026-05-30); β REINSTATED → OFC system (2026-06-10); α/γ_l/δ no FDR-surviving localization
 
-**Every locked anatomy region-list in this manuscript is retracted.** No DK region
-reaches a defensible **cohort** localization (max coverage 5/10; locked regions rest
-on 1–4 patients; several single-patient or anti-localized), and **per-patient**
-localization is **also null** on both cross-phase probes (cophenet + Grassmann trace:
-0–1/10 patients beat their own implant-shuffle null in every band; β **0/10** on both).
-The verified β/α trace is **spatially DELOCALIZED** — a distributed network
-reorganization, not anchored to anatomy at the cohort *or* the single-patient level.
-The only above-chance spatial structure is **electrode-shaft autocorrelation** (the
-anatomy-free shaft partition reproduces it; NMI 0.65), not anatomy. All anatomy claims,
-region lists, and "localized network" framing below are **superseded**, retained only as
-historical record. Sources: `locked/ANATOMY_LEDGER.md`,
-`data/audit/anatomy_localization_wilcoxon/README.md`,
-`data/audit/per_patient_localization/README.md`. **This INVERTS the former anti-patterns
-(§Framing): calling the β/α anatomy "diffuse / not localized / delocalized" is now
-CORRECT; claiming a "localized cortical network" is the anti-pattern.**
+**Every locked multi-region DK *region-list* is retracted** (2026-05-30 signed sampling-aware
+audit): no DK region reaches a defensible **cohort** localization (max coverage 5/10; locked
+regions rest on 1–4 patients; several single-patient or anti-localized), and per-patient
+localization is null at the single-DK-region level. The only above-chance *fine-grained* spatial
+structure is **electrode-shaft autocorrelation** (the anatomy-free shaft partition reproduces it;
+NMI 0.65), not single-region anatomy. **BUT the 2026-06-01 "spatially delocalized / no anatomy
+anywhere" blanket was over-aggressive for β and is SUPERSEDED** (2026-06-10, `locked/ANATOMY_LEDGER.md`):
+a sampling-conditioned, matched-strength-gated re-analysis at the a-priori *anatomical-system* scale
+shows the brain-wide **β cophenet trace CONCENTRATES in the ORBITOFRONTAL CORTEX (OFC) system** —
+concentration above a per-patient-demeaned baseline (a reproducible *hotspot*, not a container; even
+within OFC the lean is ≈0.59), matched-strength **R=1000**, **BH q=0.009–0.013** across the 9 systems
+within β, all four contact/shaft × incl/excl conditions, 4/5 implanted, leave-one-out + shaft-collapse
+robust, low-strength, **bilateral**, peaks at the *system* scale (washes out at lobe/hemisphere;
+undersampled at single-region). **β is the only band that localizes**; **α/γ_l/δ have no FDR-surviving
+localization** (α pars opercularis fails BH over 53 regions; γ_l/δ null; the Grassmann *subspace* probe
+localizes nowhere). Hippocampus/MTL = sub-threshold β hint (p≈0.4); occipital = K=3 secondary;
+"distributed paralimbic ring" retracted (fails shaft-collapse). The multi-region DK *lists* below stay
+retracted (historical record). Sources: `locked/ANATOMY_LEDGER.md`,
+`data/audit/localization_atlas/README.md`, `data/audit/anatomy_localization_wilcoxon/README.md`,
+`data/audit/per_patient_localization/README.md`. **Writing guidance:** for **β** write "**brain-wide
+but concentrates / over-expresses in the orbitofrontal cortex (OFC) system**" (NOT "delocalized", NOT
+"localized to OFC" as a container, NOT a multi-region DK list); for **α/γ_l/δ** "**no anatomical
+localization** (undersampled / diffuse)" is correct. The anti-pattern is the old multi-region "localized
+cortical network" DK list, and — for β only — the bare "delocalized / no anatomical anchor" blanket.
 
 ## What this manuscript IS about
 
@@ -62,7 +71,7 @@ CORRECT; claiming a "localized cortical network" is the anti-pattern.**
 - **NOT about VI(k) partitioning** at any k-cell level. VI is retired (2026-05-18).
 - **NOT about τ-sweep multiscale structure**. The LRG spectrum on our continuous-spectrum FC is gap-less; τ-sweep is retired (2026-05-18); only `τ_max = 1/λ_max` is the canonical scale; the cophenetic dendrogram replaces gap-based scale identification.
 - **NOT about Pat_03 outlier status**. Pat_03 is a full cohort member at n=10 from 2026-05-18 onward. Do not write "Pat_03 was excluded", "Pat_03 sensitivity test", "Pat_03 acquired at 1024 Hz (treated separately)". The 1024-Hz sampling rate is handled at the config layer; Pat_03 is treated identically at the analysis layer.
-- **NOT about ANY anatomical localization of the trace**. The KC-era "Hippocampus + left fusiform" (retracted 2026-05-19), the cluster-extent 7+7 / 11-region lists (retracted 2026-05-30), and "Hippocampus survives at β Grassmann" (withdrawn 2026-06-01 — Hip crosses the cohort test on only 3–5/10 patients, a marginal hint not a localization) are **all retracted**. No cohort localization anywhere; per-patient localization also null on both probes; the trace is delocalized. See `locked/ANATOMY_LEDGER.md` + `data/audit/anatomy_localization_wilcoxon/README.md` + `data/audit/per_patient_localization/README.md`.
+- **NOT about a multi-region DK-list localization.** The KC-era "Hippocampus + left fusiform" (retracted 2026-05-19), the cluster-extent 7+7 / 11-region DK lists (retracted 2026-05-30), and "Hippocampus survives at β Grassmann" (withdrawn 2026-06-01 — Hip = 3–5/10 marginal hint, not a localization) are **all retracted**. **But the trace DOES have one audited localization: β concentrates in the ORBITOFRONTAL CORTEX (OFC) *system*** (2026-06-10 — system-scale, brain-wide-with-OFC-hotspot, NOT a DK-region list; cite as concentration above per-patient baseline). α/γ_l/δ have **no FDR-surviving localization**; the Grassmann subspace probe localizes nowhere. See `locked/ANATOMY_LEDGER.md` + `data/audit/localization_atlas/README.md`.
 
 ## Anti-pattern checklist (run before submitting any draft)
 
@@ -88,9 +97,9 @@ These are the patterns that will cause your draft to be rejected at evaluation.
 
 - ❌ Framing `d_P = 1 − Pearson(triu A_a, triu A_b)` as "volume + topology" or as "orthogonal" to `d_S`. `d_P` is a magnitude-weighted complement to `d_S`; they correlate at ρ = 0.85–0.95 per band. The defensible triad is rank-only / magnitude-only / magnitude-weighted-complement. See `feedback_dP_framing.md`.
 - ❌ Using bare "persistence" for `T_d < 0` findings. Use the **trace / anchor / reset / emergent** taxonomy. "Trace" = task reorganized AND change persists into rsPost; "anchor" = unchanged across all phases; "reset" = task reorganized AND module reverts; "emergent" = did not exist in rsPre. See `.agents/guides/01_project/terminology.md`.
-- ✅ Framing the β/α anatomy as "diffuse / delocalized / not localized" — **this is now the CORRECT framing** (cohort retraction 2026-05-30 + per-patient delocalization 2026-06-01). ❌ The former anti-pattern is **INVERTED**: do NOT claim the trace is "localized to a band-specific cortical network" or name DK regions as its location. No region reaches cohort localization (max 5/10 coverage; locked regions 1–4 patients) and no patient localizes on its own implant (0–1/10 every band, both probes). The verified trace is real but spatially distributed.
-- ✅ Writing "the trace is spatially distributed / delocalized / a network-level reorganization" is correct. ❌ Do NOT write "localized to a cortical network." Also avoid the opposite over-claim "brain-wide / uniform" — the precise statement is *delocalized across the sampled connectivity graph, with no anatomical anchor at cohort or single-patient level*.
-- ❌ Citing ANY anatomical localization of the trace — the KC-era "Hippocampus + left fusiform", the cluster-extent 7+7 / 11-region lists, or "Hippocampus survives at β Grassmann" (all retracted). Hip crosses the cohort test on only 3–5/10 patients (marginal hint, not a localization) and does not survive at the single-patient level either.
+- ✅ For **α / γ_l / δ**: "diffuse / no anatomical localization" is correct (no FDR-surviving region or system; undersampled, ≤5/10 coverage, per-patient null at single-region scale). ❌ Do NOT name DK regions or claim a "band-specific cortical network" for these bands (the multi-region lists are retracted). **β is different — β localizes to the OFC *system* (see the next bullet); do NOT call β "delocalized".**
+- ✅ For **β**: write "the brain-wide trace **concentrates / over-expresses in the orbitofrontal cortex (OFC) system**" (2026-06-10 audited verdict). ❌ Do NOT write β is "delocalized / has no anatomical anchor" (superseded), nor "localized *to* OFC" as a container (it is brain-wide with an OFC hotspot — within-OFC lean ≈0.59), nor a multi-region DK "cortical network" list (retracted). For **α/γ_l/δ**: "**no anatomical localization** (undersampled / diffuse)" is correct; do NOT name DK regions. The precise β statement is *brain-wide across the sampled connectivity graph, concentrating above per-patient baseline in the OFC system at the anatomical-system scale (washes out at lobe/hemisphere, undersampled at single-region)*.
+- ❌ Citing any of the **retracted** localizations — the KC-era "Hippocampus + left fusiform", the cluster-extent 7+7 / 11-region DK lists, or "Hippocampus survives at β Grassmann" (all retracted; Hip = 3–5/10 marginal hint, not a localization, null per-patient). The **one** anatomical localization you may cite is **β → OFC system** (2026-06-10, audited): cite it as a system-scale *concentration* above per-patient baseline, never as a single DK region or region list.
 
 ### Sycophancy anti-patterns
 
@@ -132,7 +141,7 @@ Lead with the three-layer cohort table (`bands/00_cohort.md` §2). State the cen
 
 ### Discussion section
 
-- **The trace is anatomically DELOCALIZED** — a distributed network reorganization with no region anchor at cohort or single-patient level. Discuss what a delocalized-but-real β/α structural trace means for task-related reorganization (a graph-level phenomenon, not a focal one). The retracted region-list framing (β "medial-temporal + cingulate + insula network") must NOT be used.
+- **β concentrates in the orbitofrontal cortex (OFC) *system*** (2026-06-10 audited; brain-wide with an OFC hotspot at the anatomical-system scale — not a DK-region list). Discuss what an OFC-concentrated-but-brain-wide β structural trace means for task-related reorganization (a graph-level phenomenon with an anatomical-system hotspot, not a focal DK-region one); **α/γ_l/δ have no anatomical localization**. The retracted multi-region DK-list framing (β "medial-temporal + cingulate + insula network") must NOT be used, **nor** the superseded "β is delocalized / no anchor" blanket.
 - α non-epi-cortex strengthening under C5 — most informative single methodological point about how epi contacts can mask cortical signals (a trace-strength observation, not a localization).
 - The anatomy retraction itself is a worth-discussing methodological result: a direction-blind, top-decile, count-based enrichment manufactured apparent localization that a signed, threshold-free, cohort-consistency + per-patient test (and an electrode-shaft control) dissolved. (γ_l left-fusiform / KC-era claims all retracted.)
 - δ cross-probe ratio 1.55× as known biology at the substrate (anchor) layer — not a Grassmann trace or localization claim.

@@ -615,7 +615,7 @@ def make_kspan_verdict_figure(cohort: pd.DataFrame, out_path: Path) -> None:
     if n_b == 1:
         axes = [axes]
     color_map = {"separated": "#1f7a1f", "intermediate": "#888888",
-                 "also_negative": "#aa4444"}
+                 "also_positive": "#aa4444"}
     for ax, band in zip(axes, bands):
         sub = cohort[cohort.band == band].sort_values("k")
         if sub.empty:
@@ -675,7 +675,7 @@ def write_readme(cohort: pd.DataFrame, per_pat: pd.DataFrame,
         "",
         "## Per-band cohort surface",
         "",
-        "| band | k_min | k_max | k_separated | k_int_p_lt_05 | k_also_neg | n_k_sep | longest_run_sep |",
+        "| band | k_min | k_max | k_separated | k_int_p_lt_05 | k_also_pos | n_k_sep | longest_run_sep |",
         "|---|---|---|---|---|---|---|---|",
     ]
     for band in _band_order_present(per_pat):
@@ -687,7 +687,7 @@ def write_readme(cohort: pd.DataFrame, per_pat: pd.DataFrame,
         ps = sub.paired_wilcoxon_p.values
         sep_mask = (verdicts == "separated")
         int_p_mask = (verdicts == "intermediate") & (ps < 0.05)
-        neg_mask = (verdicts == "also_negative")
+        pos_mask = (verdicts == "also_positive")
         n_sep = int(sep_mask.sum())
         # Longest contiguous separated run
         longest = 0
@@ -698,12 +698,12 @@ def write_readme(cohort: pd.DataFrame, per_pat: pd.DataFrame,
                 longest = cur
         k_sep_str = ",".join(str(int(k)) for k, v in zip(ks, sep_mask) if v)
         k_int_p_str = ",".join(str(int(k)) for k, v in zip(ks, int_p_mask) if v)
-        k_neg_str = ",".join(str(int(k)) for k, v in zip(ks, neg_mask) if v)
+        k_pos_str = ",".join(str(int(k)) for k, v in zip(ks, pos_mask) if v)
         lines.append(
             f"| {band} | {int(ks.min())} | {int(ks.max())} "
             f"| {k_sep_str or '—'} "
             f"| {k_int_p_str or '—'} "
-            f"| {k_neg_str or '—'} "
+            f"| {k_pos_str or '—'} "
             f"| {n_sep}/{len(ks)} | {longest} |"
         )
 
@@ -711,7 +711,7 @@ def write_readme(cohort: pd.DataFrame, per_pat: pd.DataFrame,
         "",
         "## Reference cutoffs (k=3, 20, 60) per band",
         "",
-        "| band | k | obs median T_G | surr median (per-pat med) | n below | Wilcoxon p | verdict |",
+        "| band | k | obs median T_G | surr median (per-pat med) | n above | Wilcoxon p | verdict |",
         "|---|---|---|---|---|---|---|",
     ])
     for band in _band_order_present(per_pat):
@@ -733,11 +733,12 @@ def write_readme(cohort: pd.DataFrame, per_pat: pd.DataFrame,
         "",
         "## Verdict labels",
         "",
-        "- **separated**: cohort Wilcoxon p < 0.05 (one-sided, T_obs < T_surr) "
+        "- **separated**: cohort Wilcoxon p < 0.05 (one-sided, T_obs > T_surr; "
+        "trace direction T_G > 0 per feedback_td_sign_convention.md) "
         "AND |median surr T_G across patients| < 0.05 × |median obs T_G| AND "
-        "≥ 8/10 patients individually below their own surrogate at p<0.05.",
-        "- **also_negative**: median surr T_G < 0.5 × median obs T_G AND "
-        "median obs T_G < 0 (surrogate substantially recovers trace direction).",
+        "≥ 8/10 patients individually above their own surrogate at p<0.05.",
+        "- **also_positive**: median surr T_G > 0.5 × median obs T_G AND "
+        "median obs T_G > 0 (surrogate substantially recovers trace direction).",
         "- **intermediate**: anything else.",
         "",
         "## Test choice",

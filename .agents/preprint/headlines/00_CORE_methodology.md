@@ -62,9 +62,24 @@ needed). Raw |ImCoh| is the **comparison baseline only, never a result**
 - **`ρ^coph`** — cophenetic distance of UPGMA over `D(τ_max)`: a per-pair number
   integrating all N−1 dendrogram merge-height scales. Per-pair → **localizable**
   and **scale-resolved**.
+- **Trace estimator: `ρ_sym`** (of record since 2026-07-06; supersedes bare
+  `ρ_split`). The cross-phase trace on `ρ^coph` uses a **split** rest_pre baseline —
+  `Spearman(D_task − D_preA, D_post − D_preB)` with independent halves A, B — so
+  shared baseline noise cannot inflate it. Bare **`ρ_split`** hard-coded *which* half
+  fed *which* arm, an arbitrary choice that flipped the sign of near-zero patients
+  (20/60 patient×band cells under A↔B swap; `audit_149`). **`ρ_sym = ½[ρ(A→task,B→rest)
+  + ρ(B→task,A→rest)]`** averages the two equally-valid assignments → invariant to the
+  half-labelling, same data, same matched-strength surrogate. Every verdict is
+  **estimator-invariant (0/6 bands flip)**; ρ_sym is deliberately *more conservative*
+  (β gate p=0.032, α 0.024 at R=200) because it stops a lucky half pushing ill-conditioned
+  near-zero patients above their surrogate. Per-patient reporting: `ρ_sym ± ½|ρ_AB−ρ_BA|`,
+  with `|ρ_sym| < 1 SE` labelled **undetermined**. The full (shared) baseline was tested
+  and **rejected** — it reintroduces shared-error inflation (Pat_02 obs 0.775 vs surrogate
+  median 0.767). `ρ_split` retained as a supplement column only. (`audit_150`;
+  `.agents/reports/2026-07-06_rho-sym-panoramic-and-methodology.md`.)
 - **`d_G(k)`** — chordal (Grassmann) distance between the leading-k Laplacian
   eigenmode subspaces, swept over k. Whole-network, leading-mode → this is the
-  **global/spectral** view.
+  **global/spectral** view. (Separate measure; unaffected by the ρ_split→ρ_sym change.)
 
 ### The C1–C5 null battery (frame completely; reference, don't re-derive)
 - **C1** within-baseline split-half null (ρ^coph): trace > within-`rest_pre`
@@ -162,8 +177,10 @@ method, not just a caveat.
   quantity each claim uses.
 - **θ "anti-trace" is more complicated than a sign** — see README §5; do not
   assert it; characterize layer-dependence + outlier leverage.
-- **Per-patient leverage / outliers** (Pat_15/10/08/02) — report LOO-max; no
-  single-patient "strong" tags.
+- **Per-patient leverage / outliers** — under ρ_sym the β spread is cleanly tiered
+  (`audit_154`): 6 stable tracers, 2 **undetermined** (Pat_13, Pat_15 — `|ρ_sym|<1 SE`),
+  2 stable resets (Pat_10, Pat_14). Pat_15 is now undetermined, **not** β-anti — revisit
+  its sanctioned-dropout framing. Report LOO-max; no single-patient "strong" tags.
 
 ## §D — To-dos & verifiables (owner: preprint-general-questioning / null model)
 
@@ -208,9 +225,16 @@ method, not just a caveat.
   2026-05-18, rev. through 2026-05-28); Grassmann gate
   `data/audit/grassmann_cluster_extent/cohort_summary.csv` ·
   `audit_70_grassmann_cluster_extent.py` · 2026-05-26.
-- C3 ρ^coph matched-strength →
+- C3 ρ^coph matched-strength (ρ_split ref, supplement) →
   `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv` ·
   `audit_63_split_baseline_surrogate.py` · 2026-05-15.
+- **ρ_sym estimator (of record)** — gate `data/audit/rho_sym_gate/`
+  (`audit_150`, β p=0.032/α p=0.024); estimator-robustness `data/audit/estimator_regate/`
+  (`audit_149`, 0/6 flips, full-baseline rejected); downstream migrations
+  `data/audit/{localization_atlas_rhosym,consolidation_arc_rhosym,cross_phase_taxonomy_rhosym,per_node_trace_decomposition_rhosym}/`
+  (`audit_151`–`155`) · 2026-07-06. Surrogate shuffle now numba-JIT (98× faster,
+  bit-identical). Panoramic + supplement:
+  `.agents/reports/2026-07-06_rho-sym-{panoramic-and-methodology,pipeline-migration,estimator-robustness-supplement}.md`.
 - C1/C2/C4 →
   `data/audit/ctm_triangle/cohort_summary.csv` · `audit_33_ctm_triangle.py` ·
   2026-05-26 (C4: `c4_wilcoxon_cohort.csv` · `audit_71_c4_wilcoxon_cohort.py` ·

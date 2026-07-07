@@ -1,0 +1,34 @@
+% =====================================================================
+% R2.5 — "A memory trace the whole-brain view cannot see, in the cingulate at low-gamma"
+% Fifth paragraph of Result 2 (flagship). Follows R2.4 (content by rhythm: alpha
+% memory-only, beta memory+inference). This is the METHOD showcase: an ABSOLUTE
+% within-region read finds a focal low-gamma encoding trace that whole-brain
+% averaging hides. Sets up R2.6/R2.7 (the cingulate).
+%
+% ESTIMATOR = rho_sym (MIGRATED 2026-07-07, audit_159 — reruns audit_112 within-system
+%   absolute test with the symmetric two-arm concordance). NO rho_split number. Anchor
+%   PASS bit-exact: arm1 cohort-median rho per (band,target,system) == audit_112
+%   within_system_trace (max|Δ|=9.7e-17).
+% NUMBERS (data/audit/inference_localization_rhosym/within_system_trace_rhosym_{include,exclude}.csv,
+%   verified 2026-07-07) — LOW-GAMMA, ENCODING target, cingulate (the only BH survivor):
+%     include: rho_sym +0.246 (arm1 +0.395 == audit_112 0.39), surr +0.0005, Wilcoxon
+%              p=0.0039, BH q=0.035 across 9 systems, 8/8 sampled patients positive.
+%     exclude: rho_sym +0.393 (arm1 +0.505 == audit_112 ~0.51), Wilcoxon p=0.0039,
+%              BH q=0.035, 8/8 -> LARGER on fewer contacts => NOT epi-driven.
+%   ENCODING-SPECIFIC (same cingulate edges, low-gamma): inference_pe null (rho_sym
+%     -0.09, p=0.93); standard does NOT clear (p=0.074). -> memory, not inference.
+%   Only cingulate clears BH in low-gamma encoding (next system OFC/MTL/sensorimotor
+%     q=0.25). Whole-brain low-gamma carries no cohort trace (T_learn p=0.097 marginal,
+%     does not clear; low-gamma not a headline trace band, R1).
+% FRAMING: the cleanest "averaging-hides-it" case -> argues for the per-region read-out.
+%   ABSOLUTE within-region trace (endpoint-incidence, NO demeaning), same cohort gate as
+%   the arc. Cingulate sampled in 8/10 patients (coverage, not a null). "8/8" = of sampled.
+% Guardrails: matched-strength IS the gate; BH across systems; no behavioural claim; no
+%   absence-narration; register = NN results (feedback_results_not_story).
+% Provenance: audit_159_within_system_trace_rhosym.py; audit_112 (rho_split original);
+%   headline 02_encoding_vs_inference.md (N2.4); outline R2.5.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{A memory trace surfaces in the cingulate at low-\(\gamma\), where the whole-brain view cannot see it.}
+A rhythm can hold a memory trace somewhere the whole-brain view misses. The traces so far were read from the whole brain, or from a system's concentration above the whole-brain baseline; reading one region at a time --- whether the pairs incident to a single system carry a trace on their own, with no baseline subtracted --- surfaces what the average washes out. In \(\lowgamma\), a band with no whole-brain trace, the encoding component concentrates on cingulate edges and on no other system: \(\rho_{\mathrm{sym}} = {+}0.25\) against a surrogate median near zero (\gls{bh} \(q = 0.035\) across systems, positive in all \(8\) patients sampled there), rising to \({+}0.39\) with the \gls{soz} excluded --- a larger effect on fewer contacts, so not a product of epileptic tissue. It is specific to memory: on the same cingulate edges the inference component is null (\(p = 0.93\)) and the standard task change does not clear (\(p = 0.07\)). So a rhythm that looks empty across the whole brain still holds a genuine, focal memory trace once the network is read region by region --- the clearest case of the hierarchy resolving a single structure that whole-brain averaging conceals.

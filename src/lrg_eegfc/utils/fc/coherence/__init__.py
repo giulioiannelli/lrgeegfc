@@ -18,6 +18,14 @@ from numpy.typing import NDArray
 from ._common import welch_csd, band_average
 from .msc import compute_msc
 from .imcoh import compute_imcoh
+from .windowed import (
+    segment_ffts,
+    imcoh_abs_cube,
+    imcoh_signed_cube,
+    band_abs_average,
+    band_signed_average,
+    windowed_imcoh_abs,
+)
 
 
 __all__ = [
@@ -26,6 +34,12 @@ __all__ = [
     "compute_msc",
     "compute_imcoh",
     "compute_coherence",
+    "segment_ffts",
+    "imcoh_abs_cube",
+    "imcoh_signed_cube",
+    "band_abs_average",
+    "band_signed_average",
+    "windowed_imcoh_abs",
 ]
 
 

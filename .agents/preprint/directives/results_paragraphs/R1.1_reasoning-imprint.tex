@@ -1,0 +1,45 @@
+% =====================================================================
+% R1.1 — "Reasoning leaves an imprint that outlasts the task"
+% First paragraph of Result 1 (a held, multiscale trace of learning and reasoning).
+%
+% ESTIMATOR: rho_sym (of record 2026-07-06; symmetric split-half, arbitrary-half-free).
+% Numbers: data/audit/rho_sym_gate/ (audit_150), verified 2026-07-06:
+%     beta  rho_sym +0.20 (median +0.198), 6/10 above surrogate, gate p=0.032
+%     alpha rho_sym +0.10 (median +0.101),                       gate p=0.024
+%     low_gamma p=0.080 | delta p=0.080 | high_gamma p=0.080 | theta -0.04, p=0.784 (all fail)
+%   per-patient (rho_sym_gate/per_patient_per_band.csv): low_gamma peaks +0.86 (Pat_05 +0.855),
+%     3 patients (Pat_05 +0.855, Pat_02 +0.740, Pat_06 +0.650) above the beta max +0.54
+%     (Pat_08 +0.536); low_gamma anti -0.28 in Pat_15. Cohort gate rewards CONSISTENCY, not peak.
+%   (rho_split supplement, audit_63: beta +0.22/7-of-10/p=0.005, alpha +0.11/5-of-10/p=0.002.)
+% SNR/reliability = a Methods control (multiphase_snr, audit_145); one clause only.
+% Citations (DOI-verified 2026-07-04 via Crossref/PubMed, see references.bib):
+%   liu2019human   10.1016/j.cell.2019.06.012       (MEG; offline reorg of learned structure)
+%   duan2025awake  10.1016/j.pneurobio.2025.102778  (iEEG; 2025, our exact substrate)
+% Guardrails honoured: result stated in the LRG/cophenetic framework; C3
+%   matched-strength named as the referee; gamma_low is NOT a home (its one-line
+%   aside is deferred to R1.2); no behavioural claim; heterogeneity = biology.
+% READING THE MEASURE (PI 2026-07-06, locked): there is NO one-axis descriptor of the
+%   result. rho_sym median ORDERS the bands but does NOT certify a trace -- the CONTROL
+%   specializes the verdict (surrogate firing / Grassmann agreement / LOO). Every median in
+%   prose must be paired with the control that decides it (low-gamma has the HIGHEST peaks yet
+%   FAILS the gate = the proof median is not verdict). And +0.20 is NOT small: rho_coph is a
+%   magnitude-blind rank over thousands of pairs whose bulk is a rigid backbone, so the trace
+%   is a MINORITY overlay. SHOW "0.2 is large" IN NUMBERS, same-axis: the strength-matched
+%   null VALUE is ~0.01 (rho_coph is magnitude-blind, so the null, not 1, sets the scale) and
+%   per-patient tracers reach 0.3-0.5 (cohort median is a floor -- half the cohort at the
+%   measurement floor drags it down). The null VALUE is the legitimate magnitude anchor; what
+%   is FORBIDDEN is the x-N RATIO as a cross-band rank/verdict -- the ratio does NOT track the
+%   gate (low-gamma 48x fails, beta 16x clears). Do NOT oversell ("most structure persists" is
+%   FALSE; ~a quarter of mover energy persists). The taxonomy shares (26% trace etc.) are an
+%   ENERGY axis, NOT the rho magnitude -- do not conflate them to argue 0.2 is large.
+% Prose is unwrapped (one line per paragraph) — let the editor soft-wrap.
+% =====================================================================
+
+\subsection{A held, multiscale trace of learning and reasoning}
+
+\paragraph{Reasoning leaves an imprint that outlasts the task.}
+The transitive-inference task left a lasting imprint on the resting network. Read through the multiscale cophenetic geometry of the diffusion hierarchy (\(\rhocoph\); Methods), \acrshort{rspost} did not relax back to the \acrshort{rspre} organization but retained the reorganization the task had imposed: in specific rhythms, its departure from the \acrshort{rspre} baseline aligned across the cohort with the task-induced change itself. During rest, the brain continues to work on what it has just learned: recent experience is spontaneously reactivated, from replay of learned structure in \gls{meg} \cite{liu2019human} to reactivation of cortical memory traces in intracranial recordings \cite{duan2025awake}. Relational \emph{reasoning} leaves a comparable offline imprint --- one carried not by the connectivity's strongest links but by the higher-order, multiscale structure the diffusion hierarchy exposes, as developed below.
+
+Resolved band by band, the trace was markedly heterogeneous across patients, and the cohort-median \(\rhocoph\) orders the rhythms without on its own certifying any of them: a band counts as a trace only where its per-patient effects sit consistently above each patient's own strength-matched surrogate --- a null that preserves every node's total coupling (Methods). By that test only two rhythms held at the cohort level, \(\beta\) (cohort-median \(\rhocoph = +0.20\), 6 of 10 patients above their own surrogate null, paired \(p = 0.032\)) and \(\alpha\) (median \(+0.10\), \(p = 0.024\)). \(\rhocoph\) ignores coupling strength, so the baseline for judging its size is not \(1\) but what the same statistic yields under the null: strength-matched surrogates that preserve every node's total coupling reproduce almost none of the effect (median \(\rho \approx 0.01\)). The cohort median of \(+0.20\) stands more than an order of magnitude above that strength-only baseline, and it understates the trace where it is present --- half the cohort sits near the measurement floor and pulls the median down, while the patients that do trace reach \(\rhocoph\) of \(0.3\)--\(0.5\) (below). Consistent with that, the two rhythms that cleared were not the ones with the largest individual effects: in \(\lowgamma\), three patients traced more strongly than any patient did in \(\beta\) (peak \(\rhocoph \approx +0.86\) against a \(\beta\) maximum of \(+0.54\); \FigRef{fig:trace_a}), but that strongly-tracing subgroup was offset by patients running null or firmly anti (\(\lowgamma\) reaching \(\rhocoph = -0.28\) in \patient{15}), so \(\lowgamma\), \(\delta\) and \(\highgamma\) all failed the cohort test (each \(p = 0.080\)), and \(\theta\) ran weakly counter to a trace to form a clean negative (\(p = 0.78\)). What set \(\beta\) and \(\alpha\) apart was therefore cohort-level consistency, not peak amplitude --- \(\beta\)'s per-patient effects were broadly positive and only mildly negative at worst --- and the two rhythms that clear differ in turn in where the trace lands and what it carries, as developed below.
+
+The between-patient spread is not a measurement-reliability effect: splitting each recording in half and rebuilding the cophenetic geometry on each half yields a split-half reliability of the estimate (Methods), and across patients this reliability explains only about 6\% of the variance in trace strength (\(R^2 = 0.06\)) --- how strongly a patient traced is essentially independent of how cleanly its network could be measured.

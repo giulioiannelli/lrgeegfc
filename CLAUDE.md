@@ -210,6 +210,17 @@ Variable names: `n_trace` (not `n_persist`), `n_anchor`, `n_reset`,
   tested is marked **"unverified"** in writeups, memory, and chat,
   and cannot be cited as the load-bearing claim until that control
   is run.
+- **Always optimize + time-estimate + progress-surface long compute.**
+  Any pipeline that could exceed ~1 min (surrogates, sweeps,
+  per-patient×per-band grids, LOO, bootstraps): (1) JIT/vectorize hot
+  loops (numba `@njit` with RNG drawn outside the loop → bit-identical;
+  cached eigendecompositions) BEFORE launching — never run hours
+  unoptimized; (2) time 1–2 units and extrapolate the full runtime,
+  stating the estimate BEFORE the full launch; (3) print live
+  `[i/N] label elapsed ETA` progress with `flush=True` (block-buffered
+  stdout hides un-flushed prints) + a final wall-clock. See
+  `feedback_optimize_time_and_surface_progress.md` +
+  `feedback_numba_for_surrogates.md`.
 
 ### Memory meta-rule
 
@@ -577,7 +588,7 @@ Groups: `compute` (6), `plot` (16), `show` (4), `data` (4), `cache` (4), `config
   before any code is written.** README defines the required structure
   (notation → predicates → properties → caveats → pseudocode →
   visualization → connection-to-prior-tools → open-questions).
-- `.agents/guides/task-persistence-investigation/2026-04-25_module-retention-landscape.md` —
+- `.agents/guides/task-persistence-investigation/archive/scalar-vi-era/2026-04-25_module-retention-landscape.md` —
   MRL: `M̄(b, ξ) ∈ [0,1]` cohort field counting `task_test` subtrees
   absent from `rest_pre` and present in `rest_post` (Jaccard match
   threshold τ).

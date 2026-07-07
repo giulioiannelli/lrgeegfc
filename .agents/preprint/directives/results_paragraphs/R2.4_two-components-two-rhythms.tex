@@ -1,0 +1,42 @@
+% =====================================================================
+% R2.4 — "Memory and inference occupy different rhythms"
+% Fourth paragraph of Result 2 (flagship). Follows R2.3 (OFC anchor, encoding
+% duration-immune by construction); this paragraph gives the alpha-vs-beta CONTENT
+% dissociation + the INFERENCE-side duration control (the longer test recording).
+%
+% ESTIMATOR = rho_sym. Band dissociation from audit_152 (arc_cohort_verdict.csv);
+%   duration regression recomputed under rho_sym 2026-07-07 (scratchpad: Spearman of
+%   per-patient rho_sym T_infspec_pe [arc_per_patient.csv] vs test/learn length ratio
+%   [inference_localization/length_control.csv]). NO rho_split number.
+% NUMBERS (verified 2026-07-07):
+%   BAND DISSOCIATION (arc_cohort_verdict.csv, matched-strength Wilcoxon p = GATE):
+%     T_infspec_pe (inference): beta +0.091 p=0.0098 (LO-P15 0.020); ALL other bands
+%       null (delta 0.246 = next-smallest, alpha 0.278, high_g 0.313, ...) -> BETA-ONLY.
+%     T_learn (encoding echo): alpha +0.191 p=0.014 (LO-P15 0.004); beta +0.244 p=0.032
+%       (LO-P15 0.020); ALSO delta +0.168 p=0.042 & low_gamma +0.128 p=0.097 (marginal)
+%       -> encoding echo is BROADER than beta; do NOT claim "only alpha+beta". Say "broader".
+%   DURATION REGRESSION (rho_sym T_infspec_pe vs test/learn length ratio, n=10, Spearman):
+%     beta  rho=+0.10 p=0.78  <- the inference band: DOES NOT scale with length (was +0.25 rho_split)
+%     alpha rho=+0.55 p=0.098 | high_gamma rho=+0.70 p=0.025 (the length-trackers)
+%     delta -0.06 | theta +0.27 | low_gamma -0.15
+%   length ratio range 1.35-2.53x (n_TT/n_TL). NOTE: OUTLINE said "only alpha tracks";
+%   FALSE under rho_sym -- high_gamma tracks length HARDER than alpha. But both alpha &
+%   high_gamma are inference-NULL bands (T_infspec_pe p=0.28/0.31) -> length-tracking sits
+%   in NON-tracing bands, dissociated from the beta trace. Honest framing = that dissociation.
+% FRAMING: alpha = memory-only (encoding, no inference); beta = memory + inference. The
+%   duration control is the INFERENCE-side complement to R2.3's encoding-side (shorter learn
+%   phase). beta inference is duration-ROBUST: uncorrelated with length + clears matched-strength.
+% REFRAMED 2026-07-07 (de-dup): "encoding persists in alpha & beta (p=0.014/0.032)" was stated
+%   in R2.1 (result), R2.3 (aside), AND here -> 3x, p-values verbatim in R2.1+R2.4. Fix: R2.3's
+%   band clause CUT; this paragraph now LEADS with the duration control (its unique content) and
+%   INVOKES the alpha/beta split qualitatively at the close (no repeated p-values). The numeric
+%   dissociation lands once, in R2.1. Title changed rhythm->duration to match the new lead.
+% Guardrails: matched-strength IS the gate; report high_gamma rho honestly (non-tracing);
+%   no behavioural claim; no absence-narration; register = NN results (feedback_results_not_story).
+% Provenance: audit_152 (band dissociation); duration regression rho_sym-recompute 2026-07-07;
+%   headline 02_encoding_vs_inference.md (N2.2 duration / N2.5); outline R2.4.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The inference component does not track recording length.}
+Could the persistent \(\beta\) component be nothing more than the longer test recording? The test phase runs \(1.4\)--\(2.5\times\) longer than the learning phase, and the inference contrast \(f = D_{\mathrm{test}} - D_{\mathrm{learn}}\) inherits that asymmetry, so a component that simply grew with recording length would be the obvious confound. It does not: across patients the \(\beta\) inference component is uncorrelated with the test/learn duration ratio (Spearman \(\rho = {+}0.10\), \(p = 0.78\)), while the bands whose components track length --- \(\alpha\) (\(\rho = {+}0.55\)) and \(\highgamma\) (\(\rho = {+}0.70\)) --- carry no inference-specific trace at all. The rhythms that follow recording length and the rhythm that carries the inference are disjoint; with the matched-strength null \(\beta\) already clears, the persistent \(\beta\) inference component is not a by-product of the longer recording. That same split organizes the two components more broadly: the encoding trace is the broader, held in \(\alpha\) as well as \(\beta\), while the inference-specific part is \(\beta\)'s alone --- \(\alpha\) keeps what was shown, \(\beta\) also keeps what it reasoned out.

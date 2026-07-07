@@ -1,0 +1,33 @@
+% =====================================================================
+% R3.3 — "The cohort splits into two seizure-network shapes"
+% Third paragraph of Result 3. Follows R3.2 (the fused detector; cohort-mean AUC). Reports the
+% two-population split that runs through EVERY read-out; connects to the never-pool-into-a-scalar rule.
+% (Was R3.4; renumbered 2026-07-07 when the seed-free negative paragraph was cut from Results.)
+%
+% READ-OUT = same detector/affinity, read PER PATIENT. NOT rho_sym.
+% NUMBERS (verified 2026-07-07 first-hand from
+%   data/audit/epi_propagator_detector/detector_lopo_per_patient.csv):
+%   COMMUNITY population (8 patients): Pat_08 0.985 (prec@5 1.00), Pat_05 0.938 (1.00),
+%     Pat_06 0.930 (0.80), Pat_14 0.912 (0.80), Pat_03 0.895; mid Pat_07 0.851, Pat_02 0.838,
+%     Pat_13 0.685 (big SOZ n=30, prec@5 0.80). -> "AUC 0.90-0.99, top-5 all SOZ in clearest".
+%   HUB population (2 patients, both right-hemisphere implants): Pat_15 0.572, Pat_10 0.492.
+%     SOZ = the network hub, not a co-diffusing community. For hubs, STRENGTH predicts SOZ where
+%     propagator fails: Pat_15 strength AUC 0.93 vs propagator 0.61 (audit_132 README).
+%   SPLIT IS CONSISTENT across relational co-diffusion (audit_89), distant discovery
+%     (audit_101: Pat_10 0.41/Pat_15 0.21 fail), and the fused detector (audit_117).
+%   REGIME SWITCH (audit_104; data/audit/epi_marker_compound/): choosing strength for hub-like
+%     seeds else propagator recovers 9/10 (0.716 -> 0.750; rescues Pat_15 0.21 -> 0.93);
+%     Pat_10 UNRECOVERABLE (both read-outs fail). A continuous BLEND is misleading (damages
+%     strong responders: Pat_08 0.95 -> 0.56) -> switch, not blend.
+% Guardrails: report PER-PATIENT not a pooled mean (feedback_no_qualitative_editorializing +
+%   never-pool-into-consensus-scalar rule); name the 2 hub patients honestly; the tenth (Pat_10)
+%   is unrecoverable -- say so (brutal honesty). Pat_15 is the SAME patient dropped at beta LRG
+%   for a DIFFERENT (biology) reason; do NOT conflate -- here it is a hub-network failure.
+%   No repo/script technicalities in prose.
+% Provenance: audit_117 (per-patient), audit_104 (switch), audit_132 (hub-strength);
+%   headline 03_epileptogenic_markers.md (N3.3); outline R3.3.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The cohort splits into two seizure-network shapes.}
+The cohort mean hides two populations. In eight patients the seizure zone is a co-diffusing community and the detector is strong --- \gls{auc} \(0.90\) to \(0.99\), with all five top-ranked contacts seizure-onset in the clearest cases. In the other two, both right-hemisphere implants, the seizure zone \emph{is} a network hub rather than a community, and the propagator read-out fails (\gls{auc} \(0.49\) and \(0.57\)); there, plain coupling strength predicts the seizure contacts the propagator misses (in one, strength reaches \gls{auc} \(0.93\) against the propagator's \(0.61\)). The split is the same across every read-out --- the relational grouping, the distant-seed discovery, and the fused detector all succeed on the community patients and fail on the two hub patients --- so it is a property of the seizure network's shape, not of the method. Choosing per patient between the affinity and the strength read-out for the hub-type implants recovers nine of ten; in the tenth, both read-outs fail. Performance is therefore reported per patient rather than as a pooled mean, which would average a working detector together with a known failure mode.

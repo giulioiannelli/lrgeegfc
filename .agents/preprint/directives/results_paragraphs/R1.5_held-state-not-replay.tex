@@ -1,0 +1,32 @@
+% =====================================================================
+% R1.5 — "The resting brain holds the task configuration rather than flashing back to it"
+% Temporal-dynamics paragraph-block of Result 1 (follows R1.4; same \subsection).
+%
+% ESTIMATOR: estimator-INDEPENDENT. The windowed task-likeness g uses a SINGLE full
+%   rest_pre baseline (g = rho^coph(window, task) − rho^coph(window, rest_pre)), NOT the
+%   split-half arms — so the rho_split→rho_sym arbitrary-half issue does not apply here.
+%   The windowed rho^coph == canonical imcoh_abs recipe (Spearman=Pearson=1.000, audit_124),
+%   and it IS the static N1 trace read at finer temporal resolution → inherits its
+%   matched-strength control. No re-estimation needed.
+% Numbers (2026-06-22_replay-states-verification.md + data/audit/replay_states/, n=10):
+%   SUSTAINED (kept, headline): per-window task-likeness g higher post than pre = 10/10,
+%     p=0.001, LOO 0.002 (audit_129 A1). SCALE-INVARIANT: shift positive at ALL τ, 8–10/10,
+%     p≤0.007 (audit_133). REPRESENTATION-INVARIANT: 5 distinct Laplacian-propagator read-outs
+%     (cophenetic, magnetic/directional, raw propagator 1/ρ̂, subspace/Grassmann, normalized
+%     L_sym) all show the hold (audit_133,136–139).
+%   TRANSIENT/REPLAY (rigorous cohort NEGATIVE): no burstiness (p=0.50), no k-means-separable
+%     states (lift~1.2, p=0.31–0.54), no ordered sequence; across every scale/target/per-pair/OFC,
+%     every band, timescales 20s → 0.2s ripple floor; each gated by time-shuffle + node-perm
+%     placebo (audits 124–141).
+%   HONEST LIMITS: (1) a single ~100ms ripple event is BELOW the coherence floor of ANY
+%     connectivity method → replay excluded only to the resolvable ~0.2s, not beneath; α/β need
+%     ≥10s to estimate |ImCoh| (audit_128). (2) "tighter attractor than rest_pre" is only a weak
+%     trend (A2b p=0.08) — CLAIM "held", NEVER "tighter/sharpened". Directional-flow variant
+%     RETRACTED (magnitude-inherited, audit_140) — do NOT cite.
+% Guardrails: LRG framework; inherits matched-strength; no behavioural claim; "replay" is the
+%   NEGATIVE (never a positive claim); no "tighter".
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The resting brain holds the task configuration rather than flashing back to it.}
+Everything so far treats post-task rest as a single averaged snapshot. Resolving it in time asks a sharper question: does the resting brain merely pass through the task configuration in brief, replay-like flashes, or does it settle into it and stay? We cut each rest recording into 20-second windows and scored every window --- in the two bands that carry the static trace, \(\alpha\) and \(\beta\) --- for how much closer it sits to the \acrshort{taskt} state than to the \acrshort{rspre} baseline. The post-task windows are consistently more task-like than the pre-task ones across the entire cohort (10 of 10 patients, \(p = 0.001\), \gls{loo} \(p = 0.002\); the per-patient measure is averaged over the two bands, and the effect is present in each band on its own). The resting brain does not pass through the task configuration in brief excursions; it remains near it for the duration of post-task rest. This is not tied to one diffusion scale or to one way of reading the hierarchy: the window-level shift stays positive across ten diffusion scales spanning nearly two orders of magnitude in \(\tau\) (\(8\)--\(10\) of 10 patients, \(p \le 0.007\) throughout) and in five distinct Laplacian-propagator read-outs of the same recording. The opposite picture --- that the task state re-enters rest as brief, recurring replay bursts --- is a cohort-level negative: we found no burstiness, no separable recurring states, and no ordered sequence, across every scale, every band, and every resolvable timescale down to the \(0.2\)-second range, each tested against time-shuffled and node-permuted placebo nulls. Two honest limits bound this. A single replay event at the ripple scale (\(\sim\)100\,ms) falls below the coherence floor of \emph{any} connectivity measure, so the replay reading is excluded only down to the resolvable \(\sim\)0.2-second scale, not beneath it; and while post-task rest stays near the task configuration, whether it is drawn more tightly toward it than pre-task rest is toward its own baseline is only a weak trend (\(p = 0.08\)), so we claim a maintained proximity, not a sharpened attractor. Because it is the static trace read at finer temporal resolution, the reinstatement inherits its strength-matched control.

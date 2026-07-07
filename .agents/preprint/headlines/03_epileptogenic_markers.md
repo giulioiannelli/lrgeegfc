@@ -3,17 +3,23 @@ name: headline-n3-epileptogenic-markers
 era: IMCOH_ABS_COHORT_N10
 status: current
 kind: headline
-scope: N3 — the same Laplacian propagator that carries the cognitive trace also localizes epileptogenic tissue. Relational δ diffusion community → seed-based 6-band calibrated P(SOZ) detector; seed-FREE markers now in progress. Detailed audit history in epi-marker-analysis.md.
+scope: N3 — the same Laplacian propagator that carries the cognitive trace also localizes epileptogenic tissue. Relational δ diffusion community → seed-based 6-band calibrated P(SOZ) detector. Seed-free markers are a documented NEGATIVE (5 confirmations), folded OUT of the Results (2026-07-07). Detailed audit history in epi-marker-analysis.md.
 owner_agent: epi-marker-trace-analysis chat
-updated: 2026-06-22
+updated: 2026-07-07
 ---
 
-# N3 — The same diffusion propagator localizes epileptogenic tissue: interpretable seed-based and (emerging) seed-free SOZ markers
+# N3 — The same diffusion propagator localizes epileptogenic tissue: interpretable seed-based SOZ markers
 
 > One operator, a second read-out (CORE). Read ρ̂(τ)=e^{−τL}/Z as inter-contact
 > diffusion *affinity* instead of a cross-phase distance, and the seizure network
 > shows up. Full audit-by-audit history → [`epi-marker-analysis.md`](epi-marker-analysis.md).
 > Numbers in cached CSVs (§F).
+
+> **Update 2026-07-07 (paper reconciliation).** The **seed-free** thread (former **N3.3**) is a
+> **documented negative** — five independent tests (`audit_80/81`, `audit_94`, `audit_118`,
+> `audit_120`, `audit_121`) all sit at the strength or label-shuffle floor; only electrode depth
+> (an implantation-placement prior) transfers. It is **folded OUT of the Results**. Paper
+> paragraphs renumbered **R3.3 = two-populations, R3.4 = scope**; headline **N3.4→N3.3, N3.5→N3.4**.
 
 ## §A — Result in plain language
 
@@ -40,8 +46,9 @@ detector below is its *application*. The honest arc, in one breath:
   **calibrated probability P(SOZ)** for every contact. This is a **triage /
   shortlist** tool (good ranking, modest precision), not a from-scratch clinical
   localizer.
-- The frontier now: **seed-free** markers (no known SOZ needed) — harder, less
-  precise, and the most clinically valuable version. **In progress.**
+- Seed-free (no known SOZ) is a **documented negative** on this data — five independent
+  tests; only implantation depth (a placement prior) transfers, not connectivity. The
+  deliverable is the **seed-based** detector above.
 
 **Why it matters:** a *mechanistic, multiscale, strength-orthogonal* SOZ read-out
 from the same framework as the cognitive result — cognition and clinic from one
@@ -68,22 +75,15 @@ in favour of the interpretable logistic**. (⚠ A first draft scored 0.97 via a
 **label leak** — segregation referenced the full SOZ set, not the seeds; caught,
 fixed, shuffle-null certifies the clean pipeline.)
 
-**N3.3 — Seed-free markers (LIVE).** The push to drop the seed requirement:
-`audit_118` (seed-free marker), `audit_119` (path routing), `audit_120` (seed-free
-routing module), and `audit_121` (cross-phase routing rigidity), all 2026-06-22.
-**In progress — do not report verdicts here**; the expectation (from prior
-label-free work, `audit_94`) is that seed-free is **less precise** because
-cross-patient *selection* of the pathological community at zero labels is hard.
-
-**N3.4 — The two-population split.** Detector performance is bimodal: a **strong-
+**N3.3 — The two-population split.** Detector performance is bimodal: a **strong-
 community** group (several patients at AUC ≈ 0.9–0.99, precision@5 up to 100%) and
 a **hub** group (Pat_10, Pat_15 — right-hemisphere implants where SOZ = hubs, not
 a community) where it is marginal. Report per-patient, not just the cohort mean —
 the cohort median can lie.
 
-**N3.5 — Honest scope.** Validated against **clinical SOZ labels, not resection +
+**N3.4 — Honest scope.** Validated against **clinical SOZ labels, not resection +
 surgical outcome (Engel/ILAE)**. **Seed-based** (N3.2; cannot localize from zero —
-that's N3.3). Precision is a **triage** number, **ceiling-bound** (~60%) by target
+seed-free is a closed negative). Precision is a **triage** number, **ceiling-bound** (~60%) by target
 rarity × ranker quality — no filter rescues it (white-matter filter even hurts:
 ~41% of SOZ are WM-labelled). Occult candidates (unmarked contacts ranked high —
 e.g. hippocampus/amygdala, medial-OFC) are **hypotheses**, none outcome-validated.

@@ -257,3 +257,80 @@ def nmi(a_labels: np.ndarray, b_labels: np.ndarray) -> float:
     nz = joint > 0
     I = float(np.sum(joint[nz] * np.log(joint[nz] / np.outer(Pa, Pb)[nz])))
     return I / np.sqrt(Ha * Hb) if Ha > 0 and Hb > 0 else 0.0
+
+
+# ---------------------------------------------------------------------------
+# per-node trace decomposition primitives
+# (promoted from audit_83 on its second use — the per-node trace decomposition,
+#  audit_144. General graph/statistics names, no manuscript scope. Scope report:
+#  .agents/guides/task-persistence-investigation/2026-06-25_per-node-trace-decomposition.md)
+# ---------------------------------------------------------------------------
+
+
+def rank_concordance(dD_task: np.ndarray, dD_rest: np.ndarray) -> np.ndarray:
+    """Per-pair rank concordance ``c_p`` whose normalized sum is ``rho_split``.
+
+    ``c_p = (rank(dD_task) - (n+1)/2) * (rank(dD_rest) - (n+1)/2)``; with no ties
+    ``Spearman(dD_task, dD_rest) = sum(c) / (n(n^2-1)/12)``. RANK-based on purpose:
+    immune to the matched-strength surrogate cophenetic-magnitude explosion
+    (``1/rho`` on near-disconnected rewired graphs) that corrupts the raw product
+    ``dD_task * dD_rest``, and consistent with the LOCKED ``rho_split = Spearman``
+    trace measure (audit_73; ``feedback_no_partition_metrics_use_rho_coph``).
+    ``c_p > 0`` = pair moves in the trace direction; ``c_p < 0`` = anti-trace.
+
+    Promoted verbatim from ``audit_83.concordance`` (second caller: audit_144).
+    """
+    from scipy.stats import rankdata
+    n = dD_task.size
+    mid = (n + 1) / 2.0
+    return (rankdata(dD_task) - mid) * (rankdata(dD_rest) - mid)
+
+
+def canonical_cophenet(W: np.ndarray) -> np.ndarray:
+    """Canonical LRG cophenetic condensed distances from an FC matrix ``W``.
+
+    Built with the IDENTICAL function the matched-strength surrogate uses
+    (``cophenetic_condensed_from_eigs`` on ``eigh(diag(deg) - W)``) so observed and
+    surrogate trace share construction (``tau = 1/lambda_max``, ``T = 1/rho``,
+    average-linkage cophenet). Promoted from ``audit_83._canon_cophenet``.
+    """
+    from lrg_eegfc.utils.surrogate import cophenetic_condensed_from_eigs
+    W = np.asarray(W, dtype=np.float64)
+    deg = W.sum(axis=1)
+    ev, V = np.linalg.eigh(np.diag(deg) - W)
+    return cophenetic_condensed_from_eigs(ev, V)
+
+
+def node_incidence_mean(values: np.ndarray, node_i: np.ndarray,
+                        node_j: np.ndarray, n_nodes: int,
+                        keep: np.ndarray | None = None,
+                        demean: bool = False) -> np.ndarray:
+    """Endpoint-incidence mean of a per-pair vector ``values``, returned per node.
+
+    Each pair ``p = (node_i[p], node_j[p])`` contributes ``values[p]`` to BOTH
+    endpoints; the per-node score ``T_i`` is the mean over node ``i``'s incident
+    pairs (the audit_83 ``unit_means_from_s`` aggregation specialized to node
+    granularity). Returns a length-``n_nodes`` vector (NaN for nodes with no kept
+    incidence, e.g. excluded nodes).
+
+    - ``keep`` (length-N bool): restrict to kept nodes' incidences (e.g. epi
+      exclusion); dropped nodes get NaN.
+    - ``demean``: subtract the global mean of the kept incidences first, giving the
+      RELATIVE concentration ``t_i = T_i - mean_k T_k`` (audit_83 convention). Raw
+      ``T_i`` (``demean=False``) is the conservation axis: ``mean_i T_i`` is
+      proportional to the global ``rho_split``, so a low-``rho_split`` patient is one
+      whose node-mean ``T_i`` is dragged down by negative-``T_i`` (anti) nodes.
+    """
+    vals = np.concatenate([values, values])
+    nidx = np.concatenate([node_i, node_j]).astype(np.intp)
+    if keep is not None:
+        m = keep[nidx]
+        vals, nidx = vals[m], nidx[m]
+    if demean and vals.size:
+        vals = vals - vals.mean()
+    out = np.full(n_nodes, np.nan, dtype=np.float64)
+    sums = np.bincount(nidx, weights=vals, minlength=n_nodes)
+    cnts = np.bincount(nidx, minlength=n_nodes).astype(np.float64)
+    nz = cnts > 0
+    out[nz] = sums[nz] / cnts[nz]
+    return out

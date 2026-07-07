@@ -1,0 +1,41 @@
+% =====================================================================
+% R3.3 — "Without seeds, the marker does not transfer across patients"
+% Third paragraph of Result 3. Follows R3.2 (SEED-BASED detector, k=3 known SOZ).
+% The honest negative: the clinically valuable SEED-FREE version does not work on this data.
+%
+% CRITICAL OUTLINE DIVERGENCE: outline R3.3 says "[under investigation]" / headline N3.3 says
+%   "LIVE, do not report verdicts". BOTH ARE STALE. The seed-free route is now a DOCUMENTED
+%   NEGATIVE with FIVE independent confirmations (verified 2026-07-07). Brutal honesty
+%   (feedback_brutal_honesty_no_sycophancy) requires reporting the negative, NOT soft-pedaling
+%   five failures as "in progress." Flag outline/headline update to PI.
+% READ-OUT = seed-free intrinsic propagator features (no target labels in the score). NOT rho_sym.
+% NUMBERS (verified 2026-07-07 first-hand):
+%   INTRINSIC seed-free (audit_118; data/audit/epi_seedfree_marker/{seedfree_ablation,
+%     seedfree_lopo_per_patient}.csv + README):
+%     intrinsic_new (self-return + mode-localization IPR + cophenetic persistence), 6-band fused,
+%       LOPO AUC 0.528 (median 0.608), label-shuffle floor 0.431 -> CHANCE.
+%     depth_only AUC 0.692 (median 0.695) = the ONLY seed-free transfer = implantation geometry
+%       (a placement prior, NOT connectivity).
+%     intrinsic+strength+depth (all) 0.630 < depth_only 0.692 -> connectivity features HURT.
+%   FIVE INDEPENDENT SEED-FREE NEGATIVES:
+%     audit_80/81 (cross-patient node), audit_94 (label-free community SELECTION at chance),
+%     audit_118 (intrinsic, above), audit_120 (single-phase routing: fails matched-strength
+%       per-patient, cohort sign-test = mirage), audit_121 (cross-phase routing rigidity:
+%       LOPO 0.531 < strength 0.680 ~= shuffle 0.545).
+%   MECHANISM (not vibes): the SOZ-discriminative info is RELATIONAL (affinity to KNOWN SOZ);
+%     without the anchor the pathological module is not separable from physiological diffusion
+%     communities (audit_94 wall).
+% REGISTER: this is a RESULT (computed AUC answering a question), NOT banned absence-narration.
+%   State it with numbers on symbols; do NOT essay about "what we could not do"
+%   (feedback_results_not_story). "open" = the seed-free localizer is unsolved here; do not
+%   promise it. No script/CSV names in prose.
+% Guardrails: matched-strength/shuffle floors are the gates; depth-only "win" flagged as a
+%   confound (geometry, not connectivity); no overclaim that seed-free is IMPOSSIBLE in general
+%   (module-level normative modeling is the one un-killed path — NOT claimed here).
+% Provenance: audit_118/120/121 + audit_94; headline 03_epileptogenic_markers.md (N3.3, STALE);
+%   outline R3.3 (STALE). Memory epi_propagator_diffusion_community_2026_06_08.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{Without seeds, the marker does not transfer across patients.}
+This detector needs seeds --- a few known seizure contacts to define the target the affinity is measured against --- and the version that would matter most clinically needs none. On this cohort, the seed-free version does not work. Read from each contact's intrinsic diffusion properties alone --- self-return, slow-mode localization, cophenetic persistence --- fused across bands and transferred across patients, the same features that reach \(0.81\) with seeds fall to an \gls{auc} of \(0.53\), at their label-shuffle floor (\(0.43\)); the only seed-free feature that transfers across patients is electrode depth (\(0.69\)) --- and that is not a connectivity signal but the implantation geometry itself: shafts are placed so that their deep contacts reach the tissue already suspected of seizure onset, so depth tracks the surgeon's target, not the network, and adding the diffusion features to it only lowers the score (\(0.69 \to 0.63\)). Label-free community selection, single-phase routing, and cross-phase routing rigidity fail the same way --- five independent seed-free tests, each sitting at the strength or shuffle floor. The reason is mechanistic: the discriminating information is relational, a contact's affinity to \emph{known} seizure tissue, and without that anchor the seizure community is not separable from ordinary diffusion communities. A seed-free localizer therefore remains open; the result established here is the seed-based read-out.

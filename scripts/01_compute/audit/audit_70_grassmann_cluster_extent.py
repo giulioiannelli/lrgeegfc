@@ -10,7 +10,9 @@ For each band ∈ {δ, θ, α, β, γ_l, γ_h}:
   2. Recompute surrogate T_G(k) per patient per surrogate per k from cached
      surrogate eigvecs at data/cache/matched_strength_surrogate_lrg/.
   3. Observed longest contiguous run = max contiguous k with paired
-     Wilcoxon one-sided-less (obs < surr_mean across patients) p < 0.05.
+     Wilcoxon one-sided-GREATER (obs > surr_mean across patients) p < 0.05.
+     Trace direction is T_G > 0 (project-wide sign convention,
+     feedback_td_sign_convention.md): rsPost closer to task than rsPre is.
   4. Null distribution: for each r ∈ 1..R, treat surrogate r as the
      "phantom observation", reference = mean of remaining R−1 surrogates,
      paired Wilcoxon per k → phantom longest run. R=200 null values.
@@ -208,6 +210,11 @@ def main():
         obs_LR = longest_run_below(obs_p, ALPHA_K)
         obs_mass = cluster_mass(obs_p, ALPHA_K)
         for ki, k in enumerate(K_GRID):
+            # NB: column name "obs_p_one_sided_less" is LEGACY (kept stable so
+            # the 5 downstream readers — audit_72/81 + 3 diagnostics — and the
+            # on-disk CSV don't desync). The VALUE is the trace-direction
+            # (alternative='greater', obs > surr_mean) p-value: small p = TRACE,
+            # T_G > 0 (feedback_td_sign_convention.md). It is NOT a lower-tail p.
             per_k_rows.append({"band": band, "k": k, "obs_p_one_sided_less": obs_p[ki]})
 
         # --- Null distribution via phantom-r tests

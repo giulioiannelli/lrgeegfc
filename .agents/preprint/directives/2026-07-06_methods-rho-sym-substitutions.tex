@@ -1,0 +1,295 @@
+% =====================================================================
+% METHODS SUBSTITUTION SHEET  --  rho_sym migration + Grassmann simplification
+% + statistical-inference rework + raw-as-foil + reliability control.
+%
+% Created 2026-07-06 (rev. 2026-07-07: FIND blocks are now EXACT VERBATIM current
+% text, so each block is a literal find-and-replace). Estimator of record: rho_sym
+% (audits 149-155). Sources: 2026-07-06_rho-sym-{panoramic-and-methodology,
+% pipeline-migration,estimator-robustness-supplement}.md; 00_CORE_methodology.md.
+%
+% HOW TO USE. Each block has two parts:
+%   * ">>> FIND" -- the exact current text, reproduced as LaTeX comments (every
+%       line prefixed with "% "). Search your Methods source for it. Do NOT paste
+%       this part; it is commented so this sheet stays inert.
+%   * ">>> REPLACE WITH" -- live (uncommented) LaTeX. Paste this over the found text.
+% Blocks are in Methods reading order. Macros match your source; NO new macros needed --
+%   the symmetric and single-arm variants are subscripts on your existing \rhocoph / \rhoraw
+%   (e.g. \rhocoph_{\mathrm{sym}}, \rhocoph_{\mathrm{split}}), and the generic single arm is
+%   \rho_{\mathrm{split}}.
+%   NOTE: main text uses \rhocoph / \rhoraw throughout; the Methods states the identity
+%   \rhocoph \equiv \rhocoph_{\mathrm{sym}} (and \rhoraw \equiv \rhoraw_{\mathrm{sym}}) once,
+%   at instantiation, so the reader sees the estimator is arm-symmetrized to remove the
+%   half-split bias. There is NO standalone \rho_sym symbol; \rho_split = supplement-only.
+%
+% THE SEVEN CHANGES
+%   1 compare-intro : cophenetic = LRG multiscale probe (primary); Grassmann =
+%                     conventional spectral counterpart (leading Laplacian modes),
+%                     NOT an LRG object; raw = pre-transform reference; fix "independent".
+%   2 perpair       : keep rho_split construction; fix = arm-symmetric estimator
+%                     (rhocoph \equiv rhocoph_sym, no standalone rho_sym); per-patient
+%                     SE = half-arm disagreement + "undetermined"; reject shared baseline.
+%   3 rawfc         : rho^raw = pre-transform reference (drop "result"/"foil"); rho^raw = rho_sym on W.
+%   4 ctm           : rho^coph is now the rho_sym instantiation on D_coph.
+%   5 grassmann     : AGGRESSIVE cut -- keep only d_G and T_G(k); cluster-mass gate
+%                     in one prose paragraph; DROP 3 display equations to Supplement.
+%   6 stats         : kill the stale T_d; restate the gate on rho^coph; restructure;
+%                     add the split-half reliability control (NO code/repo technicalities).
+%   7 lrg-closer    : "not derivable / independent" -> "two reductions of one spectrum".
+%
+% WHAT MOVES TO THE SUPPLEMENT (flagged, not silently dropped):
+%   - Grassmann T_G^* [0,1] normalization; per-patient cluster mass T_G^{*,s};
+%     phantom-surrogate permutation construction of p_mass^emp.
+%   - The single-arm rho_split cohort numbers (supplementary column).
+%   - Full per-phase reliability disattenuation (audit_145); Methods keeps one clause.
+%
+% BEFORE COMPILING: (a) grep Results/captions for \eqref to the DROPPED labels
+%   eq:methods_TGstar, eq:methods_TGstar_perpatient, eq:methods_cluster_p; (b) grep
+%   for T_{d}; (c) confirm \cite{phipson2010permutation} is no longer needed in the
+%   main text (it moves to the Supplement with the phantom-null).
+% =====================================================================
+
+
+
+% #####################################################################
+% CHANGE 1 -- Section \ref{ssec:methods_compare}, the three intro paragraphs.
+% Action: two LRG probes carry the verdict, raw = foil; correct "independent".
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% The three comparison probes all address one question: does the cognitive episode leave an imprint on \acrshort{rspost} that is not explained by the \acrshort{rspre} baseline? Each yields a per-(patient, band) trace scalar sharing one sign orientation --- positive is the \emph{trace direction} (an \acrshort{rspost} configuration retaining a residual imprint of the \acrshort{taskt} configuration), negative the \emph{reset direction} (an \acrshort{rspost} returned to baseline rest). The functional form differs by probe, because each acts on an object of different type and removes the patient's static, phase-invariant connectivity backbone in the manner native to that object.
+% %
+% The two per-pair probes --- the substrate-level \(\rhoraw\) on \(\Adjacency(\Band)\) (Section~\ref{sssec:methods_compare_rawfc}) and the cophenetic-level \(\rhocoph\) on \eqref{eq:methods_distm_coph} --- act on per-pair vectors that carry the static backbone additively, and remove it by explicit subtraction: a task-induced and a rest-induced per-pair shift vector, each referenced to an independent \acrshort{rspre} half, are compared through their Spearman correlation. Being scale-invariant, this correlation reads the \emph{direction} of the per-pair reorganization --- whether task and rest displace the same pairs in the same rank order --- and is blind to its overall magnitude.
+% %
+% The Grassmann probe (Section~\ref{sssec:methods_compare_grassmann}) acts on the leading-eigenmode subspace \(U_{k}\), whose chordal distance already ignores directions shared across phases: a backbone direction common to two phases contributes zero principal angle and so does not enter the distance. Baseline therefore enters not by subtraction but as a reference scale, through a phase-triangle that measures the \acrshort{taskt}-to-\acrshort{rspost} separation against the \acrshort{rspre}-to-\acrshort{taskt} separation that sets the scale. Being a distance, the Grassmann scalar reads the \emph{magnitude} of whole-network subspace rotation --- how close \acrshort{rspost} sits to \acrshort{taskt} --- rather than a pair-resolved pattern. The two families thus probe the same reorganization under complementary lights, direction-of-change versus proximity, and are reported as independent evidence.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+The trace is probed two ways on the graph, and read against the untransformed substrate. The primary read-out is the network's \gls{lrg} multiscale communication geometry, taken per contact pair as the cophenetic distance \(\rhocoph\) (Section~\ref{sssec:methods_compare_ctm}). Against it we set a conventional spectral counterpart --- the rotation of the leading Laplacian eigenmode subspace, the representation on which standard spectral-clustering pipelines rely, measured by the Grassmann distance \(d_{\rm G}\) (Section~\ref{sssec:methods_compare_grassmann}). Both act on the \(\abs{\ImCoh}\) network \(\Adjacency(\Band)\), whose own per-pair overlap \(\rhoraw\) (Section~\ref{sssec:methods_compare_rawfc}) is the pre-transform reference against which the multiscale step is measured. Each read-out yields a per-(patient, band) trace scalar sharing one sign orientation --- positive is the \emph{trace direction} (an \acrshort{rspost} configuration retaining a residual imprint of the \acrshort{taskt} configuration), negative the \emph{reset direction} (an \acrshort{rspost} returned to baseline rest) --- and each removes the patient's static, phase-invariant connectivity backbone in the manner native to its object.
+%
+The two per-pair read-outs, \(\rhocoph\) and \(\rhoraw\), act on per-pair vectors that carry the static backbone additively and remove it by explicit subtraction: a task-induced and a rest-induced per-pair shift vector, each referenced to an independent \acrshort{rspre} half, are compared through their Spearman correlation. Being rank-based, this correlation reads the \emph{direction} of the per-pair reorganization --- whether task and rest displace the same pairs in the same rank order --- and is blind to its overall magnitude. \(\rhocoph\) applies this to the \gls{lrg} multiscale cophenetic distance and is the primary read-out on which the trace rests; \(\rhoraw\) applies the identical statistic to the raw edge weights, so that the difference between them isolates what the multiscale transform contributes over the untransformed substrate.
+%
+The Grassmann read-out instead compares whole subspaces: the leading Laplacian eigenmodes are swept across the full spectral range, and \(d_{\rm G}\) measures the \acrshort{rspre}-to-\acrshort{taskt} rotation of that subspace against the \acrshort{taskt}-to-\acrshort{rspost} rotation, so baseline enters as a reference scale rather than by subtraction. Being a distance, it reads the \emph{magnitude} of whole-network subspace rotation rather than a pair-resolved pattern. The cophenetic and Grassmann read-outs are built from the same Laplacian eigendecomposition and are therefore correlated, not independent, but they are different reductions of it: the cophenetic integrates all merge-height scales of the diffusion propagator into one nested per-pair hierarchy, while the Grassmann keeps only the flat span of the leading modes that a conventional spectral embedding retains. Where the two agree, as at \(\beta\), the agreement certifies that the trace is robust to how the spectrum is read; where they dissociate --- a multiscale per-pair trace with no leading-mode rotation, or a leading-mode rotation with no persistent per-pair hierarchy --- the \gls{lrg} multiscale geometry and the conventional spectral summary are resolving different reorganizations, each seeing structure the other misses.
+
+
+
+% #####################################################################
+% CHANGE 2 -- Section \ref{sssec:methods_compare_perpair}.
+% Action: keep the rho_split construction; introduce rho_sym as the fix.
+% The generic-O opening sentence ("The two per-pair comparisons share a single
+% split-baseline scheme ... cophenetic distance respectively.") is UNCHANGED and
+% stays immediately before this block. Replace from "For each (patient, band)
+% cell ..." through "... a de-biasing requirement."
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% For each (patient, band) cell, \acrshort{rspre} is split into two halves of equal duration and \(O\) is computed independently on each, yielding \(O^{\txtacr{rspre}_{A}}\) and \(O^{\txtacr{rspre}_{B}}\) as independent estimators on disjoint samples. The per-pair shifts
+% \begin{equation}
+%     \Delta_{\rm task}(i,j) = O^{\txtacr{taskt}}_{ij} - O^{\txtacr{rspre}_{A}}_{ij}, \qquad \Delta_{\rm rest}(i,j) = O^{\txtacr{rspost}}_{ij} - O^{\txtacr{rspre}_{B}}_{ij},
+%     \label{eq:methods_perpair_shifts}
+% \end{equation}
+% take \acrshort{taskt} and \acrshort{rspost} as single full-duration observations and reference each to a distinct \acrshort{rspre} half, removing by construction the shared-baseline term that would otherwise correlate the two shift maps trivially when both subtract the same \acrshort{rspre} estimate. The trace scalar is the Spearman correlation of the two shift vectors across all pairs,
+% \begin{equation}
+%     \rho = \rho_{S}\left(\Delta_{\rm task}, \Delta_{\rm rest}\right),
+%     \label{eq:methods_perpair_rho}
+% \end{equation}
+% with \(\rho > 0\) the trace direction: the pairs the task displaces are, in rank, the pairs displaced in post-task rest. The rank-based Spearman form is used throughout because the trace question is one of pattern, not magnitude --- whether task and rest reorganize the same pairs in the same order --- so the statistic is deliberately orthogonal to the edge-strength backbone and robust to the heavy-tailed per-pair shift distribution; the object-specific motivation on \(\Dcoph\) is given at its instantiation.
+% %
+% The cohort verdict for either instantiation rests on one mandatory null --- the matched-strength gate --- and is read against two supplementary controls. The three tests differ in what \(\rho\) is compared against: the gate compares the observed \(\rho\) against a strength-preserving surrogate ensemble, whereas both controls compare the observed \(\rho\) against a second observed correlation computed from the same data, with no surrogates.
+% %
+% The \textbf{gate} is the \emph{matched-strength surrogate} test. Each phase matrix is rewired under the strength-preserving \(4\)-cycle \(\pm\delta\) scheme of Section~\ref{sssec:methods_compare_stats} (\(R = 200\) surrogates), \(\rho\) is recomputed on every surrogate to build a per-(patient, band) null distribution, and cohort significance is a one-sided paired Wilcoxon of the observed \(\rho\) against the patient-matched surrogate median. Because the rewiring preserves each node's strength while randomizing topology, it strips the magnitude backbone --- the degree/strength structure that inflates any correlation of edge levels --- so a \(\rho\) surviving the gate is not explained by strength alone. This is the minimum null on which the cohort claim rests.
+% %
+% The first \textbf{control} is the \emph{drift-floor null}, computed without surrogates from the observed data alone. Splitting \acrshort{rspost} into two equal-duration halves as well, the rest-only correlation
+% \begin{equation}
+%     \rho_{\rm drift} = \rho_{S}\left(O^{\txtacr{rspre}_{B}} - O^{\txtacr{rspre}_{A}}, O^{\txtacr{rspost}_{B}} - O^{\txtacr{rspost}_{A}}\right)
+%     \label{eq:methods_perpair_drift}
+% \end{equation}
+% is the task-free counterpart of \(\rho\), built from \acrshort{rspre} and \acrshort{rspost} halves with no task phase entering either shift. A monotone within-session drift would push both baseline-to-rest displacements in a common direction and so fake a positive \(\rho\); the floor measures exactly that no-task component. The control is a one-sided paired Wilcoxon across the cohort under \(H_{1}: \rho > \rho_{\rm drift}\), requiring the observed correlation to exceed its own drift floor.
+% %
+% The second \textbf{control} is the \emph{cross-probe restriction}, also surrogate-free. The correlation \(\rho_{\rm xprobe}\) recomputes \(\rho\) on the cross-probe pair subset alone (pairs whose two contacts sit on different electrode shafts), and the cohort test is a non-degradation gate: the one-sided paired Wilcoxon on \(\rho - \rho_{\rm xprobe}\) under \(H_{1}: \rho > \rho_{\rm xprobe}\) is required to be non-significant, with the cohort-median sign of \(\rho_{\rm xprobe}\) matching that of \(\rho\). This checks that the trace is not carried by same-probe pairs and their residual short-range coupling; under \(\abs{\ImCoh}\) the zero-lag contribution is suppressed by construction, so this is a robustness control rather than a de-biasing requirement.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+For each (patient, band) cell, \acrshort{rspre} is split into two halves \(A\) and \(B\) of equal duration and \(O\) is computed independently on each, giving two independent baselines \(O^{\txtacr{rspre}_{A}}\) and \(O^{\txtacr{rspre}_{B}}\). We form the task-side and rest-side per-pair shifts against \emph{different} halves,
+\begin{equation}
+    \Delta_{\rm task}^{A}(i,j) = O^{\txtacr{taskt}}_{ij} - O^{\txtacr{rspre}_{A}}_{ij}, \qquad \Delta_{\rm rest}^{B}(i,j) = O^{\txtacr{rspost}}_{ij} - O^{\txtacr{rspre}_{B}}_{ij},
+    \label{eq:methods_perpair_shifts}
+\end{equation}
+so that the shared-baseline term --- which would correlate the two shift maps trivially if both subtracted the same \acrshort{rspre} estimate --- is removed by construction. The single-arm trace scalar is their Spearman correlation across all pairs,
+\begin{equation}
+    \rho_{\mathrm{split}} = \rho_{S}\!\left(\Delta_{\rm task}^{A},\, \Delta_{\rm rest}^{B}\right),
+    \label{eq:methods_perpair_rho}
+\end{equation}
+with \(\rho_{\mathrm{split}} > 0\) the trace direction: the pairs the task displaces are, in rank, the pairs displaced in post-task rest.
+
+The assignment ``\(A\!\to\!\)task-side, \(B\!\to\!\)rest-side'' in \eqref{eq:methods_perpair_rho} is, however, arbitrary; the mirror assignment is equally valid and defines a second, equally-legitimate arm \(\rho_{\mathrm{split}}' = \rho_{S}(O^{\txtacr{taskt}} - O^{\txtacr{rspre}_{B}},\, O^{\txtacr{rspost}} - O^{\txtacr{rspre}_{A}})\). Nothing prefers one arm over the other, yet the two can disagree: because the halves differ on roughly \qty{45}{\percent} of pairs, low-reorganization (near-zero) patients can receive \emph{opposite signs} from the two arms, so a per-patient trace/reset label would depend on an arbitrary bookkeeping choice. The estimator of record therefore \emph{symmetrizes} the two arms, averaging \(\rho_{\mathrm{split}}\) with its mirror \(\rho_{\mathrm{split}}'\); the average is invariant to the \(A\!\leftrightarrow\!B\) half-labelling by construction, uses the same data and the same matched-strength surrogate (Section~\ref{sssec:methods_compare_stats}), and leaves strong tracers essentially unchanged while removing the arbitrary-half artifact for the near-zero patients. Instantiated on the cophenetic distance and on the raw substrate, this arm-symmetric estimator defines the primary trace \(\rhocoph\) (Section~\ref{sssec:methods_compare_ctm}) and the substrate reference \(\rhoraw\) (Section~\ref{sssec:methods_compare_rawfc}); those sections give its explicit symmetric form, and throughout \(\rhocoph\) and \(\rhoraw\) denote the symmetrized estimators. Per patient we report the arm-symmetric estimate together with the half-arm disagreement \(\tfrac{1}{2}\abs{\rho_{\mathrm{split}} - \rho_{\mathrm{split}}'}\) as its standard error, labelling any patient whose estimate is smaller than one such SE \emph{undetermined} --- its sign is estimator noise rather than a biological verdict. The single-arm \(\rho_{\mathrm{split}}\) is retained only as a supplementary column.
+
+Collapsing the two halves into a single shared \acrshort{rspre} baseline would remove the half-choice outright, but was rejected because it reintroduces exactly the correlated-error inflation the split design exists to prevent (for one patient the shared-baseline statistic sits at \num{0.775} against a surrogate median of \num{0.767}, a de-inflated signal of \num{0.008}); the arm-symmetric estimator is thus the free refinement of the split design, not a retreat from it. The rank-based Spearman form is used throughout because the trace question is one of pattern, not magnitude --- whether task and rest reorganize the same pairs in the same order --- so the statistic is deliberately orthogonal to the edge-strength backbone and robust to the heavy-tailed per-pair shift distribution; the object-specific motivation on \(\Dcoph\) is given at its instantiation.
+
+The cohort verdict rests on one mandatory null and two supplementary controls (cohort tests in Section~\ref{sssec:methods_compare_stats}), stated here for the cophenetic trace \(\rhocoph\); the substrate \(\rhoraw\) is gated identically. The \textbf{gate} is the matched-strength surrogate null: each phase matrix is rewired under the strength-preserving \(4\)-cycle \(\pm\delta\) scheme (\(R = 200\) surrogates; Section~\ref{sssec:methods_compare_stats}), \(\rhocoph\) is recomputed on every surrogate to build a per-(patient, band) null distribution, and a \(\rhocoph\) exceeding its patient-matched surrogate median is not explained by strength alone. The first \textbf{control} is the drift-floor null, computed without surrogates: splitting \acrshort{rspost} into two equal-duration halves as well, the rest-only correlation
+\begin{equation}
+    \rho_{\rm drift} = \rho_{S}\!\left(O^{\txtacr{rspre}_{B}} - O^{\txtacr{rspre}_{A}},\; O^{\txtacr{rspost}_{B}} - O^{\txtacr{rspost}_{A}}\right)
+    \label{eq:methods_perpair_drift}
+\end{equation}
+is the task-free counterpart of \(\rhocoph\), and the trace is required to exceed its own drift floor so that a monotone within-session drift cannot fake it. The second \textbf{control} is the cross-probe restriction \(\rho_{\rm xprobe}\), which recomputes the trace on cross-probe pairs alone (pairs whose two contacts sit on different electrode shafts); the trace must not degrade significantly under this restriction, checking that it is not carried by same-probe short-range coupling --- already suppressed under \(\abs{\ImCoh}\), so this is a robustness control rather than a de-biasing requirement.
+
+
+
+% #####################################################################
+% CHANGE 3 -- Section \ref{sssec:methods_compare_rawfc} (whole subsection body).
+% Action: reframe rho^raw as the substrate BASELINE/FOIL, never a result.
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% The first instantiation sets \(O = \Adjacency(\Band)\), the raw \(\abs{\ImCoh}\) adjacency before any \gls{lrg} transformation, so that the trace scalar of \eqref{eq:methods_perpair_rho} reads
+% \begin{equation}
+%     \rho^{\rm raw} = \rho_{S}\left(\Adjacency^{\txtacr{taskt}} - \Adjacency^{\txtacr{rspre}_{A}},\; \Adjacency^{\txtacr{rspost}} - \Adjacency^{\txtacr{rspre}_{B}}\right),
+%     \label{eq:methods_rho_raw}
+% \end{equation}
+% with drift floor \(\rho^{\rm raw}_{\rm drift}\) and cross-probe restriction \(\rho^{\rm raw}_{\rm xprobe}\) defined by the same substitution, under the matched-strength gate of Section~\ref{sssec:methods_compare_perpair}. This probe asks whether the same contact pairs are coupled across phases at the level of direct \(\abs{\ImCoh}\) edge weights, treating each upper-triangular entry of \(\Adjacency(\Band)\) as an independent observation.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+The substrate-level instantiation sets \(O = \Adjacency(\Band)\), the raw \(\abs{\ImCoh}\) adjacency before any \gls{lrg} transformation, so that the arm-symmetric estimator of Section~\ref{sssec:methods_compare_perpair} evaluated on the untransformed edge weights defines the substrate overlap \(\rhoraw \equiv \rhoraw_{\mathrm{sym}}\),
+\begin{equation}
+    \rhoraw = \tfrac{1}{2}\Big[\rho_{S}\!\left(\Adjacency^{\txtacr{taskt}} - \Adjacency^{\txtacr{rspre}_{A}},\; \Adjacency^{\txtacr{rspost}} - \Adjacency^{\txtacr{rspre}_{B}}\right) + \big(A\!\leftrightarrow\!B\big)\Big],
+    \label{eq:methods_rho_raw}
+\end{equation}
+where \((A\!\leftrightarrow\!B)\) denotes the mirror arm with the two \acrshort{rspre} halves exchanged, and the drift floor and cross-probe restriction are defined by the same substitution. This substrate overlap treats each upper-triangular entry of \(\Adjacency(\Band)\) as an independent observation and asks whether the same contact pairs are coupled across phases at the level of direct \(\abs{\ImCoh}\) edge weights. It is the pre-transform reference: the raw cross-phase overlap is broad and band-blind --- positive in every band and of comparable or larger magnitude than the hierarchical measure --- so comparing \(\rhocoph\) against \(\rhoraw\) isolates what the \gls{lrg} multiscale transform adds over the untransformed substrate.
+
+
+
+% #####################################################################
+% CHANGE 4 -- Section \ref{sssec:methods_compare_ctm}, FIRST paragraph only.
+% Action: rho^coph is now the rho_sym instantiation on D_coph.
+% The SECOND paragraph ("The choice of the cophenetic image ... single-scale
+% per-pair persistence only.") is UNCHANGED -- leave it in place after this block.
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% The second instantiation sets \(O = \Dcoph\), the cophenetic communication distance of \eqref{eq:methods_distm_coph}, so that the trace scalar of \eqref{eq:methods_perpair_rho} reads
+% \begin{equation}
+%     \rhocoph = \rho_{S}\left(\Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{rspre}_{A}},\; \Dcoph^{\txtacr{rspost}} - \Dcoph^{\txtacr{rspre}_{B}}\right),
+%     \label{eq:methods_rho_coph}
+% \end{equation}
+% with drift floor \(\rhocoph_{\rm drift}\) and cross-probe restriction \(\rhocoph_{\rm xprobe}\) defined by the same substitution, under the matched-strength gate of Section~\ref{sssec:methods_compare_perpair}. Each per-pair object is rebuilt by rerunning the full \gls{lrg} pipeline of Section~\ref{ssec:methods_lrg} --- eigendecomposition, propagator at \(\tau_{\min} = 1/\lambda_{\max}\), average-linkage agglomeration, cophenetic image --- independently on each \acrshort{rspre} and \acrshort{rspost} half, so that \(\Dcoph^{\txtacr{rspre}_{A}}\) and \(\Dcoph^{\txtacr{rspre}_{B}}\) are independent cophenetic images on disjoint samples. On \(\Dcoph\) the Spearman form of \eqref{eq:methods_perpair_rho} is additionally motivated by the tie structure: the cophenetic image takes only \(N-1\) distinct values \(\{h_{n}\}_{n=1}^{N-1}\), so its informative content is the rank ordering of merge heights rather than their precise magnitudes, and rank statistics handle the heavy ties cleanly and are invariant to the monotone rescaling that the cophenetic map already imposes.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+The cophenetic instantiation is the primary, multiscale read-out: the arm-symmetric estimator of Section~\ref{sssec:methods_compare_perpair} evaluated on \(O = \Dcoph\), the cophenetic communication distance of \eqref{eq:methods_distm_coph}, defines the cophenetic trace of record, \(\rhocoph \equiv \rhocoph_{\mathrm{sym}}\), which the main text uses throughout,
+\begin{equation}
+    \rhocoph = \tfrac{1}{2}\Big[\rho_{S}\!\left(\Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{rspre}_{A}},\; \Dcoph^{\txtacr{rspost}} - \Dcoph^{\txtacr{rspre}_{B}}\right) + \big(A\!\leftrightarrow\!B\big)\Big],
+    \label{eq:methods_rho_coph}
+\end{equation}
+its single-arm value \(\rhocoph_{\mathrm{split}}\) retained only as a supplement, and the drift floor and cross-probe restriction defined by the same substitution under the matched-strength gate of Section~\ref{sssec:methods_compare_stats}. Each per-pair cophenetic image is rebuilt by rerunning the full \gls{lrg} pipeline of Section~\ref{ssec:methods_lrg} --- eigendecomposition, propagator at \(\tau_{\min} = 1/\lambda_{\max}\), average-linkage agglomeration, cophenetic image --- independently on each \acrshort{rspre} and \acrshort{rspost} half, so that \(\Dcoph^{\txtacr{rspre}_{A}}\) and \(\Dcoph^{\txtacr{rspre}_{B}}\) are independent cophenetic images on disjoint samples. On \(\Dcoph\) the Spearman form is additionally motivated by the tie structure: the cophenetic image takes only \(N-1\) distinct values \(\{h_{n}\}_{n=1}^{N-1}\), so its informative content is the rank ordering of merge heights rather than their precise magnitudes, and rank statistics handle the heavy ties cleanly and are invariant to the monotone rescaling that the cophenetic map already imposes.
+
+
+
+% #####################################################################
+% CHANGE 5 -- Section \ref{sssec:methods_compare_grassmann} (ENTIRE subsection).
+% Action: AGGRESSIVE cut. Keep only d_G and T_G(k). Cluster-mass gate in one
+% prose paragraph. DROP the three display equations (T_G^* normalization,
+% per-patient mass, empirical p) -- these move to the Supplement.
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% The eigenmode subspace \(U^{\Phase}_{k} = \mathrm{span}\{\vec{\phi}_{2}, \ldots, \vec{\phi}_{k+1}\}\) defined in Section~\ref{ssec:methods_lrg} is a point on the Grassmann manifold \(\mathrm{Gr}(k, N)\); we compare two such subspaces between phases through the chordal Grassmann distance. For orthonormal column matrices \(A, B \in \mathbb{R}^{N \times k}\) representing the two subspaces,
+% \begin{equation}
+%     d_{\rm G}(A, B)^{2} = k - \norm{A^{\transp} B}_{F}^{2} = \sum_{i=1}^{k} \sin^{2}\theta_{i},
+%     \label{eq:methods_grassmann}
+% \end{equation}
+% where \(\theta_{1} \le \cdots \le \theta_{k}\) are the principal angles between the two \(k\)-dimensional subspaces; the chordal form is gauge-invariant under sign flips of any eigenvector and under basis rotations within degenerate eigenspaces, and the trace identity on the right makes the full \(k\)-sweep computable SVD-free from a single cross-correlation \(A^{\transp} B\) and a cumulative sum of \(\abs{A^{\transp} B}^{2}\). The spectral cutoff \(k\) is a resolution parameter controlling how coarsely or finely the diffusion geometry is sampled; we evaluate \(d_{\rm G}\) on the grid \(k \in \{2, \ldots, 112\}\), the upper bound matching \(N - 1\) of the smallest-\(N\) patient in the cohort.
+% %
+% The per-patient per-\(k\) trace statistic is the phase-triangle difference
+% \begin{equation}
+%     T_{\rm G}(k; s, b) = d_{\rm G}\left(U^{\txtacr{rspre}_{A}}_{k}, U^{\txtacr{taskt}}_{k}\right) - d_{\rm G}\left(U^{\txtacr{taskt}}_{k}, U^{\txtacr{rspost}}_{k}\right),
+%     \label{eq:methods_T_G}
+% \end{equation}
+% where the subscript \(s\) indexes individual patients, referenced to the early \acrshort{rspre} half \(\txtacr{rspre}_{A}\) introduced in Section~\ref{sssec:methods_compare_ctm}; the late half is not used by this probe. \(T_{\rm G}(k; s, b) > 0\) is the trace direction at spectral cutoff \(k\), in the shared sign orientation of Section~\ref{ssec:methods_compare}.
+% %
+% At each \(k\), the cohort-level test is a one-sided paired Wilcoxon yielding \(p_{k}(b)\) for \(T_{\rm G}^{\rm obs}(k)\) against the patient-matched mean over the \(R\) matched-strength surrogates introduced in Section~\ref{sssec:methods_compare_stats}, under \(H_{1}\): observed in the trace direction.
+% The spectral cutoff \(k\) is a nuisance dimension. A trace can land at any resolution scale, and reading off any individual \(k\) would both multiply-test order-\(110\) hypotheses without family-level correction and discard the across-\(k\) structure of the trace, which is precisely the structural signature that a strength-preserving null cannot fake. We collapse the \(k\)-axis through a cluster-extent permutation test. At per-\(k\) threshold \(\alpha_{k} = 0.05\) the band-level load-bearing statistic is the normalized \emph{cluster mass}
+% \begin{equation}
+%     T_{\rm G}^{\ast}(b) = \frac{1}{n_k \log_{10}(R+1)} \sum_{k:p_{k}(b) < \alpha_{k}} \left(-\log_{10} p_{k}(b)\right) \;\in\; [0, 1],
+%     \label{eq:methods_TGstar}
+% \end{equation}
+% where the sum runs over \emph{all} significant \(k\)-cells (not localized to any single contiguous cluster) and the denominator normalizes by the maximum cluster mass attainable on the \(k\)-grid: \(n_k = 111\) is the grid size (\(k \in \{2, \ldots, 112\}\)), and \(\log_{10}(R+1)\) is the deepest \(-\log_{10} p_{k}\) any single \(k\)-cell can contribute under the empirical-null floor \(1/(R+1)\) of an \(R\)-surrogate permutation. \(T_{\rm G}^{\ast}(b) = 1\) corresponds to every \(k\)-cell hitting the empirical-null floor (maximum trace evidence over the spectrum); \(T_{\rm G}^{\ast}(b) = 0\) corresponds to no \(k\)-cell clearing \(\alpha_{k}\). The construction encodes both pieces of information a cluster-extent test should respond to: across-\(k\) extent (many surviving \(k\)-cells contribute many \(-\log_{10} p_{k}\) terms) and per-\(k\) depth (each cell contributes proportionally to how deeply it crosses \(\alpha_{k}\)). Sparse-cell patterns of significance yield few terms, all marginal, and produce small mass; long patterns of deep significance yield many terms and produce large mass that a strength-preserving null cannot reproduce. \(T_{\rm G}^{\ast}\) is therefore robust to single-cell fragmentation of a long contiguous run and naturally penalising of isolated lucky \(k\)-cells, without an auxiliary contiguity threshold.
+% %
+% The same normalization scheme defines a \emph{per-patient cluster mass}
+% \begin{equation}
+%     T_{\rm G}^{\ast, s}(b) = \frac{1}{n_k \log_{10}(R+1)} \sum_{k:p_{k}^{s}(b) < \alpha_{k}} \left(-\log_{10} \max\!\left(p_{k}^{s}(b), \frac{1}{R+1}\right)\right) \;\in\; [0, 1],
+%     \label{eq:methods_TGstar_perpatient}
+% \end{equation}
+% where the subscript \(s\) indexes individual subjects (patients) and \(p_{k}^{s}(b) = (1 + \#\{r : T_{\rm G}^{r}(k; s, b) \ge T_{\rm G}^{\rm obs}(k; s, b)\})/(R+1)\) is the per-subject one-sided empirical \(p\)-value at spectral cutoff \(k\) against that subject's own \(R\) matched-strength surrogate values \(\{T_{\rm G}^{r}(k; s, b)\}_{r=1}^{R}\) of Section~\ref{sssec:methods_compare_stats} (a distinct statistical object from the cohort-level Wilcoxon \(p_{k}(b)\) used to define \(T_{\rm G}^{\ast}\) above), regularized at the same \(1/(R+1)\) empirical-null floor so that no single \(k\)-cell contributes more than \(\log_{10}(R+1)\) to the per-subject mass. \(T_{\rm G}^{\ast, s}\) is the per-subject analogue of the band-level \(T_{\rm G}^{\ast}\) and shares the same denominator, so the two are directly comparable. It is reported as descriptive per-subject evidence in the supplementary per-subject table and is not the subject of a separate cohort test; the verdict gate at the Grassmann layer remains \(\pmassemp(b) < 0.05\) on the band-level \(T_{\rm G}^{\ast}\).
+% %
+% The empirical null for \(T_{\rm G}^{\ast}\) is built by phantom-surrogate permutation. Each of the \(R\) matched-strength surrogates is treated in turn as a phantom observation tested by the same per-\(k\) Wilcoxon against the mean of the remaining \(R - 1\) surrogates, yielding the null distribution \(\{(T_{\rm G}^{\ast})^{\rm null}_{r}\}_{r=1}^{R}\), with the null cluster-mass values normalized by the same denominator \(n_k \log_{10}(R+1)\) as the observation so that observed and null sit on the same \([0,1]\) scale; the empirical \(p\)-value is unchanged under simultaneous normalization of observation and null. The empirical cluster \(p\)-value is
+% \begin{equation}
+%     \pmassemp(b) = \frac{1 + \#\{r : (T_{\rm G}^{\ast})^{\rm null}_{r} \ge T_{\rm G}^{\ast}(b)\}}{R + 1},
+%     \label{eq:methods_cluster_p}
+% \end{equation}
+% following the standard permutation-test convention~\cite{phipson2010permutation}. The cohort gate at the Grassmann layer is \(\pmassemp(b) < 0.05\). \(T_{\rm G}^{\ast}\) is a significance-weighted scalar, not a trace amplitude; bands with \(\pmassemp \ge 0.05\) carry positive \(T_{\rm G}^{\ast}\) values that are not distinguishable from the empirical null.
+% %
+% The Grassmann probe and the cophenetic per-pair probe of Section~\ref{sssec:methods_compare_ctm} read distinct aspects of the \gls{lrg} communication geometry. \(\rhocoph\) operates on the cophenetic per-pair distance \(\Dcoph\) and asks, for each contact pair independently, whether the scale at which the two contacts coalesce in the communication hierarchy shifts coherently from task to post-rest. \(T_{\rm G}^{\ast}\) operates on the whole-network leading-\(k\) eigenmode subspace and asks whether that subspace retains its \acrshort{taskt} configuration into \acrshort{rspost}, at resolution scales where the retention cumulates above what strength-preserving rewiring can produce. The two probes are mechanistically independent and a band may carry a trace at one without the other; no combined cross-probe scalar is reported.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+The leading-mode subspace \(U^{\Phase}_{k} = \mathrm{span}\{\vec{\phi}_{2}, \ldots, \vec{\phi}_{k+1}\}\) defined in Section~\ref{ssec:methods_lrg} is a point on the Grassmann manifold \(\mathrm{Gr}(k, N)\), and two phases are compared through the chordal Grassmann distance. For orthonormal column matrices \(A, B \in \mathbb{R}^{N \times k}\) representing the two subspaces,
+\begin{equation}
+    d_{\rm G}(A, B)^{2} = k - \norm{A^{\transp} B}_{F}^{2} = \sum_{i=1}^{k} \sin^{2}\theta_{i},
+    \label{eq:methods_grassmann}
+\end{equation}
+where \(\theta_{1} \le \cdots \le \theta_{k}\) are the principal angles between the two subspaces; the chordal form is gauge-invariant under sign flips of any eigenvector and under basis rotations within degenerate eigenspaces, and the trace identity on the right makes the full \(k\)-sweep computable from a single cross-correlation \(A^{\transp} B\). We sweep the cutoff over \(k \in \{2, \ldots, 112\}\) --- the entire non-trivial spectral range, not a handful of leading modes --- so that a reorganization at any resolution scale can register (the upper bound matches \(N - 1\) of the smallest-\(N\) patient). The per-patient, per-\(k\) trace statistic is the phase-triangle
+\begin{equation}
+    T_{\rm G}(k; s, b) = d_{\rm G}\!\left(U^{\txtacr{rspre}_{A}}_{k}, U^{\txtacr{taskt}}_{k}\right) - d_{\rm G}\!\left(U^{\txtacr{taskt}}_{k}, U^{\txtacr{rspost}}_{k}\right),
+    \label{eq:methods_T_G}
+\end{equation}
+where \(s\) indexes patients and the early \acrshort{rspre} half is used; \(T_{\rm G}(k; s, b) > 0\) is the trace direction at cutoff \(k\), in the shared sign orientation of Section~\ref{ssec:methods_compare}.
+
+The cutoff \(k\) is a nuisance dimension: a trace can land at any resolution scale, and reading off any individual \(k\) would both multiply-test order-\(100\) hypotheses and discard the across-\(k\) structure that a strength-preserving null cannot fake. We therefore collapse the \(k\)-axis with a single cluster-extent permutation test. At each \(k\), a one-sided paired Wilcoxon compares the observed \(T_{\rm G}(k)\) against the patient-matched matched-strength surrogates of Section~\ref{sssec:methods_compare_stats}, yielding \(p_{k}(b)\); the band-level statistic is the cluster mass \(T_{\rm G}^{\ast}(b) = \sum_{k : p_{k}(b) < 0.05}\left(-\log_{10} p_{k}(b)\right)\), which sums evidence over \emph{all} significant cutoffs and so responds to both across-\(k\) extent and per-\(k\) depth, robust to fragmentation of a contiguous run without an auxiliary contiguity threshold. Its significance \(\pmassemp(b)\) is the empirical \(p\)-value of \(T_{\rm G}^{\ast}(b)\) against a phantom-surrogate permutation null built from the matched-strength ensemble, and the band clears the Grassmann gate when \(\pmassemp(b) < 0.05\) and the verdict is leave-one-patient-out robust. The \([0,1]\) normalization of \(T_{\rm G}^{\ast}\), a per-patient analogue reported descriptively, and the phantom-null construction are given in the Supplement; \(T_{\rm G}^{\ast}\) is a significance-weighted extent statistic, not a trace amplitude, so a band that fails the gate carries no interpretable magnitude.
+
+As set out in Section~\ref{ssec:methods_compare}, \(\rhocoph\) and \(d_{\rm G}\) are built from the same Laplacian eigendecomposition --- the cophenetic from the multiscale diffusion propagator, the Grassmann from the leading-mode subspace of a conventional spectral embedding --- so \(\beta\) clearing both certifies robustness to how the spectrum is read, while the band-by-band dissociations (a multiscale per-pair trace with no leading-mode rotation, or a leading-mode rotation with no persistent per-pair hierarchy) separate reorganizations the multiscale geometry resolves from those a conventional spectral summary does. No combined cross-probe scalar is formed.
+
+
+
+% #####################################################################
+% CHANGE 6 -- Section \ref{sssec:methods_compare_stats} (ENTIRE subsection).
+% Action: kill the stale T_d; restate the gate on rho_sym; restructure into a
+% clean ladder; add the split-half reliability control + the numba note.
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% Cohort-level inference on every probe proceeds by one-sided Wilcoxon signed-rank tests across the cohort of \(n = 10\) patients on the per-patient \(T_{d}\) (or \(\rhocoph\) versus \(\rhodrift\) for the controlled per-pair test) under \(H_{0}: T_{d} \le 0\) (no trace or anti-trace direction) against \(H_{1}: T_{d} > 0\) (trace direction). Within-band per-region anatomical enrichment under A1 (Section~\ref{sssec:methods_anatomy}) retains \gls{bh}-\gls{fdr} across \acrshort{dk} regions per (band, probe), where the multi-region family per band-probe cell is the coordinated unit of inference.
+% %
+% All three per-pair comparison layers --- the substrate probe \(\rhoraw\) of Section~\ref{sssec:methods_compare_rawfc}, the cophenetic probe \(\rhocoph\) of Section~\ref{sssec:methods_compare_ctm}, and the Grassmann probe \(T_{\rm G}(k)\) of Section~\ref{sssec:methods_compare_grassmann} --- are gated by a strength-preserving matched-strength surrogate null. For each (patient, band, phase) cell, a population of \(R = 200\) surrogates of the per-phase adjacency matrix \(\Adjacency(\Band)\) is generated by repeated \(4\)-cycle \(\pm\delta\) edge-weight rewirings that preserve, by construction, the per-node strength sequence \(s_{i} = \sum_{j} \Adjacency_{ij}(\Band)\) to machine precision (verified to \(10^{-6}\) per surrogate) and keep every edge weight within the original \([0, 1]\) interval; the marginal edge-weight distribution drifts within these constraints. The full \gls{lrg} pipeline of Section~\ref{ssec:methods_lrg} --- eigendecomposition, propagator at \(\tau_{\min}\), average-linkage agglomeration, cophenetic image --- is rerun on each surrogate (or truncated at the substrate level for \(\rhoraw\)), and the probe of interest is recomputed on the surrogate ensemble to yield a per-(patient, band) null distribution at matched strength. Cohort-level significance is assessed by a one-sided paired Wilcoxon comparing the observed per-patient probe value against the patient-matched surrogate median, under \(H_{0}\): observed and surrogate exchangeable, against \(H_{1}\): observed in the trace direction. The within-baseline drift floor \(\rhodrift\) and the cross-probe restriction \(\rhoxprobe\) of Section~\ref{sssec:methods_compare_ctm} operate at the cophenetic layer only. The size \(R = 200\) is sufficient for the cluster-mass empirical \(\pmassemp\) to resolve below the locked decision floor \((R+1)^{-1} \approx 0.005\); the load-bearing \(\beta\), \(\gamma_{l}\), and \(\delta\) Grassmann bands sit at this floor.
+% %
+% The Grassmann probe is gated at the band level by the cluster-extent permutation test of Section~\ref{sssec:methods_compare_grassmann}, which collapses the \(k\)-axis through the empirical \(\pmassemp\) on the resilient cluster mass \(T_{\rm G}^{\ast}\); no separate within-family \gls{bh} correction is applied at the Grassmann layer, as the cluster-extent test is itself the family-level gate. A single systematic robustness regime is applied throughout: an \emph{epileptogenic-zone exclusion} that drops contacts in each patient's clinically identified epileptogenic zone per~\cite{cardinale2013stereoelectroencephalography} and recomputes each probe on the residual contact set. The robustness gate is probe-specific. At the Grassmann layer, the cluster-mass permutation test of \eqref{eq:methods_TGstar}--\eqref{eq:methods_cluster_p} is re-run on the epi-zone-excluded surrogate ensemble, and the band is reported as robust when \(\pmassemp_{\rm epi-X}(b) < 0.05\). At the per-pair cophenetic layer the corresponding test is a one-sample one-sided Wilcoxon on the per-patient \(\rhocoph_{\rm epi-X}\) under \(H_{1}: \rhocoph_{\rm epi-X} > 0\), gated at \(p < 0.05\); this is reported for the cophenet-positive bands \(\alpha\) and \(\beta\). For bands with no positive cophenet trace, the epi-X analysis at the cophenetic layer is not informative and is not run; the verdict from the controls of Sections~\ref{sssec:methods_compare_rawfc}--\ref{sssec:methods_compare_grassmann} stands.
+% %
+% Every cohort-level Wilcoxon-based and cluster-mass-permutation-based gate is paired with a \gls{loo} sensitivity diagnostic: the cohort test is recomputed \(n = 10\) times, each excluding one patient, and the maximum resulting \(p\)-value (\gls{loo} max \(p\)) is reported alongside the cohort \(p\) and the patient whose exclusion drives it. \gls{loo} max \(p\) is descriptive only and never gates a verdict; verdicts where \gls{loo} max \(p\) crosses 0.05 are flagged in the Results text as single-patient-leveraged. The pairing is reported alongside every cohort-level gate described above.
+%
+% >>> REPLACE WITH ---------------------------------------------------
+\paragraph{Primary gate --- matched-strength surrogate null.}
+Every trace verdict rests on one mandatory null: a strength-preserving surrogate that removes the per-node coupling backbone while randomizing everything else. For each (patient, band, phase) cell we generate \(R = 200\) surrogates of the adjacency \(\Adjacency(\Band)\) by repeated \(4\)-cycle \(\pm\delta\) edge-weight rewirings, which preserve the per-node strength sequence \(s_{i} = \sum_{j} \Adjacency_{ij}(\Band)\) to machine precision and keep every weight within the original \([0, 1]\) interval while the marginal edge-weight distribution drifts. The probe of interest is recomputed on each surrogate --- rerunning the full \gls{lrg} pipeline of Section~\ref{ssec:methods_lrg} for \(\rhocoph\) and the Grassmann distance, or truncated at the substrate level for \(\rhoraw\) --- to yield a per-(patient, band) null at matched strength, with the symmetric, arbitrary-half-free construction of \(\rhocoph\) applied identically to observation and surrogate. Cohort significance for the cophenetic trace is a one-sided paired Wilcoxon of the observed per-patient \(\rhocoph\) against its patient-matched surrogate median, under \(H_{1}\): observed in the trace direction; the same test on the substrate reference \(\rhoraw\) provides the pre-transform comparison. Because the rewiring strips the strength structure that inflates any correlation of edge levels, a \(\rhocoph\) surviving this gate is not explained by strength alone. This is the minimum null on which any cohort claim rests.
+
+\paragraph{Supplementary per-pair controls.}
+Two surrogate-free controls, read at the cophenetic layer alongside the gate, are defined in Section~\ref{sssec:methods_compare_perpair}. The \emph{drift-floor null} \(\rhodrift\) of \eqref{eq:methods_perpair_drift} is the task-free counterpart of the trace, and the cohort test is a one-sided paired Wilcoxon under \(H_{1}: \rhocoph > \rhodrift\), requiring the observed correlation to exceed its own within-session drift. The \emph{cross-probe restriction} \(\rhoxprobe\) recomputes the trace on cross-shaft pairs only, and the cohort test is a non-degradation gate: the one-sided paired Wilcoxon on \(\rhocoph - \rhoxprobe\) must be non-significant, with the cohort-median sign of \(\rhoxprobe\) matching that of \(\rhocoph\).
+
+\paragraph{Grassmann band-level gate.}
+The Grassmann probe is gated at the band level by the cluster-extent permutation test of Section~\ref{sssec:methods_compare_grassmann} --- \(\pmassemp(b) < 0.05\), leave-one-out robust --- which collapses the \(k\)-sweep and is itself the family-level correction over \(k\), so no separate within-family correction is applied at that layer. Full construction of the cluster-mass statistic and its phantom-surrogate null is deferred to the Supplement.
+
+\paragraph{Anatomical enrichment.}
+Within-band per-region anatomical enrichment under A1 (Section~\ref{sssec:methods_anatomy}) retains \gls{bh}--\gls{fdr} across \acrshort{dk} regions per (band, probe), the multi-region family per band-probe cell being the coordinated unit of inference.
+
+\paragraph{Robustness diagnostics.}
+Every cohort-level gate is paired with a leave-one-out (\gls{loo}) sensitivity diagnostic: the test is recomputed \(n = 10\) times, each excluding one patient, and the maximum resulting \(p\)-value (\gls{loo} max \(p\)) is reported alongside the cohort \(p\) and the patient whose exclusion drives it. \gls{loo} max \(p\) is descriptive and never gates a verdict; verdicts whose \gls{loo} max \(p\) crosses \num{0.05} are flagged in the Results as single-patient-leveraged. A single \emph{epileptogenic-zone exclusion} regime drops each patient's clinically identified epileptogenic contacts~\cite{cardinale2013stereoelectroencephalography} and recomputes each probe on the residual set --- paired with a node-count decimation control, since rebuilding the \gls{lrg} hierarchy on any reduced contact set shifts \(\rhocoph\) --- and is reported for the cophenet-positive bands, with the Grassmann gate re-run on the epi-excluded surrogate ensemble where applicable. Finally, the between-patient spread in \(\rhocoph\) is checked against measurement reliability: each phase's cophenetic image is rebuilt on two disjoint halves of the recording and the split-half Spearman of the two taken as the reliability of the estimate, which across the cohort explains only \(\approx\!6\%\) of the variance in trace strength (\(R^{2} = 0.06\)).
+
+
+
+% #####################################################################
+% CHANGE 7 -- Section \ref{ssec:methods_lrg}, closing sentence of the
+% "two coupled multiscale objects" paragraph.
+% Action: "not derivable / independent" -> "two reductions of one spectrum".
+% #####################################################################
+%
+% >>> FIND (exact current text) --------------------------------------
+% The two objects read structurally distinct aspects of the same information-communication geometry: \(\Dcoph\) reads the per-pair hierarchical-merge structure (which contacts coalesce at which scale), and \(U_{k}\) reads the subspace alignment of the slow diffusion modes at a fixed cutoff \(k\). They are not derivable from each other --- the linkage hierarchy is not recoverable from \(U_{k}\) alone, and the eigenmode subspace is not recoverable from \(\Dcoph\) alone --- and cross-phase comparison at the two levels reads two complementary aspects of any coordinated reorganization (Section~\ref{ssec:methods_compare}).
+%
+% >>> REPLACE WITH ---------------------------------------------------
+The two objects are built from the same Laplacian eigendecomposition but read it differently: \(\Dcoph\) integrates all \(N-1\) merge-height scales of the diffusion propagator into one nested per-pair hierarchy (which contacts coalesce at which scale) --- the \gls{lrg} multiscale communication geometry --- while \(U_{k}\) retains only the flat span of the \(k\) slowest modes at a fixed cutoff, the leading-eigenmode subspace on which conventional spectral methods operate. Neither fully recovers the other --- the linkage hierarchy is not reconstructible from a single \(U_{k}\), nor the subspace from \(\Dcoph\) --- so the two are correlated by construction rather than independent, and their cross-phase comparison separates reorganization coherent across scales from a rotation of the leading modes at one scale (Section~\ref{ssec:methods_compare}).
+
+% =====================================================================
+% END OF SUBSTITUTION SHEET
+% =====================================================================

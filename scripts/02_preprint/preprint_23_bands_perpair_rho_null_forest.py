@@ -18,10 +18,23 @@ Per band (2×3, δ θ α / β γ_l γ_h), one row per patient:
   • dot at obs ρ     = filled if it clears its OWN null (obs > p95, or < p5 for
                        a strong anti); open if it sits inside the null band
 
-A cohort trace = most stems green and most dots filled-and-right-of-grey
-(β, α). A split cohort = green stems at the top but a red cluster at the bottom
-(γ_l: Pat_05/02/06 strongly pro, Pat_14/15/07/13 anti → fails the gate). A
-non-trace = stems straddling the null both ways (δ, θ, γ_h).
+The band is read on TWO axes, never collapsed to a single pass/fail (see
+`.agents/reports/2026-06-25_cophenetic-gate-presence-vs-consistency.md`):
+
+  • PRESENCE  — do more patients clear their OWN null than the 5 % chance
+                baseline? Binomial(n, 0.05) on the filled-green count. Detects a
+                real trace in *some* patients. Only θ fails this.
+  • CONSISTENCY — does the cohort *centre* sit on the trace side? The locked
+                one-sided paired Wilcoxon (`gate_p`). β, α pass; γ_l, δ, γ_h
+                fail because they are directionally split, not empty.
+
+The 2×2 gives three band verdicts: a cohort-wide trace = presence ✓ AND
+consistency ✓ (β, α); present but split = presence ✓ but consistency ✗ — large
+effects, mixed sign, subgroup-carried (γ_l: Pat_05/02/06 strongly pro,
+Pat_14/15/07/13 anti; also δ, γ_h); absent = presence ✗ (θ only). A failed
+consistency test is reported as SPLIT, never as "no trace" — that is the whole
+point: γ_l clears its null in 5/10 patients (binom p=6e-5, same as α) yet the
+one-sided Wilcoxon, which γ_l fails at p=0.116, would otherwise label it empty.
 
 Row ordering is selectable (``--sort``):
   • ``rho``     — patients sorted by observed ρ within each panel (default; the
@@ -32,10 +45,13 @@ Row ordering is selectable (``--sort``):
                   follow one patient across bands. Patient labels on the left.
 The sort type is appended to the output filename.
 
-The band symbol is coloured by the locked gate verdict (green = clears the
-matched-strength gate at p<0.05, grey = does not). Gate p, coherence counts and
-the per-patient table are printed to stdout (kept out of the figure per the
-no-in-axes-text rule); they belong in the caption.
+The band symbol is coloured by the two-axis verdict (``--verdict two-axis``,
+default): green = cohort-wide trace, amber = present but split, grey = absent;
+a glyph beside the letter depicts the cell (full disc / half disc / open ring).
+``--verdict binary`` restores the legacy one-axis colouring (green if the locked
+Wilcoxon gate passes, grey otherwise). Presence (binomial) and consistency
+(Wilcoxon) p-values plus the per-patient clear-counts print to stdout (kept out
+of the figure per the no-in-axes-text rule); they belong in the caption.
 
 Input (locked, instant — no recompute): the §5.3 split-baseline matched-strength
 per-patient table
@@ -55,7 +71,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.lines import Line2D
-from scipy.stats import wilcoxon
+from matplotlib.markers import MarkerStyle
+from scipy.stats import binomtest, wilcoxon
 
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
 from lrg_eegfc.utils.scripting import setup_script_env
@@ -88,15 +105,60 @@ C_ANTI = "#c0392b"     # obs ρ below null median — anti
 C_NULL = "#b9b9b9"     # matched-strength null span (p5–p95)
 C_NULLMID = "#7a7a7a"  # null median tick
 
+# Two-axis verdict palette (presence × consistency). See band_verdict().
+C_COHORT = C_PRO       # present AND cohort-consistent — a cohort-wide trace
+C_HETERO = "#cc8400"   # present but split — subgroup trace, no cohort direction
+C_ABSENT = "0.55"      # presence test fails — the genuine null
+ALPHA = 0.05
+
 
 def gate_p(d: pd.DataFrame) -> float:
-    """Locked §5.3 gate: paired Wilcoxon of (obs ρ − own surrogate median), >."""
+    """CONSISTENCY axis: paired one-sided Wilcoxon of (obs ρ − own surrogate
+    median). Asks 'does the cohort *centre* sit on the trace side?'. This is the
+    locked §5.3 C3 gate — but on its own it cannot tell a split cohort (large
+    effects, mixed sign) from a true null, so it is paired with presence_p()."""
     diff = (d.obs_rho - d.surr_p50).values
     return float(wilcoxon(diff, alternative="greater").pvalue)
 
 
+def presence_p(d: pd.DataFrame) -> tuple[int, int, float]:
+    """PRESENCE axis: how many patients clear their OWN matched-strength null,
+    vs the 5 % per-patient chance baseline. Under the global null each patient
+    clears its one-sided p95 with prob 0.05 independently, so #clearing ~
+    Binomial(n, 0.05). Returns (pos_clear, neg_clear, binomial p for pos_clear).
+    A calibrated existence test — NOT an arbitrary patient-count threshold."""
+    pos_clear = int((d.obs_rho > d.surr_p95).sum())
+    neg_clear = int((d.obs_rho < d.surr_p5).sum())
+    p = binomtest(pos_clear, len(d), ALPHA, alternative="greater").pvalue
+    return pos_clear, neg_clear, float(p)
+
+
+def band_verdict(d: pd.DataFrame) -> str:
+    """Read the cophenetic trace on two axes instead of collapsing to pass/fail.
+
+      cohort  — presence ✓ AND consistency ✓  (a cohort-wide trace: β, α)
+      hetero  — presence ✓ but consistency ✗  (present but split / subgroup-
+                carried, no shared cohort direction: γ_l, δ, γ_h)
+      absent  — presence ✗                    (the genuine null: θ)
+
+    'no trace' is reserved for `absent` only; a failed consistency test is
+    reported as `hetero`, never as absence."""
+    _, _, p_pres = presence_p(d)
+    p_cons = gate_p(d)
+    if p_pres >= ALPHA:
+        return "absent"
+    return "cohort" if p_cons < ALPHA else "hetero"
+
+
+_VERDICT_STYLE = {  # colour, marker fillstyle (full / split-half / open)
+    "cohort": (C_COHORT, "full"),
+    "hetero": (C_HETERO, "right"),
+    "absent": (C_ABSENT, "none"),
+}
+
+
 def plot_band(ax, d: pd.DataFrame, xlim, p_gate: float, sort: str,
-              show_ylabels: bool) -> None:
+              show_ylabels: bool, verdict_mode: str = "two-axis") -> None:
     if sort == "patient":
         order = [p for p in CANON if p in set(d.patient)]      # top → bottom
         d = d.set_index("patient").loc[order].reset_index()
@@ -137,12 +199,25 @@ def plot_band(ax, d: pd.DataFrame, xlim, p_gate: float, sort: str,
         ax.set_yticks([])
         ax.spines["left"].set_visible(False)
 
-    # band symbol, coloured by the locked gate verdict
+    # band symbol + verdict glyph
     band = d.band.iloc[0]
     tex = BRAIN_BAND_TEX_DICT.get(band, rf"${band}$")
+    if verdict_mode == "binary":
+        # legacy one-axis colouring: green = locked gate passes, grey = fails.
+        ax.text(0.97, 0.07, tex, transform=ax.transAxes, ha="right",
+                va="bottom", size="xx-large", fontweight="bold",
+                color=(C_PRO if p_gate < ALPHA else "0.45"))
+        return
+    # two-axis: letter coloured by the presence×consistency verdict, with a
+    # glyph that depicts the cell — full disc = cohort-consistent, half disc =
+    # split, open ring = absent.
+    verdict = band_verdict(d)
+    col, fill = _VERDICT_STYLE[verdict]
     ax.text(0.97, 0.07, tex, transform=ax.transAxes, ha="right", va="bottom",
-            size="xx-large", fontweight="bold",
-            color=(C_PRO if p_gate < 0.05 else "0.45"))
+            size="xx-large", fontweight="bold", color=col)
+    ax.plot([0.80], [0.135], transform=ax.transAxes, clip_on=False, zorder=6,
+            marker=MarkerStyle("o", fillstyle=fill), ms=15,
+            mfc=col, mfcalt="white", mec=col, mew=1.7)
 
 
 def main() -> Path:
@@ -153,6 +228,13 @@ def main() -> Path:
                          "forest sorted by observed ρ) or 'patient' (fixed "
                          "canonical order, same patient at the same row across "
                          "all bands).")
+    ap.add_argument("--verdict", choices=["two-axis", "binary"],
+                    default="two-axis",
+                    help="band-letter colouring. 'two-axis' (default) colours by "
+                         "presence×consistency (green=cohort-wide, amber=present-"
+                         "but-split, grey=absent) and draws a verdict glyph; "
+                         "'binary' is the legacy green/grey on the locked "
+                         "one-sided Wilcoxon gate alone.")
     args = ap.parse_args()
 
     df = pd.read_csv(PERPAT_CSV)
@@ -164,38 +246,48 @@ def main() -> Path:
     fig = plt.figure(figsize=(15.5, 9.5))
     outer = fig.add_gridspec(2, 3, wspace=0.10, hspace=0.20,
                              left=left, right=0.985, top=0.93, bottom=0.20)
-    print(f"Per-pair cophenetic trace — locked gate (paired Wilcoxon, "
-          f"one-sided); sort={args.sort}:")
-    print(f"  {'band':11s} {'gate_p':>8s} {'n_pro':>6s} {'n_anti':>6s} "
-          f"{'n_clear_p95':>11s} {'verdict':>8s}")
+    print(f"Per-pair cophenetic trace — TWO AXES (presence × consistency); "
+          f"sort={args.sort}, verdict={args.verdict}:")
+    print(f"  {'band':11s} {'pos_clr':>7s} {'neg_clr':>7s} "
+          f"{'binom_p(pres)':>13s} {'wilcox_p(cons)':>14s} {'verdict':>8s}")
     for idx, band in enumerate(BAND_ORDER):
         d = df[df.band == band]
         rr, cc = idx // 3, idx % 3
         ax = fig.add_subplot(outer[rr, cc])
         p = gate_p(d)
-        plot_band(ax, d, xlim, p, args.sort, show_ylabels=(cc == 0))
+        plot_band(ax, d, xlim, p, args.sort, show_ylabels=(cc == 0),
+                  verdict_mode=args.verdict)
         if rr == 1:
             ax.set_xlabel(r"$\rho^{\mathrm{coph}}$", color="0.20")
-        n_pro = int((d.obs_rho > d.surr_p50).sum())
-        n_anti = int((d.obs_rho < d.surr_p50).sum())
-        n_clear = int((d.obs_rho > d.surr_p95).sum())
-        verdict = "TRACE" if p < 0.05 else "no"
-        print(f"  {band:11s} {p:8.4f} {n_pro:6d} {n_anti:6d} {n_clear:11d} "
-              f"{verdict:>8s}")
+        pos_clr, neg_clr, p_pres = presence_p(d)
+        label = {"cohort": "cohort", "hetero": "split", "absent": "absent"}
+        print(f"  {band:11s} {pos_clr:7d} {neg_clr:7d} {p_pres:13.2e} "
+              f"{p:14.4f} {label[band_verdict(d)]:>8s}")
 
     handles = [
         Line2D([0], [0], color=C_NULL, lw=9, solid_capstyle="round",
                alpha=0.6, label="matched-strength null (p5–p95)"),
         Line2D([0], [0], marker="o", color=C_PRO, lw=2.6, mfc=C_PRO, mec=C_PRO,
-               ms=13, label="trace, clears null (filled)"),
+               ms=13, label="patient clears null (filled)"),
         Line2D([0], [0], marker="o", color=C_PRO, lw=2.6, mfc="white", mec=C_PRO,
-               ms=13, label="trace, within null (open)"),
+               ms=13, label="patient within null (open)"),
         Line2D([0], [0], marker="o", color=C_ANTI, lw=2.6, mfc=C_ANTI,
                mec=C_ANTI, ms=13, label="anti"),
     ]
+    if args.verdict == "two-axis":
+        handles += [
+            Line2D([0], [0], lw=0, marker=MarkerStyle("o", fillstyle="full"),
+                   mfc=C_COHORT, mec=C_COHORT, ms=14,
+                   label="band: cohort-wide trace"),
+            Line2D([0], [0], lw=0, marker=MarkerStyle("o", fillstyle="right"),
+                   mfc=C_HETERO, mfcalt="white", mec=C_HETERO, mew=1.7, ms=14,
+                   label="band: present but split"),
+            Line2D([0], [0], lw=0, marker=MarkerStyle("o", fillstyle="none"),
+                   mec=C_ABSENT, mew=1.7, ms=14, label="band: absent"),
+        ]
     fig.legend(handles=handles, loc="lower center",
-               bbox_to_anchor=(0.5, 0.005), ncol=2, frameon=False,
-               handlelength=2.4, handletextpad=0.7, columnspacing=2.5)
+               bbox_to_anchor=(0.5, -0.01), ncol=4, frameon=False,
+               handlelength=2.0, handletextpad=0.6, columnspacing=1.8)
 
     out_dir = (ROOT / "data" / "preprint" / "figures" / "all_bands"
                / "patients_forest_plot")

@@ -40,6 +40,8 @@ CORE  ── multiscale Laplacian framework  [00_CORE_methodology.md]
         · ρ̂(τ)=e^{−τL̂}/Z, one operator, scale-continuous renormalization
         · two probes: ρ^coph (per-pair, multiscale, interpretable, localizable)
                        d_G(k)  (global leading-mode subspace ≈ PCA/spectral-clustering)
+        · trace estimator: ρ_sym (symmetric split-half; supersedes ρ_split 2026-07-06,
+          arbitrary-half-free — every verdict estimator-invariant, audit_149/150)
         · the multiscale-beats-global-spectral argument (probe dissociation)
         · band-resolution-not-amplification (3-layer: raw FC → raw D(τ) → cophenet)
         · C1–C5 null battery; matched-strength is the referee

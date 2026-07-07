@@ -1,0 +1,663 @@
+% =====================================================================
+% DRAFT MANUSCRIPT — Nature Neuroscience-style
+% Generated as a writing scaffold (2026-06-24). All paragraphs drafted;
+% numerics are real (sourced from the headline files / ledgers / audit CSVs).
+% \TODO{...} marks a value NOT in the crystallization context — fill from the
+% cited CSV before submission; do NOT invent.
+%
+% Provenance for every number is in a % comment next to it (audit_NN / CSV).
+% Rules honoured: results stated in the LRG (cophenetic/Grassmann) framework,
+% raw FC is the baseline; matched-strength (C3) is the referee for every cohort
+% claim; OFC is a CONCENTRATION not a container; no behavioural claims (no data);
+% inference->cingulate is a directional hint only.
+% =====================================================================
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{lineno}
+\usepackage[hidelinks]{hyperref}
+\linenumbers
+
+% --- convenience macros ---
+\newcommand{\rhocoph}{\ensuremath{\rho^{\mathrm{coph}}}}
+\newcommand{\dG}{\ensuremath{d_{G}}}
+\newcommand{\rhat}{\ensuremath{\hat{\rho}(\tau)}}
+\newcommand{\TODO}[1]{\textcolor{red}{[\textbf{TODO}: #1]}}
+\newcommand{\fig}[1]{Fig.~\ref{#1}}
+\newcommand{\tab}[1]{Table~\ref{#1}}
+
+\title{Offline abstraction of a learned structure leaves a multiscale,
+band-specific trace in human cortical connectivity}
+% alt title: The resting human brain holds an offline, multiscale trace of what it inferred
+\author{\TODO{author list}}
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\begin{abstract}
+\noindent
+The brain must consolidate not only what it experiences but what it
+\emph{infers}. Whether inferred relational structure leaves an offline trace in
+human cortical connectivity --- and at what organisational scale --- is unknown,
+in part because connectivity is usually read at a single threshold or through
+global spectral embeddings that are scale-blind and hard to interpret. We
+recorded stereo-EEG in ten patients across the four phases of a transitive-
+inference task (rest $\rightarrow$ learning $\rightarrow$ test $\rightarrow$ rest)
+and read functional connectivity through the full multiscale hierarchy of a
+graph-Laplacian diffusion operator, with two non-redundant probes. We find,
+first, that the task leaves a band-specific ($\beta$) multiscale reorganisation
+that persists into post-task rest, survives a strength-matched surrogate null,
+concentrates in --- but is not confined to --- orbitofrontal cortex, is carried
+by healthy gray-matter coupling, and is \emph{held} as a sustained, non-ergodic
+state (10/10 patients, $p=0.001$) rather than re-emerging in transient bursts.
+Second, this persistent trace carries an inference-specific component beyond mere
+re-exposure to the premises ($\beta$ only, $p\approx0.007$), favouring the
+mesoscale of multi-step integration and anchored in an orbitofrontal map that
+learning itself establishes --- an offline signature of \emph{abstracting} a
+learned order. Third, the same diffusion operator, read as inter-contact
+affinity, localises epileptogenic tissue (leave-one-patient-out
+AUC~$\approx0.81$, precision@5~$\approx60\%$). The reorganisation is invisible to
+edge-wise and to spectral-clustering/PCA analyses, which a multiscale read-out
+recovers. Cognition and clinic thus emerge from one operator.
+\end{abstract}
+
+% =====================================================================
+\section{Introduction}
+
+Learning a transitive order (A$>$B, B$>$C, $\dots$) lets an animal answer a pair
+it has never seen (A vs.\ D). This is not memory for experience but the
+construction and use of an abstract relational structure --- a ``cognitive
+map'' of task space. A central prediction of consolidation theory is that such
+structure, once built, is rehearsed and stabilised offline. In humans this has
+been inaccessible at the network level: scalp recordings lack the spatial
+resolution, and intracranial connectivity has been read with tools that collapse
+the brain's organisation onto a single scale.
+
+Functional connectivity is most often summarised by thresholding an adjacency
+matrix at one density, or by embedding its leading eigenmodes (spectral
+clustering, PCA). Both choices discard the fact that brain networks are organised
+\emph{across} scales --- from tightly coupled local cliques to broad
+inter-system communities --- and both are hard to interpret anatomically. A
+reorganisation that lives in the relationship \emph{between} scales, rather than
+at any one of them, is therefore easy to miss.
+
+We read connectivity differently. From a single graph-Laplacian diffusion
+operator, $\rhat = e^{-\tau\hat{L}}/Z$, we obtain a continuous family of
+representations indexed by diffusion time $\tau$ --- a multiscale renormalisation
+of the network --- and summarise it with two complementary probes: a per-pair
+\emph{cophenetic} distance (\rhocoph), which is multiscale and locally
+interpretable, and a global-mode \emph{Grassmann} distance (\dG), which is the
+subspace view that ordinary spectral methods approximate. We use a
+volume-conduction-immune connectivity substrate (the band-averaged magnitude of
+the imaginary part of coherency) and a locked battery of null models, of which a
+strength-matched surrogate is the binding referee.
+
+Recording across rest, learning (premise pairs shown --- encoding), test (novel
+pairs reasoned out --- inference), and post-task rest, we ask three questions.
+Does the task leave a trace that persists into rest, and what is its scale,
+spectral signature, anatomy, and dynamics? Does that trace carry the
+\emph{inferred} structure specifically, beyond what was merely seen? And does the
+same operator, applied to the same recordings, speak to the clinical problem of
+localising the seizure-onset zone?
+
+% =====================================================================
+\section{Results}
+
+% ----- cohort sentence (shared) -----
+All analyses are over the full cohort of $n=10$ patients
+(\TODO{confirm IDs: Pat\_02, 03, 05, 06, 07, 08, 10, 13, 14, 15}). Results are
+stated in the Laplacian (cophenetic / Grassmann) framework; raw connectivity
+serves only as a baseline. Every cohort-level claim is evaluated against a
+strength-matched surrogate that preserves each node's total connectivity while
+destroying higher-order structure (control C3; see Methods); within-baseline
+split-half (C1), drift (C2), cross-probe (C4) and epileptic-zone-exclusion (C5)
+controls accompany it.
+
+% =====================================================================
+\subsection{A held, multiscale trace of learning and reasoning}
+
+\paragraph{Reasoning leaves an imprint that rest does not erase.}
+Comparing the resting network before and after the task, the post-task resting
+configuration sat reliably closer to the task configuration than the pre-task
+resting configuration did, at the cohort level. On the per-pair cophenetic probe
+--- our primary read-out --- the effect was carried most clearly by the $\beta$
+band (cohort-median $\rho_{\text{split}}=+0.22$; 7 of 10 patients above their own
+strength-matched null; paired $p=0.005$), with a real but weaker $\alpha$ component
+($p=0.002$) and a borderline low-$\gamma$ trace that nonetheless localises (below);
+$\theta$ showed nothing.
+% source: 01_trace.md N1.1; matched_strength_surrogate_split_baseline (audit_63); per_band_taxonomy_verdict (audit_83b)
+The persistence is a \emph{cohort-level} effect over a genuinely variable cohort:
+the between-patient spread is real, not a measurement-reliability artifact --- a
+residual between-patient axis survives correction for the split-half reliability of
+all four phase estimates (Methods) --- so we claim a cohort-level trace, never that
+every patient expresses it.
+% source: multiphase_snr (audit_145); 2026-06-25_multiphase-snr-reliability
+
+\paragraph{The trace consolidates in the orbitofrontal cognitive map.}
+Where the persistent reorganisation lands is sharply rhythm-specific and
+biologically pointed. The distributed $\beta$ trace is over-expressed, above each
+patient's own brain-wide baseline, in the orbitofrontal cortex (OFC) system ---
+the hub for building relational ``cognitive maps'', exactly what a
+transitive-inference task should leave behind. Against a matched-strength null with
+$R=1000$ surrogates, OFC cleared Benjamini--Hochberg correction across nine
+a-priori cortical systems ($q\approx0.009$--$0.013$) in all four analysis
+conditions (contact- vs.\ shaft-level $\times$ epileptic-zone included/excluded),
+was leave-one-out immovable (top-ranked in 10/10 folds) and shaft-collapse robust,
+and sat in low-strength, non-hub, bilateral tissue --- with primary sensorimotor
+cortex the one depleted complement.
+% source: N1.3; localization_atlas/matched_strength_R1000 + carrier_loo (audit_83/83b/92); ANATOMY_LEDGER
+Low-$\gamma$ concentrated, independently, in prefrontal cortex (significant in
+every leave-one-out fold, top-ranked in 8/10 --- corroborating, a rung below
+$\beta$), whereas the $\alpha$ trace, though real, had no surviving anatomical home
+and localised differently in each patient. The concentration is therefore a
+\emph{hotspot on a distributed trace, not a container} (within-OFC lean
+$\approx0.59$): it peaks at the system scale and washes out at lobe
+($p\approx0.29$) and hemisphere ($p\approx0.48$--$0.76$). We frame this as
+concentration above baseline, not as ``the trace lives in OFC''.
+% source: carrier_loo (audit_83b, low_gamma PFC LOO); per_band_taxonomy_verdict
+
+\paragraph{An independent read-out confirms the \texorpdfstring{$\beta$}{beta}
+trace.}
+The $\beta$ finding does not hinge on a single analysis. It clears the
+strength-matched surrogate (control C3), so it is not a rearrangement of the
+strongest connections; and a second, independent read-out of the same hierarchy
+--- a global-mode subspace (Grassmann) distance --- confirms the trace at $\beta$
+(cluster-extent permutation, leave-one-out robust), the convergence of two views
+that are otherwise complementary across the remaining bands (\tab{tab:bandprobe};
+full read-out $\times$ band map and construction in Methods).
+% source: grassmann_cluster_extent (audit_70); ctm_triangle C1--C4 (audit_33/71)
+The effect is genuinely multiscale: at $\beta$ the cophenetic hierarchy clears its
+strength-matched control ($p=0.005$) where the matched raw-edge comparison falls
+just short ($p=0.053$), and only the hierarchy expresses the absent-$\theta$ /
+present-$\beta$ band structure that the raw edges flatten onto a uniform positive
+floor.
+% source: raw_vs_multiscale (audit_146); 2026-06-25_raw-vs-multiscale-trace
+
+\paragraph{The \texorpdfstring{$\beta$}{beta} trace rides healthy cortex and
+spares the seizure core.}
+Stated in the Laplacian framework, the $\beta$ trace is carried by coupling
+between healthy gray-matter contacts: gray--gray pairs form the significant
+pair-count hotspot ($p<0.001$) while white-matter--white-matter pairs are
+depleted, and pairs internal to the clinically labelled seizure core do not carry
+it (their matched-strength contrast is non-significant, $p_{\text{pair}}\approx
+0.945$; ``core spared'' is directional only)
+% source: N1.4; epi_stratified/{cophenetic_cohort,pairclass_decimation_cohort}.csv (audit_77/85)
+. Excluding the seizure-onset contacts altogether left the $\beta$ and $\alpha$
+traces intact, so the result is neither a pathology artifact nor an
+everywhere-and-nowhere effect. We explicitly withdraw two earlier sub-claims that
+did not survive control: that epi-exclusion \emph{strengthens} the trace (a
+generic node-count effect, ruled out by a size-matched decimation control) and
+that the epi--healthy interface is its strongest carrier (it is not a pair-count
+hotspot).
+
+\paragraph{The resting brain dwells in the task's state rather than flashing back
+to it.}
+Resolving post-task rest into sliding windows, the per-window similarity to the
+task configuration (relative to the pre-task baseline) was elevated throughout
+rest, not on average alone but window after window: the contrast was positive in
+10/10 patients ($p=0.001$, leave-one-out $p=0.002$)
+% source: N1.6; replay_states/sustained_reinstatement_cohort.csv (audit_125/129)
+. This ``hold'' was scale-invariant and representation-invariant --- positive at
+every diffusion scale $\tau$ and across five distinct Laplacian read-outs
+(cophenetic, magnetic/directional, raw propagator, subspace/Grassmann,
+normalised; per-representation shift $+8$ to $+10$ of 10, $p\le0.007$)
+% source: replay_states/{tau_resolved,directional,raw_propagator,subspace,normlap}_cohort.csv (audit_133-139)
+. The complementary, transient reading was a rigorous cohort negative: across
+every collapsed axis, every band, and the whole resolvable timescale from $20$~s
+down to the high-$\gamma$ coherence floor near $0.2$~s, there were no bursts, no
+separable states and no sequences, each tested against a time-shuffled,
+node-permuted placebo null
+% source: replay_states/subsecond_gamma_cohort.csv (audit_124-141); report 2026-06-22_replay-states-verification
+. The post-task resting network is thus held in a sustained, non-ergodic
+reorganisation --- it does not return to where it started --- rather than
+re-entering the task state in brief flashes. (We claim ``held'', not ``a tighter
+attractor'': the latter was only a weak trend, $p=0.08$.)
+
+\paragraph{Over the seizure core, the memory and inference bands part ways.}
+The way the persistence treats diseased tissue is itself band-dependent, and it
+is the natural bridge to the clinical read-out below. In $\beta$ --- the focal,
+inference-carrying band --- the seizure core is spared (above). In $\alpha$ ---
+the diffuse memory band --- the same per-pair persistence instead \emph{recruits}
+the epileptic core: coupling internal to the seizure zone is concentrated and
+clears the matched-strength null (control C5)
+% source: N1.7 bridge; verify_beta_spares_alpha_recruits.md
+. The cognitive trace and the epileptogenic network are therefore not
+independent, and they relate oppositely depending on rhythm.
+
+% ---- Table 1 ----
+\begin{table}[t]
+\centering
+\caption{\textbf{The persistence trace across frequency bands and read-outs.}
+A check marks a cohort-level trace surviving the strength-matched surrogate (C3);
+a parenthesised check marks a borderline cohort gate that nonetheless yields a
+consistent anatomical localisation (low-$\gamma\to$PFC). The per-pair cophenetic
+and global-mode Grassmann read-outs converge at $\beta$ (the flagship band) and are
+otherwise complementary; this is a supporting cross-read-out summary (per-band
+statistics in \TODO{supp.\ table from VERDICT\_LEDGER.md}). The Grassmann arm uses
+the triangle construction and is not yet baseline-matched to the cophenetic
+split-baseline (Methods).}
+\label{tab:bandprobe}
+\begin{tabular}{lcc}
+\toprule
+Band & Cophenetic \rhocoph{} (per-pair, multiscale) & Grassmann \dG{} (global modes) \\
+\midrule
+$\delta$       & --          & \checkmark \\
+$\theta$       & --          & --          \\
+$\alpha$       & \checkmark  & --          \\
+$\beta$        & \checkmark  & \checkmark \\
+low-$\gamma$   & ($\checkmark$) & \checkmark \\
+high-$\gamma$  & --          & --          \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =====================================================================
+\subsection{Offline abstraction of a learned structure}
+% flagship. full heading alt: "...: the trace carries the relations the brain
+% inferred, not just the pairs it saw."
+
+The persistence trace (above) establishes that the resting brain \emph{holds} a
+reorganisation and that our method can see it. We next asked \emph{what} it
+holds. The four-phase design is what makes this answerable: the learning phase,
+in which premises are shown, is an encoding reference that can be subtracted from
+the test phase, in which novel pairs must be reasoned out. Writing per-pair
+cophenetic distances as $e = D_{\text{learn}} - D_{\text{pre}}$ (encoding),
+$f = D_{\text{test}} - D_{\text{learn}}$ (inference-specific) and
+$p = D_{\text{post}} - D_{\text{pre}}$ (persistence), the consolidation arc tests
+whether task-induced change persists: an encoding echo $T_{\text{learn}}=
+\mathrm{corr}(e,p)$ and an inference-specific term $T_{\text{inf}\cdot e}=
+\mathrm{pcorr}(f,p\mid e)$ that partials encoding out. The decomposition
+reproduces the locked persistence trace to numerical precision
+($\sim\!10^{-16}$ per patient)
+% source: N2.1; consolidation_arc/arc_per_patient.csv (audit_103)
+.
+
+\paragraph{The persistent trace carries what was inferred, not merely what was
+seen.}
+The inference-specific component itself persisted into post-task rest --- in
+$\beta$, and in no other band ($p\approx0.007$, leave-one-out robust, clearing
+the mandatory matched-strength null)
+% source: N2.2; consolidation_arc/arc_null_per_patient.csv (audit_103 --null)
+. The offline trace is therefore not merely a re-exposure echo of the premises:
+it carries a component tied specifically to the inferential computation. This is
+the paper's central claim --- an offline signature of abstracting a learned order
+--- and we are deliberate about its ceiling. It is a signature of
+inference-specific \emph{reorganisation that persists}; because task performance
+was not recorded and cannot be obtained, the claim can never be tied to
+inference \emph{success}, and ``abstraction'' is an interpretation licensed by
+the task structure and anatomy, not a decoded representation.
+
+\paragraph{Consolidation sits at the mesoscale of multi-step integration.}
+The inference-specific $\beta$ component is multiscale and mildly
+mesoscale-favouring: it cleared the matched-strength null most strongly at
+intermediate diffusion scales ($\tau\approx2.6$, $p=0.014$; $\tau\approx6.8$,
+$p=0.010$; leave-one-out robust), with an effect size modestly larger than at the
+finest scale (observed-minus-null gap $+0.11\rightarrow+0.15$), while every
+control band ($\alpha,\delta,\theta$, low-$\gamma$, high-$\gamma$) stayed null at
+the mesoscale
+% source: N2.2; consolidation_arc tau-sweep (audit_103d); report 2026-06-22_arc-mesoscale-inference-null
+. The mesoscale is the natural scale of multi-step paths through the network, and
+multi-step chaining (A$>$B, B$>$C $\Rightarrow$ A$>$D) is exactly transitive
+inference. The consolidation signal sits at the scale of the computation it is
+meant to reflect. (Mesoscale-favouring, not mesoscale-exclusive: the effect is
+significant across scales.)
+
+\paragraph{Anchored in the orbitofrontal map, an anchor set by learning itself.}
+The encoding component concentrated in OFC, and that anchor is established by
+learning rather than by reasoning. The pure memorising phase
+(rest $\rightarrow$ learning $\rightarrow$ rest, with no inference demanded)
+already leaves its own persistent trace, clearing the matched-strength null in
+$\alpha$ ($+0.22$, $p=0.014$) and $\beta$ ($+0.25$, $p=0.014$; $\delta$ marginal,
+$p=0.097$), and the $\beta$ learning-trace localises to OFC --- the same hotspot
+the test-phase trace uses ($R=1000$, $q=0.010$, low-strength, non-hub)
+% source: N2.6; consolidation_arc (T_learn) + localization (audit_110/111); report 2026-06-22_learning-phase-own-trace
+. OFC is therefore anchored by both task phases; inference adds the $\beta$-only
+component on top. Because the encoding term uses the shorter learning phase, it
+carries no test/learn length asymmetry, so the duration confound below never
+touched it.
+
+\paragraph{Memory and inference ride different rhythms.}
+Reading content by rhythm, $\alpha$ kept the memorised material and only that
+(encoding-only), whereas $\beta$ kept the memorised material \emph{and} the
+inferred relations (\tab{tab:arc}). This $\beta$-only inference result is
+duration-controlled. The test phase is $1.35$--$2.53\times$ longer than the
+learning phase in every patient, and $f$ inherits that asymmetry; we therefore
+discarded a naive length-matched null built on a truncated test recording after
+its negative control failed ($\delta$, dead-null at full length, $p\approx0.54$,
+false-positived at $p\approx0.014$ under truncation)
+% source: N2.5; arc_lenmatched_null (audit_103b) -- RETIRED as invalid
+. In its place, a per-patient regression of the full-length inference term
+against the test/learn length ratio is artifact-free: $\beta$ does not scale with
+duration (Spearman $\rho\approx+0.25$, $p\approx0.49$) whereas $\alpha$ carries
+the only duration-tracking trend ($\rho\approx+0.53$). Combined with the
+full-length matched-strength null that $\beta$ already clears, the
+inference-specific $\beta$ arc is duration-robust and $\alpha$ is
+duration-suspect.
+
+\paragraph{Whole-brain averaging conceals a focal cingulate memory trace at
+low-\texorpdfstring{$\gamma$}{gamma}.}
+There is no whole-brain low-$\gamma$ trace, yet an absolute within-region test
+(no demeaning) found a genuine focal encoding trace in the cingulate at
+low-$\gamma$ ($\rho\approx+0.39$, 8/8 patients, $q\approx0.035$; with the
+seizure zone excluded $\rho\approx+0.51$ in 7/8 --- a larger effect on fewer
+contacts, so not epilepsy-driven; cingulate inference was null here, so the trace
+is encoding-specific)
+% source: N2.4; inference_localization/within_system_trace_*.csv (audit_112)
+. A real trace that cohort-wide averaging conceals is the cleanest demonstration
+of why a per-region, multiscale read-out matters. Being encoding-only, it is
+duration-immune.
+
+\paragraph{Inference leans toward the cingulate.}
+Feeding the localiser the inference-specific per-pair vectors, the inference
+component leaned toward cingulate cortex rather than OFC --- but this is a
+directional hint, not an established location. It was Benjamini--Hochberg
+borderline at full length and did not survive the matched-length strength null
+($p\approx0.12$--$0.18$, $q\approx0.42$--$0.76$), so its full-length significance
+was duration-assisted even though its sign was consistent
+% source: N2.3/N2.5; inference_localization (audit_110) + lenmatched (audit_113b)
+. The inference component is duration-robust at the whole-brain level but remains
+anatomically distributed with no established hotspot.
+
+\paragraph{One cingulate region carries different content in different rhythms.}
+Read together, the cingulate behaves like a hub that switches its content with
+the rhythm: memory at low-$\gamma$ (solid, above) and, more tentatively,
+inference at $\beta$ (a hint). We present this multiplexing as suggestive,
+precisely because the inference-location half rests on a directional hint.
+
+% ---- Table 2 ----
+\begin{table}[t]
+\centering
+\caption{\textbf{Consolidation arc by band.} Encoding echo
+($T_{\text{learn}}$) and inference-specific persistence
+($T_{\text{inf}\cdot e}$, encoding partialled out), under the strength-matched
+null. $\alpha$ keeps encoding only; $\beta$ keeps encoding and inference.}
+\label{tab:arc}
+\begin{tabular}{lcc}
+\toprule
+Band & Encoding echo $T_{\text{learn}}$ & Inference-specific $T_{\text{inf}\cdot e}$ \\
+\midrule
+$\alpha$       & $+0.22$\;($p=0.014$) & null \\
+$\beta$        & $+0.25$\;($p=0.014$) & persists\;($p\approx0.007$) \\
+$\delta$       & marginal\;($p=0.097$) & null \\
+$\theta$       & null & null \\
+low-$\gamma$   & null$^{\dagger}$ & null \\
+high-$\gamma$  & null & null \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize $^{\dagger}$ No \emph{whole-brain} low-$\gamma$ echo, but a focal
+\emph{within-region} cingulate encoding trace is present (\tab{tab:loc}).
+Source: consolidation\_arc (audit\_103, \_103d); arc\_null\_per\_patient.csv.}
+\end{table}
+
+% ---- Table 3 ----
+\begin{table}[t]
+\centering
+\caption{\textbf{Where the content concentrates}, with the duration control.
+Matched-strength localiser, $R=1000$. Encoding anatomy is robust and
+duration-invariant; the inference location is a directional hint that the
+duration control demotes.}
+\label{tab:loc}
+\begin{tabular}{llll}
+\toprule
+Component & Region & BH $q$ ($R{=}1000$) & Duration control \\
+\midrule
+Encoding ($\beta$)                 & OFC       & $0.010$ & survives ($q=0.050$, epi-excl.) \\
+Learning-phase trace ($\beta$)     & OFC       & $0.010$ & survives ($q=0.050$) \\
+Inference ($\beta$)                & cingulate & borderline & \textbf{fails} ($q\approx0.42$--$0.76$) $\rightarrow$ hint \\
+Encoding within-region (low-$\gamma$) & cingulate & $0.035$\;($\rho{\approx}0.39$, 8/8) & immune (encoding-only) \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Source: localization\_atlas (audit\_83/92); inference\_localization
+(audit\_110/112/113b). ANATOMY\_LEDGER.}
+\end{table}
+
+% =====================================================================
+\subsection{Propagator-inspired markers of epileptogenic tissue}
+
+The same operator that reveals the cognitive trace also speaks to the clinic.
+Read not as a cross-phase distance but as inter-contact diffusion affinity, the
+Laplacian propagator exposes the seizure network.
+
+\paragraph{Epileptogenic tissue is organised relationally, not contact by
+contact.}
+A node-by-node ``is this contact epileptic?'' marker does not exist beyond
+trivial confounds: within a patient it reduces to hubness and electrode depth,
+and across patients nothing transfers. Read relationally, however, the
+epileptic contacts form a strength-independent, spatially-irreducible diffusion
+community --- a group that co-diffuses --- that survives strength- and
+space-matched nulls. As a marker, a per-node read-out of how strongly a contact
+co-diffuses with known seizure contacts recovers \emph{distant} seizure-onset
+contacts (off-shaft, with spatial proximity removed by construction, since the
+connectivity substrate is volume-conduction immune), in the $\delta$ band, stable
+across rest and task, against a label-shuffle null at $p\approx0$
+% source: N3.1; reports 2026-06-08/2026-06-12 (audit_89/99/101/102)
+. (An all-contacts version was a proximity tautology and is withdrawn; the honest
+metric is leave-one-shaft-out off-shaft discovery.)
+
+\paragraph{Fused across rhythms, the propagator yields a calibrated seizure-zone
+probability.}
+Concatenating propagator-only features (heat affinity at multiple scales,
+personalised PageRank, Katz, communicability, commute/resistance,
+diffusion distance, seed-relative segregation), with no coordinates, across all
+six bands, and training a leave-one-patient-out logistic model from $k=3$ seeds,
+yields a calibrated probability that each contact lies in the seizure-onset zone.
+Across the cohort this reached mean AUC~$\approx0.81$, precision@5~$\approx60\%$
+($\sim$sevenfold over chance), with 9/10 patients above chance and a clean
+label-shuffle null (\tab{tab:detector})
+% source: N3.2; epi_propagator_detector/detector_lopo_per_patient.csv (audit_117)
+. The lift comes from cross-band fusion rather than richer single-band features;
+a gradient-boosted variant raised AUC without improving precision and was
+rejected as overfit-prone at $n=10$, in favour of the interpretable logistic. (A
+first draft scored $0.97$ through a label leak in the segregation feature; this
+was caught and fixed, and the shuffle null now certifies the pipeline.)
+
+\paragraph{Finding the focus without a seed remains the open frontier.}
+The clinically most valuable version --- localising the seizure zone with no
+known seizure contacts --- is under active investigation
+% source: N3.3; audit_118/119/120 (running)
+. Prior label-free work leads us to expect it to be less precise, because
+selecting which co-diffusing community is the pathological one, at zero labels,
+is hard; we report no seed-free verdict here.
+
+\paragraph{Two populations: tight communities and network hubs.}
+Detector performance is bimodal and must be read per patient. In a
+strong-community subgroup the seizure zone is a coherent diffusion community and
+detection is excellent (AUC $\approx0.90$--$0.99$, precision@5 up to $100\%$); in
+a hub subgroup (Pat\_10, Pat\_15, right-hemisphere implants where the seizure
+zone coincides with network hubs rather than a community) it is marginal
+(\tab{tab:detector})
+% source: N3.4; detector_lopo_per_patient.csv
+. The cohort mean can therefore mislead, and we report the split explicitly.
+
+\paragraph{Scope, and an honest ceiling.}
+All of this is validated against clinical seizure-onset labels, not against
+resection and surgical outcome (Engel/ILAE); the marker is a triage/shortlist
+tool, not a from-scratch localiser. The precision ceiling ($\sim60\%$) is
+structural, set by the rarity of the target times ranker quality, and no filter
+rescues it --- a white-matter filter even hurts, because $\sim41\%$ of
+seizure-onset contacts are white-matter-labelled. High-ranked unmarked contacts
+(e.g.\ hippocampus/amygdala, medial OFC) are hypotheses, none outcome-validated.
+
+% ---- Table 4 ----
+\begin{table}[t]
+\centering
+\caption{\textbf{Seed-based propagator detector} (leave-one-patient-out,
+$k=3$ seeds, six-band fusion, interpretable logistic). Calibrated $P(\mathrm{SOZ})$
+per contact; report per patient, not the cohort mean alone.}
+\label{tab:detector}
+\begin{tabular}{ll}
+\toprule
+Metric / subgroup & Value \\
+\midrule
+Mean AUC (cohort)                 & $\approx0.81$ \\
+Precision@5 (cohort)              & $\approx60\%$ ($\sim$7$\times$ chance) \\
+Patients above chance             & 9/10 \\
+Strong-community subgroup         & AUC $0.90$--$0.99$; precision@5 up to $100\%$ \\
+Hub subgroup (Pat\_10, Pat\_15)   & marginal \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+{\footnotesize Source: epi\_propagator\_detector/ (audit\_117);
+README + detector\_lopo\_per\_patient.csv. Per-patient strip is a figure, not a
+cohort scalar.}
+\end{table}
+
+% =====================================================================
+\section{Discussion}
+
+We set out to ask whether the human brain leaves an offline trace of inferred
+structure, and found one with a clear scale, spectrum, anatomy and dynamics. A
+transitive-inference task reorganises resting cortical connectivity in a way that
+persists, peaks in $\beta$, concentrates in (without being confined to) the
+orbitofrontal map, rides healthy cortex, and is held as a sustained state. The
+persistence carries an inference-specific component beyond encoding, sits at the
+mesoscale of multi-step integration, and is anchored in an OFC map that learning
+itself establishes. We read this as an offline signature of \emph{abstraction}:
+the brain keeps the relations it computed, not merely the pairs it saw.
+
+The central methodological lesson is that this structure is only visible across
+scales. It is the weakest band at the level of raw connectivity, invisible to a
+connection-by-connection comparison, and --- in its $\alpha$ component --- missed
+by the leading-mode spectral embeddings that spectral clustering and PCA rely on.
+A multiscale diffusion read-out recovers it and, by dissociating the per-pair and
+global-mode probes across bands, shows that the two views are non-redundant.
+Network reorganisation that lives between scales is not a niche case; it is what a
+single-scale or global-spectral analysis is structurally unable to see.
+
+That the persistence is \emph{held} rather than bursty is, to our knowledge, a
+new characterisation. We searched hard for transient, replay-like re-entry of the
+task state across representations, bands and timescales down to the ripple range,
+and found none; what we found instead is a sustained, non-ergodic reorganisation
+the resting network settles into and holds. We are careful not to over-read this:
+it is a held connectivity state, and we deliberately do not claim that rest
+becomes a tighter attractor (only a weak trend), nor --- absent performance data
+--- that the trace predicts inference success.
+
+Finally, the same operator localises epileptogenic tissue, with a relational,
+strength-orthogonal, proximity-immune marker that finds distant seizure-onset
+contacts and, fused across bands, yields a calibrated triage probability. The
+honest scope is a clinical-label, not an outcome, validation, with a structural
+precision ceiling and a genuine two-population split; we present it as the
+clinical face of one operator rather than a finished localiser. Across cognition
+and clinic, a single multiscale diffusion read-out of intracranial connectivity
+recovers structure that conventional analyses miss.
+
+Limitations are stated throughout and summarised here: $n=10$, with irreducible
+OFC coverage of five patients; one sanctioned cohort-anti patient at $\beta$
+(Pat\_15, a right-hemisphere-only implant); no behavioural/performance data, by
+which the abstraction reading is an interpretation and not a brain--behaviour
+result; and an inference component that is duration-robust at the whole-brain
+level but anatomically thin.
+
+% =====================================================================
+\section{Methods}
+% (Summary scaffold; expand to journal length. Methods carries everything the
+%  Results deliberately do not describe.)
+
+\paragraph{Participants and task.}
+Ten patients undergoing stereo-EEG monitoring
+(\TODO{IDs, ages, implant details, ethics/consent statement, recording site}).
+A transitive-inference paradigm with four phases: pre-task rest, a learning phase
+in which adjacent premise pairs are shown, a test phase requiring inference on
+novel non-adjacent pairs, and post-task rest
+(\TODO{phase durations, trial counts, exclusion of Pat\_10 task rows 53--55}).
+Performance/accuracy was not recorded and is unavailable.
+
+\paragraph{Connectivity substrate.}
+Functional connectivity was estimated as the band-averaged magnitude of the
+imaginary part of coherency, $\langle|\mathrm{ImCoh}|\rangle_f$, which is immune
+to zero-lag volume conduction by construction. Per-frequency-bin magnitudes are
+averaged within band after the nonlinear transform (order of operations matters).
+Bands: $\delta,\theta,\alpha,\beta$, low-$\gamma$, high-$\gamma$
+(\TODO{exact band edges from config}). Sampling-rate differences (Pat\_03 at
+1024~Hz) are absorbed at the spectral-estimation layer.
+
+\paragraph{Laplacian diffusion hierarchy.}
+From the connectivity graph we form the density operator
+$\rhat=e^{-\tau\hat L}/Z$, a diffusion propagator over the graph Laplacian
+$\hat L$, defining a scale-continuous renormalisation of the network indexed by
+diffusion time $\tau$; the canonical scale is $\tau=1/\lambda_{\max}$. A
+$\tau$-sweep confirms the trace is fine-scale and stable around this value, with
+coarse-$\tau$ ``gains'' identified as a collapse artifact
+% source: N1.5; audit_121
+.
+
+\paragraph{Two probes.}
+(i) A per-pair cophenetic distance \rhocoph{} read from the diffusion-induced
+hierarchy --- multiscale and locally interpretable. (ii) A global leading-mode
+Grassmann distance \dG{} between leading-$k$ subspaces --- the view that spectral
+clustering/PCA approximate. Cross-phase similarity uses
+$\rho^{\mathrm{coph}}=\mathrm{Spearman}$ over the upper-triangle of the cophenetic
+matrices; partition-cut metrics (ARI/NMI) are not used.
+
+\paragraph{Cross-phase statistic and sign convention.}
+Persistence is quantified with the triangle statistic
+$T_d = d(\text{pre},\text{task}) - d(\text{task},\text{post})$, so that $T_d>0$
+denotes a trace. One-sided Wilcoxon tests (alternative ``greater'') at the cohort
+level; per-patient trace counts are $(T_d>0)$.
+
+\paragraph{Control battery (C1--C5).}
+C1, within-baseline split-half; C2, a drift floor; \textbf{C3, a strength-matched
+surrogate} that preserves each node's total connectivity while destroying
+higher-order structure --- the binding referee for every cohort claim (split-
+baseline surrogate, audit\_63); C4, cross-probe restriction; C5,
+epileptic-zone exclusion (with a size-matched node-decimation control to separate
+tissue-specific from generic node-count effects). Surrogate upper-tail
+$p=\mathrm{mean}(s\ge T_{\text{obs}})$, $R=1000$ for localisation. Multiplicity
+within a family by Benjamini--Hochberg; leave-one-out maxima reported (no single-
+patient-$p$-driven claims).
+
+\paragraph{Localisation.}
+Per-system concentration of the per-pair trace above each patient's own demeaned
+baseline, across nine a-priori cortical systems, with a matched-strength null
+($R=1000$), rank concordance, leave-one-out and shaft-collapse robustness checks.
+
+\paragraph{Dynamical (held-state) analysis.}
+Sliding windows (20~s; down to $\sim0.2$~s for high-$\gamma$); per-window
+similarity to the task configuration relative to the pre-task baseline; tested
+against a time-shuffled, node-permuted placebo null; replicated across five
+Laplacian read-outs (audit\_124--141).
+
+\paragraph{Epileptogenic marker.}
+Propagator-only features per band, no coordinates; leave-one-patient-out logistic
+from $k=3$ seeds; calibrated $P(\mathrm{SOZ})$; label-shuffle null; evaluated
+off-shaft (leave-one-shaft-out) to avoid the proximity tautology
+(\TODO{feature list, detector config from epi\_propagator\_detector/README.md}).
+
+\paragraph{Data and code availability.}
+\TODO{repository / cache locations; audit script list; CSV sources cited inline.}
+
+% =====================================================================
+\section*{Figure legends (to produce)}
+% Drawn from each headline's figure ideas; build from cached CSVs, PDF vector only.
+\begin{description}
+\item[Fig.~1 (method + band resolution).] The diffusion hierarchy and the two
+  probes; the three-layer band-resolution strip (raw FC $\rightarrow$ raw
+  $D(\tau)$ $\rightarrow$ cophenetic) showing $\beta$ resolved only at the
+  cophenetic layer; the band$\times$probe dissociation of \tab{tab:bandprobe}.
+\item[Fig.~2 (the trace).] Cohort $\beta$ trace forest/gate plot per band, with an
+  epi-excluded (X-epi) variant alongside; the held-state time-course
+  (post- vs.\ pre-task rest) with the transient-negative panel. No cross-probe
+  (C4) figure.
+\item[Fig.~3 (anatomy + tissue).] OFC system-scale concentration on a bilateral
+  brain (system, not region; ``hotspot not container'' annotation in the caption);
+  gray--gray vs.\ WM--WM vs.\ seizure-core pair-class contrast.
+\item[Fig.~4 (flagship: abstraction).] Four-phase schematic (encoding vs.\
+  inference); the inference-specific $\beta$ persistence and its mesoscale
+  signature; encoding$\rightarrow$OFC vs.\ inference$\rightarrow$cingulate
+  double-dissociation brain (with the ``inference duration-downgraded'' caption);
+  the low-$\gamma$ within-region cingulate ``averaging-hides-it'' panel.
+\item[Fig.~5 (clinic).] Diffusion-community schematic (seeds $\rightarrow$ distant
+  seizure-onset zone on a different shaft); per-patient detector strip (the
+  two-population split); calibration curve and precision@$k$.
+\end{description}
+
+\end{document}

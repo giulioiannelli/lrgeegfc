@@ -1,0 +1,61 @@
+% =====================================================================
+% R2.2 — "The inference-specific component holds across the hierarchy's scales"
+% Second paragraph of Result 2 (flagship). Follows R2.1 (inference-specific
+% component persists, beta-only, read at the FINEST scale); this paragraph is a
+% SCALE-ROBUSTNESS check, NOT a peak/localization claim.
+%
+% ==== REFRAMED 2026-07-07: PEAK CLAIM DROPPED (was "strongest at the mesoscale =
+%      scale of multi-step integration"). Why it was wrong, on the record: ====
+%   The matched-strength null was only ever evaluated at 3 tau_mults {1.0, 2.61, 6.81}
+%   (audit_103d grid = logspace(0,1,13)[0],[5],[10]); 6.81 is collapse-contaminated
+%   (see resolution ladder below) and is dropped -> the "peak" rested on 2 points,
+%   "meso>fine" by ONE step of the discrete n=10 Wilcoxon null (p=0.0049 vs 0.0098).
+%   The DESCRIPTIVE 13-pt sweep (audit_103c arc_tau_sweep.csv, rho_split-era,
+%   DIAGNOSTIC ONLY -- NOT cited, no rho_split in paper) shows NO interior maximum at
+%   2.61: cohort-median T_infspec_pe keeps RISING past it -- 2.61:0.120, 3.16:0.127,
+%   4.64:0.141, 6.81:0.152 -- with the numeric max inside the collapse zone. Within the
+%   RESOLVED range the curve is flat-to-rising (huge IQR: q25<0 at most tau), not peaked.
+%   => "strongest at the mesoscale / where multi-step integration lives" is unsupported.
+%   Claim DEMOTED to: the beta trace is MULTISCALE (survives the null at the fine AND a
+%   mesoscale scale, comparable margin; controls null at both) -> not a fine-scale artifact.
+%
+% ESTIMATOR = rho_sym (MIGRATED 2026-07-07, audit_157). Anchors PASS bit-exact:
+%   arm1==audit_103d all tau (max|Δ|=1.1e-16); sym@tau=1==audit_152 (max|Δ|=1.1e-16).
+% NULL-GATED NUMBERS (data/audit/consolidation_arc_rhosym/arc_scale_cohort_verdict.csv,
+%   verified 2026-07-07) -- beta T_infspec_pe (inference-specific | encoding), matched-
+%   strength Wilcoxon p = the GATE; med_surr = surrogate median (~0 under null):
+%     tau=1.00 : med_obs +0.091  med_surr +0.005  p=0.0098  LO-P15 0.020  6/10 above
+%     tau=2.61 : med_obs +0.126  med_surr +0.009  p=0.0049  LO-P15 0.010  7/10 above
+%   (obs +0.13 vs +0.09 is COMPARABLE, not "stronger" -- see one-step Wilcoxon note above.)
+%   CONTROL BANDS: strongest control p ~ 0.25 at BOTH scales (tau=1 min = delta 0.246;
+%     tau=2.61 min = high_gamma 0.246) -> no other band clears at either scale.
+%   Surrogate median FLAT across scales (+0.005 -> +0.009) -> the coarse-scale signal is
+%   NOT a generic coarse-graining rise (that would lift surrogate + control bands in step).
+% RESOLUTION LADDER (scratchpad resolution_diag.py; cohort medians over 10 pat x 4 phases,
+%   beta; justifies the scale BOUND quantitatively; Zeff=Tr e^{-tauL} in [1,N], modes
+%   retained; H-range = max/min UPGMA merge height; both ->1 at the tau->inf star limit):
+%     tau=1.00 : Zeff ~72 of N~118 modes, merge-heights span ~9x       (finely resolved)
+%     tau=2.61 : Zeff ~35 modes,           span ~5x                     (still resolved)
+%     tau=6.81 : Zeff ~6  modes,           span <2x, max rho_ij*N ~0.26 (near star -> DROP)
+%   => tested at the fine scale and the coarsest STILL-RESOLVED scale (tau=2.61); farther
+%      out the propagator relaxes toward the uniform mode (rho_ij->1/N) and holds no tree.
+% FRAMING: MULTISCALE robustness, NOT mesoscale-exclusive, NOT a peak. The relational-
+%   chaining reading (A>B, B>C, C>D => A>D) is KEPT as motivation + interpretation, framed
+%   as PRESENCE at the multi-step scale ("should appear at that coarser scale", "would
+%   register"), NEVER as a located maximum. It is grounded in a REAL operator property --
+%   larger tau integrates longer walks / multi-step paths (heat-kernel) -- which is the
+%   defensible part; the UNCALIBRATED part was only "strongest/peaks there", now dropped.
+%   tau<->"exact number of relational steps" is NOT calibrated; no mechanism claimed.
+%   LOGIC FIX: premises A>B,B>C alone give A>C, NOT A>D (D absent) -> chain completed to
+%   A>B,B>C,C>D so A>D is valid (a referee would flag the original non-sequitur).
+% Guardrails: LRG/cophenetic framework; matched-strength IS the gate (no count/magnitude
+%   filters); no behavioural claim; no absence-narration; register = NN results.
+% Continuity: R2.3 opens "Fixing the scale still leaves open where..."; with R2.2 now a
+%   multiscale-robustness check (not a single fixed scale) that opener may want a nudge
+%   ("That the component is scale-robust still leaves open where...") -- flagged, not applied.
+% Provenance: audit_157_arc_scale_null_rhosym.py; headline 02_encoding_vs_inference.md (N2.2).
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{The inference-specific component holds across the hierarchy's scales.}
+The persistent \(\beta\) component was read above at the hierarchy's finest scale, set by the smallest diffusion time \(\tau\); larger \(\tau\) coarsens the same operator from single-edge splits toward network communities. Whether it is tied to that finest scale or is multiscale is a pointed question, because transitive inference is not pairwise but a chaining of premises --- A\,\(>\)\,B, B\,\(>\)\,C, C\,\(>\)\,D \(\Rightarrow\) A\,\(>\)\,D --- and larger \(\tau\) integrates exactly such multi-step paths, weighting longer walks over single edges; if the component reflects the inferred order it should survive coarsening, not sit at the finest scale alone. How far \(\tau\) can rise is set by the operator: with \(Z_{\mathrm{eff}}\) the number of diffusion modes the propagator retains (of \(N \approx 118\) contacts), \(Z_{\mathrm{eff}} \approx 72\) at the fine scale and \(\approx 35\) at \(\tau \approx 2.6/\lambda_{\max}\), but only \(\approx 6\) by \(\tau \approx 7/\lambda_{\max}\) --- a near-uniform propagator with no hierarchy left to read. Re-tested against the same strength-matched surrogate at the coarsest still-resolved scale, \(\tau \approx 2.6/\lambda_{\max}\), the \(\beta\) component clears it just as at the fine scale: cohort-median inference-specific persistence \({+}0.13\) (surrogate \({+}0.01\), \(p = 0.005\), \gls{loo} \(p = 0.010\), \(7/10\) patients), and \({+}0.09\) at the fine scale (surrogate \({+}0.01\), \(p = 0.010\), \(6/10\)) --- with no other band clearing at either scale (strongest control \(p \approx 0.25\)). A coarse-graining artifact --- coarsening compresses any strength-heterogeneous hierarchy --- is ruled out by the surrogate itself: coarsened by the identical operation, it would show the same generic compression, yet its median holds at \({+}0.01\), leaving the \(\beta\) value as a real margin above the null. The \(\beta\) trace is thus multiscale --- carried at the coarse scale of multi-step paths as well as the finest splits, \(\beta\)-specific at each --- present where relational chaining would register, not confined to one scale.

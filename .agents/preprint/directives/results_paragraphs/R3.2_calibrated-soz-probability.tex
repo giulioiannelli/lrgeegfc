@@ -1,0 +1,38 @@
+% =====================================================================
+% R3.2 — "Fused across rhythms, the affinity becomes a calibrated seizure-zone probability"
+% Second paragraph of Result 3. Follows R3.1 (per-band relational affinity marks SOZ).
+% Turns the per-band read-out into the deployable detector: 6-band fusion -> calibrated P(SOZ).
+%
+% READ-OUT = same within-phase propagator affinity, now as multi-band features in a
+%   cross-patient classifier. NOT rho_sym. Substrate = rest_post |ImCoh| graph.
+% NUMBERS (audit_117; data/audit/epi_propagator_detector/{detector_lopo_per_patient.csv,
+%   detector_ablation.csv,README.md}; verified 2026-07-07 first-hand):
+%   Canonical = 6-band (delta theta alpha beta low_gamma high_gamma) propagator-only features,
+%     L2-logistic, k=3 seeds, leave-one-PATIENT-out (LOPO), coordinate-free.
+%     mean AUC 0.810 | median 0.873 | precision@5 0.60 | recall@10 0.39
+%     patients AUC>0.5 = 9/10 (Pat_10 at 0.492)
+%     P(SOZ|true) 0.378 vs P(SOZ|healthy) 0.079 | Brier 0.080
+%     label-shuffle null AUC 0.476 (clean)
+%   prec@5 60% ~= 7x chance (README "~7x chance"); DO NOT invent a precise base rate.
+%   FUSION LIFTS PRECISION, NOT DISCRIMINATION (PI 2026-07-07 -- be precise on this):
+%     delta-only detector AUC 0.76 -> 6-band 0.81 (only +0.05 AUC); precision@5 0.34 -> 0.60
+%     (the real, triage-relevant gain). => discrimination carried by DELTA; the other bands add
+%     largely-independent info that sharpens TOP-OF-LIST, not overall separation.
+%     Within-band stacking does NOT help (13 delta features == 1 delta feature == 0.76).
+%     Do NOT frame fusion as the source of the marker -- delta is the workhorse.
+%   GBM (nonlinear) AUC 0.86 but prec@5 0.54 (NO precision gain) + overfit risk n=10 -> REJECTED
+%     in favor of interpretable logistic.
+%   COORDINATE-FREE: no contact (x,y,z); |ImCoh| substrate -> proximity cannot enter features.
+% OMIT FROM PROSE (repo/process technicalities, feedback_no_repo_or_code_technicalities):
+%   the "first draft scored 0.97 via a label-leak, caught+fixed" story -> the clean shuffle-null
+%   IS the certification; state the null, not the leak history. No script/CSV names in prose.
+% Two-population split (per-patient) DEFERRED to R3.4; clinical scope/precision-ceiling to R3.5.
+% Guardrails: fusion is the honest lift; logistic-over-GBM is an overfitting defense stated as
+%   such; calibrated but modest; no clinical-superiority claim; register = NN results.
+% Provenance: audit_117_epi_propagator_detector.py; headline 03_epileptogenic_markers.md (N3.2);
+%   outline R3.2.
+% Prose unwrapped (one line per paragraph); American English.
+% =====================================================================
+
+\paragraph{A calibrated seizure-zone probability, carried by \(\delta\) and sharpened across rhythms.}
+Turned into a deployable marker --- trained on some patients and applied to the next --- the single strongest band is \(\delta\): from three known seizure contacts as seeds, a logistic model on its diffusion features alone separates seizure from healthy contacts at a mean \gls{auc} of \(0.76\) across patients. Fusing all six bands raises that separation only slightly, to \(0.81\), but it nearly doubles the precision at the top of the ranking, where a shortlist is drawn: the five highest-scoring contacts per patient go from \(34\%\) to \(60\%\) seizure-onset, roughly a sevenfold enrichment over the base rate. The discrimination is therefore carried by \(\delta\); the other rhythms add largely independent information that sharpens the top of the list rather than the overall separation. The fused model is the one we report: leave-one-patient-out, it assigns every contact a calibrated probability of seizure onset --- median \gls{auc} \(0.87\), probability \(0.38\) at true seizure contacts against \(0.08\) at healthy ones, \(9\) of \(10\) patients above chance, and a label-shuffle null at \(0.48\). A nonlinear model reaches a higher \gls{auc} (\(0.86\)) with no gain in precision and a clear overfitting risk on ten patients, so we keep the interpretable logistic. No contact coordinates enter it --- only diffusion features on the volume-conduction-immune graph --- so the probability is a connectivity read-out, not a restatement of where the electrodes were placed.

@@ -1,0 +1,62 @@
+% =====================================================================
+% R1.3 — "Band-specificity is a property of the network's multiscale geometry"
+% Third paragraph-block of Result 1 (closes the "held, multiscale trace"
+% subsection): why the LRG hierarchy, not raw edges; + the Grassmann second probe.
+%
+% ESTIMATOR = rho_sym (of record 2026-07-06). Cophenetic gate numbers below are rho_sym
+%   (audit_150); raw-vs-multiscale foil (audit_146) + Grassmann (audit_66/70) unaffected.
+% Numbers (verified 2026-07-06 against source CSVs):
+%   RAW vs MULTISCALE (audit_146, data/audit/raw_vs_multiscale/, report
+%     2026-06-25_raw-vs-multiscale-trace.md; inputs bit-exact certified):
+%       raw edge-level rho: positive EVERY band, theta +0.12 (indistinguishable
+%         from real bands), range only 0.15; raw >= cophenetic in magnitude (5/6 bands).
+%       raw beta does NOT clear matched-strength: p=0.053 (6/10).
+%       cophenetic rho_sym: theta -0.04 (absent), beta +0.20 (6/10), span 0.24.
+%       cophenetic beta CLEARS matched-strength: rho_sym p=0.032 (rho_split 0.005).
+%     GUARDRAIL (Q2, MANDATORY): raw is LARGER, not smaller. The multiscale tool
+%       wins on SEPARABILITY/band-taxonomy + beta null-clearing, NEVER on magnitude.
+%       FORBIDDEN: "trace stronger/better-resolved in hierarchy" (false); "invisible
+%       to edges" (false — raw is larger). The magnitude drop IS the filter working.
+%   GRASSMANN (audit_66/70, data/audit/grassmann_cluster_extent/cohort_summary.csv):
+%       cluster_p_cluster_mass / cluster_p_mass_loo_max:
+%       beta 0.005 / 0.005 (LOO-robust, "strong"); alpha 0.348 (no trace);
+%       low_gamma 0.005 / 0.040 ("strong", LOO holds); theta 0.159 (no trace).
+%     => beta is the ONLY band both LRG probes clear.
+%   Probe framing (guide multiscale-notions-propagator-vs-grassmann.md):
+%     cophenetic (e^{-tau L}, eigval-weighted, per-pair hierarchy) and Grassmann
+%     (hard rank-k subspace, eigenvalue-blind) are TWO SPECTRAL VIEWS of the SAME
+%     Laplacian spectrum -> correlated by construction. FORBIDDEN: "two independent
+%     multiscale measures"; "Grassmann k-sweep is a renormalization". Agreement =
+%     robustness-to-windowing; dissociation (alpha per-pair-only, low_gamma
+%     subspace-only) = the real result.
+%   FRAMING (PI 2026-07-06, corrects 07-05): the two probes detect DIFFERENT KINDS of
+%     reorganization. cophenetic/propagator = PRIMARY, genuinely multiscale (nested
+%     dendrogram couples ALL scales into one object; trace verdict rests on it) ->
+%     detects reorganizations coherent ACROSS scales. Grassmann sweeps ALL ranks
+%     k=2..112 (NOT 'a handful of top modes' -- that was wrong); at each k it compares
+%     the SPAN of the top-k eigen-subspace (global modes), blind to eigenvalue weighting
+%     and to cross-scale NESTING -> detects GLOBAL reorganizations AT a scale, not across
+%     scales. Dissociation is the result, BOTH directions: alpha = multiscale-only (rho
+%     0.002, Grassmann 0.35 -- global view MISSES it); low_gamma = global-only (Grassmann
+%     0.005 LOO-robust, rho 0.12 -- Grassmann CATCHES what rho misses); beta = both;
+%     theta = neither. beta-agreement = corroboration/robustness, NOT a gold standard the
+%     trace must pass twice. They sort reorganizations by kind, they are not a double bar.
+%   Higher-order framing (imcoh_lrg_second_order note): LRG is LINEAR diffusion but a
+%     nonlinear MAP -> higher-order GRAPH structure (multi-step paths, communities),
+%     NOT higher-order signal statistics. Say "multi-step propagation / multiscale
+%     structure emergent from pairwise connectivity"; NEVER "nonlinear" / "higher-order
+%     interactions".
+% Guardrails: result in the LRG framework; matched-strength named; no behavioural claim.
+% Prose unwrapped (one line per paragraph); American English; \FigRef with in-label panel.
+% NOTE: \FigRef{fig:trace_d} is a PLACEHOLDER for the raw-vs-two-multiscale panel —
+%   confirm final figure/panel label with PI.
+% =====================================================================
+
+\paragraph{Band-specificity is a property of the network's multiscale geometry.}
+The trace we have followed is band-specific at every step --- present in \(\beta\) and \(\alpha\) but not \(\theta\), and anatomically localized only in \(\beta\). That band structure is not a property of the raw connectivity; it emerges only when the connectivity is read through the diffusion hierarchy. The connectivity we analyze is a dense weighted graph that we leave unthresholded: with a volume-conduction-immune estimator (\gls{imcoh}; Methods) essentially every pair of contacts carries some coupling, so what separates one network state from another is the pattern of weights, not which edges are present. Comparing those weights directly across phases does register the reorganization --- \acrshort{rspost} connectivity leans back toward its \acrshort{taskt} configuration --- but it registers roughly the same reorganization in every band, and so cannot tell a band that traces from one that does not. The overlap is positive everywhere, including \(\theta\), where no trace survives our controls: the raw \(\theta\) value (\(\rho \approx +0.12\)) is not measurably different from the bands that do trace, and all six bands sit within a single 0.15-wide range. At \(\beta\), the band with the strongest hierarchical trace, the edge-level overlap does not even clear the strength-matched surrogate (\(p = 0.053\)). Read through its raw weights, then, the network shows only a blunt, band-blind drift back toward the task state --- real, but the same size in a band that traces and a band that does not.
+
+The multiscale picture comes from reading the same weights through the \gls{lrg} propagator. Rather than compare edges, we let heat diffuse on the graph --- \(e^{-\tau L}\) at the fine-scale operating point \(\tau = 1/\lambda_{\max}\) (Methods) --- so that the affinity between two contacts is set not by their single shared edge but by all the multi-step paths that connect them through the rest of the network; the reorganization is thereby re-expressed in the higher-order, multi-step structure of propagation. Clustering this diffusion geometry into a hierarchy and reading each pair's cophenetic distance (\(\rhocoph\)) filters the connectivity across scales, and the effect on the band picture is qualitative: the generic overlap that made every band look alike at the edge level is stripped out. The bands that do not trace collapse to zero --- \(\theta\), positive and indistinguishable from \(\beta\) in the raw edges, falls to \(\rhocoph \approx -0.04\) --- while \(\beta\) is retained near \(+0.20\); and \(\beta\) now clears the strength-matched surrogate (\(p = 0.032\), 6 of 10 patients) where its edge-level analogue did not (\FigRef{fig:trace_d}). The hierarchy does not make the trace larger; the ultrametric in fact compresses its magnitude. What it does is separate a real, band-specific trace from the undifferentiated drift, so that band-specificity emerges only once the connectivity is read as a multiscale geometry rather than a list of edges.
+
+That geometry is multiscale because it is nested: the diffusion hierarchy folds every scale into a single dendrogram, so each pair's cophenetic distance reports at once where that pair sits from the finest splits up to the coarsest communities. The same operator can be read a second way, along a different axis, and the two readings turn out to answer to different bands. The Grassmann distance reads that second axis. At each rank \(k\) it takes the span of the network's \(k\) leading eigenmodes --- global patterns over the whole electrode set --- and measures how far that subspace has rotated from rest to \acrshort{taskt}; the rank is swept across the full spectrum and the trace tested over a contiguous band of ranks (Methods). Each rank, though, is a self-contained comparison of one flat subspace: it depends only on the span, ignores the eigenvalue weighting, and never asks whether structure at one scale is nested inside structure at another. The two probes are thus tuned to different kinds of reorganization --- the hierarchy to changes coherent \emph{across} scales, the Grassmann to a global turn of the dominant modes \emph{at} a scale --- and, built from the same spectrum, they are not independent tests but complementary ones.
+
+This is why they disagree band by band, and the disagreements are the result. \(\alpha\) is a genuinely multiscale reorganization that the global view misses: clear in the hierarchy (\(\rhocoph\) \(p = 0.024\)) but absent in Grassmann (\(p = 0.35\)), it reshuffles nested pairwise relations without turning the dominant modes. \(\lowgamma\) is its mirror image, a global reorganization that never becomes multiscale: the dominant subspace rotates cohort-wide (Grassmann \(p = 0.005\), \gls{loo}-robust) while no stable nested hierarchy forms (\(\rhocoph\) \(p = 0.08\)), so here the Grassmann registers a trace the cophenetic probe does not. \(\beta\) is the band that is both at once (\(\rhocoph\) \(p = 0.032\); Grassmann \(p = 0.005\), \gls{loo}-robust): its reorganization is global and multiscale together, which is why it survives whichever way the spectrum is read. \(\theta\) shows neither. The two views therefore do not form a bar the trace must clear twice; they sort reorganizations by kind --- \(\rhocoph\) for those coherent across scales, Grassmann for global mode rotations at a single scale --- and \(\beta\) is the band that answers to both.

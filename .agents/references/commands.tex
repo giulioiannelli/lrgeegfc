@@ -1,0 +1,37 @@
+\newcommand{\patient}[1]{\textsf{Pat#1}}
+
+\renewcommand{\topfraction}{.9}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\floatpagefraction}{.9}
+
+\newcolumntype{Y}[1]{>{\hsize=#1\hsize\linewidth=\hsize}X}
+
+\newcommand{\todo}[1]{%
+  \texttt{\color{blue} \detokenize{#1}} \textbf{[TODO]}%
+}
+\newcommand{\oldnotes}{\textsc{Notes\textsubscript{MSC}}}
+\newcommand{\giulio}[2][]{\textcolor{purple}{\emph{#1}~(\texttt{gi:\,#2})}}
+\newcommand{\giampi}[2][]{\textcolor{red}{\emph{#1}~(\texttt{gb:\,#2})}}
+\newcommand{\pablo}[2][]{\textcolor{orange}{\emph{#1}~(\texttt{pv:\,#2})}}
+
+\newcommand{\hgls}[1]{\texorpdfstring{\gls{#1}}{\glsentryshort{#1}}}
+\newcommand{\hglspl}[1]{\texorpdfstring{\glspl{#1}}{\glsentryshort{#1}s}}
+\newcommand{\hacrshort}[1]{\texorpdfstring{\acrshort{#1}}{\glsentryshort{#1}}}
+
+    \NewDocumentCommand{\FigRef}{m}{%
+      \ifvmode Figure~\ref{#1}%
+      \else Fig.~\ref{#1}%
+      \fi
+    }
+
+    \NewDocumentCommand{\SecRef}{m}{%
+      \ifvmode Section~\ref{#1}%
+      \else Sec.~\ref{#1}%
+      \fi
+    }
+
+    \NewDocumentCommand{\TabRef}{m}{%
+      \ifvmode Table~\ref{#1}%
+      \else Tab.~\ref{#1}%
+      \fi
+    }
