@@ -8,17 +8,17 @@ separates seizure from healthy contacts OVER AND ABOVE node strength. With the s
 baseline removed (so strength alone = chance, 0.5), the affinity still reaches:
   delta 0.80 | low_gamma 0.74 | beta 0.69 | alpha 0.60 (marginal)
 higher, in each band, than matched-coupling contacts reach by chance (no reshuffle of 300
-met it), holding in 7/6/7/6 of 10 patients. And because |ImCoh| is zero-lag-immune, this is
-not proximity: given seizure contacts on some electrodes as seeds, the same delta affinity
-ranks the seizure contacts on OTHER electrodes above healthy ones (off-shaft AUC 0.72, 8/10,
-label-shuffle collapses to chance) -- the case where distance to a known contact is useless.
+met it), holding in 7/6/7/6 of 10 patients.
 
-Single panel, strength-RESIDUAL AUC on x (0.5 = strength-alone / chance): top group = the
-four all-contacts bands; bottom (separated) = the off-shaft delta demonstration.
+Single panel: strength-RESIDUAL AUC on x (0.5 = strength-alone / chance), one row per band,
+per-patient dots coloured by whether each patient beats its OWN matched-strength null.
+
+(The 'not proximity' point is carried in prose: |ImCoh| is zero-lag-immune to volume
+conduction. The off-shaft distant-marker demonstration lives in prose / supplement, not
+here -- it is a different, harder contact set and would read as a second delta value on a
+shared axis.)
 
 Reads : data/audit/epi_marker_allcontacts/{allcontacts_per_patient,allcontacts_stratnull_per_patient,allcontacts_nulls}.csv
-        data/audit/epi_marker_library/marker_library_per_patient.csv
-        data/audit/epi_marker_library/verify_nulls.csv
 Writes: data/reports/results_section3/fig_epi_a_relational_marker.pdf
 """
 from __future__ import annotations
@@ -40,7 +40,6 @@ ROOT = setup_script_env()
 use_lrg_style()
 
 AC = ROOT / "data/audit/epi_marker_allcontacts"
-LIB = ROOT / "data/audit/epi_marker_library"
 OUT = ROOT / "data/reports/results_section3/fig_epi_a_relational_marker.pdf"
 
 MARKER = "heat_t5"                                   # slow heat-kernel (README headline)
@@ -58,16 +57,10 @@ def main():
     pp = pp[pp.marker == MARKER]
     sn = pd.read_csv(AC / "allcontacts_stratnull_per_patient.csv")
     nulls = pd.read_csv(AC / "allcontacts_nulls.csv").set_index("band")
-    lib = pd.read_csv(LIB / "marker_library_per_patient.csv")
-    lib = lib[(lib.marker == MARKER) & (lib.band == "delta")].set_index("patient")
-    vnull = pd.read_csv(LIB / "verify_nulls.csv").set_index("marker").loc[MARKER]
 
-    # y layout: 4 all-contacts bands (top) + 1 off-shaft delta row (bottom, separated)
-    rows = list(BANDS) + ["__offshaft__"]
-    yof = {"delta": 5.4, "low_gamma": 4.4, "beta": 3.4, "alpha": 2.4,
-           "__offshaft__": 0.9}
+    yof = {b: len(BANDS) - 1 - i for i, b in enumerate(BANDS)}   # delta at top
 
-    fig, ax = plt.subplots(figsize=(9.4, 6.6))
+    fig, ax = plt.subplots(figsize=(8.8, 5.2))
 
     # matched-strength null envelope (label-shuffle): median ~0.49, p95 ~0.55-0.57
     nmed = float(nulls.null_median_mean.mean())
@@ -75,46 +68,30 @@ def main():
     ax.axvspan(nmed, np95, color="0.82", alpha=0.6, zorder=0)
     ax.axvline(0.5, color="0.5", lw=1.1, ls="--", zorder=1)      # strength-alone / chance
 
-    def draw_row(y, dots, beats, med, band_c, count_txt):
-        for pat in dots.index:
-            c = C_BEAT if bool(beats.get(pat, False)) else C_MISS
-            ax.scatter(dots[pat], y + Y_OFF.get(pat, 0.0), s=95, color=c,
-                       edgecolor="white", linewidth=0.8, zorder=4)
-        ax.plot([0.5, med], [y, y], color=band_c, lw=3.0, zorder=5,
-                solid_capstyle="round")
-        ax.scatter(med, y, s=175, color=band_c, edgecolor="white", linewidth=1.3,
-                   zorder=6)
-        ax.text(med, y + 0.30, count_txt, color=band_c, fontsize=10.5, ha="center",
-                va="bottom", fontweight="bold")
-
-    # all-contacts bands
     for b in BANDS:
+        y = yof[b]
         dots = pp[pp.band == b].set_index("patient").auc_resid
         beats = sn[sn.band == b].set_index("patient").beats_p95
+        for pat in COHORT:
+            if pat not in dots.index:
+                continue
+            c = C_BEAT if bool(beats.get(pat, False)) else C_MISS
+            ax.scatter(dots[pat], y + Y_OFF[pat], s=100, color=c, edgecolor="white",
+                       linewidth=0.8, zorder=4)
         med = float(nulls.loc[b, "real_median_auc"])
-        n = int(beats.sum())
-        draw_row(yof[b], dots, beats, med, C_BAND[b], f"{n}/10")
+        ax.plot([0.5, med], [y, y], color=C_BAND[b], lw=3.2, zorder=5,
+                solid_capstyle="round")
+        ax.scatter(med, y, s=185, color=C_BAND[b], edgecolor="white", linewidth=1.3,
+                   zorder=6)
+        ax.text(med, y + 0.32, f"{int(beats.sum())}/10", color=C_BAND[b],
+                fontsize=11, ha="center", va="bottom", fontweight="bold")
 
-    # off-shaft delta demonstration
-    off = lib.auc_resid
-    off_beats = (off > float(vnull.null_median_p95))
-    draw_row(yof["__offshaft__"], off, off_beats, float(vnull.real_median_auc),
-             C_BAND["delta"], f"{int(off_beats.sum())}/10")
-
-    # group separator + labels
-    ax.axhline(1.65, color="0.7", lw=0.8, ls=":", zorder=1)
-    ax.text(0.5 - 0.005, 6.15, "all contacts", fontsize=11, style="italic",
-            color="0.35", ha="right")
-    ax.text(0.5 - 0.005, 1.45, r"off-shaft ($\delta$): distance to a known contact useless",
-            fontsize=10, style="italic", color="0.35", ha="right")
-
-    ax.set_yticks([yof[b] for b in BANDS] + [yof["__offshaft__"]])
-    ax.set_yticklabels([BRAIN_BAND_TEX_DICT[b] for b in BANDS] +
-                       [BRAIN_BAND_TEX_DICT["delta"] + r" off-shaft"])
-    for tick, b in zip(ax.get_yticklabels(), BANDS + ["delta"]):
+    ax.set_yticks([yof[b] for b in BANDS])
+    ax.set_yticklabels([BRAIN_BAND_TEX_DICT[b] for b in BANDS])
+    for tick, b in zip(ax.get_yticklabels(), BANDS):
         tick.set_color(C_BAND[b])
-        tick.set_fontsize(16)
-    ax.set_ylim(0.2, 6.4)
+        tick.set_fontsize(19)
+    ax.set_ylim(-0.7, len(BANDS) - 0.3)
     ax.set_xlim(0.30, 1.0)
     ax.set_xlabel(r"strength-residual affinity AUC   "
                   r"(seizure vs healthy; $0.5$ = strength alone / chance)", fontsize=12.5)
@@ -127,27 +104,25 @@ def main():
         Line2D([0], [0], marker="o", ls="", mfc=C_MISS, mec="white", ms=11,
                label="within own null"),
         Line2D([0], [0], marker="o", ls="-", color="#444", mfc="#444", mec="white",
-               ms=12, lw=3.0, label="cohort median AUC ($n$/10 beat own null)"),
+               ms=12, lw=3.2, label="cohort median AUC ($n$/10 beat own null)"),
         Patch(facecolor="0.82", alpha=0.6,
               label="matched-strength null (label-shuffle, $0/300$ reached obs.)"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.035),
+    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.06),
                ncol=2, frameon=False, fontsize=10, handletextpad=0.5,
                columnspacing=1.6)
 
-    fig.subplots_adjust(left=0.13, right=0.97, top=0.95, bottom=0.20)
+    fig.subplots_adjust(left=0.11, right=0.97, top=0.95, bottom=0.24)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)
 
-    print("fig:epi_a — relational SOZ marker (strength-residual, all-contacts + off-shaft)\n")
+    print("fig:epi_a — relational SOZ marker (strength-residual, all contacts)\n")
     for b in BANDS:
         beats = int(sn[sn.band == b].beats_p95.sum())
         print(f"  {b:11s} median AUC={nulls.loc[b,'real_median_auc']:.3f} "
               f"null={nulls.loc[b,'null_median_mean']:.3f} p95={nulls.loc[b,'null_median_p95']:.3f} "
               f"beats={beats}/10 p_emp={nulls.loc[b,'p_empirical']}")
-    print(f"  off-shaft delta: median AUC={float(vnull.real_median_auc):.3f} "
-          f"null={float(vnull.null_median_mean):.3f} beats={int((off>float(vnull.null_median_p95)).sum())}/10")
     print(f"\nwrote {OUT}")
 
 

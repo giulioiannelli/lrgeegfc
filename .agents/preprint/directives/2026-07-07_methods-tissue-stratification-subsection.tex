@@ -1,0 +1,76 @@
+% =====================================================================
+% METHODS INSERT (NEW SUBSECTION) — Tissue stratification of the trace (pair-class)
+% Drafted 2026-07-07, ρ_sym-native. Supports R1.4 (healthy-cortex carrier) and
+% R1.6 (β spares / α recruits the seizure core; bridge to R3).
+%
+% WHY IT IS NEEDED: R1.4/R1.6 open with "we labeled every node pair by the tissue it links
+%   (gray matter, white matter, or SOZ) and asked which classes carry the trace vs a random
+%   equal-size pair set (R=1000)". That method is ABSENT from the current Methods. It is NOT
+%   the anatomical system localization (per-contact demeaned concordance) and NOT the global
+%   epi-exclusion regime (drop SOZ contacts + decimation). It is a per-PAIR-CLASS restriction
+%   of the symmetric trace with its own size-matched pair-count null.
+%
+% INSERTION (no existing text to replace): paste the \subsection block below into Methods,
+%   right AFTER the anatomical-localization subsection (sssec/ssec:methods_anatomy). Both are
+%   Result-1 localizers (OFC = system; healthy-cortex/SOZ = tissue).
+%
+% ESTIMATOR OF RECORD (verbatim from audit_156_epi_wm_stratified_rhosym.py):
+%   - TWO binary contact partitions, run independently (STRAT dict):
+%       structural  : gray-matter vs white-matter  -> classes gray_gray / cross / wm_wm
+%       pathological: SOZ (E) vs non-SOZ           -> classes epi_epi / cross / nonepi_nonepi
+%   - within-class statistic = SYMMETRIC ρ^coph restricted to the class's pairs (_rho_sym_one):
+%       ρ^coph_T = ½[ spearman((D_task−D_A)[T], (D_post−D_B)[T]) + (A↔B) ]
+%     computed on FULL-graph cophenetic images (Section lrg); only the shift vectors are
+%     subset to the class — NO per-tissue hierarchy rebuild.
+%   - NULL 1 (pair-count control, audit_85 port): R_pair=1000 random equal-size (|T|) pair
+%     subsets from the full P pairs; p_pair = mean(ρ^coph_random ≥ ρ^coph_T); concentrated if
+%     p_pair<0.05, depleted if p_pair>0.95. Controls the class's PAIR COUNT, not strength.
+%   - NULL 2 (matched-strength gate): ρ^coph_T on each cached strength-preserving surrogate
+%     over the same class; cohort one-sided Wilcoxon vs surrogate median (Section stats) = THE
+%     gate. A class CARRIES the trace only if it BOTH concentrates AND clears matched-strength.
+%   - cohort pair-control: median-over-patients obs vs the same patient-median per random draw.
+%
+% GUARDRAILS
+%   - NO results: no p_pair/MS numbers, no "gray↔gray carries β", no "wm↔wm dropped", no band
+%     verdicts, no patient counts. Method PARAMETERS kept (two partitions, class cells,
+%     R_pair=1000, R=200 MS, 0.05/0.95 thresholds).
+%   - Matched-strength is the mandatory GATE; the pair-count control alone cannot separate a
+%     tissue effect from node strength — state this (feedback_matched_strength_mandatory).
+%   - Cophenetic trace only; raw = pre-transform reference (already established Section compare).
+%   - |ImCoh| is zero-lag-immune, so a tissue grouping is not volume conduction; NO spatial null
+%     (feedback_no_spatial_proximity_null). NO repo/code technicalities.
+%
+% BEFORE COMPILING
+%   (1) NO new acronym: soz, dk exist.
+%   (2) NO new math macros: \Dcoph, \rhocoph, \rho_{S}, \Delta, \txtacr, \gls, \num. New labels
+%       eq:methods_tissue_class / _pairnull ; \mathcal{T} = a pair class (distinct from P=#pairs).
+%   (3) Cross-refs: ssec:methods_lrg (full-graph cophenetic), sssec:methods_compare_perpair
+%       (split-baseline shifts + arm symmetrization), sssec:methods_compare_ctm (ρ^coph),
+%       sssec:methods_compare_stats (matched-strength gate + LOO). Fix \ref targets to Overleaf.
+%
+% Provenance (AGENT-FACING ONLY): audit_156_epi_wm_stratified_rhosym.py (estimator of record;
+%   ports audit_77 epi + audit_83 WM matched-strength and audit_85 pair-count null onto ρ_sym);
+%   _epi_stratify.py / _wm_stratify.py (masks + class configs). Results: R1.4, R1.6.
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\subsection{Tissue stratification of the trace}
+\label{ssec:methods_tissue}
+
+These recordings come from epilepsy patients, implanted because of pathology, so a persistence attributed to reasoning could instead ride the epileptogenic network or the white-matter contacts that motivated the implant. Attributing the trace to tissue means asking not whether it is present but which tissue carries it. We classify every contact by two independent binary labels read from the implantation record --- a structural label (cortical gray matter versus white matter) from its \gls{dk} tissue assignment, and a pathological label (inside versus outside the clinically defined seizure-onset zone \(E\)) --- and sort every contact pair by the labels of its two endpoints. Each partition yields two within-class cells and a crossing cell: gray--gray, white--white, and gray--white for the structural partition; \gls{soz}-internal (both endpoints in \(E\)), extra-\gls{soz} (neither), and \gls{soz}-crossing for the pathological partition.
+
+For a pair class \(\mathcal{T}\) --- the subset of contact pairs whose endpoints satisfy the class rule --- the within-class trace is the arm-symmetric cophenetic estimator of Sections~\ref{sssec:methods_compare_perpair} and~\ref{sssec:methods_compare_ctm} evaluated on the pairs of that class alone,
+\begin{equation}
+    \rhocoph_{\mathcal{T}} = \tfrac{1}{2}\Big[\rho_{S}\!\left(\Delta_{\rm task}^{A}\big|_{\mathcal{T}},\; \Delta_{\rm rest}^{B}\big|_{\mathcal{T}}\right) + \big(A\!\leftrightarrow\!B\big)\Big],
+    \label{eq:methods_tissue_class}
+\end{equation}
+where \(\,\cdot\,\big|_{\mathcal{T}}\) restricts a per-pair shift to the pairs of \(\mathcal{T}\) and \((A\!\leftrightarrow\!B)\) is the mirror arm of Section~\ref{sssec:methods_compare_ctm}. The cophenetic images \(\Dcoph^{\Phase}\) are built once on the full contact set (Section~\ref{ssec:methods_lrg}); only the per-pair shift vectors are subset to the class, so no diffusion hierarchy is rebuilt on a tissue subset and \(\rhocoph_{\mathcal{T}}\) is the whole-network trace read through the pairs of one tissue class, with positive values in the trace direction.
+
+Two questions gate a class: whether it carries more trace than an equal-size set of pairs anywhere in the network, and whether that concentration survives node strength. The first is a pair-count control. Drawing \(R_{\rm pair} = \num{1000}\) uniformly random subsets \(\mathcal{T}'_{r}\) of \(|\mathcal{T}|\) pairs from the full set of \(P = N(N-1)/2\) pairs and recomputing \eqref{eq:methods_tissue_class} on each, the class-restricted trace is referred to the random-subset distribution,
+\begin{equation}
+    p^{\rm pair}_{\mathcal{T}} = \frac{\#\{\, r : \rhocoph_{\mathcal{T}'_{r}} \ge \rhocoph_{\mathcal{T}} \,\}}{R_{\rm pair}},
+    \label{eq:methods_tissue_pairnull}
+\end{equation}
+so that the class \emph{concentrates} the trace when \(p^{\rm pair}_{\mathcal{T}} < \num{0.05}\) and is \emph{depleted} of it when \(p^{\rm pair}_{\mathcal{T}} > \num{0.95}\); matching \(|\mathcal{T}|\) makes the control immune to the noisier trace estimate of a small class. The second question is the mandatory gate: \(\rhocoph_{\mathcal{T}}\) is recomputed on each strength-preserving matched-strength surrogate (\(4\)-cycle \(\pm\delta\) rewiring, \(R\) surrogates; Section~\ref{sssec:methods_compare_stats}) restricted to the same class, and gated by the one-sided cohort Wilcoxon against the surrogate median, identically to the trace. Because the pair-count control preserves the connectivity that hyperconnected tissue inherits, it alone cannot separate a tissue effect from node strength; a class is read as carrying the trace only when it both concentrates by \eqref{eq:methods_tissue_pairnull} and clears the matched-strength gate.
+
+Every class is evaluated per patient and summarized across the cohort: the pair-count control compares the median class trace across implanted patients against the same patient-median taken over each random-subset draw, and the matched-strength gate is the one-sided paired Wilcoxon of the per-patient class trace against its surrogate median, paired with the leave-one-patient-out diagnostic of Section~\ref{sssec:methods_compare_stats}. Because the \gls{imcoh} substrate is immune to zero-lag volume conduction, a tissue class that carries the trace is a connectivity grouping and not physical proximity, and no spatial null is applied.

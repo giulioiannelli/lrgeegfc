@@ -27,6 +27,22 @@ weak Grassmann-only subspace trace under cluster-extent permutation (audit_70). 
 no trace on either probe (γ_h's contiguous run is at the null 95th percentile,
 cluster p = 0.055). α has no Grassmann trace.
 
+> ⚠️ **READING THESE VERDICTS — the binary compresses large per-patient
+> heterogeneity (locked principle, 2026-06-25).** Each "strong / weak / no
+> trace" tag is a cohort summary over n=10 and **hides per-patient fluctuations
+> that can themselves be the result.** Two illustrations from the locked data:
+> (1) *cophenetic* — α *passes* (median Д=0.091, 9/10) while γ_l *fails* (median
+> Д=0.081) even though γ_l carries **3 patients above β's maximum** effect; the
+> verdict is sign-consistency, blind to magnitude. (2) *Grassmann* — γ_h has the
+> **largest** median per-patient effect of any band (z≈9, 5 patients above β's
+> max) yet is "no trace"; a naive per-patient collapse flips the band ordering,
+> so the tag rests on the cluster-extent machinery, not per-patient reality.
+> **The verdicts stand** (they are the correct cohort tests), **but never report
+> or plot one without the per-patient spread beside it** — large heterogeneity
+> may mean the trace concentrates in a subset (possibly implant/anatomy-driven),
+> a candidate finding, not noise. See `never-always-list.md` ("Never compress a
+> verdict…") + memory `feedback_fluctuations_are_signal.md`.
+
 ## Locked verdict table
 
 | Band | Range (Hz) | D_coph (cophenet per-pair) | Grassmann (whole-network modes) | **Coverage tag** |
@@ -61,19 +77,23 @@ them.
 
 **Anatomy localization is locked separately in [`ANATOMY_LEDGER.md`](ANATOMY_LEDGER.md).**
 
-> ⚠️ **ANATOMY FULLY RETRACTED (2026-05-30) + DELOCALIZED (2026-06-01).** The trace
-> verdicts in the table above are **unaffected** and stand — only the *where* is
-> retracted. The signed, threshold-free localization audit found **no DK region reaches
-> a defensible cohort localization** in any band/probe (max coverage 5/10; locked regions
-> rest on 1–4 patients; several anti-localized), and **per-patient localization is also
-> null** on both cross-phase probes (cophenet + Grassmann trace: 0–1/10 patients beat
-> their own implant-shuffle null in every band; β 0/10 on both). The verified β/α trace
-> is **spatially DELOCALIZED** — a distributed network reorganization with no anatomical
-> anchor at cohort or single-patient level; the only above-chance spatial structure is
-> electrode-shaft autocorrelation (NMI 0.65 region↔shaft), not anatomy. The
-> `strong/weak/not localized` tiers and all region lists are **superseded**. Sources:
-> `ANATOMY_LEDGER.md`, `data/audit/anatomy_localization_wilcoxon/README.md`,
-> `data/audit/per_patient_localization/README.md`.
+> ⚠️ **ANATOMY — multi-region DK lists RETRACTED (2026-05-30); β REINSTATED → OFC system (2026-06-10); α/γ_l/δ no FDR-surviving localization.** The trace
+> verdicts in the table above are **unaffected** — this concerns only the *where*. The signed,
+> threshold-free localization audit retracted **every multi-region DK list** (no region reaches a
+> defensible cohort localization: max coverage 5/10; locked regions rest on 1–4 patients; several
+> anti-localized; single-region per-patient localization null). **But the 2026-06-01 "spatially
+> delocalized / no anatomy anywhere" blanket is SUPERSEDED for β** (2026-06-10, `ANATOMY_LEDGER.md`):
+> a sampling-conditioned, matched-strength-gated re-analysis at the a-priori *system* scale shows the
+> brain-wide **β cophenet trace CONCENTRATES in the ORBITOFRONTAL CORTEX (OFC) system** (concentration
+> above per-patient baseline — a hotspot, not a container; matched-strength R=1000, BH q=0.009–0.013
+> across 9 systems within β, all 4 conditions, 4/5 implanted, LOO + shaft-collapse robust, low-strength,
+> bilateral; peaks at system scale, washes out at lobe/hemisphere, undersampled at single-region).
+> **β is the only band that localizes**; **α/γ_l/δ have no FDR-surviving localization** (the Grassmann
+> subspace probe localizes nowhere; Hip/MTL = sub-threshold β hint; occipital = K=3 secondary;
+> paralimbic-ring fails shaft-collapse). The fine-grained electrode-shaft autocorrelation (NMI 0.65) is
+> a single-region artifact, not the system-scale result. Multi-region DK lists + `strong/weak localized`
+> tiers stay superseded. Sources: `ANATOMY_LEDGER.md`, `data/audit/localization_atlas/README.md`,
+> `data/audit/anatomy_localization_wilcoxon/README.md`, `data/audit/per_patient_localization/README.md`.
 
 The original battery: [`ANATOMY_CONTROLS.md`](ANATOMY_CONTROLS.md) (A1 hypergeometric +
 A2 sampling-corrected + A3 matched-strength **mandatory** + A4 implant-geometry
@@ -102,7 +122,7 @@ retired and not citable.
 |---|---|---|---|---|
 | C1 split | p = 0.00488 | `ctm_triangle/cohort_summary.csv` beta | < 0.05 | ✓ |
 | C2 drift | p = 0.01367 | `ctm_triangle/cohort_summary.csv` beta | < 0.05 | ✓ |
-| C3 matched-strength | p = 0.00488; ratio obs/surr = 23.7× (n_above 7/10 = descriptive) | `matched_strength_surrogate_split_baseline/cohort_summary.csv` beta | < 0.05 | ✓ |
+| C3 matched-strength (**ρ_sym** primary, 2026-07-06) | **p = 0.0322**; ratio obs/surr = 16.6×; n_above 6/10 (descriptive) — *ρ_split secondary (as-of-2026-05-18): p = 0.00488, ratio 23.7×, 7/10; larger ρ_sym p is the arbitrary-half fix, NOT weakening (see 2026-07-06 revision entry)* | `rho_sym_gate/cohort_summary.csv` beta (ρ_split: `matched_strength_surrogate_split_baseline/`) | < 0.05 | ✓ |
 | C4 cross-probe (Wilcoxon) | paired Wilcoxon (split>xprobe) p = 0.385 ⇒ fails to reject ⇒ no degradation; rho_split_median = +0.222, rho_xprobe_median = +0.223 (sign agree); LOO max p = 0.590 (Pat_02) | `ctm_triangle/c4_wilcoxon_cohort.csv` beta | paired_p ≥ 0.05 + sign match | ✓ |
 | C5 epi-X cophenet (added 2026-05-26 post-2026-05-20 audit_68_beta) | one-sample Wilcoxon on per-patient `obs_rho^epi-X` under H_1: `rho_split^epi-X > 0` ⇒ **p = 0.003**; obs_rho_median^epi-X = +0.275 (vs full +0.221, strengthens); ratio 26.0× (vs full 23.7×); LOO max p = 0.006 (Pat_02) — LOO robust | `beta_epi_exclusion/c5_wilcoxon_cohort.csv` beta + `cohort_summary.csv` beta | wilcoxon_p < 0.05 | ✓ |
 
@@ -152,7 +172,7 @@ clear **strong trace, both probes**. → manuscript backbone.
 |---|---|---|---|---|
 | C1 split | p = 0.00977 | `ctm_triangle/cohort_summary.csv` alpha | < 0.05 | ✓ |
 | C2 drift | p = 0.00684 | `ctm_triangle/cohort_summary.csv` alpha | < 0.05 | ✓ |
-| C3 matched-strength | p = 0.00195; ratio obs/surr = 8.25×; n_above **5/10** | `matched_strength_surrogate_split_baseline/cohort_summary.csv` alpha | < 0.05 | ✓ |
+| C3 matched-strength (**ρ_sym** primary, 2026-07-06) | **p = 0.0244**; ratio obs/surr = 13.7×; n_above 6/10 (descriptive) — *ρ_split secondary (as-of-2026-05-18): p = 0.00195, ratio 8.25×, 5/10; larger ρ_sym p is the arbitrary-half fix, NOT weakening (see 2026-07-06 revision entry)* | `rho_sym_gate/cohort_summary.csv` alpha (ρ_split: `matched_strength_surrogate_split_baseline/`) | < 0.05 | ✓ |
 | C4 cross-probe (Wilcoxon) | paired Wilcoxon (split>xprobe) p = 0.461 ⇒ fails to reject ⇒ no degradation; rho_split_median = +0.115, rho_xprobe_median = +0.105 (sign agree); LOO max p = 0.674 (Pat_02) | `ctm_triangle/c4_wilcoxon_cohort.csv` alpha | paired_p ≥ 0.05 + sign match | ✓ |
 | C5 epi-X cophenet (Wilcoxon) | one-sample Wilcoxon on per-patient `obs_rho^epi-X` under H_1: rho_split^epi-X > 0 ⇒ **p = 0.0098**; obs_rho_median^epi-X = +0.187; LOO max p = 0.0195 (Pat_03) — LOO robust | `alpha_epi_exclusion/c5_wilcoxon_cohort.csv` alpha | wilcoxon_p < 0.05 | ✓ |
 
@@ -713,7 +733,10 @@ not re-derive it.
   resolves — a methodologically clean attribution of the leverage to
   epi-zone interactions rather than the true biological trace.
 - **2026-05-30 → 2026-06-01 — ANATOMY localization RETRACTED + trace shown
-  DELOCALIZED. No trace-verdict flips (the table above stands).** A signed,
+  DELOCALIZED. No trace-verdict flips (the table above stands).** ⚠ **The "DELOCALIZED"
+  blanket in this entry is SUPERSEDED for β (2026-06-10): β concentrates in the OFC
+  *system* — the multi-region DK lists stay retracted, but β is no longer "no anchor". See
+  the anatomy banner at the top of this ledger + `ANATOMY_LEDGER.md`.** A signed,
   threshold-free localization audit (`diag_anatomy_localization_wilcoxon.py`)
   retracted all 6 locked anatomy cells: no DK region reaches a defensible cohort
   localization (max coverage 5/10; locked regions rest on 1–4 patients; several
@@ -755,6 +778,16 @@ not re-derive it.
   briefs `01_beta.md` §3.2.5, `02_alpha.md` §3.1+§9, `00_cohort.md` §4.5, `03_gammalow.md`.
   Strategy context: `.agents/reports/2026-06-05_results-assessment-and-nature-strategy.md`;
   consolidated source `.agents/reports/2026-06-05_epilepsy-headline-and-occult-node-marker.md`.
+  ⚠ **SUPERSEDED 2026-06-12 / 2026-06-18 (amendments below):** item (2)'s elevation of
+  epi-exclusion to a **primary interpretive lens** was **demoted to a secondary
+  tissue-characterization** (2026-06-18, parallel to C6). Its load-bearing leg — "β/α
+  cophenet *strengthen* + γ_l *emerges* under epi-exclusion" — is **generic node-count**,
+  not epi-specific (`audit_85 --stratify epi`, p_dec α 0.135 / β 0.390 / γ_l 0.130;
+  withdrawn 2026-06-12). The surviving epi-specific result is the **pair-class**
+  dissociation, regenerated at n=10: β core-spared (epi↔epi n.s. +0.142, p=0.161);
+  **α recruits the core** (epi↔epi **+0.423**, matched-strength p=0.003, **pair-count
+  null p_pair<0.001**) — the "+0.404, p=0.006, 6/9" in item (2) is the superseded n=9
+  value. No trace verdict flips.
 - **2026-06-08 — C6 white-matter exclusion added as a SECOND sensitivity layer.
   No verdict flips; no verdict-LAYER changes; all trace verdicts confirmed.**
   ⚠ **Two readings in this entry were CORRECTED on 2026-06-12 (see the amendment
@@ -872,3 +905,44 @@ not re-derive it.
   numbers as the as-of-2026-05-26 record — read it with this amendment. Source
   `data/audit/epi_stratified/{cophenetic_cohort.csv, pairclass_decimation_cohort.csv}`;
   handoff `.agents/reports/2026-06-12_decimation-controls-handoff.md`.
+- **2026-07-06 — ESTIMATOR MIGRATION ρ_split → ρ_sym (arbitrary-half artifact removed).
+  NO verdict flips; every trace verdict in the table above holds. New audits only —
+  audit_63/83/103/105/144 UNTOUCHED.** The cophenetic trace estimator of record is now
+  **ρ_sym = ½[ρ(D_task−D_preA, D_post−D_preB) + ρ(D_task−D_preB, D_post−D_preA)]** — the
+  mean of the two equally-valid split-half arm assignments. Bare ρ_split hard-codes which
+  rest_pre half feeds which arm; the halves disagree ~45 % and swapping A/B flips ρ by up
+  to 0.48 for near-zero patients (20/60 cells sign-flip; `audit_149`,
+  `feedback_rho_sym_canonical_estimator`). ρ_sym averages the two → the artifact is gone at
+  the same data/cost; strong tracers (split-unc ≤ 0.035) are untouched. Full-baseline
+  de-inflation was tested and **REJECTED** (Pat_02 catastrophic cancellation obs 0.775 −
+  surr 0.767); the split-baseline design is vindicated, ρ_sym is the free refinement. All
+  surrogate compute is now numba-JIT'd (98× faster, bit-identical; `feedback_numba_for_surrogates`).
+  **Estimator-invariance is proven, not assumed** — `audit_149` re-ran the cohort gate under
+  BOTH estimators with independent per-estimator surrogates: split α.002/β.007, **sym
+  α.024/β.032, ZERO flips**; δ/θ/low-γ/high-γ fail under both.
+  **Migrated ρ_sym numbers (matched-strength, R=200; verdict TAGS unchanged):**
+  - **Cohort gate** (`audit_150`, `data/audit/rho_sym_gate/`): **α p=.024, β p=.032 CLEAR**;
+    δ .080 / θ .784 / low-γ .080 / high-γ .080 FAIL. (The C3 rows in the β/α tables above
+    quote the split-baseline p-values β 0.00488 / α 0.00195 as the as-of-2026-05-18 record —
+    read them with this amendment; the *tag* `strong trace, only/both D_coph` is unchanged.)
+    NB the larger ρ_sym p-values are **not** a weakening and **not** a grid effect — at the
+    SAME R=200 (audit_149) ρ_sym is a less *extreme* statistic than ρ_split because it pulls
+    the ill-conditioned near-zero patients toward zero instead of letting the arbitrary half
+    push them positive; strong tracers unchanged, α/β clear 0.05 with margin, ZERO flips.
+  - **β→OFC localization** (`audit_151`, `data/audit/localization_atlas_rhosym/`): **OFC
+    carrier BH q=.025** (both epi-include & -exclude), **sensorimotor + PFC depleted q≤.033**
+    — same anatomy as `ANATOMY_LEDGER` (R=1000 q=.009–.013; the q gap is the R=200 floor).
+  - **Consolidation arc** (`audit_152`, `data/audit/consolidation_arc_rhosym/`): **β
+    T_infspec_pe p=.0098 (LO-P15 .020), β-ONLY** (every other band min p=.246); **α/β T_learn
+    p=.014/.032** (learning-phase own trace). arm1 = ρ_split reproduces audit_83 full-graph to
+    1e-16 (cross-check PASS).
+  - **Cross-phase taxonomy** (`audit_153`, `data/audit/cross_phase_taxonomy_rhosym/`):
+    composition holds — β trace-dominant (comp_trace .263, mover_frac .374; every other band
+    anchor-dominated), anchor≠hubness; trace-guard 60/60 bit-exact vs locked audit_63.
+  - **Per-node decomposition** (`audit_154`, `data/audit/per_node_trace_decomposition_rhosym/`):
+    carrier/anti split holds; node-level ρ_sym↔ρ_split ρ=.96 (β); anti-node property preserved.
+  Per-patient reporting rule going forward: **ρ_sym + split-uncertainty ½|ρ_AB−ρ_BA|; mark
+  |ρ_sym| < 1 SE "undetermined"** (near-zero labels are estimator noise, not biology — the
+  borderline third of the cohort). ρ_split retained as a SECONDARY supplement column only.
+  Grassmann `d_G(k)` and raw |ImCoh| are SEPARATE measures, unaffected by this migration.
+  Resume/synthesis: `.agents/reports/2026-07-06_rho-sym-pipeline-migration.md`.

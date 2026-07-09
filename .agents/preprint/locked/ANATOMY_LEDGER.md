@@ -463,6 +463,8 @@ KC-era anatomy memory entries (`result_2_lrg_beta_trace.md` "Hippocampus + left 
 
 ## Revision history
 
+- **2026-06-24** — **Anatomy cascade COMPLETED into the per-band briefs (no new audit; closes the 2026-05-30 "Cascade TODO (not yet done)").** Propagated the locked verdicts table into the stale frontmatter + bodies that still carried the retired "strong localized" DK lists: `bands/02_alpha.md` (`anatomy_cophenet` → `RETRACTED_no_FDR_surviving_localization`; `anatomy_cophenet_epi_excluded` → moot; §C5 "9 of 11 reproduce" body banner-retracted), `bands/03_gammalow.md` (`anatomy_grassmann` → `RETRACTED_0_of_7`), `bands/06_delta.md` (`anatomy_grassmann_full` → `RETRACTED_0_of_4`; `anatomy_grassmann_epiX` → `RETRACTED_0_of_3_and_noop_mask_bug`; body "temporal+parietal+frontal" retracted). Softened the `00_cohort.md` §5 blanket "No β localization survives" to "no *single-DK-region* localization — β localizes at the OFC *system* scale". `01_beta.md` was already current (`CONCENTRATES_IN_OFC_SYSTEM` / `NOT_LOCALIZED`, landed 2026-06-10). **No verdict change** — this is the long-pending brief-side propagation of the 2026-05-30 retraction + 2026-06-10 β→OFC reinstatement; the locked verdicts table above is unchanged.
+
 - **2026-06-12** — **Framing clarification (no new audit; same verdict).** Reframed
   the β verdict from "localizes to OFC" to "**brain-wide trace that concentrates in
   OFC** above a per-patient-demeaned baseline" — OFC is a reproducible *hotspot*, not
@@ -566,3 +568,32 @@ KC-era anatomy memory entries (`result_2_lrg_beta_trace.md` "Hippocampus + left 
     `bands/02_alpha.md`, `bands/03_gammalow.md`, `bands/06_delta.md`),
     `bands/00_cohort.md`, `HANDOFF_INDEX.md`, and `VERDICT_LEDGER.md` anatomy
     references. LaTeX is out of scope unless the user requests it.
+
+- **2026-07-06 — β→OFC localization HOLDS under the ρ_sym estimator. No anatomy
+  flips; the OFC-carrier verdict is estimator-invariant. New audit only
+  (`audit_151`), audit_83/92 UNTOUCHED.** The cophenetic trace estimator migrated
+  from bare ρ_split to **ρ_sym** (mean of both split-half arm assignments; removes the
+  arbitrary-half artifact — see `VERDICT_LEDGER` 2026-07-06 entry +
+  `feedback_rho_sym_canonical_estimator`). The per-node localization decomposition was
+  re-run with the symmetric per-pair concordance `s_sym = ½[concordance(D_task−D_preA,
+  D_post−D_preB) + concordance(D_task−D_preB, D_post−D_preA)]` applied identically to the
+  observed trace and every cached matched-strength surrogate (`audit_151`, faithful
+  re-run of `audit_83` with exactly this one change; reuses the cached R=200 seed-20260511
+  surrogate eigs — no regeneration). **Result (`data/audit/localization_atlas_rhosym/`):
+  β trace concentrates in the ORBITOFRONTAL system — OFC upper-tail BH q=0.025 across the
+  9 a-priori systems, BOTH epi-include and epi-exclude; sensorimotor DEPLETED (lower-tail
+  q=0.017/0.033), PFC DEPLETED (q=0.017/0.025); cingulate/occipital/lateral-temporal are
+  secondary carriers.** This reproduces the locked β→OFC verdict (row above: R=1000
+  q=0.009–0.013) under the arbitrary-half-free estimator; the q gap is the R=200 empirical
+  floor, not a weakening (R=200 cannot resolve below ≈0.005). **R=1000 + LOO + shaft-collapse
+  RUN 2026-07-06 (`audit_155`, `data/audit/localization_atlas_rhosym/beta_ofc_robustness_R1000.csv`):
+  the headline q migrates LIKE-FOR-LIKE — full-cohort OFC carrier q=0.010–0.015 across all 4
+  conditions (matches the canonical ρ_split R=1000 q=0.009–0.013 essentially exactly);
+  sensorimotor + PFC depleted q_lo≈0.010; leave-one-patient-out robust (worst-drop q<0.05) in
+  3/4 conditions incl. the strictest epi-excl×shaft (worst 0.045); the one marginal case
+  (epi-incl×contact worst-drop q=0.060) is the known n=5 OFC-coverage single-patient
+  sensitivity, identical to the ρ_split lock.** The verdict is therefore **audited on method,
+  estimator-invariant, AND R=1000/LOO/shaft-robust under ρ_sym.**
+  α/γ_l/δ remain **no FDR-surviving localization** (unaffected — the
+  migration is a cophenetic-trace estimator change; Grassmann and raw are separate measures).
+  Synthesis: `.agents/reports/2026-07-06_rho-sym-pipeline-migration.md`.
