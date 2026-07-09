@@ -67,77 +67,97 @@ results slower (~75 s each). Budget ~2 min of slack for one demo/anecdote.
 
 ## PART I — INTRODUCTION (7 slides, ~5 min)
 
-### I-1 · Title
-*Message:* set the frame — "Multiscale network analysis of brain
-connectivity: what a diffusion view reveals about learning and disease."
-- Title, authors, affiliation, one-line hook.
-- *Figure:* optional — the glass-brain cohort overlay as a backdrop.
-  `data/outputs/figures/implant_in_brain/cohort_implants_overlay.pdf`
+**Design: a "wonder-talk" arc — open on the puzzle, not the field. NO
+generic "brain as a network." Lead with the inference you were never told,
+then turn our method into its answer. Every beat hangs on a precise
+citation (full refs + DOIs in "Intro references" at the end — DOI pass in
+progress). Two threads braid on I-6: the cognition is hierarchy-shaped, the
+method is hierarchy-shaped — form mirrors form. (Alternative ordering for a
+network-physics audience: method-first — I-4/I-5 scale+diffusion, then TI as
+the perfect testbed. Default below is cognitive-first.)**
 
-### I-2 · The brain is a network
-*Message:* functional connectivity turns a recording into a graph;
-cognition and epilepsy are *network* phenomena, so the graph is the object.
-- Nodes = recording sites (sEEG contacts, ~110–122/patient); edges =
-  functional coupling between two contacts' signals.
-- We don't study channels, we study the organization *between* them.
-- *Figure:* one FC adjacency matrix + its network.
-  `data/outputs/figures/fc_templates/single_adjacency/` (pick a clean
-  β/rest example) or `data/outputs/figures/network_templates/matrix_plus_network/`.
+### I-1 · Cold open — "the inference you were never told"
+*Message / spoken hook:* "I show you Anna > Ben, Ben > Carla, Carla > Dan.
+I never say a word about Anna and Dan. Yet you already know. Where did that
+knowledge come from — and where does it go when you stop?"
+- No data, no field intro — just the puzzle and an evocative title.
+- *Title options:* **"The shape of an inference"** · "Offline abstraction" ·
+  "What the brain keeps after it stops thinking."
+- *Figure:* none (or one faint chain graphic). Let the words land.
 
-### I-3 · The problem of scale — why "mesoscale"
-*Message:* the biology lives between the single edge and the global
-average, in **nested communities** — and there is no single "correct"
-number of communities.
-- micro (one edge: noisy, misses organization) — macro (one number:
-  throws structure away) — **meso (modules → systems → hierarchy).**
-- Cognition/disease *reorganize* this mesoscale; a flat edge list can't see it.
+### I-2 · That was abstraction, not memory
+*Message:* you didn't store pairs — you built a *structure* (an order) and
+read a new fact off it. That is a **cognitive map**: knowledge organized for
+inferences you were never trained on.
+- *Attach:* Behrens et al. 2018, *Neuron* ("What is a cognitive map?"); the
+  abstraction-geometry line — Bernardi et al. 2020, *Cell*; Whittington et
+  al. 2020, *Cell* (Tolman–Eichenbaum Machine). TI as the classic probe:
+  Dusek & Eichenbaum 1997, *PNAS*.
+- *Figure:* schematic (build) — pairs shown → a line assembled → B>D read off.
+
+### I-3 · Two precise predictions — where, and when
+*Message:* state our whole experimental bet as literature-derived,
+falsifiable predictions (not vibes).
+- **Where:** a relational map should live in **orbitofrontal cortex** →
+  Wilson et al. 2014, *Neuron*; Schuck et al. 2016, *Neuron* (OFC = map of
+  task/state space).
+- **When:** the map is cemented **offline, after** the task — post-task rest
+  connectivity carries the just-learned structure → Tambini, Ketz & Davachi
+  2010, *Neuron*.
+- So we look in **rest_post**, in **frontal cortex**, for a persisting hierarchy.
+- *Figure:* schematic (build) — an OFC pin + a "look after the task" arrow
+  onto the phase timeline.
+
+### I-4 · The catch — a map is multiscale (the scale slide)
+*Message:* a learned order is **nested** (items → groups → the whole chain)
+and there is **no privileged scale** to read it at. Standard FC forces a
+choice: single edges (finest), or a partition at a *k* you had to pick.
+- *Attach:* **Betzel & Bassett 2017, *NeuroImage* ("Multi-scale brain
+  networks")** — brain organization spans scales with no correct resolution;
+  Bassett & Sporns 2017, *Nat. Neurosci.* (network neuroscience).
 - *Figure:* same network partitioned at two scales (5 vs 20 communities).
   `data/outputs/figures/section3/fig_I/fig_I2_brain_communities_ImCoh_n5_n20.pdf`
 
-### I-4 · The idea: read all scales at once (the thesis)
-*Message:* the Renormalization Group is physics' tool for "zooming out";
-the **Laplacian RG** uses **diffusion as the zoom knob** — diffusion time
-τ *is* the scale. One operator, all scales, a principled hierarchy.
-- Short τ → local/fine structure; long τ → global/coarse. Sweep τ = sweep scale.
-- This is the talk's promise: what does a *multiscale* view reveal that
-  edge-by-edge FC cannot? (Answer arrives in Results.)
-- *Figure:* schematic (build in slides) — a graph with a heat blob
-  spreading at increasing τ, resolving into a dendrogram. Optionally pair
-  with a real dendrogram: `data/outputs/figures/network_templates/circular_dendrogram_network/`.
+### I-5 · The turn — borrow renormalization from physics
+*Message:* let **heat diffuse** across the connectivity graph; diffusion
+time **τ becomes a continuous zoom** from local to global — coarse-graining
+*by diffusion*. This **Laplacian Renormalization Group** turns a connectivity
+matrix into a **tree** — an ultrametric hierarchy — read at all scales at
+once. Spoken line: "a hierarchy is exactly what diffusion sees."
+- *Attach:* Villegas et al. 2023, *Nature Physics* (LRG); lineage —
+  De Domenico & Biamonte 2016, *PRX* (spectral-entropy / density-matrix);
+  De Domenico 2017, *PRL* (diffusion geometry → clusters).
+- *Figure:* schematic (build) — heat blob spreading at increasing τ →
+  dendrogram; optionally
+  `data/outputs/figures/network_templates/circular_dendrogram_network/`.
 
-### I-5 · The paradigm: transitive inference & cognitive maps
-*Message:* patients learn an ordered chain (A>B>C>D…) then judge **novel**
-pairs (B>D) they never saw — answerable only by *inferring* the latent
-order. The brain builds relational **cognitive maps** in **OFC**, so a
-relational trace should land there.
-- Encoding (premises shown) vs inference (novel pairs reasoned out) — the
-  distinction the flagship result exploits.
-- Literature home: OFC as the substrate for task/state-space maps
-  (Wilson–Niv–Schoenbaum; Behrens/Schuck geometry-of-abstraction).
-- *Figure:* schematic (build in slides) — the chain A>B>C>D and the
-  inferred B>D.
+### I-6 · Form mirrors form (thesis / emotional peak)
+*Message:* braid the threads — the cognition is a learned **hierarchy**; our
+method **reads** hierarchy. We measure a **tree-shaped change** in
+connectivity that the task induces and rest keeps — and can ask whether it
+carries the pairs **shown** or the relations **inferred**. That
+correspondence is *why this works*.
+- *Figure:* two-panel concept — a learned-order tree beside a connectivity
+  dendrogram, same shape.
 
-### I-6 · The experiment
-*Message:* 10 stereo-EEG epilepsy patients, four phases bracketing the
-task with rest.
-- Cohort n=10; depth electrodes (11–14 probes); 2048 Hz (Pat_03 1024 Hz,
-  handled at config, a full member).
-- **rest_pre → task_learn → task_test → rest_post** — the two rests bracket
-  learning + inference.
-- *Figure:* the 4-phase timeline (build in slides) + cohort implants.
-  `data/outputs/figures/implant_in_brain/cohort_implants_overlay.pdf`
-
-### I-7 · The question
-*Message:* does the task leave a **band-specific, held, multiscale** trace
-in rest_post? A *joint* event — reorganization occurs during task **and**
-is still visible after it ends.
-- Vocabulary (state once): **trace** (changed & stuck) · **anchor**
-  (never changed) · **reset** (changed & reverted) · **emergent** (new).
-  Our claim is a *trace*.
-- Elegance: the task is *learning a hierarchy*; the measure is *a persisting
-  change in a connectivity hierarchy*. Form mirrors form.
-- **Caveat up front:** no behavioral data — the read is offline
-  consolidation by structure+anatomy, never performance.
+### I-7 · The stage — rare data, a design built to catch it
+*Message:* now, and only now, the concrete setup.
+- **sEEG** — direct intracranial human recordings, the rare mm/ms window;
+  **n=10**; depth electrodes (11–14 probes; 2048 Hz, Pat_03 1024 Hz at
+  config, a full member).
+- Four phases **rest_pre → task_learn → task_test → rest_post** — the bracket
+  that lets us subtract encoding from inference and catch what *persists*.
+- Restate the precise question: a **band-specific, held, multiscale** trace
+  in rest_post — a *joint* event (reorganizes during task AND survives it).
+- Vocabulary (once): **trace** (changed & stuck) · **anchor** (never
+  changed) · **reset** (changed & reverted) · **emergent** (new). Ours is a
+  *trace*.
+- **One caveat, once:** no behavioral data → "abstraction/consolidation" is
+  read from structure + anatomy + this literature, never from performance.
+- *Hands off into M-1:* "we have the data — but can we even measure
+  connectivity without the intracranial artifact?"
+- *Figure:* 4-phase timeline (build) +
+  `data/outputs/figures/implant_in_brain/cohort_implants_overlay.pdf`.
 
 ---
 
@@ -394,3 +414,94 @@ anatomical home — could be shown as a *negative*).
 **Legacy N2 (pre-ρ_sym, regenerate)** — `data/audit/inference_localization/figures/`
 - `brain_inference_dissociation_beta.pdf`, `systems_inference_dissociation.pdf`
 - `data/audit/consolidation_arc/figures/arc_tau_sweep.pdf` — τ sweep
+
+---
+
+## Intro references (attaches by slide)
+
+Full citations, verified against Crossref (authoritative DOI metadata).
+Links are canonical `doi.org` resolvers.
+
+**I-2 — abstraction / cognitive map (the wonder):**
+- Behrens et al. (2018). What is a cognitive map? Organizing knowledge for flexible behavior. *Neuron* 100:490–509. https://doi.org/10.1016/j.neuron.2018.10.002
+- Bernardi et al. (2020). The geometry of abstraction in the hippocampus and prefrontal cortex. *Cell* 183:954–967. https://doi.org/10.1016/j.cell.2020.09.031
+- Whittington et al. (2020). The Tolman–Eichenbaum Machine: unifying space and relational memory through generalization in the hippocampal formation. *Cell* 183:1249–1263. https://doi.org/10.1016/j.cell.2020.10.024
+- Dusek & Eichenbaum (1997). The hippocampus and memory for orderly stimulus relations. *PNAS* 94:7109–7114. https://doi.org/10.1073/pnas.94.13.7109 *(classic TI, rodent)*
+- Heckers et al. (2004). Hippocampal activation during transitive inference in humans. *Hippocampus* 14:153–162. https://doi.org/10.1002/hipo.10189 *(human TI counterpart)*
+
+**I-3 — where = OFC:**
+- Wilson, Takahashi, Schoenbaum & Niv (2014). Orbitofrontal cortex as a cognitive map of task space. *Neuron* 81:267–279. https://doi.org/10.1016/j.neuron.2013.11.005
+- Schuck, Cai, Wilson & Niv (2016). Human orbitofrontal cortex represents a cognitive map of state space. *Neuron* 91:1402–1412. https://doi.org/10.1016/j.neuron.2016.08.019
+
+**I-3 — when = offline consolidation in rest:**
+- Tambini, Ketz & Davachi (2010). Enhanced brain correlations during rest are related to memory for recent experiences. *Neuron* 65:280–290. https://doi.org/10.1016/j.neuron.2010.01.001
+- Tambini & Davachi (2019). Awake reactivation of prior experiences consolidates memories and biases cognition. *Trends Cogn. Sci.* 23:876–890. https://doi.org/10.1016/j.tics.2019.07.008
+- Tse et al. (2007). Schemas and memory consolidation. *Science* 316:76–82. https://doi.org/10.1126/science.1135935 *(prior schema governs offline consolidation)*
+
+**I-4 — multiscale / the scale problem:**
+- Betzel & Bassett (2017). Multi-scale brain networks. *NeuroImage* 160:73–83. https://doi.org/10.1016/j.neuroimage.2016.11.006
+- Bassett & Sporns (2017). Network neuroscience. *Nat. Neurosci.* 20:353–364. https://doi.org/10.1038/nn.4502
+
+**I-5 — diffusion / Laplacian renormalization group (the method):**
+- Villegas, Gili, Caldarelli & Gabrielli (2023). Laplacian renormalization group for heterogeneous networks. *Nature Physics* 19:445–450. https://doi.org/10.1038/s41567-022-01866-8
+- Villegas, Gabrielli, Poggialini & Gili (2025). Multi-scale Laplacian community detection in heterogeneous networks. *Phys. Rev. Research* 7:013065. https://doi.org/10.1103/PhysRevResearch.7.013065
+- De Domenico & Biamonte (2016). Spectral entropies as information-theoretic tools for complex network comparison. *Phys. Rev. X* 6:041062. https://doi.org/10.1103/PhysRevX.6.041062
+- De Domenico (2017). Diffusion geometry unravels the emergence of functional clusters in collective phenomena. *Phys. Rev. Lett.* 118:168301. https://doi.org/10.1103/PhysRevLett.118.168301
+
+**M-1 — imaginary coherence (FC measure):**
+- Nolte et al. (2004). Identifying true brain interaction from EEG data using the imaginary part of coherency. *Clin. Neurophysiol.* 115:2292–2307. https://doi.org/10.1016/j.clinph.2004.04.029
+- Bastos & Schoffelen (2016). A tutorial review of functional connectivity analysis methods and their interpretational pitfalls. *Front. Syst. Neurosci.* 9:175. https://doi.org/10.3389/fnsys.2015.00175
+
+**Optional add-ons:**
+- Park, Miller & Boorman (2021). Inferences on a multidimensional social hierarchy use a grid-like code. *Nat. Neurosci.* 24:1292–1301. https://doi.org/10.1038/s41593-021-00916-3 *(neural code for an inferred hierarchy)*
+- Ellenbogen et al. (2007). Human relational memory requires time and sleep. *PNAS* 104:7723–7728. https://doi.org/10.1073/pnas.0700094104 *(human relational inference + offline consolidation in one cite)*
+
+---
+
+## Handoff — parallel-worktree workflow & the interactive HTML deck
+
+**Status (2026-07-09):** this file is the single source of truth for the
+20-min talk. Structure is locked — intro rebuilt as the "wonder" arc
+(I-1…I-7); methods (M-1…4), results (R-1…8), conclusion (C-1) complete.
+Remaining polish: (a) ✅ verified DOIs folded into "Intro references"
+(Crossref-checked); (b) regenerate the N2 encoding-vs-inference figure
+(see Gaps); (c) build the interactive HTML deck (below).
+
+**Workflow (travel-ready):**
+- Presentation work happens on branch `presentation/talk-html-deck` in a git
+  **worktree**, in parallel with the main `audit/cohort-n10-diagnostic`
+  checkout on this laptop.
+- The branch is **pushed to the remote**; on the travel laptop, clone the
+  repo and check out that branch to continue seamlessly.
+
+**Deliverable to build in the worktree chat — interactive HTML deck:**
+- Self-contained and portable (must open offline on the travel laptop, no
+  server / no network). Suggested: a single-file **reveal.js** deck with
+  JS/CSS inlined, or plain HTML/CSS/JS. Everything embedded.
+- 20 slides following the arc in this file (7 intro + 13). Speaker notes =
+  the *Message* lines here.
+- Figures: current assets are **PDF (vector)**. For the web, convert the
+  chosen headline PDFs to **SVG** (keeps vector) or high-res PNG and embed.
+  Headline set: `fig_trace_c` (raw-vs-multiscale), `fig_trace_a` (band gate),
+  `fig_trace_b` (OFC), `fig_bands_coph_grassmann_dissociation_map`,
+  `fig_trace_e` (reinstatement), the N2 inference figure (once regenerated),
+  `fig_epi_*` + `fig_trace_f` (coda), `fig_I2` (multiscale communities),
+  `fig_H1` (MSC vs ImCoh). Paths in the figure appendix above.
+- "Cool/interactive" ideas (pick a few — don't overload):
+  - I-5: a **τ-slider** morphing a network → dendrogram (the diffusion zoom).
+  - I-1: the A>B>C>D chain assembling, then **B>D lighting up**.
+  - R-2: hover a band → its per-patient forest / gate p.
+  - R-3: rotatable/zoomable OFC glass-brain (or an animated reveal).
+  - I-6: two trees (learned order ‖ connectivity dendrogram) snapping to the
+    **same shape** — the "form mirrors form" beat.
+- Keep the **accuracy flags** (top of this file) authoritative: ρ_sym numbers
+  (β p=.032/16.6×, α p=.024/13.7×), N2 = robustness *not* a peak, no-behavior
+  caveat, OFC hotspot-not-container.
+
+**Open decisions to resolve while building:**
+- Opening order: cognitive-first (default) vs method-first (network-physics
+  audience). See Part I design note.
+- Cold-open for I-1: transitive-inference story (recommended) vs method-
+  wonder ("watch a thought become geometry").
+- N3 epilepsy coda (R-8): keep as the "same tool, second payoff" bridge, or
+  cut for a deeper-cognition talk. Cuttable without breaking N1+N2.
