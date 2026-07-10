@@ -31,9 +31,10 @@ pointers:
 ## 1. LOCKED — safe to rewrite now (high confidence, will not move)
 
 - **R2 stays flagship.** Encoding/inference dissociation; β carries the
-  inference-specific consolidation component, duration-controlled, mesoscale-
-  favouring, → OFC. Independent of this session's SNR work. Leave R2.1–R2.7 as is
-  (they are already solid/flagged correctly).
+  inference-specific consolidation component, duration-controlled, → OFC.
+  Independent of this session's SNR work. Leave R2.1–R2.7 as is
+  (they are already solid/flagged correctly). *(The τ≈2.6 "mesoscale-favouring"
+  scale claim was retired 2026-07-09, PI call — read at τ=1/λmax only.)*
 - **β trace → OFC** (R1.3). Matched-strength q=0.009, bilateral, hotspot-not-
   container. Locked. Keep.
 - **The trace is broadband, θ-exempt.** Among high-SNR patients the trace clears

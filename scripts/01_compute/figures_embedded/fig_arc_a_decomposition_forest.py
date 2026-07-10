@@ -21,7 +21,7 @@ collapse from broad (encoding) to beta-only (inference) is read left-to-right.
 Reads : data/audit/consolidation_arc_rhosym/arc_cohort_verdict.csv
         data/audit/consolidation_arc_rhosym/arc_per_patient.csv
         data/audit/consolidation_arc_rhosym/arc_null_per_patient.csv
-Writes: data/reports/results_section2/fig_arc_a_decomposition_forest.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_a_decomposition_forest.pdf
 """
 from __future__ import annotations
 
@@ -32,16 +32,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
 from lrg_eegfc.utils.scripting import setup_script_env
-from lrg_eegfc.visuals.styles import use_lrg_style
+from lrg_eegfc.visuals.styles import band_marker, use_lrg_style
 
 ROOT = setup_script_env()
 use_lrg_style()
 
 BASE = ROOT / "data/audit/consolidation_arc_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_a_decomposition_forest.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_a_decomposition_forest.pdf"
 
 COHORT = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
           "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15"]
@@ -59,38 +60,59 @@ PANELS = [
 ]
 
 
-def _verdict_color(p: float) -> str:
+def _verdict_color(v: float, p: float) -> str:
+    """Green if the patient clears its own trace null; red if it reverts (reset,
+    T < 0); grey if weak / undetermined."""
     if p < 0.05:
         return C_TRACE
-    if p > 0.95:
+    if v < 0:
         return C_ANTI
     return C_UNDET
 
 
-def draw_panel(ax, func, val_col, p_col, order, ypos, cohort, per_pat, per_null):
+def draw_panel(ax, func, val_col, p_col, order, ypos, cohort, per_pat, per_null,
+               dot_s=88, med_s=185, p_fs=10.5):
+    """Per-band violin forest (matches the §1 band figure): gate-tinted violin (green
+    when the band clears its matched-strength null), per-band marker glyph for the
+    patient dots and the cohort median, dot colour by verdict (reset -> red)."""
     ax.axvline(0.0, color="0.55", lw=1.1, ls="--", zorder=1)
     cv = cohort[cohort.functional == func].set_index("band")
     for b in order:
         y0 = ypos[b]
-        # per-patient dots, coloured by own-null clearance
+        gate = float(cv.loc[b, "wilcoxon_p"])
+        gcol = GATE_PASS if gate < 0.05 else GATE_FAIL
+        mk = band_marker(b)
         pv = per_pat[per_pat.band == b].set_index("patient")
         nl = per_null[per_null.band == b].set_index("patient")
-        for pat in COHORT:
-            if pat not in pv.index:
+        pats = [pat for pat in COHORT if pat in pv.index]
+        vals = np.array([float(pv.loc[pat, val_col]) for pat in pats])
+        vals = vals[np.isfinite(vals)]
+        # gate-tinted violin: green fill + crisp outline when the band passes, grey else
+        if vals.size >= 4:
+            parts = ax.violinplot([vals], positions=[y0], vert=False, widths=0.86,
+                                  showextrema=False, bw_method=0.55)
+            for body in parts["bodies"]:
+                body.set_facecolor(gcol); body.set_edgecolor("none")
+                body.set_alpha(0.15); body.set_zorder(2)
+                verts = body.get_paths()[0].vertices
+                ax.plot(verts[:, 0], verts[:, 1], color=gcol, lw=1.0, alpha=0.6,
+                        zorder=2.3, solid_joinstyle="round")
+        # per-patient dots: per-band marker, verdict colour (reset -> red)
+        for pat in pats:
+            v = float(pv.loc[pat, val_col])
+            if not np.isfinite(v):
                 continue
-            ax.scatter(pv.loc[pat, val_col], y0 + Y_OFF[pat], s=115,
-                       color=_verdict_color(float(nl.loc[pat, p_col])),
-                       edgecolor="white", linewidth=0.9, zorder=4)
-        # cohort median lollipop, coloured by the matched-strength gate
+            ax.scatter(v, y0 + 0.66 * Y_OFF[pat], s=dot_s, marker=mk,
+                       color=_verdict_color(v, float(nl.loc[pat, p_col])),
+                       edgecolor="white", linewidth=0.8, zorder=4)
+        # cohort median: gate-coloured stem from 0 + per-band marker + gate p
         med = float(cv.loc[b, "med_obs"])
-        gate = float(cv.loc[b, "wilcoxon_p"])
-        mcol = GATE_PASS if gate < 0.05 else GATE_FAIL
-        ax.plot([0.0, med], [y0, y0], color=mcol, lw=3.2, zorder=5,
+        ax.plot([0.0, med], [y0, y0], color=gcol, lw=3.0, zorder=5,
                 solid_capstyle="round")
-        ax.scatter(med, y0, s=175, color=mcol, edgecolor="white", linewidth=1.3,
-                   zorder=6)
-        ax.text(0.015, y0 + 0.40, f"$p={gate:.3f}$", color=mcol, fontsize=11.5,
-                ha="left", va="center",
+        ax.scatter(med, y0, s=med_s, marker=mk, color=gcol, edgecolor="white",
+                   linewidth=1.3, zorder=6)
+        ax.text(med, y0 + 0.45, f"$p={gate:.3f}$", color=gcol, fontsize=p_fs,
+                ha="center", va="center",
                 fontweight="bold" if gate < 0.05 else "normal")
 
 
@@ -118,22 +140,23 @@ def main():
     axes[0].set_ylim(-0.75, len(order) - 0.25)
     axes[0].tick_params(axis="y", length=0)
 
-    fig.text(0.075, 0.965, r"$\mathbf{a}$", fontsize=17, va="top", fontweight="bold")
-    fig.text(0.545, 0.965, r"$\mathbf{b}$", fontsize=17, va="top", fontweight="bold")
+    # panel letters are supplied by the LaTeX mosaic in results_sec_2.tex
 
     handles = [
         Line2D([0], [0], marker="o", ls="", mfc=C_TRACE, mec="white", ms=11,
-               label="patient clears own null"),
-        Line2D([0], [0], marker="o", ls="", mfc=C_UNDET, mec="white", ms=11,
-               label="within null"),
+               label="clears own null (trace)"),
         Line2D([0], [0], marker="o", ls="", mfc=C_ANTI, mec="white", ms=11,
-               label="anti (reset)"),
+               label=r"reset ($T<0$)"),
+        Line2D([0], [0], marker="o", ls="", mfc=C_UNDET, mec="white", ms=11,
+               label="undetermined"),
         Line2D([0], [0], marker="o", ls="-", color=GATE_PASS, mfc=GATE_PASS,
-               mec="white", ms=13, lw=3.2, label="cohort median + gate $p$"),
+               mec="white", ms=12, lw=3.0, label="cohort median + gate $p$"),
+        Patch(facecolor=GATE_PASS, edgecolor=GATE_PASS, alpha=0.20,
+              label="passing-band distribution"),
     ]
     fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.02),
-               ncol=4, frameon=False, fontsize=11, handletextpad=0.5,
-               columnspacing=1.8)
+               ncol=5, frameon=False, fontsize=11, handletextpad=0.5,
+               columnspacing=1.5)
 
     fig.subplots_adjust(left=0.11, right=0.975, top=0.94, bottom=0.17, wspace=0.08)
     OUT.parent.mkdir(parents=True, exist_ok=True)

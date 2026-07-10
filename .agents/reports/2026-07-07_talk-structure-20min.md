@@ -17,7 +17,7 @@ pointers:
 ## Head
 
 A 20-slide arc (7 intro + 13 methods/results/conclusion) that goes from
-"the brain is a network" to our flagship result: a transitive-inference
+a puzzle in human reasoning to our flagship result: a transitive-inference
 task leaves a **held, multiscale connectivity trace** in post-task rest
 that (N1) concentrates in **orbitofrontal cortex** in the **β band**, and
 (N2, the climax) carries specifically **the relations the brain *inferred*,
@@ -62,21 +62,32 @@ results slower (~75 s each). Budget ~2 min of slack for one demo/anecdote.
    Our FC graphs are fully connected with a near-continuous spectrum →
    C(τ) has no informative peak here. The multiscale content comes from
    the **dendrogram hierarchy at τ=1/λ_max**, not from a τ-sweep of C(τ).
+7. **Don't oversell the hierarchy parallel.** "A hierarchical method mirrors
+   a hierarchical relation" is a **reflection / attack line**, never a proven
+   result. The dendrogram is hierarchical *by construction* and would be for
+   many tasks; we never claim cognition is hierarchical *because* the method
+   is. Keep it poetic in I-1/I-6; cash it out only as the measured β trace.
 
 ---
 
 ## PART I — INTRODUCTION (7 slides, ~5 min)
 
-**Design: a "wonder-talk" arc — open on the puzzle, not the field. NO
-generic "brain as a network." Lead with the inference you were never told,
-then turn our method into its answer. Every beat hangs on a precise
-citation (full refs + DOIs in "Intro references" at the end — DOI pass in
-progress). Two threads braid on I-6: the cognition is hierarchy-shaped, the
-method is hierarchy-shaped — form mirrors form. (Alternative ordering for a
-network-physics audience: method-first — I-4/I-5 scale+diffusion, then TI as
-the perfect testbed. Default below is cognitive-first.)**
+**Design: cognition is the KICKSTART, not the spine. Open on the reasoning
+wonder (I-1) and land the task + the rare intracranial data in ONE compressed
+slide (I-2) — TI is only sketched, we know the basics and no more — then
+PIVOT FAST into the network-science frontier, the presenter's home turf:
+standard pairwise analysis is believed near-exhausted (I-3), the field is
+racing to higher-order / hypergraphs, and the under-explored *middle* is
+**multiscale** — where even a pairwise linear correlator hides higher-order
+structure, because the propagator is a sum of L̂^n (I-4). That is our lane;
+LRG is how we read it (I-5). The TI-hierarchy ↔ dendrogram-hierarchy
+correspondence is a **suggestive reflection / attack line** ("a hierarchical
+neuronal mirror of hierarchical relations"), never sold as proof — a
+dendrogram is hierarchical by construction and would be for many tasks (I-6).
+NO generic "brain as a network." (Alternative ordering for a pure
+network-physics audience: I-3/I-4/I-5 first, TI as the testbed second.)**
 
-### I-1 · Cold open — "the inference you were never told"
+### I-1 · Cold open — "the inference you were never told" (KICKSTART)
 *Message / spoken hook:* "I show you Anna > Ben, Ben > Carla, Carla > Dan.
 I never say a word about Anna and Dan. Yet you already know. Where did that
 knowledge come from — and where does it go when you stop?"
@@ -85,79 +96,90 @@ knowledge come from — and where does it go when you stop?"
   "What the brain keeps after it stops thinking."
 - *Figure:* none (or one faint chain graphic). Let the words land.
 
-### I-2 · That was abstraction, not memory
-*Message:* you didn't store pairs — you built a *structure* (an order) and
-read a new fact off it. That is a **cognitive map**: knowledge organized for
-inferences you were never trained on.
-- *Attach:* Behrens et al. 2018, *Neuron* ("What is a cognitive map?"); the
-  abstraction-geometry line — Bernardi et al. 2020, *Cell*; Whittington et
-  al. 2020, *Cell* (Tolman–Eichenbaum Machine). TI as the classic probe:
-  Dusek & Eichenbaum 1997, *PNAS*.
-- *Figure:* schematic (build) — pairs shown → a line assembled → B>D read off.
+### I-2 · The task, and the rare data (compress the cognition here)
+*Message:* one slide for everything we can honestly say about the task, then
+we move on. TI builds a **relational structure** (a cognitive map) you read
+new facts off — not a list of pairs. We know the *basics*; don't oversell.
+- *Attach, lightly (one breath):* Behrens et al. 2018, *Neuron* (cognitive
+  map); abstraction geometry — Bernardi 2020 / Whittington 2020, *Cell*;
+  classic TI — Dusek & Eichenbaum 1997, *PNAS* / Heckers 2004 (human).
+- *Two seeded expectations, one line each (setup, not claims):* a relational
+  map plausibly consolidates **offline, in post-task rest** (Tambini–Davachi
+  2010), plausibly **orbitofrontal** (Wilson 2014, Schuck 2016). These pay off
+  later; here they are only bets.
+- *The data:* we watch it **directly** — **sEEG in epilepsy patients**, the
+  rare mm/ms intracranial window; **n=10**; four phases **rest_pre →
+  task_learn → task_test → rest_post**, the bracket that separates encoding
+  from inference and catches what *persists*.
+- **One caveat, once:** no behavioral data → "abstraction/consolidation" is
+  read from structure + anatomy + literature, never from performance.
+- *Figure:* 4-phase timeline (build) +
+  `data/outputs/figures/implant_in_brain/cohort_implants_overlay.pdf`.
 
-### I-3 · Two precise predictions — where, and when
-*Message:* state our whole experimental bet as literature-derived,
-falsifiable predictions (not vibes).
-- **Where:** a relational map should live in **orbitofrontal cortex** →
-  Wilson et al. 2014, *Neuron*; Schuck et al. 2016, *Neuron* (OFC = map of
-  task/state space).
-- **When:** the map is cemented **offline, after** the task — post-task rest
-  connectivity carries the just-learned structure → Tambini, Ketz & Davachi
-  2010, *Neuron*.
-- So we look in **rest_post**, in **frontal cortex**, for a persisting hierarchy.
-- *Figure:* schematic (build) — an OFC pin + a "look after the task" arrow
-  onto the phase timeline.
+### I-3 · The field, and where it's stuck
+*Message:* the turn to the network world. Network neuroscience is a **mature,
+adult field**; ordinary pairwise / community analysis is widely believed to
+have **told most of the story it can**. The visible frontier is **higher-order**
+interaction — hypergraphs, simplicial complexes — reaching beyond the pairwise
+edge.
+- *Attach:* Battiston et al. 2020, *Phys. Rep.* (networks beyond pairwise);
+  Battiston et al. 2021, *Nat. Phys.* (physics of higher-order); higher-order
+  in the brain — Santoro et al. 2024, *Nat. Commun.* (all Crossref-verified).
+- *Beat:* everyone is jumping pairwise → hypergraph, and stepping over
+  something in between.
+- *Figure:* small "pairwise → multiscale → hypergraph" spectrum cartoon (build).
 
-### I-4 · The catch — a map is multiscale (the scale slide)
-*Message:* a learned order is **nested** (items → groups → the whole chain)
-and there is **no privileged scale** to read it at. Standard FC forces a
-choice: single edges (finest), or a partition at a *k* you had to pick.
+### I-4 · The missing middle — multiscale, and hidden higher order in *pairwise* data
+*Message:* between the plain pairwise edge and the hypergraph sits an
+under-explored zone — **multiscale** structure, which **lacked methods until
+recently**. And here is the hook: a **pairwise linear correlator** (imaginary
+coherence, correlation) looks "only pairwise," yet diffusion over it exposes
+higher order *for free* — the propagator e^{−τL̂} = Σ_n (−τ)^n L̂^n / n! is a
+**sum of higher powers of connectivity**: walks of every length, indirect
+paths, mesoscale motifs. ("Higher-order" here = higher powers of the operator,
+not a hypergraph — the honest framing.)
 - *Attach:* **Betzel & Bassett 2017, *NeuroImage* ("Multi-scale brain
-  networks")** — brain organization spans scales with no correct resolution;
-  Bassett & Sporns 2017, *Nat. Neurosci.* (network neuroscience).
-- *Figure:* same network partitioned at two scales (5 vs 20 communities).
+  networks")** — brain organization spans scales, no privileged resolution;
+  Bassett & Sporns 2017, *Nat. Neurosci.*
+- *Thesis:* **cognition may hide in these multiscale features** — invisible to
+  the single edge and to the fixed-*k* partition. That is what we go looking for.
+- *Figure:* one network partitioned at two scales (5 vs 20 communities).
   `data/outputs/figures/section3/fig_I/fig_I2_brain_communities_ImCoh_n5_n20.pdf`
 
-### I-5 · The turn — borrow renormalization from physics
-*Message:* let **heat diffuse** across the connectivity graph; diffusion
-time **τ becomes a continuous zoom** from local to global — coarse-graining
+### I-5 · The turn — renormalization by diffusion
+*Message:* the tool for the middle. Let **heat diffuse** on the connectivity
+graph; diffusion time **τ is a continuous zoom** local→global — coarse-graining
 *by diffusion*. This **Laplacian Renormalization Group** turns a connectivity
-matrix into a **tree** — an ultrametric hierarchy — read at all scales at
-once. Spoken line: "a hierarchy is exactly what diffusion sees."
+matrix into an **ultrametric tree** read at all scales at once. Spoken: "a
+hierarchy is exactly what diffusion sees — and the propagator already carries
+every power of the connectivity."
 - *Attach:* Villegas et al. 2023, *Nature Physics* (LRG); lineage —
   De Domenico & Biamonte 2016, *PRX* (spectral-entropy / density-matrix);
   De Domenico 2017, *PRL* (diffusion geometry → clusters).
-- *Figure:* schematic (build) — heat blob spreading at increasing τ →
-  dendrogram; optionally
-  `data/outputs/figures/network_templates/circular_dendrogram_network/`.
+- *Figure:* heat-blob-at-increasing-τ → dendrogram schematic (build); or open
+  with the produced `lrg_diffusion_zoom.gif` (HMN row) as a teaser and pay off
+  the complete-graph row in **M-3**.
 
-### I-6 · Form mirrors form (thesis / emotional peak)
-*Message:* braid the threads — the cognition is a learned **hierarchy**; our
-method **reads** hierarchy. We measure a **tree-shaped change** in
-connectivity that the task induces and rest keeps — and can ask whether it
-carries the pairs **shown** or the relations **inferred**. That
-correspondence is *why this works*.
+### I-6 · Form mirrors form — a reflection, not a result
+*Message:* the poetic through-line, honestly bounded. A **hierarchical** method
+reading a (transitively) **hierarchical** relation — "a hierarchical neuronal
+mirror of hierarchical relations." Good as an attack line and a closing image.
+- **Guardrail — say it out loud:** this is a *mirror*, not proof. The
+  dendrogram is hierarchical **by construction**; we would recover a hierarchy
+  for many tasks. We do **not** claim cognition is hierarchical *because* our
+  method is. We cash the parallel out only as the one thing we actually
+  measure — the β trace — and leave the rest as suggestion.
 - *Figure:* two-panel concept — a learned-order tree beside a connectivity
-  dendrogram, same shape.
+  dendrogram, similar shape (label it "suggestive").
 
-### I-7 · The stage — rare data, a design built to catch it
-*Message:* now, and only now, the concrete setup.
-- **sEEG** — direct intracranial human recordings, the rare mm/ms window;
-  **n=10**; depth electrodes (11–14 probes; 2048 Hz, Pat_03 1024 Hz at
-  config, a full member).
-- Four phases **rest_pre → task_learn → task_test → rest_post** — the bracket
-  that lets us subtract encoding from inference and catch what *persists*.
-- Restate the precise question: a **band-specific, held, multiscale** trace
-  in rest_post — a *joint* event (reorganizes during task AND survives it).
-- Vocabulary (once): **trace** (changed & stuck) · **anchor** (never
-  changed) · **reset** (changed & reverted) · **emergent** (new). Ours is a
-  *trace*.
-- **One caveat, once:** no behavioral data → "abstraction/consolidation" is
-  read from structure + anatomy + this literature, never from performance.
-- *Hands off into M-1:* "we have the data — but can we even measure
-  connectivity without the intracranial artifact?"
-- *Figure:* 4-phase timeline (build) +
-  `data/outputs/figures/implant_in_brain/cohort_implants_overlay.pdf`.
+### I-7 · The bet, stated precisely
+*Message:* what we hunt, in one line, before the methods.
+- A **band-specific, held, multiscale** trace in rest_post — a *joint* event
+  (reorganizes during task AND survives it).
+- Vocabulary (once): **trace** (changed & stuck) · **anchor** (never changed) ·
+  **reset** (changed & reverted) · **emergent** (new). Ours is a *trace*.
+- *Hands off into M-1:* "first — can we even measure intracranial connectivity
+  without the volume-conduction artifact?"
 
 ---
 
@@ -194,20 +216,43 @@ an artifact is band-blind.
 - *Figure:* a 6-band row of FC matrices.
   `data/outputs/figures/fc_templates/row_per_band/` (one patient/phase).
 
-### M-3 · The LRG pipeline — from matrix to hierarchy
+### M-3 · The LRG pipeline — from matrix to hierarchy (what diffusion reveals)
 *Message:* build the diffusion operator, let heat flow for time τ, and read
 the resulting **communication hierarchy**. The heat kernel sees the *whole
-web* (all indirect paths), not one edge.
+web* — all indirect paths, Σ_n L̂^n — not one edge. This is the I-4 idea made
+concrete.
 - Chain (keep it visual, minimal algebra):
   Â (imcoh_abs) → L̂ = D̂ − Â → K̂(τ)=e^{−τL̂} → ρ̂(τ)=K̂/Z →
   communication distance D_ij(τ)=(1−δ_ij)/K_ij (ultrametric, Villegas 2025)
   → UPGMA **dendrogram** at τ=1/λ_max → **cophenetic distance** = merge
   height of the lowest common ancestor.
+- **The demonstration (built):** the **propagator re-projected onto the links
+  at increasing τ, side by side with the matrix**. On a **structured graph — a
+  hierarchical modular network (HMN)** — the reprojected propagator lights up
+  **nested blocks**, and different τ pick out different levels of the *known*
+  hierarchy → LRG demonstrably **recovers** multiscale structure. Then the
+  payoff panel is **a REAL brain FC matrix** (imcoh_abs, Pat_05 β rest_pre) —
+  a **complete weighted connectome** (~100% density, no sparse blocks; the
+  correlator-operator / Villegas *outlier* regime), drawn as a circular chord
+  diagram reordered by its own LRG dendrogram, where the **same kind of
+  multiscale communities emerge** under diffusion. So the method is **not**
+  confined to sparse modular graphs — it reads hierarchy out of a dense
+  weighted brain correlator, which is why it is legitimate to run it on
+  imcoh_abs FC at all.
 - "Multiscale" here = the dendrogram's own nested cuts (we commit to one τ;
-  see caveat — don't show C(τ)).
+  see caveat — don't show C(τ)). The **companion animation
+  `lrg_dendrogram_cut.gif`** shows exactly this: at τ=1/λ_max the propagator
+  encodes the whole tree; sliding the *cut height h* (community count 30→1)
+  merges nested communities — for the synthetic HMN AND the real β connectome.
+  This is the honest "no τ-sweep needed" statement of our multiscale notion.
 - Grounding: Villegas et al., Nat. Phys. 2023 (L̂,K̂,ρ̂); PRR 2025
   (communication distance, ultrametric, UPGMA).
-- *Figure:* matrix → network → dendrogram in one row.
+- *Figure:* diffusion-zoom demo **DONE (2026-07-09)** — synthetic HMN + REAL
+  β FC (Pat_05) —
+  `data/outputs/figures/lrg_diffusion_zoom/lrg_diffusion_zoom.gif` (animated
+  τ-sweep, talk asset) + `..._snapshots.pdf` (static 3-τ contact sheet, vector).
+  Script `scripts/01_compute/figures_embedded/fig_lrg_diffusion_zoom_demo.py`
+  (patient/band/phase configurable via the `REAL` dict). Then the real-data row:
   `data/outputs/figures/network_templates/matrix_plus_network/` +
   `data/outputs/figures/section3/fig_H/fig_H1_dendrograms_MSC_vs_ImCoh_3patients.pdf`.
 
@@ -348,7 +393,7 @@ inference, in **OFC**, plus a clinical read-out for free.
 
 ## Figure gaps — what to produce before Sunday
 
-**Must-fix (1 regeneration):**
+**Must-produce (1 regeneration left; synthetic demo ✅ done):**
 - **N2 encoding-vs-inference rendered figure.** Scripts exist
   (`scripts/01_compute/audit/audit_158_encoding_localization_rhosym.py`,
   `audit_160_inference_localization_rhosym.py`, `audit_157/159/161_*`) but
@@ -359,11 +404,79 @@ inference, in **OFC**, plus a clinical read-out for free.
   `systems_inference_dissociation.pdf`. For the flagship slide, regenerate a
   clean ρ_sym version (or, if time-boxed, use the legacy figure and label
   numbers from R-7 by hand).
+- **Diffusion-zoom demo (I-4/M-3) — ✅ DONE 2026-07-09.**
+  `data/outputs/figures/lrg_diffusion_zoom/lrg_diffusion_zoom.gif` (animated
+  τ-sweep, 60 frames, ~6.4 MB, Canva-ready) + `lrg_diffusion_zoom_snapshots.pdf`
+  (static 3-τ contact sheet, vector). Propagator K(τ)=e^{−τL̂} re-projected on
+  the links, swept over τ, for (a) a **sparse synthetic HMN** (9% edge density,
+  185/2016 edges — visibly sparse; 16 fine → 4 mid → coarse blocks light up in
+  turn, KNOWN ground truth → validates recovery) — and (b) a **REAL brain FC
+  matrix** (imcoh_abs, Pat_05 β rest_pre, 118 nodes, ~100% dense — a complete
+  weighted connectome; circular chord diagram reordered by its own LRG
+  dendrogram, k=6 communities), where the same kind of multiscale communities
+  emerge under diffusion. Each network draws its OWN edges (sparse HMN vs dense
+  connectome), the matrix shows full K(τ). Combinatorial L̂; one eigendecomp
+  per graph, every frame is V·e^{−τΛ}·Vᵀ; patient/band/phase configurable via
+  the `REAL` dict. Script:
+  `scripts/01_compute/figures_embedded/fig_lrg_diffusion_zoom_demo.py`. Visual
+  backbone of the I-3→I-4→M-3 pivot. (GIF for Canva; MP4 on request via a
+  one-line `pip install imageio-ffmpeg`.)
+- **Dendrogram-cut demo (M-3, the multiscale we USE) — ✅ DONE 2026-07-09.**
+  `data/outputs/figures/lrg_diffusion_zoom/lrg_dendrogram_cut.gif` (~2.5 MB) +
+  `lrg_dendrogram_cut_snapshots.pdf` (vector). The point: **no τ-sweep needed** —
+  at the canonical τ=1/λ_max the propagator already encodes the whole hierarchy
+  (D_ij=1/K_ij → UPGMA cophenetic tree); the multiscale is read by sliding the
+  **dendrogram cut height h**. Two rows (synthetic HMN + real β FC, Pat_05):
+  left = network (graph-tool sfdp layout, curved edges, nodes coloured by
+  community at the cut); right = cophenetic dendrogram (log-y) with a growing
+  horizontal cut, branches coloured to match. Driven by target community count
+  30→1 (heights are top-heavy on a dense connectome). **Honesty note:** the real
+  β connectome is weakly hierarchical — one dominant core module + a few
+  peripheral communities — present it as "the same readout applies to real
+  data", not deep nesting. Script: `fig_lrg_dendrogram_cut_demo.py` (reuses the
+  diffusion-zoom primitives). Best single slide for the M-3 "multiscale =
+  dendrogram cut at one τ" message; the diffusion-zoom GIF is the I-5 teaser.
+- **Combined multiscale demo (M-3, one slide, two regimes) — ✅ DONE 2026-07-09,
+  rev-3.** `data/outputs/figures/lrg_diffusion_zoom/lrg_multiscale_combined.mp4`
+  (**2 MB, sharp true-colour H.264 — the primary asset**) +
+  `…_combined.gif` (11 MB fallback, per-frame adaptive 256-colour) +
+  `…_combined_snapshots.pdf` (6-row vector contact sheet). A **2×4** grid
+  (network │ connectivity matrix │ dendrogram │ progress bar), both rows
+  symmetric. **The corrected pedagogy (rev-3):** the two regimes differ in *what
+  the dendrogram is*. **Row 1 = sparse HMN, diffusion-τ sweep** — the tree is
+  **recomputed at every τ** (D(τ)=1/K(τ) → UPGMA): "a new tree for every τ." As
+  τ grows the tree visibly **morphs from a deep differentiated hierarchy (fine τ)
+  to a flat comb (coarse τ)** as diffusion mixes everything — the topological
+  regime has no single privileged scale. **Row 2 = real β FC, dendrogram-cut
+  sweep** — **one** cophenetic tree at τ=1/λ_max (the whole hierarchy is already
+  encoded there), and you slide the **cut**: "one tree at τ_max, cut ↑." (Do NOT
+  equate τ with a cut — they are different axes; row 1's τ-family vs row 2's
+  single tree is exactly that distinction.) Row-2 extras: cut communities
+  **projected onto the connectivity matrix by DIRECT cell colouring** — each
+  cell takes its community's hue, brightness ∝ |FC| (no overlaid growing
+  squares); blocks grow in the pixels as the cut merges, hues matching the
+  dendrogram + bubble; an **LRG-native layout** (classical MDS/PCoA on √-compressed
+  1/K(τ_max)) → the non-trivial "bubble"; **all links drawn** (weighted wash +
+  within-community glow — a *complete* graph); cut **starts from the smallest
+  merge** (k=n → 1) by **merge rank**. **Two progress bars** — τ (amber, row 1)
+  and h (pink, row 2). Slowed to ~9 s + hold. Honesty note unchanged (β = weakly
+  hierarchical, one dominant core). **Sharpness lesson:** GIF palette-quantization
+  pixelates text — render talk animations as **MP4** (`imageio-ffmpeg`, installed).
+  Script `fig_lrg_multiscale_combined_demo.py`. Use as the *single* M-3 slide for
+  the sparse-vs-dense contrast; siblings for I-5 / deeper beats.
+  **Formats (pick by slide background):** `…_combined.mp4` (2 MB, dark theme,
+  sharp — for a DARK slide / on-screen) · `…_combined_transparent.gif` (12 MB,
+  **transparent bg + black text**, light-theme, dark-on-light network edges — for
+  a LIGHT slide; MP4 can't carry transparency so the transparent *animated* asset
+  is a GIF) · `…_combined_transparent.pdf` + `…_combined_snapshots.pdf` (vector
+  stills, transparent-light / dark). The transparent GIF's networks & dendrograms
+  are pure ink (see-through panels); only the two heat-matrices stay opaque.
 
 **Build in the slide editor (trivial, no code):**
-- 4-phase timeline (rest_pre → learn → test → rest_post) — for I-6/R-6.
-- TI task schematic (chain A>B>C>D; inferred B>D) — for I-5.
-- LRG "diffusion zoom" schematic (heat blob → dendrogram) — for I-4/M-3.
+- 4-phase timeline (rest_pre → learn → test → rest_post) — for I-2/R-6.
+- TI task schematic (chain A>B>C>D; inferred B>D) — for I-1/I-2.
+- LRG "diffusion zoom" schematic (heat blob → dendrogram) — for I-5/M-3.
+- "pairwise → multiscale → hypergraph" spectrum cartoon — for I-3.
 - e / f / p decomposition mapped onto the 4 phases — for R-6.
 
 **Deliberately NOT shown:** specific-heat C(τ)/entropy curves — flat for our
@@ -438,7 +551,14 @@ Links are canonical `doi.org` resolvers.
 - Tambini & Davachi (2019). Awake reactivation of prior experiences consolidates memories and biases cognition. *Trends Cogn. Sci.* 23:876–890. https://doi.org/10.1016/j.tics.2019.07.008
 - Tse et al. (2007). Schemas and memory consolidation. *Science* 316:76–82. https://doi.org/10.1126/science.1135935 *(prior schema governs offline consolidation)*
 
-**I-4 — multiscale / the scale problem:**
+**I-3 — network neuroscience is mature; the higher-order frontier:**
+*(all Crossref-verified 2026-07-09.)*
+- Battiston et al. (2020). Networks beyond pairwise interactions: Structure and dynamics. *Physics Reports* 874:1–92. https://doi.org/10.1016/j.physrep.2020.05.004
+- Battiston et al. (2021). The physics of higher-order interactions in complex systems. *Nature Physics* 17:1093–1098. https://doi.org/10.1038/s41567-021-01371-4
+- Santoro, Battiston, Lucas, Petri & Amico (2024). Higher-order connectomics of human brain function reveals local topological signatures of task decoding, individual identification, and behavior. *Nature Communications* 15:10244. https://doi.org/10.1038/s41467-024-54472-y *(the brain-specific headline for this slide)*
+- Santoro, Battiston, Petri & Amico (2023). Higher-order organization of multivariate time series. *Nature Physics* 19:221–229. https://doi.org/10.1038/s41567-022-01852-0 *(underlying method; optional pair)*
+
+**I-4 — multiscale, the missing middle:**
 - Betzel & Bassett (2017). Multi-scale brain networks. *NeuroImage* 160:73–83. https://doi.org/10.1016/j.neuroimage.2016.11.006
 - Bassett & Sporns (2017). Network neuroscience. *Nat. Neurosci.* 20:353–364. https://doi.org/10.1038/nn.4502
 

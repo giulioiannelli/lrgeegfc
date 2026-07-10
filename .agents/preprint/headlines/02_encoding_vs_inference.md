@@ -3,9 +3,9 @@ name: headline-n2-encoding-vs-inference
 era: IMCOH_ABS_COHORT_N10
 status: current
 kind: headline
-scope: N2 — THE FLAGSHIP. What the held structure (N1) IS: an offline abstraction of a learned structure — the brain keeps the relations it INFERRED, not just the pairs it saw. The four-phase design (rest→LEARN→TEST→rest) + task_learn as encoding reference decompose the trace into encoding vs inference; the inference-specific component persists (β-only), favours the mesoscale of multi-step integration, and anchors in the OFC cognitive map. Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect. Reframed to flagship 2026-06-23.
+scope: N2 — THE FLAGSHIP. What the held structure (N1) IS: an offline abstraction of a learned structure — the brain keeps the relations it INFERRED, not just the pairs it saw. The four-phase design (rest→LEARN→TEST→rest) + task_learn as encoding reference decompose the trace into encoding vs inference; the inference-specific component persists (β-only) and anchors in the OFC cognitive map. [τ-sweep "mesoscale" result RETIRED 2026-07-09, PI call — read at τ=1/λmax only.] Duration control RESOLVED 2026-06-22 — β inference arc duration-robust (truncation null retired as invalid; carried by length-ratio regression + full-length matched-strength); α duration-suspect. Reframed to flagship 2026-06-23.
 owner_agent: inference (consolidation arc) chat
-updated: 2026-07-07
+updated: 2026-07-09
 ---
 
 # N2 — Offline abstraction of a learned structure: the persistent trace carries the relations the brain *inferred*, not just the pairs it was shown
@@ -30,16 +30,52 @@ updated: 2026-07-07
 > R2.1–R2.7 are drafted under ρ_sym (`results_paragraphs/R2.*.tex`; migrations `audit_157–161`,
 > all arm1==ρ_split bit-exact; report
 > `.agents/reports/2026-07-07_r2-mesoscale-encoding-rhosym-migration.md`). **Three ρ_split-era
-> claims below are SUPERSEDED:** (1) **N2.2 "mesoscale-favouring / strongest at intermediate
-> scales" is DROPPED** — the full 13-pt τ-sweep shows no interior maximum; the β inference is
-> **multiscale** (clears the null at fine τ=1 *and* mesoscale τ≈2.6 by a comparable margin,
-> controls null at both), robustness NOT a peak. (2) **N2.3/N2.5 inference→cingulate:** under
+> claims below are SUPERSEDED:** (1) **N2.2 τ-sweep multiscale result DROPPED ENTIRELY
+> (2026-07-09, PI call).** The 2026-07-07 reframe ("multiscale: clears the null at fine τ=1
+> *and* mesoscale τ≈2.6") is itself now retired: on a fully-connected, continuous-spectrum
+> network there is no meaningful multiscale *across* τ, so the decomposition is read at
+> τ=1/λmax only, where the dendrogram hierarchy carries the multiscale content (as in N1.3).
+> R2.2 slot retired (`results_paragraphs/archive/2026-07/R2.2_mesoscale-integration.tex`). (2) **N2.3/N2.5 inference→cingulate:** under
 > ρ_sym it CLEARS the full-length null (BH q=0.030 incl / 0.040 excl) but does NOT survive
 > length-matching (`audit_161`, q=0.15 / 0.30) → **directional lead, length-assisted, not an
 > established location**. (3) **N2.5 "only α tracks length" is WRONG** — high-γ tracks it harder
 > (ρ=+0.70 vs α +0.55); β is duration-flat (ρ=+0.10, p=0.78); length-tracking sits in
 > inference-NULL bands. Memory→cingulate @ low-γ is SOLID (q=0.035, 8/8, `audit_159`).
 > Details: memory `r2_cingulate_and_duration_rhosym_2026_07_07`.
+
+> **Note on drift (2026-07-10) — an earlier "drift-confounded" reading was WITHDRAWN.**
+> A windowed drift null (`audit_167`/`audit_168`) was briefly read as showing the
+> inference-specific decomposition is drift-confounded. **That reading was wrong and is
+> retracted.** `T_infspec·e` is a **partial** correlation that already conditions on
+> encoding (`e = D_TL − D_bt`), so drift-removal is entangled with the estimator
+> itself — a **conditional trace has no valid external windowed-drift-null analog**.
+> The null (not the trace) is what broke: the sham arc is built entirely from pre-task
+> `rest_pre`, where **no consolidation signal can exist**, yet it returns a
+> *significantly positive* conditional trace on its own (β `drift>0` p=0.007) and even
+> exceeds the real value — a valid null must sit near zero on a no-signal arc. The real
+> inference-specific trace is validated by **matched-strength** (β-only p=0.0098; that
+> null *does* return ≈0 on no-signal) + **duration-robustness** (2026-06-22) and
+> **stands** as N2's core claim. The **whole-task** drift controls (locked C2) are a
+> separate, valid matter and are unaffected. Detail (kept as a methodological cautionary
+> record): `.agents/preprint/supplementary/S2_drift_controls.md`.
+
+> **Spectral-subspace control (2026-07-09) — the inference trace is specifically
+> HIERARCHICAL / multiscale.** Run the *same* four-phase encoding-vs-inference
+> decomposition through a spectral-subspace ("spectral-clustering") lens — a Grassmann
+> chordal distance between the network's leading-*k* eigenmode subspaces, in place of
+> the cophenetic hierarchy (`audit_165`). It **reproduces the whole-task and encoding
+> β reorganization** (`T_G^onl` matches the published whole-task Grassmann masses to
+> the decimal — δ 38.07 / β 69.76 / γ_l 66.14; `T_G^enc` clears δ, β) **but finds NO
+> inference-specific relocation in any band** (`T_G^infspec` null 6/6; β
+> cluster_p_mass = 0.408). So a spectral probe that demonstrably *can* see the gross
+> task reorganization is **blind to the inference-specific refinement** — which is
+> therefore a change in the cophenetic *hierarchy* (which units nest with which across
+> scales), not a reorientation of the dominant eigenmodes. This is an independent
+> hierarchical-vs-eigenmode argument (the τ-sweep multiscale claim, former N2.2, is
+> retired 2026-07-09), and the N1 whole-task
+> dual-witness (cophenetic + Grassmann) is untouched — the **dissociation** (N1 seen
+> by both probes, N2-inference by cophenetic only) *is* the result. See **N2.7**;
+> memory `grassmann_inference_arc_negative_2026_07_09`.
 
 ## §A — Result in plain language
 
@@ -72,15 +108,28 @@ grow with the longer test recording; N2.2 / N2.5). So the offline trace is not j
 re-exposure echo of the premises: it carries a component tied specifically to the
 *inference* process. *(Solid.)*
 
-**The scale signature points toward relational integration.** That
-inference-specific β component is **multiscale** — it clears matched-strength at the
-fine operating scale *and* at a mesoscale (τ≈2.6/λmax) by a comparable margin, while
-every control band stays null at both. The mesoscale is the natural scale of
-**multi-step paths** through the network — and multi-step chaining (A>B, B>C, C>D ⇒
-A>D) *is* transitive inference — which is why we test whether the trace survives
-coarsening; it does. That is the reading: scale-**robustness**, motivation not a
-located peak (the full τ-sweep shows no interior maximum). *(Verified; multiscale
-robustness — see 2026-07-07 banner. `audit_157`.)*
+**The trace is a hierarchical reorganization, read at a single scale.** The
+inference-specific β component is a change in the **hierarchy** of communication scales,
+but that multiscale content is carried by the dendrogram at the single working scale
+τ=1/λmax (as for the N1 trace), not by a τ-sweep. On a fully-connected, continuous-spectrum
+network there is no meaningful multiscale *across* τ, so the earlier "mesoscale-favouring" /
+τ≈2.6 reading was **retired 2026-07-09 (PI call)** and is not part of the paper. *(The
+hierarchical — not eigenmode — character is separately witnessed by the spectral-subspace
+control; see the 2026-07-09 banner.)*
+
+**The inference component is hierarchical, not spectral — a second, independent
+multiscale argument.** Run the *same* encoding-vs-inference split through a completely
+different lens — a spectral-subspace comparison of the network's dominant eigenmodes
+(what "spectral clustering" reads) instead of the cophenetic hierarchy — and the
+whole-task and encoding reorganizations still register in β, but the
+**inference-specific component vanishes** (no signal, in any band). The spectral probe
+is **not** underpowered: it recovers the whole-task β reorganization exactly (it is one
+of N1's two witnesses). It simply cannot see the *inference refinement* — because that
+refinement is a change in **which units nest with which across scales** (the cophenetic
+hierarchy), not a rotation of the leading modes. So two independent readings converge on
+the same conclusion — that the inference trace is a genuinely **multiscale, hierarchical**
+object: the diffusion-scale sweep (robust across τ) and this spectral-vs-hierarchical
+dissociation. *(Solid; negative control, `audit_165`; N2.7.)*
 
 **The consolidation sits in the brain's map-making hub.** The encoding component
 concentrates in **orbitofrontal cortex** — the hub for building relational
@@ -143,18 +192,16 @@ controlled (resolved 2026-06-22, §N2.5):** the β component does not scale with
 test/learn length ratio across patients (Spearman ρ≈+0.25, n.s.), while α — the
 only other candidate — carries the duration-tracking trend (ρ≈+0.53). So β-only is
 the *duration-clean* verdict, not an artifact of the longer test recording.
-**Scale-robust (τ-sweep `audit_103c`, 2026-06-22):** β `T_infspec·e` stays positive
-and observed-significant across τ ∈ [1,10]×(1/λ_max) and the α/β dissociation holds
-at every diffusion time — the decomposition is not an artifact of the finest scale.
-**Mesoscale verified (`audit_103d`, 2026-06-22):** the sweep's mild coarse-scale bump
-is real — β `T_infspec·e` clears the **matched-strength null at the mesoscale**
-(τ≈2.6 p=0.014, τ≈6.8 p=0.010, LO-P15 robust), with effect size *modestly larger*
-than fine-scale (obs−null gap +0.11→+0.15), **while every control band (α, δ, θ,
-low-γ, high-γ) stays null** at the mesoscale — so it is not coarse-graining geometry
-(δ did *not* false-positive, unlike the retired truncation null). Reading:
-inference-specific consolidation is **multiscale, mildly favouring the mesoscale** —
-the scale signature of integration over multi-step relational paths. *(Mesoscale-
-robust, not mesoscale-exclusive; significance comparable across scales.)*
+**Scale — τ-sweep multiscale result RETIRED (2026-07-09, PI call).** The former
+"scale-robust / mesoscale-favouring" reading (τ-sweep `audit_103c/d`; β `T_infspec·e`
+clearing the matched-strength null at τ≈2.6/6.8) is **dropped from the paper**: on a
+fully-connected, continuous-spectrum network there is no meaningful multiscale *across*
+τ, so the decomposition is read at τ=1/λ_max alone, where the dendrogram hierarchy
+already carries the multiscale content (as in N1.3). The C(τ) susceptibility has a single
+peak τ* (≈10/λ_max, the collapse scale) — no interior mesoscale to sit at (verified
+2026-07-09, `data/reports/2026-07-09_ctau-peak-verification/`). History preserved in
+`.agents/reports/2026-06-22_arc-mesoscale-inference-null.md` +
+`results_paragraphs/archive/2026-07/R2.2_mesoscale-integration.tex`.
 
 **N2.3 — Content localizes differently.** Feeding the localizer the encoding vs
 inference per-pair vectors (`audit_110`, β at R=1000): **standard/encoding →
@@ -216,18 +263,48 @@ duration confound never touched it. **Reading:** the OFC consolidation anchor is
 by memorising itself, in α and β, before inference — and inference adds the β-only
 component on top. Backing report `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
 
+**N2.7 — A spectral-subspace ("spectral-clustering") comparison does NOT resolve the
+inference-specific component: it is hierarchical, not eigenmode-geometric.** Replacing
+the cophenetic per-pair distance with a Grassmann chordal distance between leading-*k*
+combinatorial-Laplacian eigenmode subspaces (`d_G`, *k* ∈ {2..112}, `T_G*` cluster-mass
+gate), on the identical four-phase decomposition (`audit_165`), the inference-specific
+arm `T_G^infspec = Δ(RP) − Δ̄(pre)` — with `Δ(r) = d_G(r,task_learn) − d_G(r,task_test)`,
+the natural subspace analogue of `f = D_test − D_learn` — is **null in all six bands**
+(β cluster_p_mass = 0.408, `T_G* = 0.032`, 5/10 positive; δ 0.756 / θ 0.612 / α 0.821 /
+γ_l 0.378 / γ_h 1.000). **This is not a power failure.** The same probe's whole-task arm
+`T_G^onl` reproduces the published Grassmann trace to the decimal (δ 38.07 / β 69.76 /
+γ_l 66.14, all strong; anti-hallucination cross-check versus `audit_66` max deviation
+1.7e-13), and the encoding echo `T_G^enc` clears δ and β. So the spectral-subspace
+geometry captures the *gross* task reorganization (whole-task + encoding) yet is blind to
+the *inference-specific refinement* — establishing the inference component as a change in
+the cophenetic hierarchy, not a reorientation of the dominant eigenmodes. **Consistency
+with N1:** Grassmann remains a valid second witness for the *whole-task* β trace; the
+dissociation (N1 = both probes, N2-inference = cophenetic only) is the evidence, not a
+contradiction. **Method note:** a length-matched (truncated-`task_test`) Grassmann variant
+is **invalid** — head-truncation injects pan-band eigenvector noise that fires the statistic
+in all six bands *including θ*; the raw `T_G^infspec` is length-robust by construction (the
+`task_test`-length bias enters `Δ(RP)` and `Δ̄(pre)` through the same `−d_G(·,TT)` term and
+cancels). Scope + verdict
+`.agents/guides/task-persistence-investigation/2026-07-09_grassmann-inference-arc.md`;
+memory `grassmann_inference_arc_negative_2026_07_09`.
+
 ## §C — Critical issues & powerful strengths
 
 **Strengths:** the encoding side (encoding echo + encoding→OFC) is robust and
 duration-invariant; the four-phase decomposition is exact (reproduces N1);
 β-specificity is a strong intrinsic argument against generic confounds; the
 low-γ focal encoding trace is a clean "averaging hides it" demonstration.
-**The flagship rests on three solid legs:** (1) the inference-specific β component
-*persists* (matched-strength + duration-robust, N2.2 / N2.5); (2) it is
-**mesoscale-favouring** — the scale of multi-step relational integration (`audit_103d`,
-N2.2); (3) the encoding anchor is the **OFC cognitive-map hub**, set by learning
-itself (N2.3 / N2.6). The "abstraction" reading is an *interpretation* layered on
-these three legs, bounded by the no-behavior ceiling below — **sell the legs, frame
+**A spectral-subspace ("spectral-clustering") control that recovers the whole-task β
+reorganization finds no inference-specific component in any band (`audit_165`, N2.7) —
+independent evidence that the inference trace is specifically hierarchical/multiscale,
+not a dominant-eigenmode shift; the N1-vs-N2 probe dissociation is itself a result.**
+**The flagship rests on two solid legs:** (1) the inference-specific β component
+*persists* (matched-strength + duration-robust, N2.2 / N2.5); (2) the encoding anchor
+is the **OFC cognitive-map hub**, set by learning itself (N2.3 / N2.6). *(A former third
+leg — a τ≈2.6 "mesoscale-favouring" scale signature — was retired 2026-07-09, PI call;
+the multiscale content is carried by the single-τ dendrogram hierarchy, not a τ-sweep.)*
+The "abstraction" reading is an *interpretation* layered on
+these legs, bounded by the no-behavior ceiling below — **sell the legs, frame
 the abstraction.**
 
 **Lead-with weaknesses:**
@@ -277,12 +354,13 @@ the abstraction.**
   (R=1000 q=0.010, low-strength, epi-robust, duration-survives at exclude q=0.050).
   Already in the encoding-component artifacts — surfaced, no new compute. Report
   `.agents/reports/2026-06-22_learning-phase-own-trace.md`.
-- [x] **τ-sweep of the arc (DONE 2026-06-22): decomposition is SCALE-ROBUST.**
-  β `T_infspec·e` positive+significant across τ ∈ [1,10]×(1/λ_max); α/β dissociation
-  holds at every scale; other bands null throughout; correctness anchor 1e-16;
-  no degenerate regime. Mild mesoscale hint (β peaks at τ≈2.6/6.8) — observed-only,
-  needs surrogate to claim. Report `.agents/reports/2026-06-22_tau-sweep-arc-result.md`;
-  scope `.agents/guides/task-persistence-investigation/2026-06-22_tau-sweep-consolidation-arc.md`.
+- [x] **τ-sweep of the arc (ran 2026-06-22) — RESULT RETIRED 2026-07-09 (PI call).**
+  The τ-sweep "scale-robust / mesoscale" reading is dropped from the paper: no meaningful
+  multiscale *across* τ on a fully-connected, continuous-spectrum network; read at
+  τ=1/λ_max only, with the multiscale content carried by the single-τ dendrogram hierarchy.
+  Historical record: reports `2026-06-22_tau-sweep-arc-result.md` +
+  `2026-06-22_arc-mesoscale-inference-null.md`; scope
+  `.agents/guides/task-persistence-investigation/2026-06-22_tau-sweep-consolidation-arc.md`.
 - [ ] Re-verify all cited inference CSVs against the locked N1 trace (the exact
   reproduction is a selling point — keep it true).
 
@@ -315,6 +393,14 @@ the abstraction.**
 - Inference localization → `data/audit/inference_localization/inference_mark{,_R1000,
   _shaftcollapsed}_{include,exclude}.csv` · `audit_110_inference_mark_localization.py`
   (+ `audit_111_gen_task_learn_r1000_surrogates.py`) · 2026-06-18.
+- **Spectral-subspace (Grassmann) inference control (N2.7)** → `data/audit/grassmann_inference_arc/{cohort_summary.csv,
+  per_patient.csv, README.md}` · `audit_165_grassmann_inference_arc.py` · 2026-07-09.
+  **Verdict: `T_G^infspec` null in all 6 bands (β cluster_p_mass=0.408); whole-task
+  `T_G^onl` reproduces audit_70 exactly (δ 38.07 / β 69.76 / γ_l 66.14), cross-check
+  vs audit_66 max dev 1.7e-13.** Helpers promoted to
+  `src/lrg_eegfc/utils/metrics/spectral.py`. Scope
+  `.agents/guides/task-persistence-investigation/2026-07-09_grassmann-inference-arc.md`;
+  memory `grassmann_inference_arc_negative_2026_07_09`.
 - Absolute within-system (low-γ focal) → `data/audit/inference_localization/within_system_trace_{include,exclude}.csv`
   · `audit_112_within_system_trace.py` · 2026-06-18.
 - Duration control (localization) → `data/audit/inference_localization/{length_control.csv,
@@ -338,7 +424,15 @@ the abstraction.**
 - **No anatomical home for inference** — cingulate is a directional hint; whether a
   cleaner localizer recovers one is open. (The **τ-sweep** ran 2026-06-22: the
   decomposition is scale-robust.)
-- ~~**Mesoscale hint for β inference**~~ **VERIFIED 2026-06-22 (`audit_103d`, N2.2):**
-  the mesoscale bump clears the matched-strength null (τ≈2.6 p=0.014, τ≈6.8 p=0.010,
-  LO-P15; controls all null) → inference-specific consolidation is multiscale, mildly
-  mesoscale-favouring. Report `.agents/reports/2026-06-22_arc-mesoscale-inference-null.md`.
+- ~~**Is the inference trace resolvable by a spectral-subspace probe?**~~ **ANSWERED
+  2026-07-09 (`audit_165`, N2.7):** no — the Grassmann leading-eigenmode ("spectral
+  clustering") comparison recovers the whole-task + encoding β reorganization but finds
+  **no** inference-specific component in any band (β p_mass=0.408). The inference trace
+  is specifically hierarchical/multiscale (cophenetic-only), not eigenmode-geometric —
+  an independent hierarchical-vs-eigenmode argument (the τ-sweep multiscale claim was
+  retired 2026-07-09). Scope
+  `.agents/guides/task-persistence-investigation/2026-07-09_grassmann-inference-arc.md`.
+- ~~**Mesoscale hint for β inference**~~ **RETIRED 2026-07-09 (PI call).** The
+  2026-06-22 verification (`audit_103d`: τ≈2.6 p=0.014, τ≈6.8 p=0.010) is dropped from the
+  paper — no meaningful multiscale *across* τ on a fully-connected network; read at
+  τ=1/λ_max only. History: report `.agents/reports/2026-06-22_arc-mesoscale-inference-null.md`.

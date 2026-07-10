@@ -75,7 +75,7 @@ Reading row by row:
 
 The cophenet step is responsible for **band resolution at the LRG-multiscale layer**, NOT for amplification of detection. Raw FC already detects everything at the cohort level; cophenet identifies which bands carry the trace at the hierarchical-multiscale level. This three-layer contrast is the central argument for adopting `D_coph` as the canonical per-pair LRG probe.
 
-Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`. n=10, R=200 matched-strength surrogates per cell, seed 20260511. Methodology directive: `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`.
+Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`. n=10, R=200 matched-strength surrogates per cell, seed 20260511. Methodology directive: `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`.
 
 ## 3. Cross-band cluster-extent permutation table (Grassmann probe, audit_70 all-clusters, Decision-8 + Decision-12 gates)
 
@@ -209,8 +209,8 @@ Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_
 - Per-band briefs: `01_beta.md` … `06_delta.md`.
 - Trace battery: `locked/CONTROLS.md` + `locked/VERDICT_LEDGER.md`.
 - Anatomy battery: `locked/ANATOMY_CONTROLS.md` + `locked/ANATOMY_LEDGER.md`.
-- Methods directive: `methods/methods_revision_2026-05-18_cophenet.md`.
-- **Neurophysiological reading** of the three-rung probe ladder + per-pair vs global persistence + per-band physical interpretation: `methods/methods_neurophysiological_interpretation_2026-05-26.md`.
+- Methods directive: `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`.
+- **Neurophysiological reading** of the three-rung probe ladder + per-pair vs global persistence + per-band physical interpretation: `directives/methods_neurophysiological_interpretation_2026-05-26.md`.
 - Cluster-extent permutation: `data/audit/grassmann_cluster_extent/{cohort_summary.csv, null_distribution.csv, per_k_obs_p.csv, README.md}` (audit_70).
 - β β-figure scripts (parameterizable over `--band`): `scripts/02_preprint/preprint_07_beta_rho_split_figure.py`, `preprint_08_beta_grassmann_figure.py`.
 - Raw-substrate per-pair Results figures (all-bands, 2026-06-03): joint density `scripts/02_preprint/preprint_18_bands_joint_density_rawfc.py` + null triangle `preprint_21_bands_null_triangle.py --layer raw|coph` → `data/preprint/figures/all_bands/`. Captions, prose, and the verified raw→LRG inversion-**magnitude**-collapse mechanism (NOT count; never "turns gray") in `directives/writing_directive_2026-06-03_raw-substrate-results-figures.md`. Figures/narrative only — changes no verdict.
@@ -222,7 +222,7 @@ Locked under the all-clusters cluster-extent paradigm (`S(b) = {k : p_k(b) < α_
 
 - Does not re-derive any verdict — verdicts are locked in `locked/VERDICT_LEDGER.md` + `locked/ANATOMY_LEDGER.md`.
 - Does not propose new analyses — A2 sampling-corrected bootstrap and A4 implant-geometry regression are deferred to a sensitivity supplement, not to a new analysis here.
-- Does not reinterpret KC-era findings — KC, VI(k), τ-sweep are retired (`methods/methods_revision_2026-05-18_cophenet.md`). The retracted "Hippocampus + left fusiform" β anatomy claim is documented as retracted in §5.
+- Does not reinterpret KC-era findings — KC, VI(k), τ-sweep are retired (`directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`). The retracted "Hippocampus + left fusiform" β anatomy claim is documented as retracted in §5.
 - Does not write the manuscript. Each per-band brief and this synthesis are inputs to the writing-agent handoff (`HANDOFF_INDEX.md`, Phase D) which produces LaTeX.
 
 ## Revision history

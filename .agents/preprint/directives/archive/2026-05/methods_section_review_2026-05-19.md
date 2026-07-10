@@ -103,7 +103,7 @@ defensible *because of the data*, not by hardcoded construction.
 introducing `C^*`. Keep `L_obs = |C^*|` as the contiguity-based
 co-primary statistic — that one is still the longest run.
 
-**Reference**: `.agents/preprint/methods/methods_grassmann_cluster_extent.md`
+**Reference**: `.agents/preprint/directives/methods_grassmann_cluster_extent.md`
 §5b (formula), §5c (null formula), §5e (no-hardcoded-min-size
 rationale + null-calibration math + verdict-anatomy diagnostic), §6
 (locked table with re-run values); memory
@@ -386,12 +386,12 @@ without further changes at the methodology layer.
 
 ## Source-of-truth references
 
-- `.agents/preprint/methods/methods_grassmann_cluster_extent.md` — locked
+- `.agents/preprint/directives/methods_grassmann_cluster_extent.md` — locked
   Grassmann methodology + post-fix `T_G^*` definition + locked
   band-level values.
 - `.agents/preprint/locked/CONTROLS.md` — locked 5-control battery (C1-C5).
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked per-band verdicts.
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding
   methods directive (KC retired, VI(k) retired, τ-sweep retired,
   `D_coph` adopted).
 - `scripts/01_compute/audit/audit_67_raw_fc_matched_strength.py` —

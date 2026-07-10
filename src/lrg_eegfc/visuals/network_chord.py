@@ -603,6 +603,7 @@ def plot_chord_with_highlight(
     labels: Optional[Sequence[str]] = None,
     label_kwargs: Optional[Dict] = None,
     vertex_size: float = 24.0,
+    vertex_rgba: Optional[NDArray] = None,
     tmp_dir: Optional[Path] = None,
 ) -> Dict:
     """Composite: chord with HIGHLIGHTED edge subsets on top of a faint
@@ -733,6 +734,7 @@ def plot_chord_with_highlight(
             edge_indices=idx, edge_rgba=rgba,
             edge_pen=pen, edge_order=eord,
             vertex_size=vertex_size,
+            vertex_rgba=vertex_rgba,
             k_clusters=k_clusters, beta=beta,
             output_size=render_px, fit_view=fit_view,
         )

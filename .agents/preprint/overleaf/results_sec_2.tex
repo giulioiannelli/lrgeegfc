@@ -1,0 +1,71 @@
+%
+    \subsection{Offline abstraction of a learned structure}
+        \label{ssec:abstraction}
+%
+\paragraph{What persists is the order the brain inferred, not just the pairs it saw.}
+The previous section established that a task-driven reorganization is held in post-task rest and, in \(\beta\), concentrates in \gls{ofc}; it did not establish what that reorganization represents. Answering that requires separating two processes the task combines. The patient first \emph{learns} a set of premise pairs by being shown them (\acrshort{taskl}: A above B, B above C, and so on), and then in the \emph{test} phase reasons about novel pairs that were never shown (\acrshort{taskt}: does A outrank D?). The trace of the previous section was read from the test phase alone, so it cannot separate what the brain retains from seeing the premises from what it retains of the relations it had to infer. The four-phase recording --- \acrshort{rspre}, \acrshort{taskl}, \acrshort{taskt}, \acrshort{rspost} --- separates them, because the learning phase provides a reference for the seen-only part, with no inference required. We split the persistent reorganization into an encoding component (the change while the premises were shown) and an inference-specific component (the further change during reasoning, holding the encoding change constant), and tested whether each is retained in post-task rest. Both are, in different rhythms. The encoding change persists in \(\alpha\) and \(\beta\), each against its own strength-matched surrogate (\(p = 0.014\) and \(p = 0.032\)). The inference-specific change --- what remains once the encoding change is removed --- persists in \(\beta\) alone: it clears the same surrogate at \(p = 0.010\) (6 of 10 patients above their own null), while every other band is null (next-smallest \(p = 0.25\)). In \(\beta\), then, the retained reorganization is not only the encoding of the premises the patient was shown but includes a component tied specifically to the relations the patient inferred (\FigRef{fig:enc_dynamics}b).
+
+We interpret the persistent \(\beta\) component as an offline abstraction of the learned structure: the order the patient inferred is retained at rest, after reasoning has ended, and --- unlike the transient reinstatement ruled out earlier --- it is held rather than replayed (\FigRef{fig:enc_dynamics}a). Its band-specificity constrains the leading alternative, that the component instead tracks the test recording being longer than the learning recording, because a difference in recording length would not be confined to \(\beta\); we test this dependence directly below.
+
+% ---------------------------------------------------------------- Figure 3
+\begin{figure*}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.84\textheight,keepaspectratio]%
+        {fig_arc_enc_dynamics.pdf}
+    \caption{\textbf{What persists is the order the brain inferred, not just the pairs it saw.}
+        \textbf{(a)} The consolidation as a dynamical system: windowed \gls{lrg}
+        states across the whole recording, drawn as one time-colored trajectory
+        through an encoding\,\(\times\)\,inference\,\(\times\)\,residual state space
+        (two exemplars). Resting activity before the task oscillates near one region;
+        being shown the premises drives a jump along the encoding axis; reasoning
+        advances further along inference; then a \emph{tracer} (\patient{06}) holds the
+        displaced state into post-task rest while a \emph{resetter} (\patient{10})
+        returns toward baseline. The windowed trajectory is illustrative; the cohort
+        evidence is the strength-matched gate beneath it (green clears its own null)
+        and the band panel in \textbf{b}.
+        \textbf{(b)} Decomposition by band: the encoding echo \(T_{\mathrm{learn}}\)
+        persists in \(\alpha\) and \(\beta\) (and marginally \(\delta\)); the
+        inference-specific component \(T_{\mathrm{inf}\cdot e}\), with the encoding
+        change held constant, persists in \(\beta\) alone (\(p = 0.010\), \(6/10\)
+        patients; next band \(p = 0.25\)). Dots are patients colored by clearance of
+        their own strength-matched null; the lollipop is the cohort median and gate.}
+    \label{fig:enc_dynamics}
+\end{figure*}
+
+\paragraph{The consolidation anchors in the orbitofrontal cognitive map, and learning sets the anchor.}
+Where on the cortex the consolidation sits, and whether learning sets it, remain open --- and the encoding component answers both. It is what the network retains from being shown the premises, before any inference; we localized it with the same system-level enrichment test used for the test-phase trace (strength-matched surrogate, \(R = 1000\), corrected across systems). In \(\beta\) it concentrates in \gls{ofc} and nowhere else --- \(q = 0.010\) with the \gls{soz} excluded, \(q = 0.040\) with it included, in nodes of below-average coupling --- while prefrontal cortex is significantly depleted (\FigRef{fig:enc_anatomy}a). This is the same orbitofrontal hotspot the test-phase trace occupies, so \gls{ofc} is anchored by both phases: learning already writes the trace there, and inference adds its \(\beta\)-only component on top. Built from the shorter learning recording alone, the encoding contrast carries none of the test-versus-learning length difference, so this anchor is untouched by the recording-length question raised above.
+
+\paragraph{The inference component does not track recording length.}
+Could the persistent \(\beta\) component be nothing more than the longer test recording? The test phase runs \(1.35\)--\(2.53\times\) longer than the learning phase, and the inference contrast \(f = D_{\mathrm{test}} - D_{\mathrm{learn}}\) inherits that asymmetry, so a component that simply grew with recording length would be the obvious confound. It does not: across patients the \(\beta\) inference component is uncorrelated with the test/learn duration ratio (Spearman \(\rho = {+}0.10\), \(p = 0.78\)), while the bands whose components track length --- \(\alpha\) (\(\rho = {+}0.55\)) and \(\highgamma\) (\(\rho = {+}0.70\)) --- carry no inference-specific trace at all. The rhythms that follow recording length and the rhythm that carries the inference are disjoint; with the matched-strength null \(\beta\) already clears, the persistent \(\beta\) inference component is not a by-product of the longer recording. That same split organizes the two components more broadly: the encoding trace is the broader, held in \(\alpha\) as well as \(\beta\), while the inference-specific part is \(\beta\)'s alone --- \(\alpha\) keeps what was shown, \(\beta\) also keeps what it reasoned out.
+
+\paragraph{A memory trace surfaces in the cingulate at low-\(\gamma\), where the whole-brain view cannot see it.}
+A rhythm can hold a memory trace somewhere the whole-brain view misses. The traces so far were read from the whole brain, or from a system's concentration above the whole-brain baseline; reading one region at a time --- whether the pairs incident to a single system carry a trace on their own, with no baseline subtracted --- surfaces what the average washes out. In \(\lowgamma\), a band with no whole-brain trace, the encoding component concentrates on cingulate edges and on no other system: \(\rho_{\mathrm{sym}} = {+}0.25\) against a surrogate median near zero (\gls{bh} \(q = 0.035\) across systems, positive in all \(8\) patients sampled there), rising to \({+}0.39\) with the \gls{soz} excluded --- a larger effect on fewer contacts, so not a product of epileptic tissue. It is specific to memory: on the same cingulate edges the inference component is null (\(p = 0.93\)) and the standard task change does not clear (\(p = 0.07\)). So a rhythm that looks empty across the whole brain still holds a genuine, focal memory trace once the network is read region by region --- the clearest case of the hierarchy resolving a single structure that whole-brain averaging conceals (\FigRef{fig:enc_anatomy}b).
+
+\paragraph{The inference component concentrates in the cingulate, away from the orbitofrontal anchor.}
+Encoding anchors in \gls{ofc}; the inference-specific component concentrates elsewhere. Localized with the same demeaned system-enrichment test in \(\beta\), its one cortical concentration is the cingulate --- the only system clearing correction (\gls{bh} \(q = 0.030\) with all contacts, \(q = 0.040\) with the \gls{soz} excluded), in nodes of near-average coupling rather than hubs --- while \gls{ofc}, the encoding anchor, carries none of it, and the cingulate in turn carries none of the \(\beta\) memory trace. Encoding and inference thus fall in different cortex: the premises the patient was shown in \gls{ofc}, the relations the patient reasoned out in the cingulate --- the same \(\beta\) band that carries the inference-specific component at the whole-brain level (\FigRef{fig:enc_anatomy}c).
+
+\paragraph{The cingulate carries different content in different rhythms.}
+The two cingulate results describe one region holding different task content at different frequencies. In \(\lowgamma\) the cingulate carries the memory trace and not the inference component; in \(\beta\) it carries the inference component and not the memory trace. The premises the patient was shown surface there in one rhythm and the relations the patient reasoned out in another --- the same cortex, read at two frequencies, holding two different parts of the task. Both clear their corrections; the memory reading is the firmer of the two, positive in every sampled patient and larger once the \gls{soz} is removed.
+
+% ---------------------------------------------------------------- Figure 4
+\begin{figure*}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]%
+        {fig_arc_enc_anatomy.pdf}
+    \caption{\textbf{Encoding and inference occupy different cortex, and the cingulate holds each at a different rhythm.}
+        \textbf{(a)} The encoding component in \(\beta\) concentrates in orbitofrontal
+        cortex (enriched, green) and is depleted in prefrontal cortex (orange), in
+        nodes of below-average coupling --- the same orbitofrontal anchor the
+        test-phase trace occupies (\(R = 1000\), \gls{bh}-corrected across systems;
+        \(q = 0.010\)\,/\,\(0.040\) with\,/\,without the \gls{soz}).
+        \textbf{(b)} A memory trace whole-brain averaging hides: in \(\lowgamma\), a
+        band with no whole-brain trace, an absolute within-region read surfaces a
+        focal encoding trace on cingulate edges (\(\rho_{\mathrm{sym}} = +0.25\),
+        \gls{bh} \(q = 0.035\), all \(8\) sampled patients positive; \(+0.39\) with
+        the \gls{soz} excluded).
+        \textbf{(c)} The inference-specific component in \(\beta\) concentrates in the
+        cingulate --- the only system clearing correction (\(q = 0.030\)\,/\,\(0.040\)
+        with\,/\,without the \gls{soz}), in nodes of near-average coupling --- while
+        orbitofrontal cortex, the encoding anchor, carries none of it.}
+    \label{fig:enc_anatomy}
+\end{figure*}

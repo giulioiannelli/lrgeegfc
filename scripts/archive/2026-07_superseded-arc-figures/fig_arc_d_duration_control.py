@@ -12,7 +12,7 @@ recording length and the rhythm that carries the inference are DISJOINT.
 
 Reads : data/audit/consolidation_arc_rhosym/arc_per_patient.csv   (T_infspec_pe / patient)
         data/audit/inference_localization/length_control.csv      (test/learn ratio)
-Writes: data/reports/results_section2/fig_arc_d_duration_control.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_d_duration_control.pdf
 """
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ use_lrg_style()
 
 ARC = ROOT / "data/audit/consolidation_arc_rhosym/arc_per_patient.csv"
 LEN = ROOT / "data/audit/inference_localization/length_control.csv"
-OUT = ROOT / "data/reports/results_section2/fig_arc_d_duration_control.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_d_duration_control.pdf"
 
 BANDS = ["delta", "theta", "alpha", "beta", "low_gamma", "high_gamma"]
 INFER_BAND = "beta"                       # the sole inference-carrying band (R2.1)
@@ -98,8 +98,7 @@ def main():
                    r"test/learn length ratio)", fontsize=12)
     axa.tick_params(axis="y", length=0)
     axa.spines[["top", "right"]].set_visible(False)
-    axa.text(0.0, 1.02, r"$\mathbf{a}$", transform=axa.transAxes, fontsize=17,
-             va="bottom", fontweight="bold")
+    # tile letter supplied by the LaTeX mosaic in results_sec_2.tex
 
     # -- panel b: beta (flat) vs high_gamma (steep) per-patient scatter ---------
     axb.axhline(0, color="0.6", lw=0.9, ls=":", zorder=1)
@@ -119,8 +118,7 @@ def main():
     axb.set_ylabel(r"inference-specific persistence  $T_{\mathrm{inf}\cdot e}$",
                    fontsize=12)
     axb.spines[["top", "right"]].set_visible(False)
-    axb.text(0.0, 1.02, r"$\mathbf{b}$", transform=axb.transAxes, fontsize=17,
-             va="bottom", fontweight="bold")
+    # tile letter supplied by the LaTeX mosaic
     axb.legend(loc="upper left", frameon=False, fontsize=10.5, handletextpad=0.4)
 
     # figure-level key for panel a categories

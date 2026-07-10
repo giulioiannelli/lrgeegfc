@@ -9,9 +9,9 @@ source_of_truth:
   - .agents/preprint/locked/CONTROLS.md (Decisions 8 + 9 + 10 + 11, locked 2026-05-19 pm)
   - .agents/preprint/locked/VERDICT_LEDGER.md (post-Decision 8 verdicts)
   - .agents/preprint/locked/ANATOMY_LEDGER.md
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md
-  - .agents/preprint/methods/methods_grassmann_cluster_extent.md
-  - .agents/preprint/methods/methods_section_review_2026-05-19.md
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md
+  - .agents/preprint/directives/methods_grassmann_cluster_extent.md
+  - .agents/preprint/directives/archive/2026-05/methods_section_review_2026-05-19.md
   - .agents/preprint/directives/writing_directive_2026-05-19_beta_post_methods_revision.md
   - .agents/preprint/directives/methods_directive_2026-05-19_TG_normalization.md
   - .agents/preprint/responses/feedback_response_2026-05-19_gate_refactor.md
@@ -89,7 +89,7 @@ issue:
   dropped from matrix distances on `D_coph`. The current LaTeX
   §sssec:methods_compare_stats already has m = 6 for `d_S` on
   `D_coph` and is correct as written. **Cascading action (non-
-  writing-agent)**: update `methods/methods_revision_2026-05-18_cophenet.md`
+  writing-agent)**: update `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`
   Statistical Inference subsection to align m = 6 (currently says
   m = 12 with `d_S` + `d_P`).
 
@@ -198,7 +198,7 @@ Grassmann layer (the Grassmann C5 statistic is the cluster-mass
 permutation `p_mass^epi-X`, not a Wilcoxon).
 
 **Source of truth.** `locked/CONTROLS.md` §C5 Decision 10;
-`methods/methods_section_review_2026-05-19.md` M4 RESOLVED entry.
+`directives/archive/2026-05/methods_section_review_2026-05-19.md` M4 RESOLVED entry.
 
 **Replacement text** (full paragraph, in place):
 
@@ -524,7 +524,7 @@ stands. `d_P` is permanently dropped from matrix distances on
 `d_S` is correct as written.~~
 
 ~~**Action item (non-writing-agent)**: update
-`methods/methods_revision_2026-05-18_cophenet.md` Statistical
+`directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` Statistical
 Inference subsection (currently says "m = 12 (six bands × two
 distances `d_S`, `d_P`)") to reflect m = 6 for `d_S` alone, with the
 Spearman-as-natural-match-for-cophenet justification carried over
@@ -824,7 +824,7 @@ be tracked separately:
 
 - **(D1)** Regenerate `data/audit/grassmann_cluster_extent/cohort_summary.csv` by re-running audit_70 with the current (all-clusters) cluster_mass() definition.
 - **(S1)** Extend audit_70 to emit per-patient `T_G^{*,p,null}` distributions and per-patient empirical `p_mass^p` per band, into a new column or sibling CSV. Required before the bold cells of `tab:beta_per_patient` col. 6 can be filled deterministically under the null-based criterion.
-- **(D2)** Update `methods/methods_revision_2026-05-18_cophenet.md` Statistical Inference subsection: m = 12 → m = 6 for matrix distances on `D_coph`.
+- **(D2)** Update `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` Statistical Inference subsection: m = 12 → m = 6 for matrix distances on `D_coph`.
 - **(Part VI cascading)** Reframe `bands/00_cohort.md` §2 + `bands/01_beta.md` "Headline three-layer cohort table" to clarify: (a) the raw FC / raw `D(τ_max)` / cophenet table is an internal D_coph-adoption sensitivity argument, not the cross-band synthesis; (b) add a separate cross-band synthesis section organized around the substrate / D_coph / Grassmann three analytical layers.
 
 ## Source-of-truth references
@@ -832,9 +832,9 @@ be tracked separately:
 - `locked/CONTROLS.md` (Decisions 8 + 9 + 10 + 11, 2026-05-19 pm).
 - `locked/VERDICT_LEDGER.md` (post-Decision 8 verdicts).
 - `locked/ANATOMY_LEDGER.md`.
-- `methods/methods_grassmann_cluster_extent.md` (`T_G^*` + cluster-extent).
-- `methods/methods_revision_2026-05-18_cophenet.md` (binding methods directive).
-- `methods/methods_section_review_2026-05-19.md` (M1-M4 + m5-m9 + n10-n14).
+- `directives/methods_grassmann_cluster_extent.md` (`T_G^*` + cluster-extent).
+- `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` (binding methods directive).
+- `directives/archive/2026-05/methods_section_review_2026-05-19.md` (M1-M4 + m5-m9 + n10-n14).
 - `directives/methods_directive_2026-05-19_TG_normalization.md` (normalized `T_G^*`).
 - `directives/writing_directive_2026-05-19_beta_post_methods_revision.md` (R1-R6).
 - `directives/writing_directive_2026-05-19_beta_red_paragraphs.md` (red-paragraph un-redding).

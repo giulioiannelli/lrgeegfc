@@ -10,7 +10,7 @@ scope: per-band frozen result reports for the preprint manuscript
 
 This folder gathers the **frozen per-band result reports** that the preprint manuscript draws from. Each report is the single source of truth for the band's numbers, methodology, cache provenance, controls, and open issues. Audit-script outputs (`data/audit/<probe>/cohort_summary.csv`) are the raw substrate; these reports translate them into preprint-ready narrative with every number cross-checked against the CSVs at the time of writing.
 
-## Folder layout (5 subfolders + 4 top-level entry points; reorganized 2026-05-19)
+## Folder layout (8 subfolders + 4 top-level entry points; Overleaf mirror added 2026-07-09)
 
 ```
 .agents/preprint/
@@ -22,11 +22,10 @@ This folder gathers the **frozen per-band result reports** that the preprint man
 ├── locked/                 # locked sources of truth (VERDICT_LEDGER, CONTROLS, ANATOMY_*)
 ├── headlines/              # one self-contained report per headline research question (multiscale-Laplacian paper spine)
 ├── bands/                  # the 7 fixed per-band briefs (00_cohort + 01_beta … 06_delta)
-├── methods/                # long-lived methods companions (cophenet directive, Grassmann methodology, methods review)
-├── directives/             # dated writing-agent directives (writing_directive_YYYY-MM-DD_*.md)
+├── overleaf/                # Overleaf MIRROR — manuscript sections (methods.tex, results_sec_1.tex) + tables/ floats (+ companion .md); copy-paste source of truth
+├── directives/             # writing-agent directives + methods companions + results_paragraphs/ drafts + archive/
 ├── responses/              # dated cascade summaries, preflight notes, feedback replies
-├── established_results/    # frozen methodology Q&A from the n=10 era
-└── tables/                 # rendered tables (.md + .tex)
+└── established_results/    # frozen methodology Q&A from the n=10 era
 ```
 
 See [`WRITING_GUIDE.md`](WRITING_GUIDE.md) for the decision tree on where
@@ -44,11 +43,11 @@ one — the default).
 - [`locked/ANATOMY_LEDGER.md`](locked/ANATOMY_LEDGER.md) — per-(band, probe) **locked** anatomy verdicts under A1+A3 (cophenet probes) and A3 alone (Grassmann probes). Lab labels A1/A3 throughout (manuscript uses compressed A1/A2; mapping note in ledger). All four trace-positive bands locked as **strong localized**. **KC-era anatomy artifacts** (`lrg_localization_anatomy/`, the "Hippocampus + left fusiform" memory claim) are retired — Hippocampus survives at β Grassmann; **left fusiform appears nowhere under the locked cluster-extent paradigm `S(b)`** (audit_72 --cluster-extent rerun 2026-05-19 pm). Five audits landed under `S(b)`: β cophenet, β Grassmann (`S(β)` — region set identical to retired `K*(β)` run), α cophenet (full + epi-X reproduces identically), γ_l Grassmann (`S(γ_l)` — 7-region occipito-temporal + frontal + medial-OFC network), δ Grassmann (`S(δ)` full + `S^epiX(δ)` — **fully disjoint** at the anatomy level, **0 shared regions**).
 
 ### Methods directive
-- [`methods/methods_revision_2026-05-18_cophenet.md`](methods/methods_revision_2026-05-18_cophenet.md) — binding methods directive (KC retired, VI(k) retired, τ-sweep retired, `D_coph` adopted as canonical per-pair object).
-- [`methods/methods_grassmann_cluster_extent.md`](methods/methods_grassmann_cluster_extent.md) — locked Grassmann probe methodology (subspace `U_k`, chordal distance, per-`k` Wilcoxon, cluster-extent permutation null, Decision-8 mass-only gate + Decision-12 LOO precondition). **Defines the k-independent band-level scalar `T_G^*(b)` normalized to `[0,1]` per C1** that the manuscript reports for the Grassmann probe.
-- [`methods/methods_section_review_2026-05-19.md`](methods/methods_section_review_2026-05-19.md) — historical methods-section review (`status: mostly_superseded`; live items now in `METHODS_AUDIT_ISSUES.md`).
-- [`methods/methods_neurophysiological_interpretation_2026-05-26.md`](methods/methods_neurophysiological_interpretation_2026-05-26.md) — band-by-band neurophysiological reading of each verdict (mechanism candidates, what "trace" / "no trace" mean at each frequency band).
-- [`methods/methods_displacement_taxonomy_2026-06-03.md`](methods/methods_displacement_taxonomy_2026-06-03.md) — **`status: draft`** — descriptive decomposition of `ρ_split^coph` into anchor/reset/trace/random per band (β = TRACE, θ = RANDOM, γ_h = BIMODAL). Enriches the locked "no trace" verdicts with a mechanism; **changes no verdict**, stays out of `locked/` and the briefs until its magnitude axis is matched-strength-validated.
+- [`directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`](directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md) — binding methods directive (KC retired, VI(k) retired, τ-sweep retired, `D_coph` adopted as canonical per-pair object).
+- [`directives/methods_grassmann_cluster_extent.md`](directives/methods_grassmann_cluster_extent.md) — locked Grassmann probe methodology (subspace `U_k`, chordal distance, per-`k` Wilcoxon, cluster-extent permutation null, Decision-8 mass-only gate + Decision-12 LOO precondition). **Defines the k-independent band-level scalar `T_G^*(b)` normalized to `[0,1]` per C1** that the manuscript reports for the Grassmann probe.
+- [`directives/archive/2026-05/methods_section_review_2026-05-19.md`](directives/archive/2026-05/methods_section_review_2026-05-19.md) — historical methods-section review (`status: mostly_superseded`; live items now in `METHODS_AUDIT_ISSUES.md`).
+- [`directives/methods_neurophysiological_interpretation_2026-05-26.md`](directives/methods_neurophysiological_interpretation_2026-05-26.md) — band-by-band neurophysiological reading of each verdict (mechanism candidates, what "trace" / "no trace" mean at each frequency band).
+- [`directives/methods_displacement_taxonomy_2026-06-03.md`](directives/methods_displacement_taxonomy_2026-06-03.md) — **`status: draft`** — descriptive decomposition of `ρ_split^coph` into anchor/reset/trace/random per band (β = TRACE, θ = RANDOM, γ_h = BIMODAL). Enriches the locked "no trace" verdicts with a mechanism; **changes no verdict**, stays out of `locked/` and the briefs until its magnitude axis is matched-strength-validated.
 - [`METHODS_AUDIT_ISSUES.md`](METHODS_AUDIT_ISSUES.md) — live methods-section audit issues + C1 normalization lock + cascade tracking (2026-05-20+).
 
 ## Naming convention
@@ -112,8 +111,8 @@ Outputs land at `data/preprint/figures/<band>/`. The audit scripts in `scripts/0
 - [`EVALUATION_PROTOCOL.md`](EVALUATION_PROTOCOL.md) — protocol Claude runs when the user pastes writing-agent LaTeX output back into a session (number-level CSV cross-check + verdict consistency check + anti-pattern scan).
 - [`locked/CONTROLS.md`](locked/CONTROLS.md) + [`locked/VERDICT_LEDGER.md`](locked/VERDICT_LEDGER.md) — trace lockdown.
 - [`locked/ANATOMY_CONTROLS.md`](locked/ANATOMY_CONTROLS.md) + [`locked/ANATOMY_LEDGER.md`](locked/ANATOMY_LEDGER.md) — anatomy lockdown (locked 2026-05-19).
-- [`methods/methods_revision_2026-05-18_cophenet.md`](methods/methods_revision_2026-05-18_cophenet.md) — binding methods directive.
-- [`methods/methods_grassmann_cluster_extent.md`](methods/methods_grassmann_cluster_extent.md) — Grassmann probe methodology + `T_G^*` scalar (locked 2026-05-19).
+- [`directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`](directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md) — binding methods directive.
+- [`directives/methods_grassmann_cluster_extent.md`](directives/methods_grassmann_cluster_extent.md) — Grassmann probe methodology + `T_G^*` scalar (locked 2026-05-19).
 - `.agents/guides/04_rules/never-always-list.md` — coding + plotting + verification rules.
 - `.agents/guides/01_project/terminology.md` — trace / anchor / reset / emergent taxonomy.
 - `.agents/guides/05_plotting/` — figure conventions (read before any preprint figure).

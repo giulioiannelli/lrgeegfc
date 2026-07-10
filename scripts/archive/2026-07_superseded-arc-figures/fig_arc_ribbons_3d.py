@@ -84,32 +84,37 @@ def _curve(sub):
 
 def _alpha_profile(ts, retained):
     """Per-vertex opacity: fade-in on the outbound leg; on the return leg stay solid
-    if the band clears its gate, else dissolve toward a ghost."""
+    if the band clears its gate, else dissolve to a faint ghost."""
     a = np.where(ts <= 2.0, 0.45 + 0.55 * (ts / 2.0), 1.0)           # outbound fade-in
     ret = (ts - 2.0)                                                 # 0..1 on return leg
     if not retained:
-        a = np.where(ts > 2.0, 1.0 - 0.80 * ret, a)                 # dissolve to 0.20
+        a = np.where(ts > 2.0, 1.0 - 0.88 * ret, a)                 # dissolve to ~0.12
     return np.clip(a, 0.0, 1.0)
 
 
 def _ribbon(ax, ts, xs, ys, zs, color, retained, bloom=True):
-    """Glowing ribbon: soft bloom underlay + alpha-graded crisp core."""
+    """Glowing ribbon: soft bloom underlay + alpha-graded, width-tapered crisp core."""
     pts = np.column_stack([xs, ys, zs]).reshape(-1, 1, 3)
     segs = np.concatenate([pts[:-1], pts[1:]], axis=1)
     a = _alpha_profile(ts, retained)
+    tseg = 0.5 * (ts[:-1] + ts[1:])
     aseg = 0.5 * (a[:-1] + a[1:])
     rgba = np.tile(np.array(to_rgba(color)), (len(segs), 1))
     rgba[:, 3] = aseg
+    if retained:                                                   # hero: constant, bold
+        lw = np.full(len(segs), 3.4)
+    else:                                                          # others: taper as they die
+        lw = np.where(tseg <= 2.0, 2.4, np.clip(2.4 - 1.4 * (tseg - 2.0), 1.0, 2.4))
     if bloom:                                                       # neon underlay
         m_out = ts <= 2.02
         ax.plot(xs[m_out], ys[m_out], zs[m_out], color=color, lw=8.5,
-                alpha=0.06 if not retained else 0.09, solid_capstyle="round", zorder=2)
+                alpha=0.05 if not retained else 0.09, solid_capstyle="round", zorder=2)
         if retained:                                               # hero glows throughout
-            ax.plot(xs, ys, zs, color=color, lw=5.0, alpha=0.13,
+            ax.plot(xs, ys, zs, color=color, lw=5.0, alpha=0.14,
                     solid_capstyle="round", zorder=2)
-    lc = Line3DCollection(segs, colors=rgba, linewidths=3.2 if retained else 2.4)
+    lc = Line3DCollection(segs, colors=rgba, linewidths=lw)
     lc.set_capstyle("round")
-    lc.set_zorder(5)
+    lc.set_zorder(6 if retained else 5)
     ax.add_collection3d(lc)
 
 
@@ -147,20 +152,27 @@ def main():
                        zorder=7 if retained else 6)
         post_nodes.append((band, xk[-1], yk[-1], retained))
 
-    # ---- hero payoff: halo + dropline at beta's offline landing -----------------
+    # ---- hero payoff: halo + soft beam at beta's offline landing ----------------
     hb = next(n for n in post_nodes if n[0] == HERO)
     _, hx, hy, _ = hb
-    ax.scatter([3.0], [hx], [hy], s=520, color=COL[HERO], alpha=0.16,
-               edgecolor="none", depthshade=False, zorder=6)
-    ax.plot([3.0, 3.0], [hx, hx], [hy, 0.0], color=COL[HERO], lw=1.1, ls=(0, (1, 2)),
-            alpha=0.45, zorder=4)
+    for s, al in ((760, 0.10), (430, 0.17)):                        # layered halo
+        ax.scatter([3.0], [hx], [hy], s=s, color=COL[HERO], alpha=al,
+                   edgecolor="none", depthshade=False, zorder=6)
+    ax.plot([3.0, 3.0], [hx, hx], [hy, 0.0], color=COL[HERO], lw=2.0,
+            alpha=0.30, zorder=4)                                   # soft spotlight beam
+    ax.plot([3.0, 3.0], [hx, hx], [hy, 0.0], color=COL[HERO], lw=0.9, ls=(0, (1, 2)),
+            alpha=0.6, zorder=4)
 
     # ---- tip glyphs at the offline (rest_post) end ------------------------------
-    for band, px, py, retained in post_nodes:
-        ax.text(3.14, px, py + (0.035 if band == HERO else 0.0), GLYPH[band],
-                color=COL[band], fontsize=17 if retained else 13,
-                fontweight="bold" if retained else "normal",
-                alpha=1.0 if retained else 0.6, ha="left", va="center", zorder=9)
+    # beta: bold, at its own lifted node. the five returners: a compact colour key
+    # (no box) stacked at the far edge so their ghost tails don't collide.
+    ax.text(3.16, hx + 0.02, hy + 0.06, GLYPH[HERO], color=COL[HERO], fontsize=19,
+            fontweight="bold", ha="left", va="center", zorder=10)
+    returners = [b for b in BANDS if b != HERO]
+    zks = np.linspace(0.02, -0.20, len(returners))
+    for band, zk in zip(returners, zks):
+        ax.text(3.33, 0.30, zk, GLYPH[band], color=COL[band], fontsize=13,
+                alpha=0.75, ha="left", va="center", zorder=9)
 
     # ---- axes: minimal, clean, no box clutter -----------------------------------
     ax.set_xlim(-0.05, 3.4)
@@ -172,15 +184,18 @@ def main():
     ax.set_yticks([0.0, 0.3, 0.6])
     ax.set_zticks([-0.2, 0.0, 0.2, 0.4, 0.6])
     ax.tick_params(labelsize=9, pad=0.5)
-    ax.set_ylabel("encoding", fontsize=12, labelpad=6)
-    ax.set_zlabel("inference-specific", fontsize=12, labelpad=4)
+    ax.set_ylabel("encoding", fontsize=12.5, labelpad=8)
+    ax.set_zlabel("")
+    # robust vertical-axis label (mpl3d set_zlabel clips under tight bbox)
+    ax.text2D(1.12, 0.55, "inference-specific", transform=ax.transAxes, rotation=90,
+              va="center", ha="left", fontsize=12.5)
     # transparent panes, faint grid
     for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
         axis.set_pane_color((1, 1, 1, 0))
         axis.line.set_color((0.7, 0.7, 0.7, 0.5))
         axis._axinfo["grid"].update(color=(0.85, 0.85, 0.85, 0.5), linewidth=0.5)
-    ax.view_init(elev=20, azim=-60)
-    ax.set_box_aspect((2.35, 1.25, 1.05), zoom=1.06)
+    ax.view_init(elev=21, azim=-58)
+    ax.set_box_aspect((2.35, 1.25, 1.08), zoom=1.08)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True, pad_inches=0.05)

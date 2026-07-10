@@ -41,7 +41,7 @@ Reads:
   data/audit/inference_localization_rhosym/inference_pe_localization_rhosym_{include,exclude}.csv
   data/audit/inference_localization_rhosym/lenmatched_null_rhosym_R200_{include,exclude}.csv
 Writes:
-  data/reports/results_section1/fig_encoding_inference_dissociation.pdf
+  data/preprint/figures/results_section1/fig_encoding_inference_dissociation.pdf
 
 Usage:
     python fig_encoding_inference_dissociation.py
@@ -78,7 +78,7 @@ except Exception as exc:  # pragma: no cover — brain panel is optional
     _BRAIN_OK = False
 
 BASE = ROOT / "data" / "audit" / "inference_localization_rhosym"
-OUT = ROOT / "data" / "reports" / "results_section1" / "fig_encoding_inference_dissociation.pdf"
+OUT = ROOT / "data" / "preprint" / "figures" / "results_section1" / "fig_encoding_inference_dissociation.pdf"
 
 # limbic/paralimbic core first (OFC + cingulate = the two dissociating hotspots)
 SYS_ORDER = ["OFC", "cingulate", "MTL", "insula", "lateral_temporal",

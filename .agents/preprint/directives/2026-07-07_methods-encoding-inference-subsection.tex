@@ -38,17 +38,20 @@
 %
 % GUARDRAILS honored
 %   - NO results in Methods: no p-values / effect sizes / band verdicts / patient counts.
-%     Method PARAMETERS kept (four phases, τ scales c ∈ {1, 2.6}, matched-strength gate).
+%     Method PARAMETERS kept (four phases, single working scale τ_min = 1/λ_max, matched-strength gate).
 %   - Symmetric estimator is the object of record; single-arm kept as supplement (mirrors
 %     ρ^coph_split). f arm-invariance stated once + its weaker-de-bias consequence.
-%   - SCALE claim = MULTISCALE ROBUSTNESS, never "strongest at the mesoscale" (peak retracted
-%     2026-07-07). Describe the two tested scales + the Z_eff bound; do not locate an optimum.
+%   - SCALE: read at τ_min = 1/λ_max ONLY. The τ-sweep multiscale panel was DROPPED
+%     2026-07-09 (PI call) — no meaningful multiscale across τ in a fully-connected
+%     network; the dendrogram hierarchy carries the multiscale content at the single τ.
+%     Do NOT reintroduce a τ≈2.6 mesoscale claim (peak already retracted 2026-07-07).
 %   - NO behavioral claim: inference-specific REORGANIZATION that persists, never inference
 %     SUCCESS (feedback_results_not_story). NO repo/code technicalities.
 %
 % Provenance (AGENT-FACING ONLY): audit_152_consolidation_arc_rhosym.py (estimator of record;
 %   supersedes audit_103 rho_split), audit_157_arc_scale_null_rhosym.py (τ-sweep matched-strength
-%   null). Results: R2.1 (inferred-not-seen), R2.2 (mesoscale/multiscale), R2.4 (duration).
+%   null — RESULT DROPPED 2026-07-09). Results: R2.1 (inferred-not-seen), R2.4 (duration);
+%   R2.2 (τ-sweep mesoscale/multiscale) retired — results_paragraphs/archive/2026-07/R2.2_mesoscale-integration.tex.
 % =====================================================================
 
 % ---------------------------------------------------------------------
@@ -84,7 +87,10 @@ each \(\rho_{S}\) a Spearman coefficient across all \(N(N-1)/2\) contact pairs. 
 The two component traces symmetrize on different axes. The encoding trace \(T_{\rm enc}\), whose two shifts each carry an \acrshort{rspre} half, symmetrizes on both, exactly as the primary trace does. The inference-specific shift \(\Delta_{\rm inf}\), by contrast, is referenced to no \acrshort{rspre} half and is therefore invariant under the \(A\!\leftrightarrow\!B\) exchange, so the symmetrization of \(T_{\rm inf}\) acts only on the two shifts that do carry a half --- the persistence shift and the encoding shift that conditions it --- a narrower average than for \(T_{\rm enc}\). In both cases the arm-symmetric estimator is computed identically on the observation and on every matched-strength surrogate, and each component trace is gated per band by the matched-strength surrogate null and the one-sided cohort Wilcoxon of Section~\ref{sssec:methods_compare_stats}, identically to the primary trace, with positive values in the trace direction.
 
 \paragraph{Scale dependence.}
-The decomposition is read at the canonical fine scale \(\tau_{\min} = 1/\lambda_{\max}\) and re-evaluated at coarser diffusion times \(\tau = c/\lambda_{\max}\), \(c \ge 1\), by rebuilding each cophenetic image \(\Dcoph\) at the new \(\tau\) before recomputing the arm-symmetric \(T_{\rm enc}\) and \(T_{\rm inf}\) of \eqref{eq:methods_arc_Tenc}--\eqref{eq:methods_arc_Tinf}. Larger \(\tau\) weights longer diffusion walks and so integrates the multi-step paths along which a transitive order chains, but the accessible range is bounded by how many diffusion modes the propagator still resolves, \(Z_{\rm eff}(\tau) = \Tr e^{-\tau\lapl} \in [1, N]\): as \(\tau\) grows the propagator relaxes toward its uniform mode and the hierarchy dissolves (\(Z_{\rm eff} \to 1\)), leaving no tree to read. We therefore evaluate the surrogate gate only where a hierarchy remains --- the fine scale \(c = 1\) and a mesoscale \(c \approx 2.6\), which still resolves a tree --- and read consistency across the two scales as scale-robustness of the trace, not as the location of any single optimal scale.
+% τ-sweep "multiscale" panel DROPPED 2026-07-09 (PI call). Below now mirrors the live
+% overleaf/methods.tex ssec:methods_arc: read at τ_min ONLY; multiscale via the single-τ
+% dendrogram hierarchy, not a τ-sweep. Do NOT reintroduce the c≈2.6 mesoscale reading.
+Both component traces are read at the single working scale \(\tau_{\min} = 1/\lambda_{\max}\), as throughout (Section~\ref{ssec:methods_lrg}). Larger \(\tau\) weights longer diffusion walks --- the multi-step paths along which a transitive order chains --- which might invite re-reading the decomposition at coarser scales; but on the dense, continuous-spectrum \(\abs{\ImCoh}\) substrate such a \(\tau\)-sweep is degenerate. The propagator carries no spectral gap to single out an interior scale, and as \(\tau\) grows it relaxes monotonically toward its uniform mode until no hierarchy remains to read. The multiscale content of the decomposition is instead carried by the nested merge-height continuum of the cophenetic image \(\Dcoph\), which already folds every coarsening scale of \(\propag(\tau_{\min})\) into one per-pair hierarchy at the working scale (Section~\ref{sssec:methods_compare_ctm}); we therefore read \(T_{\rm enc}\) and \(T_{\rm inf}\) at \(\tau_{\min}\) alone.
 
 \paragraph{Recording-length control.}
 The test recording is longer than the learning recording, and the inference-specific shift \(\Delta_{\rm inf} = \Dcoph^{\txtacr{taskt}} - \Dcoph^{\txtacr{taskl}}\) inherits that asymmetry, so a component that merely grew with recording length would confound it. We test the dependence directly, regressing the per-patient arm-symmetric \(T_{\rm inf}\) on the per-patient test-to-learn duration ratio across the cohort by Spearman correlation. The encoding trace, built from the shorter learning recording against baseline alone, carries none of the test-versus-learning length difference and is duration-immune by construction.

@@ -5,7 +5,7 @@ status: open
 kind: audit-checklist
 scope: issues identified in the finalized Methods section + cascading consequences for preprint folder
 created: 2026-05-20
-supersedes: methods/methods_section_review_2026-05-19.md (partially — see resolution map §1)
+supersedes: directives/archive/2026-05/methods_section_review_2026-05-19.md (partially — see resolution map §1)
 companion: HANDOFF_INDEX.md, EVALUATION_PROTOCOL.md, locked/CONTROLS.md, locked/VERDICT_LEDGER.md
 ---
 
@@ -15,7 +15,7 @@ companion: HANDOFF_INDEX.md, EVALUATION_PROTOCOL.md, locked/CONTROLS.md, locked/
 
 ## Contents
 
-1. Resolution map vs `methods/methods_section_review_2026-05-19.md`
+1. Resolution map vs `directives/archive/2026-05/methods_section_review_2026-05-19.md`
 2. Methods-section bugs (B1–B4)
 3. Methods-section gaps + reviewer-defense integrations (G1–G5)
 4. Cascading consequences of the pasted methods (C1–C4)
@@ -27,7 +27,7 @@ companion: HANDOFF_INDEX.md, EVALUATION_PROTOCOL.md, locked/CONTROLS.md, locked/
 
 ---
 
-## 1. Resolution map vs `methods/methods_section_review_2026-05-19.md`
+## 1. Resolution map vs `directives/archive/2026-05/methods_section_review_2026-05-19.md`
 
 The previous review (2026-05-19 am) flagged M1–M4 + minor items. Their status against the pasted methods (2026-05-19 pm):
 
@@ -128,7 +128,7 @@ The pasted methods introduces convention changes that must propagate into existi
 | θ | 12.97 | **0.0507** | 0.159 |
 | α | 7.98 | **0.0312** | 0.348 |
 
-- **Cascade targets** (Phase 3): CSV regeneration (add column); `bands/00_cohort.md` §3 table values; `methods/methods_grassmann_cluster_extent.md` §6 table; all band briefs citing `T_G*`; `locked/VERDICT_LEDGER.md` per-band tables.
+- **Cascade targets** (Phase 3): CSV regeneration (add column); `bands/00_cohort.md` §3 table values; `directives/methods_grassmann_cluster_extent.md` §6 table; all band briefs citing `T_G*`; `locked/VERDICT_LEDGER.md` per-band tables.
 
 ### C2 — `T_G^{*,s}` per-patient cluster mass — newly defined symbol
 
@@ -146,7 +146,7 @@ The pasted methods introduces convention changes that must propagate into existi
 ### C4 — `τ_min` adoption throughout preprint folder — DECISION
 
 - **Change**: pasted methods uses `τ′`; preprint folder uses `τ_max`; user-locked convention is **`τ_min = 1/λ_max`** — physically precise (smallest diffusion time, finest spatial scale resolved by `K(τ)`).
-- **Cascade targets**: methods LaTeX (writing agent); `locked/VERDICT_LEDGER.md` frontmatter + body; `locked/CONTROLS.md`; `methods/methods_revision_2026-05-18_cophenet.md`; `methods/methods_grassmann_cluster_extent.md`; `HANDOFF_INDEX.md`; `bands/00_cohort.md`; all band briefs; `README.md`; `EVALUATION_PROTOCOL.md`; `locked/ANATOMY_CONTROLS.md`; `locked/ANATOMY_LEDGER.md`.
+- **Cascade targets**: methods LaTeX (writing agent); `locked/VERDICT_LEDGER.md` frontmatter + body; `locked/CONTROLS.md`; `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`; `directives/methods_grassmann_cluster_extent.md`; `HANDOFF_INDEX.md`; `bands/00_cohort.md`; all band briefs; `README.md`; `EVALUATION_PROTOCOL.md`; `locked/ANATOMY_CONTROLS.md`; `locked/ANATOMY_LEDGER.md`.
 - **Action**: Phase 3 folder-wide `τ_max` → `τ_min` and `τ′` → `τ_min` sweep; methods LaTeX handled by writing agent.
 
 ---

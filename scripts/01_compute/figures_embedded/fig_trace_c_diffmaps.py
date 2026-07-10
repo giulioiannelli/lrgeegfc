@@ -20,7 +20,7 @@ reorganization (β +0.50, α +0.34; θ −0.05, δ −0.11 on this patient). Exe
 cleanest tracer); the cohort verdict is the gate/forest in (a).
 
 Reads : LRG cophenetic caches (full task/post/pre + rest_pre halves), rho_sym gate summary.
-Writes: data/reports/results_section1/fig_trace_c_diffmaps.pdf
+Writes: data/preprint/figures/results_section1/fig_trace_c_diffmaps.pdf
 """
 from __future__ import annotations
 
@@ -45,11 +45,11 @@ use_lrg_style()
 
 LRG_HALVES = CACHE_ROOT / "imcoh_lrg_halves"
 GATE_SUMMARY = ROOT / "data" / "audit" / "rho_sym_gate" / "cohort_summary.csv"
-OUT = ROOT / "data" / "reports" / "results_section1" / "fig_trace_c_diffmaps.pdf"
+OUT = ROOT / "data" / "preprint" / "figures" / "results_section1" / "fig_trace_c_diffmaps.pdf"
 
 PATIENT = "Pat_08"
 FC = "imcoh_abs"
-BANDS = ["beta", "alpha", "theta", "delta"]      # 2 traces (green) then 2 nulls (grey)
+BANDS = ["beta", "alpha", "low_gamma", "delta", "theta", "high_gamma"]  # all six bands
 GATE_PASS, GATE_FAIL = "#1f7a34", "#565656"
 # diverging: pair pulled together (blue) ↔ pulled apart (red); pale centre = backbone (no change)
 DIVCMAP = "coolwarm"
@@ -91,7 +91,8 @@ def band_maps(band):
     return _rankmap(dtask)[ix], _rankmap(drest)[ix], rho
 
 
-def main():
+def draw(target):
+    ncol = len(BANDS)
     gate = pd.read_csv(GATE_SUMMARY).set_index("band")["gate_p_sym"].to_dict()
     maps = {b: band_maps(b) for b in BANDS}
 
@@ -100,10 +101,20 @@ def main():
         print(f"  {b:11s} pattern-match ρ = {maps[b][2]:+.3f}   "
               f"gate_p_sym={gate.get(b, float('nan')):.3f}")
 
-    ncol = len(BANDS)
-    fig = plt.figure(figsize=(3.15 * ncol, 6.9))
-    gs = fig.add_gridspec(2, ncol, left=0.085, right=0.90, top=0.86, bottom=0.06,
-                          wspace=0.10, hspace=0.10)
+    # Two rows of square (aspect="equal") imshow maps with a small, clean inter-row gap.
+    # The imshow images fill their axes edge-to-edge (unlike the former pcolormesh, whose
+    # margin left a hairline), so hspace=0 makes the rows read as touching/overlapping; a
+    # modest hspace separates them. The two-row block height is sized from the tile w/h so
+    # the cells stay ~square, with the gap folded in so nothing overflows into panel c.
+    left, right, wspace = 0.052, 0.906, 0.06
+    hspace = 0.10                                        # inter-row gap (frac of cell height)
+    aw = (right - left) / (ncol + (ncol - 1) * wspace)   # one square's side as fig-fraction of width
+    tile_ar = target.bbox.width / target.bbox.height     # tile aspect (w/h)
+    top = 0.90
+    span = min((2.0 + hspace) * aw * tile_ar, top - 0.045)  # two rows + gap; never overflow bottom
+    bottom = top - span
+    gs = target.add_gridspec(2, ncol, left=left, right=right, top=top, bottom=bottom,
+                             wspace=wspace, hspace=hspace)
 
     row_tex = [r"$\mathrm{task_{test}}$ vs $\mathrm{rest_{pre}}$",
                r"$\mathrm{rest_{post}}$ vs $\mathrm{rest_{pre}}$"]
@@ -112,36 +123,44 @@ def main():
         dtask, drest, _ = maps[b]
         lab_col = GATE_PASS if gate.get(b, 1.0) < 0.05 else GATE_FAIL
         for i, M in enumerate((dtask, drest)):
-            ax = fig.add_subplot(gs[i, j])
-            last = ax.pcolormesh(M, cmap=DIVCMAP, vmin=-1.0, vmax=1.0,
-                                 rasterized=False)
-            ax.set_box_aspect(1.0)
+            ax = target.add_subplot(gs[i, j])
+            # Native-resolution raster (imshow) rather than vector pcolormesh: an N^2
+            # fingerprint embeds as an ~N x N image (tens of KB) instead of ~N^2 vector
+            # quads, nearest-neighbour upscaled crisp and lossless at the data resolution.
+            # Deliberate, authorized exception to the "FC matrices stay vector" rule, for
+            # file size (twelve matrices in one compound). origin='upper' puts M[0,0] at
+            # top-left, matching the former pcolormesh(M)+invert_yaxis, so no invert here.
+            last = ax.imshow(M, cmap=DIVCMAP, vmin=-1.0, vmax=1.0,
+                             interpolation="nearest", aspect="equal")
             ax.set_xticks([])
             ax.set_yticks([])
-            ax.invert_yaxis()
             for s in ax.spines.values():
                 s.set_edgecolor(lab_col if i == 0 else "0.6")
                 s.set_linewidth(1.6 if i == 0 else 0.8)
             if i == 0:
-                ax.set_title(BRAIN_BAND_TEX_DICT.get(b, b), fontsize=22,
-                             fontweight="bold", color=lab_col, pad=8)
+                ax.set_title(BRAIN_BAND_TEX_DICT.get(b, b), fontsize=19,
+                             fontweight="bold", color=lab_col, pad=5)
             if j == 0:
                 ax.set_ylabel(row_tex[i], fontsize=12.5, color="0.20")
 
-    fig.text(0.02, 0.95, r"$\mathbf{c}$", fontsize=17, va="bottom", ha="left",
-             fontweight="bold")
-    fig.text(0.492, 0.965,
-             r"the task's cophenetic fingerprint $\;\longrightarrow\;$ and its echo at rest",
-             fontsize=13.5, ha="center", va="center", color="0.25")
+    target.text(0.012, 0.925, r"$\mathbf{c}$", fontsize=17, va="bottom", ha="left",
+                fontweight="bold")
 
-    cax = fig.add_axes([0.915, 0.14, 0.014, 0.60])
-    cb = fig.colorbar(last, cax=cax, extend="both")
-    cb.set_label("per-pair cophenetic change, ranked within each map\n"
-                 "blue = most pulled together   ·   red = most pulled apart",
-                 rotation=270, labelpad=30, fontsize=10.5)
+    # colorbar carries ONLY the three symbols (-, 0, +); their meaning is in the
+    # caption, not on the figure.
+    cax = target.add_axes([0.918, bottom + 0.06 * span, 0.013, 0.88 * span])
+    cb = target.colorbar(last, cax=cax, extend="both")
     cb.set_ticks([-1, 0, 1])
-    cb.set_ticklabels(["−", "0", "+"])
+    cb.set_ticklabels([r"$-$", "0", r"$+$"])
+    cb.ax.tick_params(labelsize=16)
 
+
+def main():
+    ncol = len(BANDS)
+    # figure height chosen so the square (box_aspect=1) maps fill their grid
+    # cells with no vertical slack — otherwise the mismatch reads as whitespace.
+    fig = plt.figure(figsize=(3.02 * ncol, 6.05))
+    draw(fig)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)

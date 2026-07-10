@@ -43,12 +43,47 @@ LEAVE. Reports being archived that cite already-moved TPI docs = leave
 (archived↔archived after 2b). The ~5 KEEP reports citing moved epi/replay
 scope-docs get their links fixed during 2b.
 
+## Update 2026-07-09 — `overleaf/` section-mirror landed (out of sequence, part of Stage 2c)
+
+Driven by the Methods `ρ_sym` fix work, the **physical manuscript-section move**
+that Decision 1 deferred was executed early, as **`preprint/overleaf/`** — the
+`sections/`-style folder, realized under the name `overleaf/` because it is the
+copy-paste source of truth mirroring the Overleaf project (mirrors Overleaf
+filenames; protocol in `preprint/overleaf/README.md`). Mechanical `git mv`/`mv`;
+**0 broken links**. The **RESUME POINT is unchanged** (still Stage 2b `reports/`);
+this only lands the section-move + methods-notes slice of Stage 2c.
+
+**What changed**
+- **New `preprint/overleaf/`** = manuscript sections: `methods.tex`,
+  `results_sec_1.tex`, `tables/beta_per_patient.tex`, + `README.md` (protocol).
+- **Dissolved `preprint/methods/` and `preprint/results/`** (both removed):
+  - methods companion notes → `directives/` (`methods_grassmann_cluster_extent`,
+    `methods_neurophysiological_interpretation_2026-05-26`,
+    `methods_displacement_taxonomy_2026-06-03`).
+  - superseded methods reviews → `directives/archive/2026-05/`
+    (`methods_revision_2026-05-18_cophenet`, `methods_section_review_2026-05-19`).
+- **Cross-refs:** exact-path rewrite across 30 `.agents` files; folder-trees +
+  routing prose in `preprint/README.md` and `WRITING_GUIDE.md` updated; a
+  `2026-07-09` entry appended to `WRITING_GUIDE.md`'s reorganization history.
+
+**How this amends the plan below**
+- **Decision 1** — the "later, separate `sections/` move" is DONE (as `overleaf/`).
+  The navigational spine still stands; the physical section folder now exists.
+- **Stage 2c** — `preprint/methods/archive/` is obsolete (`methods/` no longer
+  exists); the `methods_section_review_2026-05-19` archive item is ✅ done. The
+  two superseded methods reviews used a **date** bucket (`directives/archive/2026-05/`),
+  not an era bucket — reconcile naming when Stage 2c runs (convert to `kc-era/`,
+  or accept the date bucket for these two).
+- **Stage 3 routing** — "Methods content" now splits: the **assembled section** is
+  `preprint/overleaf/methods.tex`; methods **companions/notes** live in
+  `directives/`. The write-router table below is updated to match.
+
 ## Decisions locked (PI, 2026-07-04)
 
 1. **Spine = manuscript sections** (Intro / Methods / Results / Discussion).
    Applied as a *navigational* map in the entry docs; physical preprint folders
    stay put for now (we are mid Results-writing — a physical `sections/` move is
-   a later, separate step).
+   a later, separate step). **[UPDATE 2026-07-09: executed early as `overleaf/` — see Update 2026-07-09 above.]**
 2. **Archive = by research era** (not by date). Era vocabulary below. Existing
    dated archive folders get **converted** to era buckets too.
 3. **Routing = one entry point** (`START_HERE.md`) **+ one write-router table**
@@ -209,7 +244,7 @@ The retired files are cited almost entirely by *other retired files* and by
 
 ### `preprint/` (38 keep; ~32 archive)
 - **New** `preprint/directives/archive/{scalar-vi-era,kc-era,completed}/` +
-  `preprint/responses/archive/completed/` + `preprint/methods/archive/` +
+  `preprint/responses/archive/completed/` + ~~`preprint/methods/archive/`~~ (obsolete — `methods/` dissolved 2026-07-09; superseded reviews now in `directives/archive/2026-05/`) +
   `preprint/headlines/verification/archive/`.
 - → `directives/archive/completed/` (spent one-shot writing directives, ~17):
   the `2026-05-18…2026-06-04` beta/alpha/anatomy/methods/substrate directives
@@ -218,7 +253,7 @@ The retired files are cited almost entirely by *other retired files* and by
   substrate-figure directives into the relevant headline before archiving.
 - → archive: the superseded `2026-06-25_headline-restructure-broadband-snr`
   directive (reversed within 48h), the misfiled `investigation_directive_2026-06-08`,
-  the 6 executed `responses/`, `methods/methods_section_review_2026-05-19`,
+  the 6 executed `responses/`, `methods/methods_section_review_2026-05-19` **[✅ done 2026-07-09 → `directives/archive/2026-05/`]**,
   `verification/verify_stage2_arc_duration` (RESOLVED), both `established_results/`.
 - ⚠ **Extract-first**: lift still-live methods items (B1 sign, B3 citation, τ_min)
   out of `METHODS_AUDIT_ISSUES.md` before archiving it.
@@ -233,7 +268,7 @@ The retired files are cited almost entirely by *other retired files* and by
   readiness-map); demote `README.md`, `preprint/HANDOFF_INDEX.md`, and the
   `CLAUDE.md`/`AGENTS.md` "Start points" list to redirect stubs.
 - **Manuscript-section map** in `START_HERE` + `preprint/README`: Methods →
-  `preprint/methods/` + `locked/*CONTROLS`; Results → `preprint/headlines/`
+  `preprint/overleaf/methods.tex` (companions in `directives/`) + `locked/*CONTROLS`; Results → `preprint/headlines/`
   (R1/R2/R3) + `directives/results_paragraphs/*.tex`, underpinned by
   `locked/*LEDGER` + `bands/` (provenance); Intro/Discussion → new stubs.
 - **Write-router table** (sole authority, lives in `START_HERE`):
@@ -245,7 +280,8 @@ The retired files are cited almost entirely by *other retired files* and by
   | manuscript verdict change | dated entry in `preprint/locked/VERDICT_LEDGER.md` + matching `bands/NN_<band>.md` |
   | Results narrative / headline | `preprint/headlines/NN_*.md` |
   | Results prose (LaTeX) | `preprint/directives/results_paragraphs/RX.Y_<slug>.tex` |
-  | Methods content | `preprint/methods/` |
+  | Assembled manuscript section (mirrors Overleaf) | `preprint/overleaf/<section>.tex` (e.g. `methods.tex`, `results_sec_1.tex`) |
+  | Methods companion note / directive | `preprint/directives/…` |
   | writing directive / cascade note | `preprint/directives/…` / `preprint/responses/…` |
   | diary / figure | `diary/YYYY-MM-DD.md` / `data/preprint/figures/…` |
   | superseded material | `<parent>/archive/<era>/` |

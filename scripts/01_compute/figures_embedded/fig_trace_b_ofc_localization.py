@@ -24,7 +24,7 @@ pale = clears the gate but single-patient-driven under LOO.
 
 Reads : data/audit/localization_atlas_rhosym/matched_strength_rhosym_include.csv
         data/audit/localization_atlas_rhosym/beta_all_systems_robustness_R1000.csv
-Writes: data/reports/results_section1/fig_trace_b_ofc_localization.pdf
+Writes: data/preprint/figures/results_section1/fig_trace_b_ofc_localization.pdf
 """
 from __future__ import annotations
 
@@ -51,7 +51,7 @@ ROOT = setup_script_env()
 use_lrg_style()
 
 SRC = ROOT / "data/audit/localization_atlas_rhosym/matched_strength_rhosym_include.csv"
-OUT = ROOT / "data/reports/results_section1/fig_trace_b_ofc_localization.pdf"
+OUT = ROOT / "data/preprint/figures/results_section1/fig_trace_b_ofc_localization.pdf"
 
 COHORT = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
           "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15"]
@@ -96,7 +96,26 @@ def system_direction():
     return out
 
 
-def main():
+def legend_handles(compact=False):
+    """The 5-tier system-direction legend, built fresh so the standalone AND the flat
+    compound can both place it. ``compact`` shortens the labels for the tight fig2 tile."""
+    if compact:
+        labels = ["OFC (enriched)", "PFC / SM (depleted)", "enriched, 1-patient",
+                  "depleted, 1-patient", "n.s. / white matter"]
+    else:
+        labels = ["OFC — enriched, robust", "PFC / sensorimotor — depleted, robust",
+                  "enriched, single-patient-driven", "depleted, single-patient-driven",
+                  "n.s. / white matter"]
+    spec = [(C_ENR, 12), (C_DEP, 12), (C_ENR_PALE, 9), (C_DEP_PALE, 9), (C_NS, 7)]
+    return [Line2D([], [], marker="o", ls="", mfc=c, mec="white", ms=m, label=lab)
+            for (c, m), lab in zip(spec, labels)]
+
+
+def draw_brain(target, rect=(0.02, 0.14, 0.96, 0.84)):
+    """Pooled glass brain + system-direction markers into ``target`` at ``rect`` (figure
+    coords). ``target`` MUST be a real Figure: nilearn resolves ``figure=`` to the root and
+    lays the brain in ROOT coordinates, so a SubFigure's frame is ignored (brains would
+    stack). The flat compound therefore passes the root Figure and a controlled rect."""
     direction = system_direction()
     coords, systems = pooled_coords_systems()
 
@@ -109,9 +128,7 @@ def main():
     m_dep_p = (d_of == "depleted") & ~robust
     m_bg = d_of == "ns"
 
-    fig = plt.figure(figsize=(10.2, 3.9))
-    disp = plot_glass_brain(None, display_mode=DISPLAY_MODE,
-                            axes=(0.02, 0.14, 0.96, 0.84), figure=fig)
+    disp = plot_glass_brain(None, display_mode=DISPLAY_MODE, axes=rect, figure=target)
     # draw order: faint footprint -> pale non-robust -> saturated robust on top
     if m_bg.any():
         disp.add_markers(coords[m_bg], marker_color=C_NS, marker_size=6, alpha=0.22)
@@ -124,29 +141,6 @@ def main():
     if m_enr_R.any():
         disp.add_markers(coords[m_enr_R], marker_color=C_ENR, marker_size=44, alpha=0.98)
 
-    fig.text(0.012, 0.96, r"$\mathbf{b}$", fontsize=17, va="top", ha="left",
-             fontweight="bold")
-
-    handles = [
-        Line2D([], [], marker="o", ls="", mfc=C_ENR, mec="white", ms=12,
-               label="OFC — enriched, robust"),
-        Line2D([], [], marker="o", ls="", mfc=C_DEP, mec="white", ms=12,
-               label="PFC / sensorimotor — depleted, robust"),
-        Line2D([], [], marker="o", ls="", mfc=C_ENR_PALE, mec="white", ms=9,
-               label="enriched, single-patient-driven"),
-        Line2D([], [], marker="o", ls="", mfc=C_DEP_PALE, mec="white", ms=9,
-               label="depleted, single-patient-driven"),
-        Line2D([], [], marker="o", ls="", mfc=C_NS, mec="white", ms=7,
-               label="n.s. / white matter"),
-    ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.03),
-               ncol=3, frameon=False, fontsize=9.4, handletextpad=0.4,
-               columnspacing=1.2)
-
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUT, transparent=True, bbox_inches="tight")
-    plt.close(fig)
-
     print(f"fig:trace_b — beta trace on the brain "
           f"({len(coords)} contacts, {int((systems!='non_anatomical').sum())} anatomical)\n")
     for s in sorted(set(systems)):
@@ -156,6 +150,24 @@ def main():
     print("\nTESTED (audit_162): occipital/cingulate/lateral_temporal clear the R=1000 tail "
           "but collapse under LOO (worst-drop q 0.54/0.17/0.999 = single-patient-driven); "
           "OFC stable (worst-drop 0.06). Only OFC/PFC/sensorimotor ringed as cohort-robust.")
+    return disp
+
+
+def draw(target):
+    draw_brain(target)
+    target.text(0.012, 0.96, r"$\mathbf{a}$", fontsize=17, va="top", ha="left",
+                fontweight="bold")
+    target.legend(handles=legend_handles(), loc="lower center", bbox_to_anchor=(0.5, -0.03),
+                  ncol=3, frameon=False, fontsize=9.4, handletextpad=0.4,
+                  columnspacing=1.2)
+
+
+def main():
+    fig = plt.figure(figsize=(10.2, 3.9))
+    draw(fig)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(OUT, transparent=True, bbox_inches="tight")
+    plt.close(fig)
     print(f"wrote {OUT}")
 
 

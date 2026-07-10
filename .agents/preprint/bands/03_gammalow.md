@@ -24,7 +24,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding methods directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding methods directive)
   - data/audit/ctm_triangle/cohort_summary.csv (γ_l row: rho_split_median, n_above_drift, rho_xprobe, Wilcoxon)
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (γ_l row: paired Wilcoxon vs surrogate)
   - data/audit/grassmann_cluster_extent/cohort_summary.csv (γ_l cluster-extent p=0.0149, audit_70)
@@ -319,7 +319,7 @@ Per-patient `T_G(k)` is dominated by mid-k modes. The 13-cell window at k=12..23
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `strong trace, only Grassmann ↑` for γ_l (Decision 12 cascade 2026-05-26)
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `.agents/preprint/bands/02_alpha.md` — companion band briefs
 
 ### Audit data (rows the numbers come from)

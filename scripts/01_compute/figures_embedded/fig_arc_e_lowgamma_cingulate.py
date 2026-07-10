@@ -12,7 +12,7 @@ task change does not clear. The clearest case of the hierarchy resolving a singl
 structure that whole-brain averaging conceals.
 
 Reads : data/audit/inference_localization_rhosym/within_system_trace_rhosym_{include,exclude}.csv
-Writes: data/reports/results_section2/fig_arc_e_lowgamma_cingulate.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_e_lowgamma_cingulate.pdf
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import pandas as pd
 from matplotlib.lines import Line2D
 
 from lrg_eegfc.utils.scripting import setup_script_env
-from lrg_eegfc.visuals.styles import use_lrg_style
+from lrg_eegfc.visuals.styles import band_color, use_lrg_style
 
 ROOT = setup_script_env()
 use_lrg_style()
@@ -42,12 +42,14 @@ except Exception as exc:  # pragma: no cover
     _BRAIN_OK = False
 
 BASE = ROOT / "data/audit/inference_localization_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_e_lowgamma_cingulate.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_e_lowgamma_cingulate.pdf"
 
 BAND, TARGET = "low_gamma", "encoding"
 WINNER = "cingulate"
 DROP = {"other", "non_anatomical"}
-C_WIN, C_NS = "#2a9d5c", "#9a9a9a"       # memory = green (matches encoding identity)
+# highlight uses the low-gamma BAND colour (blue), matching the band chip in the compound
+# (Fig 3 palette identity: slow=red -> fast=blue), not the encoding-green.
+C_WIN, C_NS = band_color("low_gamma", 0.80), "#9a9a9a"
 Q_SIG = 0.05
 
 
@@ -80,13 +82,13 @@ def draw_lollipop(ax, inc, exc):
         if sig:
             ax.annotate(r"$\ast$", (rec.median_obs_rho, y), textcoords="offset points",
                         xytext=(9, 3), fontsize=13, color=col, zorder=5)
-    # winner annotation: q, patient count, SOZ-excluded growth (single line)
+    # winner annotation: q only (patient count + SOZ-excl growth removed -- they crowd the
+    # branch above; both are carried by the caption / prose)
     wy = order.index(WINNER)
-    wr, we = inc.loc[WINNER], exc.loc[WINNER]
-    ax.annotate(rf"$q={wr.bh_q:.3f}$,  {int(wr.n_pos)}/{int(wr.K_implanted)} patients"
-                rf"  (SOZ-excl. $\rho={we.median_obs_rho:+.2f}$)",
-                (wr.median_obs_rho, wy), textcoords="offset points",
-                xytext=(0, 17), fontsize=9.5, color=C_WIN, ha="center")
+    wr = inc.loc[WINNER]
+    ax.annotate(rf"$q={wr.bh_q:.3f}$", (wr.median_obs_rho, wy),
+                textcoords="offset points", xytext=(0, 15), fontsize=9.5,
+                color=C_WIN, ha="center")
 
     ax.set_yticks(y0)
     ax.set_yticklabels(order)
@@ -124,14 +126,13 @@ def main():
     fig = plt.figure(figsize=(11.6, 5.5))
     axa = fig.add_axes([0.14, 0.18, 0.40, 0.74])
     draw_lollipop(axa, inc, exc)
-    fig.text(0.02, 0.96, r"$\mathbf{a}$", fontsize=17, va="top", fontweight="bold")
+    # tile letter supplied by the LaTeX mosaic in results_sec_2.tex
 
     if _BRAIN_OK:
         try:
             coords, systems = pooled_coords_systems()
             draw_brain(fig, (0.57, 0.10, 0.41, 0.82), coords, systems, sig_win)
-            fig.text(0.575, 0.96, r"$\mathbf{b}$", fontsize=17, va="top",
-                     fontweight="bold")
+            # tile letter supplied by the LaTeX mosaic
             fig.text(0.775, 0.13, r"memory (encoding) $\rightarrow$ cingulate, low-$\gamma$",
                      ha="center", fontsize=11.5, color=C_WIN, fontweight="bold")
         except Exception as exc_b:  # pragma: no cover

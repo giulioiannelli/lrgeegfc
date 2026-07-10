@@ -71,7 +71,7 @@ One block per phase, updated as each phase completes. Plan is at
     `.agents/reports/2026-05-08_trace-minus-epi-resection.md`.
     User decision needed — see Q1 below.
   - **1 preprint hub doc** already marked `status: mostly_superseded`
-    (`.agents/preprint/methods/methods_section_review_2026-05-19.md`) —
+    (`.agents/preprint/directives/archive/2026-05/methods_section_review_2026-05-19.md`) —
     OLD-sign references inside a superseded doc are acceptable; no
     action.
   - **1 writing bundle**

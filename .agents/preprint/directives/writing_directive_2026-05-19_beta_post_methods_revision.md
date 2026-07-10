@@ -11,9 +11,9 @@ source_of_truth:
   - .agents/preprint/locked/VERDICT_LEDGER.md (Decision 7: cluster_mass co-primary)
   - .agents/preprint/locked/CONTROLS.md
   - .agents/preprint/locked/ANATOMY_LEDGER.md
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md
   - writing_directive_2026-05-18_beta_paragraph.md (initial fixes)
-  - writing_directive_2026-05-19_beta_red_paragraphs.md (Grassmann red + anatomy red)
+  - archive/2026-05/writing_directive_2026-05-19_beta_red_paragraphs.md (Grassmann red + anatomy red)
 methods_changes_this_directive_responds_to:
   - Grassmann band-level gate is now \(p_{\rm mass}(b) < 0.05\) on the cluster mass \(T_{\rm G}^{\ast}\) ALONE.
   - The longest contiguous-significant run \(L_{\rm obs}\) is dropped from the results paragraph and from the per-patient table (Methods retains the definition as a descriptive companion only; the results section does NOT cite it). [Updated 2026-05-19, second pass: user directive — drop contiguous-run entirely from the main paragraph and the main table.]
@@ -320,7 +320,7 @@ No mention of `p_LR` or `L_obs` in the table or its footnotes.
 
 **Reading the table at a glance.** Patients with both LRG cells bold (Pat_02, 03, 05, 06, 07, 08, 13) are LRG-trace at both probes. Patients with only the Grassmann cell bold (Pat_10, Pat_14) are **mixed** — anti at `ρ_split^coph`, trace at `T_G^{*, p}` — flagged in Notes. Pat_15 has **neither cell bold** — the only patient with no LRG-significance, the lone LRG-anti-aligned anchor (right-hemisphere-only implant). Col. 8 substrate is comparison only: Pat_07's substrate `0` (near-zero) does **not** demote Pat_07 from LRG-trace status; Pat_10's substrate `−` does **not** demote Pat_10 from LRG-trace (carried by Grassmann); etc.
 
-LaTeX implementation of bold: `{\bfseries VALUE}` inside each `S` column cell. With `\sisetup{detect-weight=true}` (already set), siunitx preserves the decimal alignment under bold. See `tables/beta_per_patient.tex` for the canonical implementation.
+LaTeX implementation of bold: `{\bfseries VALUE}` inside each `S` column cell. With `\sisetup{detect-weight=true}` (already set), siunitx preserves the decimal alignment under bold. See `overleaf/tables/beta_per_patient.tex` for the canonical implementation.
 
 ---
 
@@ -404,7 +404,7 @@ After R1–R6 and the table updates, the β subsection is methods-aligned and re
 ## Revision history
 
 - **2026-05-19** (this directive) — Bring the β paragraph in alignment with the revised Methods section. Six rewrites (R1–R6), table footnote (a)/(c) updates, table column rename `\bar{T}_G` → `T_G(k=40)`, cohort row Grassmann cells filled with `−0.489**` / `9/10**`. Flag `T_G^*` numerical-value discrepancy between Methods equation (sum over all sig cells, 69.76) and cohort_summary CSV (sum over longest contiguous cluster, 52.97); cite `p_mass = 0.005` and skip the raw `T_G^*` value until reconciled.
-- **2026-05-19** (prior, `writing_directive_2026-05-19_beta_red_paragraphs.md`) — Un-red the Grassmann subspace + anatomy red paragraphs. Built on the 2026-05-18 directive.
+- **2026-05-19** (prior, `archive/2026-05/writing_directive_2026-05-19_beta_red_paragraphs.md`) — Un-red the Grassmann subspace + anatomy red paragraphs. Built on the 2026-05-18 directive.
 - **2026-05-18** (initial, `writing_directive_2026-05-18_beta_paragraph.md`) — Pat_07 attribution, audit_70 cluster-extent gate, β-uniqueness sentence, p-values at end of claims, number fidelity. Per-patient table requested; anatomy deferred.
 
 ## What the agent should produce next

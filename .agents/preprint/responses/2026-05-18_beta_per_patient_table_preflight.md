@@ -4,7 +4,7 @@ era: IMCOH_ABS_COHORT_N10
 status: preflight-reply
 kind: writing-agent-reply
 date: 2026-05-18
-target: .agents/preprint/tables/beta_per_patient.tex (+ companion .md)
+target: .agents/preprint/overleaf/tables/beta_per_patient.tex (+ companion .md)
 band: beta
 ---
 
@@ -86,7 +86,7 @@ All counts in the table footer match the paragraph claims exactly.
 
 ## 6. Outputs
 
-- LaTeX: `.agents/preprint/tables/beta_per_patient.tex` — ready for `\input{...}` (path follows the project rule that *all preprint work lives in `.agents/preprint/`*).
+- LaTeX: `.agents/preprint/overleaf/tables/beta_per_patient.tex` — ready for `\input{...}` (path follows the project rule that *all preprint work lives in `.agents/preprint/`*).
 - Companion .md: `.agents/preprint/tables/beta_per_patient.md` — source CSVs, column headers, per-row sanity check, surprise-patient flags.
 
 ## 7. What the writing agent should still decide

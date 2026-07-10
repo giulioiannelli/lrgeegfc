@@ -20,7 +20,7 @@ Unsupervised layout; the eigenmap collapses to a blob and cannot show this — t
 can. delta band (strongest SOZ readout); rest_pre.
 
 Reads : |ImCoh| FC (imcoh_abs), implant SOZ labels (build_epi_masks).
-Writes: data/reports/results_section1/fig_soz_diffusion_community.pdf
+Writes: data/preprint/figures/results_section1/fig_soz_diffusion_community.pdf
 """
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ from lrg_eegfc.workflow.fc import load_fc_matrix
 ROOT = setup_script_env()
 use_lrg_style()
 
-OUT = ROOT / "data" / "reports" / "results_section1" / "fig_soz_diffusion_community.pdf"
+OUT = ROOT / "data" / "preprint" / "figures" / "results_section1" / "fig_soz_diffusion_community.pdf"
 COHORT = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
           "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15"]
 BAND, PHASE = "delta", "rest_pre"

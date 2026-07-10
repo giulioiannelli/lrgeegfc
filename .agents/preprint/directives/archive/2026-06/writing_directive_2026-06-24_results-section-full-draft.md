@@ -43,8 +43,8 @@ them — only polish prose, verify numbers, and lengthen.
 
 - **Real (transcribed, re-verify against CSV):** the held-state cohort result
   (10/10, p=0.001), the inference-specific β arc (p≈0.007), the encoding echoes
-  (α +0.22 / β +0.25, p=0.014), the mesoscale nulls (τ≈2.6 p=0.014, τ≈6.8
-  p=0.010), OFC localization (R=1000, BH q≈0.009–0.013; duration-survive
+  (α +0.22 / β +0.25, p=0.014), [the τ-sweep mesoscale nulls τ≈2.6/6.8 were RETIRED
+  2026-07-09 — read at τ=1/λmax only], OFC localization (R=1000, BH q≈0.009–0.013; duration-survive
   q=0.050), low-γ cingulate (ρ≈0.39, 8/8, q≈0.035), the detector (AUC≈0.81,
   precision@5≈60%, 9/10), the band×probe dissociation table.
 - **`\TODO` (not in scope when drafted — fill from CSV/config):** patient IDs &
@@ -82,8 +82,8 @@ them — only polish prose, verify numbers, and lengthen.
   flash · R1.6 *bridge* — over the seizure core the memory and inference bands part
   ways). Table 1 = band×probe dissociation.
 - **R2 — Offline abstraction of a learned structure (FLAGSHIP)**
-  (R2.1 carries what was inferred, not just what was seen · R2.2 mesoscale of
-  multi-step integration · R2.3 orbitofrontal anchor set by learning · R2.4 memory
+  (R2.1 carries what was inferred, not just what was seen · R2.2 RETIRED 2026-07-09
+  [τ-sweep mesoscale dropped; read at τ=1/λmax only] · R2.3 orbitofrontal anchor set by learning · R2.4 memory
   and inference ride different rhythms · R2.5 hidden low-γ cingulate memory trace ·
   R2.6 inference leans cingulate [hint] · R2.7 cingulate switches content by
   rhythm). Tables 2 (arc by band) + 3 (localization + duration).

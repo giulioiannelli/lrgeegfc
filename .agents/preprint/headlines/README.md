@@ -18,8 +18,8 @@ transitive-inference task — the method reveals a *held, non-ergodic structure*
 post-task rest (β, orbitofrontal, gray-matter cortical coupling); (2) **the flagship
 — what that held structure *is*: an offline abstraction of a learned order** (the
 brain keeps the relations it *inferred*, not just the pairs it saw; evidenced by an
-inference-specific component that persists in β, favours the mesoscale of multi-step
-integration, and anchors in the orbitofrontal cognitive map — this is where
+inference-specific component that persists in β and anchors in the orbitofrontal
+cognitive map — this is where
 `task_learn` finally earns its place); (3) the **epileptogenic read-out** of the same
 propagator (seed-based, now seed-free, SOZ markers).
 "One operator, multiple read-outs." This folder holds one crystallized file per
@@ -63,10 +63,9 @@ CORE  ── multiscale Laplacian framework  [00_CORE_methodology.md]
             │     *inferred*, not just the pairs it saw. Evidence — four phases
             │     (rest→LEARN→TEST→rest), task_learn = encoding ref; α keeps encoding
             │     only, β keeps encoding + inference; the inference-specific component
-            │     persists (β), favours the mesoscale of multi-step integration, and
-            │     anchors in the OFC cognitive map
+            │     persists (β) and anchors in the OFC cognitive map
             │       N2.1 the four-phase decomposition (task_learn's role)
-            │       N2.2 inference-specific component persists (β-only, mesoscale-favouring); encoding echo in α & β
+            │       N2.2 inference-specific component persists (β-only); encoding echo in α & β
             │       N2.3 content localizes differently (encoding→OFC; inference→cingulate*)
             │       N2.4 low-γ focal cingulate encoding trace (hidden by whole-brain avg)
             │       N2.5 duration confound RESOLVED — β arc duration-robust (clean
@@ -98,7 +97,7 @@ standalone headline — but the **abstraction** framing built on it is the
 headline-of-headlines, kept in slot 2 after N1, before N3). Core = **N1 (the method
 reveals a held structure) + N2 (the flagship — offline abstraction of a learned
 structure) + N3 (epilepsy)**. (The abstraction/consolidation framing rests on the
-phase decomposition + the mesoscale scale-signature + the OFC anchor + literature,
+phase decomposition + the OFC anchor + literature,
 not on replay or behavior.)
 
 **Where did the "spectral critique" go?** It is **not** a standalone
@@ -122,8 +121,8 @@ floated it as "Headline IV"; folded into the core 2026-06-22 per PI.)
    not a strength reshuffle. *(What the method can see.)*
 3. **And what it holds is an abstraction** (N2 — the flagship): the held structure
    is the relational order the brain *inferred*, not just the pairs it saw. An
-   inference-specific component persists (β, duration-robust), favours the mesoscale
-   of multi-step integration, and anchors in the orbitofrontal cognitive map — **an
+   inference-specific component persists (β, duration-robust) and anchors in the
+   orbitofrontal cognitive map — **an
    offline signature of abstracting a learned structure.** *(The center of the paper;
    bounded by the no-behavior ceiling — an interpretation of a persistence result,
    not a behavioral proof.)*
@@ -237,7 +236,8 @@ open items, hand that file to its owner:
   θ nuance, outlier leverage).
 - **N2 encoding vs inference** → the **inference** investigation chat (arc,
   inference localization, low-γ focal encoding; duration control **RESOLVED**
-  2026-06-22 — β arc duration-robust, α duration-suspect; τ-sweep of the arc next).
+  2026-06-22 — β arc duration-robust, α duration-suspect). The τ-sweep multiscale
+  result was retired 2026-07-09 (PI call) — read at τ=1/λmax only.
   No behavioral test (performance data unavailable).
 - **N3 epileptogenic markers** → the **epi-marker-trace-analysis** chat
   (6-band detector, seed-free markers, cross-phase routing rigidity).

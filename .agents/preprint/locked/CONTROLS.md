@@ -36,6 +36,24 @@ halved-data noise budget as `ρ_split`.
 - **Source**: `data/audit/ctm_triangle/cohort_summary.csv` col `wilcoxon_split_gt_drift_p`.
 - **Applies to**: `ρ_split^coph` (D_coph probe).
 - **Not applicable to** Grassmann (no within-rest drift Grassmann analog audited).
+- **Addendum 2026-07-10 (C2 scope + a withdrawn overreach).** C2 covers the
+  **whole-task** trace only, where it PASSES (α 0.0068, β 0.0137, γ_low 0.0098); the
+  whole-task drift null `audit_167` agrees (β drift-robust; α/γ_low
+  construction-dependent). **A windowed drift null does NOT extend to the four-phase
+  CONDITIONAL functionals** (`T_infspec·e`, `T_learn`): these are **partial**
+  correlations that already condition on encoding (`e`), so drift-removal is entangled
+  with the estimator and there is no valid external windowed-drift-null analog. Evidence
+  the null (not the trace) is invalid: `audit_167`/`audit_168` build the sham arc
+  entirely from pre-task `rest_pre` — where no consolidation signal can exist — yet the
+  conditional sham returns a *significantly positive* trace on its own (β drift>0
+  p=0.007) and exceeds the real value; a valid null must sit ≈0 on a no-signal arc.
+  **A brief "inference-specific is drift-confounded" verdict (drawn 2026-07-10) is
+  therefore WITHDRAWN.** The inference-specific / encoding-vs-inference trace is
+  validated by **matched-strength** (β-only p=0.0098; MS returns ≈0 on no-signal) +
+  duration-robustness, and is not gated by a drift null. `audit_167`/`audit_168` are
+  retained as a methodological cautionary record. β→OFC whole-task stays drift-clean
+  (C2). See `.agents/preprint/supplementary/S2_drift_controls.md`, memory
+  `feedback_drift_null_mandatory`.
 
 ### C3 — Matched-strength surrogate (`obs > surrogate`)
 Strength-preserving 4-cycle ±δ rewiring of each adjacency matrix; preserves node

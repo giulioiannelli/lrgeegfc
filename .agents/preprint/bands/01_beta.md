@@ -26,7 +26,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding writing-agent directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding writing-agent directive)
   - .agents/preprint/established_results/00_open_methodology_question_lrg_D_convention.md (withdrawn, resolved)
   - data/audit/grassmann_cluster_extent/cohort_summary.csv (audit_70, 2026-05-19)
   - data/audit/ctm_triangle/cohort_summary.csv
@@ -67,7 +67,7 @@ Cophenet D_coph ρ_split^coph (audit_63)    4/10 p=.28    2/10 p=.72     5/10 p=
 
 Sources: `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv`, `data/preprint/rho_split_raw_D/all_bands_matched_strength_cohort.csv`, `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv`. n=10, R=200 matched-strength surrogates per cell, seed 20260511.
 
-The cophenet's contribution is **band-resolution at the multiscale level** via dendrogram-induced merge-height integration, **not** amplification of detection. Raw FC already detects everything at the cohort level; cophenet identifies which bands carry the trace at the hierarchical-multiscale level. This three-layer contrast is the central argument for adopting `D_coph` as the canonical per-pair probe. Methodology directive: `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`.
+The cophenet's contribution is **band-resolution at the multiscale level** via dendrogram-induced merge-height integration, **not** amplification of detection. Raw FC already detects everything at the cohort level; cophenet identifies which bands carry the trace at the hierarchical-multiscale level. This three-layer contrast is the central argument for adopting `D_coph` as the canonical per-pair probe. Methodology directive: `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`.
 
 ## 1. Scientific claim
 
@@ -109,7 +109,7 @@ lrg = load_lrg_result(patient="Pat_02", phase="rest_pre",
 
 ## 3. The three LRG probes — methodology, results, and provenance
 
-After the 2026-05-18 methodological audit (`.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`), the LRG-derived probes are restricted to three: substrate (raw FC), per-pair multiscale on `D_coph`, and subspace Grassmann. The KC tree distance, VI(k) partition distance, and cross-phase module taxonomy are retired — they read content that is either redundant with `D_coph` (KC, VI) or descriptive only (taxonomy). Archived audit artefacts at `data/audit/archive/2026_05_18/`.
+After the 2026-05-18 methodological audit (`.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`), the LRG-derived probes are restricted to three: substrate (raw FC), per-pair multiscale on `D_coph`, and subspace Grassmann. The KC tree distance, VI(k) partition distance, and cross-phase module taxonomy are retired — they read content that is either redundant with `D_coph` (KC, VI) or descriptive only (taxonomy). Archived audit artefacts at `data/audit/archive/2026_05_18/`.
 
 | Probe | Reads | Lane after matched-strength |
 |---|---|---|
@@ -603,12 +603,12 @@ The anatomy distribution + left-hemisphere correlation (§5) and the patient-by-
 
 **What the band-resolved decomposition under matched-strength says about β.** Among the six bands tested, β is the **only** band where the LRG-layer cohort signal carries through **two matched-strength-independent probes simultaneously** (`ρ_split^coph` + Grassmann + Grassmann epi-X). α carries `ρ_split^coph` only (per-pair multiscale, non-epi tissue); γ_low carries Grassmann only at narrow k=12..23 with left-fusiform anatomical anchor; γ_high carries Grassmann only at k=19..27 with epi-exclusion strengthening (physiological attribution favored); θ is null at every LRG probe; δ is substrate-only (cophenet washes it out). β is therefore the cohort-strongest and structurally richest LRG-layer trace finding of the manuscript.
 
-**The role of the cophenet step in the methodology.** Raw FC and raw `D(τ_max)` are operationally indistinguishable at matched-strength gating (headline three-layer table). The cophenet wrap on `D(τ_max)` is what produces band-resolution: bands without multiscale tree-shift (δ, θ, γ_h) demote from 6–7/10 to ≤4/10 cohort agreement; β rises to 7/10 (p=0.005). The cophenet is therefore not a denoiser but a **multiscale-resolution operator** that uses the dendrogram's merge-height continuum to replace the spectral-gap scale-identification of [Villegas] when the spectrum is continuous (our case). The methodology directive `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` formalizes this.
+**The role of the cophenet step in the methodology.** Raw FC and raw `D(τ_max)` are operationally indistinguishable at matched-strength gating (headline three-layer table). The cophenet wrap on `D(τ_max)` is what produces band-resolution: bands without multiscale tree-shift (δ, θ, γ_h) demote from 6–7/10 to ≤4/10 cohort agreement; β rises to 7/10 (p=0.005). The cophenet is therefore not a denoiser but a **multiscale-resolution operator** that uses the dendrogram's merge-height continuum to replace the spectral-gap scale-identification of [Villegas] when the spectrum is continuous (our case). The methodology directive `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` formalizes this.
 
 ## 10. Source-of-truth references
 
 ### Primary reports (most current first)
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding writing-agent directive (cophenet adoption, KC/VI/taxonomy retirement)
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding writing-agent directive (cophenet adoption, KC/VI/taxonomy retirement)
 - `.agents/preprint/established_results/00_open_methodology_question_lrg_D_convention.md` — withdrawn / resolved
 - `.agents/reports/2026-05-15_errata-corrige-matched-strength-null.md` — current matched-strength source-of-truth
 - `.agents/reports/2026-05-15_grassmann-regating-no-7of10-filter.md` — Wilcoxon-only gate verification

@@ -130,7 +130,7 @@ Grep the LaTeX for every anti-pattern in `HANDOFF_INDEX.md` "Anti-pattern checkl
 
 ## Step 8 — Methodological-language scan (binding directive)
 
-**Authoritative**: `methods/methods_revision_2026-05-18_cophenet.md` is the binding methods directive.
+**Authoritative**: `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` is the binding methods directive.
 
 **Procedure**: grep the LaTeX Methods section for:
 - The definition of `D_coph` (must be explicit: `D_coph = cophenet(UPGMA(D(τ_max)))`).

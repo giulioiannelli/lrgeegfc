@@ -5,7 +5,7 @@ status: current
 kind: directive
 scope: Results-section figures, caption specs and narrative skeleton for the LRG cophenetic-distance per-pair trace subsection ("LRG-based cophenetic distance for the disentanglement of multiscale per-pair communication task-induced trace"). All-band cohort overview only (β primary, α secondary; per-band deep-dives land later). Pairs with the raw-substrate directive of the same date. Changes no locked verdict.
 created: 2026-06-03
-companion: directives/writing_directive_2026-06-03_raw-substrate-results-figures.md (the raw twin — its §0 magnitude-collapse caveat and Fig C caption are SHARED with this file); directives/writing_directive_2026-06-01_per-pair-probe-battery-restructure.md (methods restructure + canonical numbers); methods/methods_displacement_taxonomy_2026-06-03.md (parallel descriptive decomposition — distinct, do not merge)
+companion: directives/writing_directive_2026-06-03_raw-substrate-results-figures.md (the raw twin — its §0 magnitude-collapse caveat and Fig C caption are SHARED with this file); directives/writing_directive_2026-06-01_per-pair-probe-battery-restructure.md (methods restructure + canonical numbers); directives/methods_displacement_taxonomy_2026-06-03.md (parallel descriptive decomposition — distinct, do not merge)
 verified_against: data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (coph GATE); data/reports/imcoh_continuous_trace/{controls_summary.csv,controls_band_stats.md} (coph drift + cross-probe); data/audit/raw_fc_matched_strength/{cohort_summary_all_bands.csv,drift_floor_band_stats.md,drift_floor_per_patient.csv,cross_probe_per_patient.csv} (raw GATE + drift + cross-probe). Every number below was reproduced this session by running preprint_18 --both and preprint_21 --both.
 ---
 
@@ -298,7 +298,7 @@ subsection closed.
   (`locked/VERDICT_LEDGER.md`); matched-strength is the GATE, drift/cross-probe
   are supplementary controls (`locked/CONTROLS.md`). This file is figure +
   narrative for that already-locked battery.
-- **Distinct from** `methods/methods_displacement_taxonomy_2026-06-03.md` (a
+- **Distinct from** `directives/methods_displacement_taxonomy_2026-06-03.md` (a
   per-pair *character* decomposition of ρ_split^coph) — that is a different
   thread; do not merge the two.
 - **Sibling of** the raw twin directive of the same date; the two subsections are

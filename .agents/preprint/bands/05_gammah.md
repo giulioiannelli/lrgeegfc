@@ -24,7 +24,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts; Decision 6 for γ_h)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding methods directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding methods directive)
   - data/audit/ctm_triangle/cohort_summary.csv (γ_h row: rho_split_median, n_above_drift, rho_xprobe, Wilcoxon)
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (γ_h row: paired Wilcoxon vs surrogate)
   - data/audit/grassmann_cluster_extent/cohort_summary.csv (γ_h cluster-extent p=0.0547, audit_70)
@@ -235,7 +235,7 @@ Pat_03 is acquired at 1024 Hz (Nyquist 512 Hz vs the 80–300 Hz band); the filt
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery (Grassmann gate locked at cluster-extent permutation)
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `no trace` for γ_h; Decision 6 logs the cluster-extent revision
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `.agents/preprint/bands/02_alpha.md`, `.agents/preprint/bands/03_gammalow.md`, `.agents/preprint/bands/04_theta.md` — companion band briefs
 
 ### Audit data (rows the numbers come from)

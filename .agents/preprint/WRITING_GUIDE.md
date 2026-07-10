@@ -48,20 +48,21 @@ beside them.
 ├── headlines/              # one self-contained report per headline research question
 │                           #   of the multiscale-Laplacian programme (paper narrative spine)
 │
-├── methods/                # long-lived methods companions (one per probe family)
-│   ├── methods_revision_2026-05-18_cophenet.md
-│   ├── methods_grassmann_cluster_extent.md
-│   ├── methods_section_review_2026-05-19.md       # status: mostly_superseded (see METHODS_AUDIT_ISSUES.md)
-│   └── methods_neurophysiological_interpretation_2026-05-26.md
+├── overleaf/               # Overleaf MIRROR — manuscript sections; copy-paste source of truth
+│   ├── methods.tex
+│   ├── results_sec_1.tex
+│   └── tables/beta_per_patient.tex
 │
-├── directives/             # writing-agent directives (dated, accumulate)
-│   └── writing_directive_YYYY-MM-DD_<topic>.md
+├── directives/             # writing-agent directives + methods companions + results_paragraphs/ drafts
+│   ├── writing_directive_YYYY-MM-DD_<topic>.md
+│   ├── methods_grassmann_cluster_extent.md · methods_neurophysiological_interpretation_*.md · methods_displacement_taxonomy_*.md
+│   ├── results_paragraphs/   # per-result drafts R1.1 … R3.4 → compose into overleaf/results_sec_1.tex
+│   └── archive/2026-05/      # superseded methods reviews (methods_revision_*, methods_section_review_*)
 │
 ├── responses/              # cascade summaries, preflight notes, replies (dated)
 │   └── YYYY-MM-DD_<topic>.md
 │
-├── established_results/    # historical methodology Q&A (frozen)
-└── tables/                 # rendered tables (.md + .tex)
+└── established_results/    # historical methodology Q&A (frozen)
 ```
 
 ---
@@ -91,10 +92,16 @@ file"** — only create a new file when the decision tree explicitly says so.
 - Never create `bands/02_alpha_v2.md` or `bands/01_beta_addendum.md` —
   the per-band brief is the single home for that band.
 
-### A new methods directive (probe-level) → `methods/` (new file)
-- Create `methods/methods_<topic>_YYYY-MM-DD.md` only when a fundamentally
+### A new methods companion/directive (probe-level) → `directives/` (new file)
+- Create `directives/methods_<topic>_YYYY-MM-DD.md` only when a fundamentally
   new probe or methods convention is being introduced.
 - For methods *corrections* to an existing companion, edit in-place.
+
+### A manuscript section (mirrors Overleaf) → `overleaf/`
+- The assembled `.tex` sections you copy-paste to/from Overleaf live in
+  `overleaf/` (`methods.tex`, `results_sec_1.tex`, `tables/*.tex`). Edit the
+  section there and keep it in sync with Overleaf. Draft *paragraphs* that
+  compose into a section stay in `directives/results_paragraphs/`.
 
 ### A writing-agent directive → `directives/` (new file)
 - Filename: `writing_directive_YYYY-MM-DD_<short-topic>.md`.
@@ -190,6 +197,11 @@ From **outside** `.agents/preprint/` (e.g., `.agents/reports/`,
 
 ## Reorganization history
 
+- **2026-07-09** — added `overleaf/`, the Overleaf-mirror folder holding the
+  manuscript sections (`methods.tex`, `results_sec_1.tex`, `tables/*.tex`) as a
+  single copy-paste source of truth; dissolved `methods/` and `results/` —
+  methods companion notes → `directives/`, superseded methods reviews →
+  `directives/archive/2026-05/`.
 - **2026-05-19** — flat-folder → 5-subfolder layout
   (`locked/`, `bands/`, `methods/`, `directives/`, `responses/`).
   Pre-reorg top level had ~24 files mixed by kind; reorg consolidated

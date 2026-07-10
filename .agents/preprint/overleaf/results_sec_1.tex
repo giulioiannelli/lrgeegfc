@@ -1,0 +1,126 @@
+%
+    \subsection{A held, multiscale trace of learning and reasoning}
+        \label{ssec:trace}
+%
+\paragraph{Reasoning leaves an imprint that outlasts the task.}
+The transitive-inference task left a lasting imprint on the resting network (\FigRef{fig:trace1}a). Read through the multiscale cophenetic geometry of the diffusion hierarchy (\(\rhocoph\); Methods), \acrshort{rspost} did not relax back to the \acrshort{rspre} organization but retained the reorganization the task had imposed: in specific rhythms, its departure from the \acrshort{rspre} baseline aligned across the cohort with the task-induced change itself. During rest, the brain continues to work on what it has just learned~\cite{tambini2010enhanced}: recent experience is spontaneously reactivated, from replay of learned structure in \gls{meg} \cite{liu2019human} to reactivation of cortical memory traces in intracranial recordings \cite{duan2025awake}. Relational \emph{reasoning} leaves a comparable offline imprint~\cite{ellenbogen2007human} --- one carried not by the connectivity's strongest links but by the higher-order, multiscale structure the diffusion hierarchy exposes, as developed below.
+
+Resolved band by band, the trace was markedly heterogeneous across patients, and the cohort-median \(\rhocoph\) only orders the rhythms --- it does not on its own certify any of them. A band counts as a trace only where its per-patient effects sit consistently above each patient's own strength-matched surrogate, a null that preserves every node's total coupling while destroying higher-order structure (Methods). By that test two rhythms held at the cohort level: \(\beta\) (cohort-median \(\rhocoph = +0.20\); 6 of 10 patients above their own null; paired \(p = 0.032\)) and \(\alpha\) (median \(+0.10\), \(p = 0.024\)). Because \(\rhocoph\) is blind to coupling strength, the scale for reading \(+0.20\) is set by that null, not by \(1\): the surrogates reproduce almost none of the effect (median \(\rho \approx 0.01\)), so the trace stands more than an order of magnitude above the strength-only baseline, and the cohort median understates it --- half the cohort sits near the measurement floor while the patients that do trace reach \(\rhocoph\) of \(0.3\)--\(0.5\) (\FigRef{fig:trace1}d,e). The rhythms that cleared were not those with the largest individual effects: in \(\lowgamma\), three patients traced more strongly than any patient did in \(\beta\) (peak \(\rhocoph \approx +0.85\) against a \(\beta\) maximum of \(+0.54\)), but that subgroup was offset by patients running null or firmly anti (down to \(\rhocoph = -0.22\) in \patient{14}), so \(\lowgamma\), \(\delta\) and \(\highgamma\) all failed the cohort test (each \(p = 0.080\)) while \(\theta\) ran weakly counter, a clean negative (\(p = 0.78\)). What set \(\beta\) and \(\alpha\) apart was cohort-level consistency, not peak amplitude --- and the two part company, in turn, over where the trace lands.
+
+The between-patient spread is not a measurement-reliability effect. Rebuilding the cophenetic geometry on each half of every recording gives a split-half reliability of the estimate (Methods), and across patients that reliability explains only about 6\% of the variance in trace strength (\(R^2 = 0.06\)) --- how strongly a patient traced is essentially independent of how cleanly its network could be measured.
+
+%
+\begin{figure*}[p]
+    \centering
+    \includegraphics[width=\textwidth]{fig_trace1.pdf}
+
+    \caption{\textbf{A held, multiscale trace of learning and reasoning.}
+        \textbf{(a)} The held trace crossing the matched-strength gate, on all ten
+        implants pooled into an approximate-MNI pial shell, top to bottom in ascending
+        gate order (\(\theta\), \(\alpha\), \(\beta\)): green contacts hold the
+        task$\to$rest cophenetic move beyond their own strength-matched null
+        (carriers), red contacts reverse it (resets), the grey sea holds no trace;
+        blue arcs are the strongest concordant carrier co-movements. The carrier field
+        and its blue backbone thicken as the gate is crossed --- \(\theta\) is flat
+        (carriers balanced by reversers, no net trace), \(\beta\) dense (arcs
+        illustrative; the cohort evidence is in the quantitative panels).
+        \textbf{(b)} The task's cophenetic fingerprint and its echo (exemplar
+        \patient{08}): the per-pair change in cophenetic distance at \acrshort{taskt}
+        (top) and the change still present at \acrshort{rspost} (bottom), each ranked
+        within its own map (blue = pulled together, red = pulled apart), contacts
+        ordered by the \acrshort{rspre} dendrogram. The fingerprint re-appears at rest
+        for \(\beta\) and \(\alpha\) (green labels, clear the gate) but not
+        \(\theta\)/\(\delta\) (grey) --- band specificity that is invisible in the raw
+        edges and emerges only in the hierarchy.
+        \textbf{(c)} The post-task resting hierarchy re-expresses the task hierarchy
+        (whole-tree \(\rhocoph\) to task: \(0.05\to0.58\), exemplar), and
+        cohort-wide \acrshort{rspost} sits closer to \acrshort{taskt} than
+        \acrshort{rspre} (\(10/10\)).
+        \textbf{(d)} Per-patient held trace \(\rhocoph\) by band: only \(\beta\)
+        (\(+0.20\), \(6/10\), \(p=0.032\)) and \(\alpha\) (\(p=0.024\)) clear the
+        cohort gate, and they win on consistency, not peak amplitude (\(\lowgamma\)
+        carries the single largest tracers yet fails, \(p=0.08\); \(\theta\)
+        negative).
+        \textbf{(e)} The same per-patient effects resolved band by band against each
+        patient's own strength-matched null (grey \(p_5\)--\(p_{95}\) bar): a filled
+        dot clears its own null, an open dot sits within it, red runs anti. Only
+        \(\beta\) and \(\alpha\) are consistent enough across the cohort to clear the
+        gate (corner glyph); \(\lowgamma\) carries the largest single tracers but is
+        split, and \(\theta\) is a clean negative.}
+    \label{fig:trace1}
+\end{figure*}
+%
+\paragraph{The trace concentrates in the orbitofrontal cognitive map.}
+A cohort-level trace establishes that the reorganization persists, but not what it is --- the same statistic would arise whether the imprint sat in circuitry the task engages or was spread evenly across the cortex, and only the former would tie it to the reasoning that produced it. Telling these apart means asking where each surviving trace concentrates, and here \(\beta\) and \(\alpha\) part company: \(\beta\) points to a specific cortical system and \(\alpha\) to none, so we follow \(\beta\) first. Its localization is two-sided --- one system concentrates the trace while two others are significantly depleted of it. Although the \(\beta\) trace is brain-wide, it concentrates --- above each patient's own whole-brain baseline --- in \gls{ofc} (\FigRef{fig:trace2}a). We scored each of nine a-priori cortical systems for how strongly the \(\beta\) trace enriched there relative to that baseline, tested each against a strength-matched surrogate (\(R = 1000\)), and corrected for testing all nine with a \gls{bh} \gls{fdr} procedure. \gls{ofc} was the only system to survive on the enrichment side, at corrected \(q = 0.010\)--\(0.015\) in each of the four analyses (epi-included or excluded \(\times\) contact- or shaft-level), and leave-one-out robust in three of the four (worst-case \(q = 0.060\) in the fourth). Its enrichment sat in nodes carrying below-average total coupling, not the most strongly coupled ones, and appeared in both hemispheres. Prefrontal and sensorimotor cortex went significantly the other way --- their \(\beta\) trace fell below the whole-brain baseline (\(q \le 0.033\)) --- so these are the systems where the reorganization is least retained, the anatomical complement of the orbitofrontal concentration. The localization is anatomically precise rather than a coarse frontal effect: it holds at the granularity of the \gls{ofc} system and disappears once the same contacts are pooled into the whole frontal lobe (\(p \approx 0.29\)). Two limits bound it honestly. \gls{ofc} was sampled in only 5 of the 10 patients, 4 of whom expressed the concentration; and a medial-temporal (hippocampal) concentration visible in the raw enrichment neither clears the surrogate (\(p \approx 0.4\)) nor rests on more than a single patient, so it is a hint, not a localization.
+
+\gls{ofc} is implicated in building the relational ``cognitive maps'' that organize task elements into an inferable structure \cite{wilson2014orbitofrontal,schuck2016human}, the substrate over which inference of the kind this task required operates \cite{park2021inferences}. The \(\beta\) trace localizes to precisely this map-building circuitry. The other rhythms sharpen the contrast: \(\alpha\) carries a genuine cohort trace (above) but has no anatomical home --- no system survives the same localizer, and each patient places it differently --- so \(\alpha\) is a trace without an address, while in \(\lowgamma\) a prefrontal concentration appears --- in the very cortex whose \(\beta\) trace is depleted --- but only within a strongly-tracing subgroup, and it clears neither the cohort trace gate nor \gls{loo}, so prefrontal cortex is a reproducible home for the trace in no band. \(\beta\) is thus the only band that is at once a cohort-level trace and a reproducible cortical location.
+
+%
+\begin{figure*}[p]
+    \centering
+    \includegraphics[width=\textwidth,height=0.80\textheight,keepaspectratio]%
+        {fig_trace2.pdf}
+
+    \caption{\textbf{Where the \(\beta\) trace lives, and what tissue carries it.}
+        \textbf{(a)} Pooling all ten implants into an approximate-MNI pial shell, the
+        \(\beta\) trace concentrates ventrally in orbitofrontal cortex (green, enriched)
+        and is depleted dorsally in prefrontal and sensorimotor cortex (orange);
+        saturated markers flag the systems whose direction survives \(R{=}1000\) +
+        leave-one-out + shaft-collapse, while pale markers clear the enrichment tail but
+        are single-patient-driven (grey: n.s.\ or white matter).
+        \textbf{(b)} Tissue-class carrier map across all six bands (colour; a filled
+        marker clears the strength-matched null, an open marker does not). The \(\beta\)
+        trace is carried by healthy cortical coupling: it concentrates in gray--gray
+        (\(+0.24\)) and gray--white (\(+0.19\)) coupling but not in white--white
+        (\(+0.10\)) or seizure-onset-internal (\(+0.08\)); \(\alpha\) alone concentrates
+        in the seizure-onset zone (arrow, expanded in \textbf{c}).
+        \textbf{(c)} Over the seizure-onset zone the two carrier bands treat the
+        cophenetic hierarchy oppositely. Top (exemplar \patient{14}): for every contact
+        pair, the change in cophenetic distance at \acrshort{taskt} (\(x\)) against the
+        change still present at \acrshort{rspost} (\(y\)), rank-scored within class; a
+        pair on the green diagonal held its task-induced hierarchy move into rest.
+        \gls{soz}--\gls{soz} pairs (crimson) collapse onto the diagonal in \(\alpha\)
+        (\(\rho_{\mathrm{sym}}=+0.43\)) --- the seizure-onset sub-network shares one
+        held hierarchy move --- but scatter in \(\beta\) (\(-0.39\)); the shaded
+        \(1\sigma\) extent is a narrow sliver along the held diagonal in \(\alpha\) and a
+        broad, near-round blob in \(\beta\). Bottom (cohort,
+        \(n{=}10\)): observed \(\rho_{\mathrm{sym}}\) per pair-class against its
+        strength-matched null (open marker). \(\alpha\) recruits the \gls{soz}
+        (\gls{soz}--\gls{soz} \(+0.41\), above a negative null, \(p=0.005\)) while
+        \(\beta\) is generic there (\(+0.08\), on its null, \(p=0.31\)), retaining its
+        trace in non-\gls{soz} cortex instead.}
+    \label{fig:trace2}
+\end{figure*}
+%
+\paragraph{Band-specificity is a property of the network's multiscale geometry.}
+The trace we have followed is band-specific at every step --- present in \(\beta\) and \(\alpha\) but not \(\theta\), and anatomically localized only in \(\beta\). That band structure is not a property of the raw connectivity; it emerges only when the connectivity is read through the diffusion hierarchy. The connectivity we analyze is a dense weighted graph that we leave unthresholded: with a volume-conduction-immune estimator (\gls{imcoh}; Methods) essentially every pair of contacts carries some coupling, so what separates one network state from another is the pattern of weights, not which edges are present. Comparing those weights directly across phases does register the reorganization --- \acrshort{rspost} connectivity leans back toward its \acrshort{taskt} configuration --- but it registers roughly the same reorganization in every band, and so cannot tell a band that traces from one that does not. The overlap is positive everywhere, including \(\theta\), where no trace survives our controls: the raw \(\theta\) value (\(\rho \approx +0.12\)) is not measurably different from the bands that do trace, and all six bands sit within a single 0.15-wide range. At \(\beta\), the band with the strongest hierarchical trace, the edge-level overlap does not even clear the strength-matched surrogate (\(p = 0.053\)). Read through its raw weights, then, the network shows only a blunt, band-blind drift back toward the task state --- real, but the same size in a band that traces and a band that does not.
+
+The multiscale picture comes from reading the same weights through the \gls{lrg} propagator. Rather than compare edges, we let heat diffuse on the graph --- \(e^{-\tau L}\) at the fine-scale operating point \(\tau = 1/\lambda_{\max}\) (Methods) --- so that the affinity between two contacts is set not by their single shared edge but by all the multi-step paths that connect them through the rest of the network; the reorganization is thereby re-expressed in the higher-order, multi-step structure of propagation. Clustering this diffusion geometry into a hierarchy and reading each pair's cophenetic distance (\(\rhocoph\)) filters the connectivity across scales, and the effect on the band picture is qualitative: the generic overlap that made every band look alike at the edge level is stripped out. The bands that do not trace collapse to zero --- \(\theta\), positive and indistinguishable from \(\beta\) in the raw edges, falls to \(\rhocoph \approx -0.04\) --- while \(\beta\) is retained near \(+0.20\); and \(\beta\) now clears the strength-matched surrogate (\(p = 0.032\), 6 of 10 patients) where its edge-level analogue did not (\FigRef{fig:trace1}b). The hierarchy does not make the trace larger; the ultrametric in fact compresses its magnitude. What it does is separate a real, band-specific trace from the undifferentiated drift, so that band-specificity emerges only once the connectivity is read as a multiscale geometry rather than a list of edges.
+
+The same operator supports a second, complementary reading. The cophenetic distance is multiscale because the diffusion hierarchy is nested: it folds every scale into one dendrogram, so each pair's distance reports its place at once, from the finest splits to the coarsest communities. A \emph{Grassmann} distance instead reads the network's leading eigenmodes --- global patterns over the whole electrode set --- and measures how far that subspace rotates from \acrshort{rspre} to \acrshort{taskt}: a turn of the dominant modes \emph{at} a scale rather than a change coherent \emph{across} scales (Methods). Built from the same spectrum, the two are not independent tests but complementary ones, and they answer to different bands (Table~\ref{tab:probe_band}). \(\beta\) is the only band both register --- its reorganization is global and multiscale at once, which is why it survives whichever way the spectrum is read --- while \(\alpha\) is multiscale-only (clear in the hierarchy, absent in the global modes) and \(\lowgamma\) its mirror image, a global rotation that never settles into a stable hierarchy. The probes do not set a bar the trace must clear twice; they sort reorganizations by kind.
+
+%
+\begin{table}[t]
+    \centering
+    \caption{\textbf{The two Laplacian read-outs dissociate by band.} A per-pair \emph{cophenetic} distance (\(\rhocoph\); multiscale, nested across scales) and a global-mode \emph{Grassmann} distance (\(d_{G}\); the leading subspace at a single scale), both read from the same diffusion operator. \(\checkmark\) marks a cohort-level trace that clears that read-out's own strength-matched control; --- marks none (\(p\) from the paired cohort test). \(\beta\) is the only band both register; \(\alpha\) is multiscale-only and \(\lowgamma\) global-only, so each probe recovers a reorganization the other misses. The two are complementary views of one spectrum, not a bar the trace must pass twice; the full six-band map is given in Methods.}
+    \label{tab:probe_band}
+    \begin{tabular}{lcc}
+        \toprule
+        Band & Cophenetic \(\rhocoph\) (multiscale) & Grassmann \(d_{G}\) (global modes) \\
+        \midrule
+        \(\beta\)     & \(\checkmark\)~~(\(p = 0.032\)) & \(\checkmark\)~~(\(p = 0.005\)) \\
+        \(\alpha\)    & \(\checkmark\)~~(\(p = 0.024\)) & ---~~(\(p = 0.35\)) \\
+        \(\lowgamma\) & ---~~(\(p = 0.08\))            & \(\checkmark\)~~(\(p = 0.005\)) \\
+        \(\theta\)    & ---~~(\(p = 0.78\))            & ---~~(\(p = 0.16\)) \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+%
+\paragraph{The \(\beta\) trace is carried by healthy cortical coupling.}
+A trace this specific has one confound left to clear before it can be read as a signature of cognition. These recordings come from epilepsy patients, implanted because of disease, so the persistence we attribute to reasoning might instead ride the epileptogenic network that motivated the implant --- and telling the two apart is a question not of whether the trace is present but of which tissue carries it. We labeled every node pair by the tissue it links --- cortical gray matter, white matter, or the clinically defined \gls{soz} --- and asked which classes carry the \(\beta\) trace more strongly than a random set of pairs of the same size drawn from the whole network (a pair-class control, \(R = 1000\)). It is healthy cortex that carries it: the \(\beta\) trace concentrates in coupling between gray-matter contacts, well above the random-pair baseline (\(p < 0.001\)) and clearing the strength-matched surrogate (\(p = 0.042\); \FigRef{fig:trace2}b), whereas white-matter coupling falls below that baseline and pairs internal to the \gls{soz} carry no more of the trace than a random set of the same size (\(p = 0.93\); neither clears the strength-matched null). Removing the seizure-onset contacts from the network altogether leaves both the cohort \(\beta\) and \(\alpha\) traces intact; any apparent change in magnitude on exclusion is accounted for by node count alone, as a random-decimation control reproduces it. The \(\beta\) trace is therefore carried by healthy cortical coupling, not the diseased core --- the persistence reflects the physiology of the cortex the task engages, not the pathology that placed the electrodes.
+
+\paragraph{The resting brain holds the task configuration rather than flashing back to it.}
+Everything so far treats post-task rest as a single averaged snapshot. Resolving it in time asks a sharper question: does the resting brain merely pass through the task configuration in brief, replay-like flashes, or does it settle into it and stay? We cut each rest recording into 20-second windows and scored every window --- in the two bands that carry the static trace, \(\alpha\) and \(\beta\) --- for how much closer it sits to the \acrshort{taskt} state than to the \acrshort{rspre} baseline (Methods). The post-task windows are consistently more task-like than the pre-task ones across the entire cohort (10 of 10 patients, \(p = 0.001\), \gls{loo} \(p = 0.002\); the per-patient measure is averaged over the two bands, and the effect is present in each band on its own). The resting brain does not pass through the task configuration in brief excursions; it remains near it for the duration of post-task rest (\FigRef{fig:trace1}c). This is not tied to one way of reading the hierarchy: the window-level shift stays positive in five distinct Laplacian-propagator read-outs of the same recording. The opposite picture --- that the task state re-enters rest as brief, recurring replay bursts \cite{schuckniv2019sequential} --- is a cohort-level negative: we found no burstiness, no separable recurring states, and no ordered sequence, across every band and every resolvable timescale down to the \(0.2\)-second range, each tested against time-shuffled and node-permuted placebo nulls. Two honest limits bound this. A single replay event at the ripple scale (\(\sim\)100\,ms) falls below the coherence floor of \emph{any} connectivity measure, so the replay reading is excluded only down to the resolvable \(\sim\)0.2-second scale, not beneath it; and while post-task rest stays near the task configuration, whether it is drawn more tightly toward it than pre-task rest is toward its own baseline is only a weak trend (\(p = 0.08\)), so we claim a maintained proximity, not a sharpened attractor. Because it is the static trace read at finer temporal resolution, the reinstatement inherits its strength-matched control.
+
+\paragraph{Over the seizure-onset zone, \(\beta\) and \(\alpha\) diverge.}
+The \(\beta\) trace avoids the diseased core (above), but how the persistence treats that tissue depends on the rhythm, and the contrast is the first link between the cognitive trace and the pathology. Where \(\beta\) --- the focal, cortically anchored band --- is carried by healthy coupling and leaves the \gls{soz} out, \(\alpha\) --- the diffuse band with no cortical address --- does the reverse: the same per-pair persistence \emph{concentrates} in coupling internal to the \gls{soz} (pair-class control \(p < 0.001\)) and \emph{strengthens} rather than weakens under the strength-matched surrogate (\(p = 0.005\)), a genuine recruitment of the diseased core rather than a strength artifact. So the band that anchors in \gls{ofc} steers around the epileptogenic tissue while the band with no cortical home pulls it in (\FigRef{fig:trace2}c). The cognitive trace and the epileptogenic network are therefore not independent --- the bridge to the final result, where the same network organization that carries the cognitive trace is turned around to read out the epileptogenic tissue itself.

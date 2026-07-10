@@ -10,7 +10,7 @@ source_of_truth:
   - .agents/preprint/bands/01_beta.md
   - .agents/preprint/locked/VERDICT_LEDGER.md
   - .agents/preprint/locked/CONTROLS.md
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md
 locked_verdict: "strong trace, both probes (VERDICT_LEDGER.md locked 2026-05-18, revised 2026-05-19 for cluster-extent gate)"
 ---
 
@@ -216,7 +216,7 @@ Anatomy paragraph: deferred, red-flag block only.
 - `.agents/preprint/bands/01_beta.md` — full β brief; every numerical claim in the paragraph must trace to a row here.
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict; do not re-derive.
 - `.agents/preprint/locked/CONTROLS.md` — locked 5-control battery.
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive (KC / VI(k) / τ-sweep retired; D_coph adopted).
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive (KC / VI(k) / τ-sweep retired; D_coph adopted).
 - `data/audit/ctm_triangle/cohort_summary.csv` — C1 split, C2 drift, C4 cross-probe.
 - `data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv` — C3 matched-strength for `ρ_split^coph`.
 - `data/audit/grassmann_matched_strength_surrogate/cohort_summary.csv` — Grassmann full-FC per-k.

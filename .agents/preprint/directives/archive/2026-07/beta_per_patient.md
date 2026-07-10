@@ -7,7 +7,7 @@ date: 2026-05-18
 band: beta
 target: tab:beta_per_patient
 preflight: .agents/preprint/responses/2026-05-18_beta_per_patient_table_preflight.md
-location: .agents/preprint/tables/ (all preprint work lives under .agents/preprint/ per project rule)
+location: .agents/preprint/overleaf/tables/ (co-located with beta_per_patient.tex; all preprint work lives under .agents/preprint/)
 ---
 
 # β per-patient table — companion notes

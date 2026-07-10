@@ -37,7 +37,7 @@ judgement at the foot.
 *(alt: The brain keeps the relations it reasoned out.)*
 
 - **R2.1 — The brain keeps the relations it reasoned out, not just the pairs it saw.** Splitting the persistent trace into what was **encoded** (premises shown) and what was **inferred** (novel pairs reasoned out, with encoding controlled out), the **inference-specific component itself persists** into post-task rest — in **β alone**. The offline trace carries the *computed* structure, not merely a replay of experience: an offline signature of abstracting a learned order. *(Solid, duration-controlled.)*
-- **R2.2 — The inference-specific consolidation holds across the hierarchy's scales.** The inference-specific β component is **multiscale**: it clears the strength-matched control at the fine operating scale (τ=1) *and* at a mesoscale (τ≈2.6/λmax) by a comparable margin, with every other band null at both — so it is not an artifact of the operating scale. The mesoscale is the scale of multi-step relational paths (motivation), but the effect does **not** peak there: the full τ-sweep shows no interior maximum. *(Verified — multiscale robustness, NOT a mesoscale peak; peak claim dropped 2026-07-07.)*
+- **R2.2 — *(retired 2026-07-09, PI call).*** The τ-sweep "holds across scales" result is dropped: on a fully-connected, continuous-spectrum network there is no meaningful multiscale *across* τ, so the decomposition is read at the single working scale τ=1/λmax, where the dendrogram hierarchy already carries the multiscale content (as in R1.3). The former τ≈2.6 mesoscale-robustness claim is not part of the paper. *(R2.3–R2.7 keep their numbers; the R2.2 slot is retired, mirroring `results_paragraphs/` where `R2.2_mesoscale-integration.tex` is archived.)*
 - **R2.3 — The consolidation anchors in the orbitofrontal cognitive map, and learning sets the anchor.** The encoding component concentrates in **orbitofrontal cortex** — the relational-map hub — and the pure memorising phase, with no reasoning demanded, already leaves its own α/β trace there, so OFC is anchored by **both** task phases. *(Solid.)*
 - **R2.4 — The two components live in different rhythms.** The **memory** component persists in **both α and β**; the **inference-specific** component persists in **β alone**. Not an artifact of the longer test session — the β inference component does **not** scale with recording length (ρ_sym Spearman ρ=+0.10, p=0.78); length-tracking sits in **non-tracing** bands (α ρ=+0.55, high-γ ρ=+0.70), disjoint from the inference band. *(Solid, duration-controlled. NB: earlier "only α tracks length" corrected 2026-07-07 — high-γ tracks harder, but both are inference-null.)*
 - **R2.5 — A hidden memory trace surfaces in the cingulate at low-γ.** A focal, encoding-related trace appears in the **cingulate in low-γ** that is completely invisible at the whole-brain level — the clearest case of the method reading a single region. *(Solid.)*
@@ -59,7 +59,7 @@ judgement at the foot.
 
 *(R1–R3 titles set 2026-06-22 — short and expressive; one alt kept under each.)* Rationale (what each title leads on):
 - R1 — a **held** (non-ergodic) multiscale trace of **both** learning (encoding) and reasoning (inference); band **dropped from the title**, **biology-led**: R1.2 = the OFC/PFC cognitive-map consolidation (the heart); cophenetic is the **primary** probe, Grassmann **demoted from a headline probe to a complementary second readout** (R1.3 — it dissociates by band, not a β confirmation); the per-band readout × band map lives in Methods. Per-patient variance is a **detectability control** (Methods), not a result.
-- R2 — *(flagship)* leads on **offline abstraction of a learned structure** (the brain keeps the inferred relations); the per-band dissociation (encoding vs inference) + the multiscale scale-robustness (fine through mesoscale, not a peak) + the OFC anchor are the *evidence*; the anatomy of inference itself stays out of the title (cingulate is a directional lead, OFC is a concentration).
+- R2 — *(flagship)* leads on **offline abstraction of a learned structure** (the brain keeps the inferred relations); the per-band dissociation (encoding vs inference) + the OFC anchor are the *evidence*; the anatomy of inference itself stays out of the title (cingulate is a directional lead, OFC is a concentration).
 - R3 — *propagator-inspired* markers; spans all bands (δ marker strongest); label-validated triage (R3.4). *(Seed-free R3.3 cut 2026-07-07 — clean negative; R3.4/R3.5 → R3.3/R3.4.)*
 
 ## Notes held
@@ -78,7 +78,7 @@ judgement at the foot.
   structure) → R2 (the flagship — what the held structure *is*: an offline
   abstraction of a learned order)**; R3 = clinical coda. The
   "abstraction/consolidation" framing rests on the phase decomposition + the
-  mesoscale scale-signature + the OFC anchor + literature, **not** on replay or
+  OFC anchor + literature, **not** on replay or
   behavior. The no-behaviour ceiling is the binding constraint — the abstraction
   claim is an *interpretation* of an inference-specific persistence result, never a
   behavioral or mechanistic proof. All remaining claims sit on proven results.

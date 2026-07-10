@@ -19,7 +19,7 @@ coarsest point is in a COLLAPSE ZONE and is not part of the test.
 
 Reads : data/audit/consolidation_arc_rhosym/arc_scale_cohort_verdict.csv
         data/audit/consolidation_arc_rhosym/arc_scale_null_R200.csv
-Writes: data/reports/results_section2/fig_arc_b_multiscale.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_b_multiscale.pdf
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ ROOT = setup_script_env()
 use_lrg_style()
 
 BASE = ROOT / "data/audit/consolidation_arc_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_b_multiscale.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_b_multiscale.pdf"
 
 FUNC = "T_infspec_pe"
 C_BETA = "#d1491c"           # the inference-carrying band

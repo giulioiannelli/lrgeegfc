@@ -8,7 +8,7 @@ updated: 2026-05-30
 pointers:
   - .agents/guides/task-persistence-investigation/2026-04-26_continuous-trace-matrix.md
   - .agents/preprint/bands/01_beta.md
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md
   - scripts/01_compute/audit/audit_63_split_baseline_surrogate.py
   - scripts/02_preprint/preprint_05_allbands_matched_strength_raw_D.py
   - src/lrg_eegfc/utils/surrogate/matched_strength.py

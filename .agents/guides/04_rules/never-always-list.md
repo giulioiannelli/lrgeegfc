@@ -108,6 +108,15 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   a diverging cmap with a neutral centre is unavoidable, use a
   saturated light-gray centre (e.g. `#dddddd`) instead of pure
   white.  See `feedback_no_near_white_cmaps.md`.
+- **Never hardcode per-band colours in a figure.** Every plot that
+  distinguishes frequency bands by colour MUST call `band_color(band)`
+  (or index `BAND_COLORS`) from `lrg_eegfc.visuals.styles` (re-exported
+  from `lrg_eegfc.visuals`), so the whole codebase restyles from one
+  constant. The canonical palette is a spectrum — slow bands red, fast
+  bands blue, rainbow between (`turbo` reversed; the single swap point is
+  `BAND_CMAP_NAME` / `BAND_CMAP_SPAN`). Use `band_color(band, shade<1)`
+  to darken the bright midtones (alpha, beta) for text / thin lines.
+  Locked 2026-07-09. See `feedback_band_color_palette.md`.
 - **Never use ARI / NMI / Fowlkes-Mallows or any sklearn
   `*_rand_score` / partition-cut metric for cross-phase LRG
   dendrogram similarity, and never colour leaves / branches by
@@ -319,6 +328,22 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   explicitly prefers an honest "this is currently unverified" to a
   confident headline that gets retracted. See
   `feedback_brutal_honesty_no_sycophancy.md`.
+- **Never source a load-bearing (especially unwelcome) number from a
+  previous agent's report, a cached summary table, or already-written
+  prose — recompute it fresh from the raw substrate with code you can
+  inspect, and use the cache only as a cross-check, never as the
+  source.** Prior agents and prior writeups hallucinate and mis-derive.
+  Caught 2026-07-10: two subagents reconstructing audit_166 disagreed on
+  cophenetic's per-patient β-inference breadth (6/10 vs 10/10) — at least
+  one fabricated a number about to enter a verdict. Any result that gates
+  a claim, contradicts the user's expectation, or will touch the preprint
+  must be re-derived by independent computation (reuse validated library
+  primitives + the FC matrices, not the derived CSV), print intermediates,
+  sanity-check one cell by hand, and diff against the cache; if they
+  disagree the cache was wrong and the fresh number stands. User directive
+  (2026-07-10): "never rely on text already written... don't rely on
+  previous agents, remember that we could have made hallucinations." See
+  `feedback_fresh_recompute_not_prior_text.md`.
 - **Never editorialize without evidence. Qualitative terms must be
   weighted with the number that justifies them.** There is no banned-
   word list — terms like *borderline, fails, clears, separated,
@@ -615,6 +640,20 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
      always flush), plus a total wall-clock at the end. The user must be
      able to see where the run is at any moment, not guess. See
      `feedback_optimize_time_and_surface_progress.md`.
+
+## Drift is orthogonal to matched-strength (check both)
+
+Cross-phase / arc trace claims must clear a **within-recording drift null**, not
+only matched-strength — MS preserves node strength but ignores temporal structure,
+so a slow-drift-driven trace passes MS unscathed ("raw FC always shows trace"). A
+drift control already exists: **C2** in `locked/CONTROLS.md` (`ρ_split > ρ_drift`),
+covering the **whole-task** trace (α/β/γ_low pass). It does **not** cover the
+four-phase arc functionals (`T_infspec·e` inference-specific, `T_learn` encoding);
+those need their own **duration-matched** drift gate. `audit_167` (2026-07-10):
+whole-task β drift-robust under a 2nd construction; α/γ_low construction-dependent;
+the **inference-specific decomposition is drift-unverified** (β p=0.22); raw-FC
+traces are **entirely drift**. **Grep `locked/CONTROLS.md` before declaring a
+control missing.** See `feedback_drift_null_mandatory.md`.
 
 ## Meta-rule
 

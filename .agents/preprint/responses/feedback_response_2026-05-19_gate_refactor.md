@@ -135,9 +135,9 @@ now proceed with the M4 + m6 patches under the updated CONTROLS.md
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — updated 2026-05-19 pm with
   cascade; revision history block at the end documents the four new
   decisions.
-- `.agents/preprint/methods/methods_grassmann_cluster_extent.md` — §5d
+- `.agents/preprint/directives/methods_grassmann_cluster_extent.md` — §5d
   (Mass-only verdict gate), §6 (locked LOO + C5 table).
-- `.agents/preprint/methods/methods_section_review_2026-05-19.md` — M4 + m6
+- `.agents/preprint/directives/archive/2026-05/methods_section_review_2026-05-19.md` — M4 + m6
   flagged as RESOLVED; head paragraph updated with the cascade
   summary.
 - New audit scripts:

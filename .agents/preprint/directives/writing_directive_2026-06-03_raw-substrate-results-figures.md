@@ -5,7 +5,7 @@ status: current
 kind: directive
 scope: Results-section figures, captions and prose for the raw |ImCoh| substrate per-pair trace (joint density + null triangle) and the cophenetic null-triangle twin, plus the VERIFIED raw→LRG inversion-magnitude-collapse finding. Pairs with the 2026-06-01 per-pair-probe methods-restructure directive. Changes no locked verdict.
 created: 2026-06-03
-companion: directives/writing_directive_2026-06-01_per-pair-probe-battery-restructure.md (methods restructure + GAP-closure canonical numbers); methods/methods_displacement_taxonomy_2026-06-03.md (parallel descriptive decomposition — distinct)
+companion: directives/writing_directive_2026-06-01_per-pair-probe-battery-restructure.md (methods restructure + GAP-closure canonical numbers); directives/methods_displacement_taxonomy_2026-06-03.md (parallel descriptive decomposition — distinct)
 verified_against: data/audit/raw_fc_matched_strength/{cross_probe_per_patient.csv,drift_floor_per_patient.csv,per_patient_per_band_all_bands.csv,cohort_summary_all_bands.csv}; data/reports/imcoh_continuous_trace/controls_summary.csv; data/audit/matched_strength_surrogate_split_baseline/{per_patient_per_band.csv,cohort_summary.csv}. All per-band counts/p-values recomputed this session.
 ---
 
@@ -170,6 +170,6 @@ remains audit_63 (`matched_strength_surrogate_split_baseline`) per GAP-2; the
   (`locked/VERDICT_LEDGER.md`); this is figure + narrative for an
   already-established control battery (drift = supplementary control;
   matched-strength = GATE; see `locked/CONTROLS.md`).
-- Distinct from `methods/methods_displacement_taxonomy_2026-06-03.md` (that is
+- Distinct from `directives/methods_displacement_taxonomy_2026-06-03.md` (that is
   a per-pair *character* decomposition of ρ_split^coph; this is the
   raw-vs-LRG control-separation figure set).

@@ -22,7 +22,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding methods directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding methods directive)
   - data/audit/ctm_triangle/cohort_summary.csv (θ row: rho_split_median, n_above_drift, rho_xprobe, Wilcoxon)
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (θ row: paired Wilcoxon vs surrogate)
   - data/audit/grassmann_cluster_extent/cohort_summary.csv (θ cluster-extent p=0.0995, audit_70)
@@ -214,7 +214,7 @@ Per-patient `T_G(k)` at θ shows isolated cells of cohort agreement (e.g., k=7: 
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `no trace` for θ
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `.agents/preprint/bands/02_alpha.md`, `.agents/preprint/bands/03_gammalow.md` — companion band briefs
 
 ### Audit data (rows the numbers come from)

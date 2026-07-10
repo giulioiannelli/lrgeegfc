@@ -338,7 +338,7 @@ this (mass-only). Replace.
 Verdict column at lines 73-78 also needs flipping (γ_l/δ to "strong")
 to match items 4-5.
 
-### Item 13 — `methods/methods_grassmann_cluster_extent.md` Head + §5b + §6 + §9 + §10 + §11  · `[x]` (2026-05-28: full Decision-8/12 + C1 normalization sweep — head + §5b + §6 + §9 checklist + §10 refs + §11 revision log all updated; per-patient T_G*,s formula with n_k^s added; gate citations switched disjunctive → mass-only + LOO precondition; γ_h removed from "contributes" band list)
+### Item 13 — `directives/methods_grassmann_cluster_extent.md` Head + §5b + §6 + §9 + §10 + §11  · `[x]` (2026-05-28: full Decision-8/12 + C1 normalization sweep — head + §5b + §6 + §9 checklist + §10 refs + §11 revision log all updated; per-patient T_G*,s formula with n_k^s added; gate citations switched disjunctive → mass-only + LOO precondition; γ_h removed from "contributes" band list)
 
 Multiple stale citations in the same file:
 - Line 26 (Head): "β at `T_G^* = 52.97`, `cluster_p_mass = 0.005` is the **load-bearing band**" → β = **69.76**, vocabulary swap (see Low §)
@@ -402,7 +402,7 @@ here — but consistency with the panel pushes for normalized citation.
 
 Fix: line 186 swap raw `7.98` → normalized `0.0312` (or dual: `0.0312 (raw 7.98)`).
 
-### Item 14d — `methods/methods_neurophysiological_interpretation_2026-05-26.md` 7 raw citations  · `[x]` (2026-05-28: cohort summary table + §4.3 γ_l + §4.4 δ reframed under Decision 12; T_G* normalized + raw dual format; γ_l strong; δ weak with LOO Pat_08 binding; C5 explicitly secondary)
+### Item 14d — `directives/methods_neurophysiological_interpretation_2026-05-26.md` 7 raw citations  · `[x]` (2026-05-28: cohort summary table + §4.3 γ_l + §4.4 δ reframed under Decision 12; T_G* normalized + raw dual format; γ_l strong; δ weak with LOO Pat_08 binding; C5 explicitly secondary)
 
 This methods file was authored 2026-05-26 (this same audit session) but used
 raw T_G* values. Stale per C1 from creation.
@@ -418,7 +418,7 @@ Lines with raw values:
 
 Fix: 7 line-edits swapping `mass=<raw>` → `T_G*=<normalized>` per the locked table.
 
-### Item 14e — `methods/methods_section_review_2026-05-19.md:54-55` raw values  · `[x]` (2026-05-28: per Q2 — raw values kept verbatim as historical record of pre-fix→post-fix formula change; forward pointer added documenting C1 normalization + Decision-12 δ demotion retraction)
+### Item 14e — `directives/archive/2026-05/methods_section_review_2026-05-19.md:54-55` raw values  · `[x]` (2026-05-28: per Q2 — raw values kept verbatim as historical record of pre-fix→post-fix formula change; forward pointer added documenting C1 normalization + Decision-12 δ demotion retraction)
 
 Body narrative: "in the manuscript draft (β 52.97, γ_l 19.17, δ 12.78) are
 obsolete; re-run values are β 69.76, γ_l 66.14, δ 38.07."
@@ -507,7 +507,7 @@ Fix: add `rostralanteriorcingulate` to both lists.
 
 ### Item 19 — `README.md` doesn't list new methods files  · `[x]` (2026-05-28: added pointers to METHODS_AUDIT_ISSUES.md + methods_neurophysiological_interpretation + methods_section_review with mostly_superseded tag)
 
-- `methods/methods_neurophysiological_interpretation_2026-05-26.md` —
+- `directives/methods_neurophysiological_interpretation_2026-05-26.md` —
   created 2026-05-26, not in README
 - `METHODS_AUDIT_ISSUES.md` — created 2026-05-20, not in README
 
@@ -531,17 +531,17 @@ Actual location after 2026-05-19 reorg:
 
 Fix: update the path.
 
-### Item 22 — `methods/methods_section_review_2026-05-19.md` status field stale  · `[x]` (2026-05-28: status → mostly_superseded + status_updated + superseded_by METHODS_AUDIT_ISSUES.md; head note added with forward pointer)
+### Item 22 — `directives/archive/2026-05/methods_section_review_2026-05-19.md` status field stale  · `[x]` (2026-05-28: status → mostly_superseded + status_updated + superseded_by METHODS_AUDIT_ISSUES.md; head note added with forward pointer)
 
 Frontmatter: `status: open_for_writing_agent`. But M1/M4/m6/m9 are all
 marked RESOLVED/SUPERSEDED in the body, and `METHODS_AUDIT_ISSUES.md`
-frontmatter says it "supersedes: methods/methods_section_review_2026-05-19.md
+frontmatter says it "supersedes: directives/archive/2026-05/methods_section_review_2026-05-19.md
 (partially — see resolution map §1)".
 
 Fix: change status to `mostly_superseded` (or similar) + add head note
 pointing at `METHODS_AUDIT_ISSUES.md` for live items.
 
-### Item 23 — `methods/methods_revision_2026-05-18_cophenet.md` checklist contradicts own body  · `[x]` (2026-05-28: checklist item 469-472 rewritten to match 2026-05-20 broadening — drop all cross-band BH-FDR at LRG probes per `feedback_no_unmotivated_bh_fdr.md`; keep BH-FDR only for anatomy A1 hypergeometric)
+### Item 23 — `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` checklist contradicts own body  · `[x]` (2026-05-28: checklist item 469-472 rewritten to match 2026-05-20 broadening — drop all cross-band BH-FDR at LRG probes per `feedback_no_unmotivated_bh_fdr.md`; keep BH-FDR only for anatomy A1 hypergeometric)
 
 Body lines 281-294 (locked 2026-05-18 + 2026-05-20 supersedure): "**no
 cross-band BH-FDR is applied at any LRG probe**".
@@ -641,14 +641,14 @@ window shift k=57..63 → k=33..39 with 0% overlap)"
 
 Decision 10 C5 gate is Wilcoxon-based. Under that gate δ Grassmann
 strengthens (mass 38 → 44, `p_mass^epi-X = 0.005`, LOO max = 0.005 fully
-robust — `methods/methods_grassmann_cluster_extent.md` §6 LOO table). The
+robust — `directives/methods_grassmann_cluster_extent.md` §6 LOO table). The
 "0% overlap" is descriptive and should be reframed accordingly.
 
 Fix: reframe §3.2/§8/§11 to cite Decision-10 gate + the `p_mass^epi-X =
 0.005` strengthening + the LOO resolution of Pat_08 full-data leverage.
 Retain "0% overlap" as descriptive but not as the gating statistic.
 
-### Item 30 — `methods/methods_grassmann_cluster_extent.md` §7 C5 retention rule retired  · `[x]` (2026-05-28: §7 rewritten — 80% retention rule retired, locked Decision-10 Wilcoxon-on-epi-X gate cited with `cluster_p_mass^epi-X < 0.05`, audit_67 → audit_72 c5_wilcoxon path; explicit "secondary mechanistic observation, never verdict-promoter" framing)
+### Item 30 — `directives/methods_grassmann_cluster_extent.md` §7 C5 retention rule retired  · `[x]` (2026-05-28: §7 rewritten — 80% retention rule retired, locked Decision-10 Wilcoxon-on-epi-X gate cited with `cluster_p_mass^epi-X < 0.05`, audit_67 → audit_72 c5_wilcoxon path; explicit "secondary mechanistic observation, never verdict-promoter" framing)
 
 Lines 531-544 describe C5 as: "≳ 80% retention (cell count or `T_G^*`
 retention) supports a strong verdict; < 80% retention or a substantial
@@ -714,9 +714,9 @@ Approximate counts (grep-verifiable):
 - `bands/02_alpha.md` (~5×, several **LOAD-BEARING** uppercase in headings)
 - `bands/03_gammalow.md` (~3×, including a §3.2 heading)
 - `HANDOFF_INDEX.md` (~3×)
-- `methods/methods_revision_2026-05-18_cophenet.md` (~4×)
-- `methods/methods_grassmann_cluster_extent.md` (~6×, including an emphasized `**load-bearing**` at line 60)
-- `methods/methods_section_review_2026-05-19.md` (~3×)
+- `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` (~4×)
+- `directives/methods_grassmann_cluster_extent.md` (~6×, including an emphasized `**load-bearing**` at line 60)
+- `directives/archive/2026-05/methods_section_review_2026-05-19.md` (~3×)
 - `tables/beta_per_patient.md` (1× implicit)
 - `directives/methods_directive_2026-05-19_TG_normalization.md` (1×, in `priority` frontmatter line)
 
@@ -729,8 +729,8 @@ Not a separate pass.
 ### Item 34 — "facet"/"facets" usage sweep  · `[x]` (2026-05-28: all live preprint files swept — bands/01_beta + bands/02_alpha + methods_revision_cophenet + tables/beta_per_patient. Substitutions: aspect / aspects. Skipped: directives/ (historical task records) — kept verbatim)
 
 - `bands/01_beta.md` §3.3 ("two probes read **distinct facets**")
-- `methods/methods_revision_2026-05-18_cophenet.md` ("structurally distinct facets")
-- `methods/methods_grassmann_cluster_extent.md` §2 (uses "complementary aspects" — clean)
+- `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` ("structurally distinct facets")
+- `directives/methods_grassmann_cluster_extent.md` §2 (uses "complementary aspects" — clean)
 - `tables/beta_per_patient.md` ("different facets of the same geometry")
 
 Substitution menu: aspect, side, dimension, strand, angle, layer.
@@ -756,7 +756,7 @@ Each phase is a coherent unit; do one phase fully before the next.
    Delete stale δ paragraph in VERDICT_LEDGER; optionally renumber decisions.
 
 3. **Phase C — T_G\* number cascade (items 12-14)** ~30 min
-   `bands/00_cohort.md` §3 table (Q2); `methods/methods_grassmann_cluster_extent.md`
+   `bands/00_cohort.md` §3 table (Q2); `directives/methods_grassmann_cluster_extent.md`
    head/§5b/§9/§10; `directives/methods_directive_2026-05-19_TG_normalization.md`
    raw values + open-item.
 

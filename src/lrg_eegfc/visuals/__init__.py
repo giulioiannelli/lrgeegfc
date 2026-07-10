@@ -8,6 +8,17 @@
 # `feedback_imshow_colorbar_caxdivider_scope` memory).
 from lrgsglib.plotlib.colorbars import imshow_colorbar_caxdivider
 
+# Canonical band colour palette (spectrum: slow=red -> fast=blue). Figures must
+# call `band_color(band)` instead of hardcoding per-band colours, so the whole
+# codebase restyles from one constant. See `visuals.styles`.
+from .styles import (
+    use_lrg_style,
+    band_color,
+    band_colors_list,
+    band_cmap,
+    BAND_COLORS,
+)
+
 from .correlation import (
     plot_correlation_heatmap,
     plot_correlation_and_network,

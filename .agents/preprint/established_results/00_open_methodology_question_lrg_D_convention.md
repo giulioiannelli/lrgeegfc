@@ -9,7 +9,7 @@ claim_sentence: "(WITHDRAWN — RESOLVED 2026-05-18) ρ_split on D(τ') has a si
 date_opened: 2026-05-18
 date_resolved: 2026-05-18
 resolution_summary: "Canonical object for ρ_split is `D_coph = cophenet(UPGMA(D(τ_max)))` (i.e., the cached `ultrametric_matrix` field in `data/cache/imcoh_lrg/`). Raw `D(τ_max)` is a sensitivity-check substrate only. Both Pipeline 1 (`ctm_triangle`) and Pipeline 2 (`audit_63`) operationally use `D_coph`; the apparent 0.380 vs 0.507 per-patient discrepancy reduces to a normalization / symmetrization detail that does not change the cohort verdict."
-resolution_directive: ".agents/preprint/methods/methods_revision_2026-05-18_cophenet.md"
+resolution_directive: ".agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md"
 companion_memory: cophenet_methodology_rationale.md
 ---
 
@@ -38,7 +38,7 @@ The 2026-05-18 methodology audit further established that:
 3. The empirical three-layer comparison (raw FC / raw `D(τ_max)` / cophenet) at matched-strength gating shows the cophenet step is where band-resolution emerges; both raw layers are operationally indistinguishable.
 
 **Source of truth for the revised methodology**:
-[`.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md`](../methods/methods_revision_2026-05-18_cophenet.md)
+[`.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`](../directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md)
 + memory `cophenet_methodology_rationale.md`.
 
 **Downstream files unblocked**:
@@ -106,7 +106,7 @@ compatibility; both produce cophenet-derived objects.
 
 ### Cross-references
 
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — the binding writing-agent directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — the binding writing-agent directive
 - memory `cophenet_methodology_rationale.md` — five-point justification of the cophenet step
 - memory `feedback_never_confuse_D_with_cophenet.md` — naming hygiene
 - `data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv` — raw FC ρ_split^raw all 6 bands

@@ -318,7 +318,7 @@ Load-bearing (must change to remove the contradiction):
 Secondary (propagate the wording): `README.md:62`,
 `directives/writing_directive_2026-06-04_grassmann-subsection-results.md:70-82`
 ("do NOT promote γ_l to a trace band" → "γ_l is a subgroup/heterogeneous trace,
-not a cohort-wide one"), `methods/methods_displacement_taxonomy_2026-06-03.md:91`,
+not a cohort-wide one"), `directives/methods_displacement_taxonomy_2026-06-03.md:91`,
 `responses/2026-05-26_preprint_folder_audit.md`, `EVALUATION_PROTOCOL.md:119`
 (presence axis is per-band, still no cross-band BH).
 

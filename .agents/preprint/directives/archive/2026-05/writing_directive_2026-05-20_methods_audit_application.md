@@ -5,7 +5,7 @@ status: open
 kind: writing-directive
 scope: methods-section LaTeX edits derived from the 2026-05-19/20 methods audit
 created: 2026-05-20
-companion: METHODS_AUDIT_ISSUES.md (master spec), methods/methods_revision_2026-05-18_cophenet.md, methods/methods_grassmann_cluster_extent.md
+companion: METHODS_AUDIT_ISSUES.md (master spec), directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md, directives/methods_grassmann_cluster_extent.md
 target: writing agent producing manuscript Methods section LaTeX
 ---
 
@@ -17,8 +17,8 @@ target: writing agent producing manuscript Methods section LaTeX
 
 1. **This directive** — the edit list and the locked conventions.
 2. **`METHODS_AUDIT_ISSUES.md`** — full audit context for each item; §9A is the writing-agent action block; §9B records the user decisions; §1–§8 are the rationale.
-3. **`methods/methods_revision_2026-05-18_cophenet.md`** — binding methods directive for the cophenet wrap.
-4. **`methods/methods_grassmann_cluster_extent.md`** — locked Grassmann probe methodology including the all-clusters `T_G*` formula and the cluster-extent permutation null.
+3. **`directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`** — binding methods directive for the cophenet wrap.
+4. **`directives/methods_grassmann_cluster_extent.md`** — locked Grassmann probe methodology including the all-clusters `T_G*` formula and the cluster-extent permutation null.
 
 ## Locked conventions (do not deviate)
 

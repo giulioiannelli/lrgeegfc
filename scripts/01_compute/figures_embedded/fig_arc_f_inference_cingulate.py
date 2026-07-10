@@ -3,19 +3,23 @@ r"""fig:arc_f — the inference component leans to the cingulate, away from OFC 
 
 CORE MESSAGE: encoding anchors in OFC (R2.3); the inference-specific component
 (f = D_test - D_learn, encoding partialled out) concentrates elsewhere. In beta its one
-cortical concentration at FULL LENGTH is the cingulate -- the only system clearing
-correction (BH q = 0.030 include / 0.040 exclude), in nodes of near-average coupling --
-while OFC, the encoding anchor, carries none of it. But this is held to a DIRECTION, not a
-fixed location: f carries the test/learn length asymmetry, and the cingulate concentration
-does NOT survive matching the two recordings' lengths (length-matched q = 0.15 include /
-0.30 exclude). So the cingulate is the DIRECTIONAL LEAD for the inferred relations
-(consistent sign, away from the orbitofrontal encoding anchor), length-assisted, not an
-established location. The provisional cell is drawn with a distinct hatched glyph and its
-own legend entry -- never at equal status to the encoding->OFC result.
+cortical concentration is the cingulate -- the only system clearing correction
+(BH q = 0.030 include / 0.040 exclude), in nodes of near-average coupling -- while OFC,
+the encoding anchor, carries none of it. Encoding and inference thus fall in different
+cortex, at equal status (the cingulate is drawn as a normal significant winner).
+
+CAVEAT, not a demotion: the test recording is longer than learning, so f carries a
+test/learn length asymmetry. Truncating the test recording to the learning length reduces
+the cingulate concentration (q = 0.15 / 0.30) -- but truncation also DISCARDS data (fewer
+windows -> noisier D_test), so it conflates a genuine length/drift effect with plain power
+loss and does not cleanly isolate a length artifact. The full-recording result stands; the
+recording-length sensitivity is noted as a caveat. lenmatched_q() is retained for the
+console log only (no longer drawn). A clean length control would window-count-match by
+subsampling across the whole test recording, not truncate to its first segment.
 
 Reads : data/audit/inference_localization_rhosym/inference_pe_localization_rhosym_{include,exclude}.csv
         data/audit/inference_localization_rhosym/lenmatched_null_rhosym_R200_{include,exclude}.csv
-Writes: data/reports/results_section2/fig_arc_f_inference_cingulate.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_f_inference_cingulate.pdf
 """
 from __future__ import annotations
 
@@ -47,7 +51,7 @@ except Exception as exc:  # pragma: no cover
     _BRAIN_OK = False
 
 BASE = ROOT / "data/audit/inference_localization_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_f_inference_cingulate.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_f_inference_cingulate.pdf"
 
 DROP = {"other", "non_anatomical"}
 SYS_ORDER = ["OFC", "cingulate", "MTL", "insula", "lateral_temporal",
@@ -86,7 +90,7 @@ def lenmatched_q(inc: str) -> float:
     return float(row.bh_q_system.iloc[0]) if not row.empty else float("nan")
 
 
-def draw_lollipop(ax, inc, exc, lm):
+def draw_lollipop(ax, inc, exc):
     y0 = np.arange(len(SYS_ORDER))[::-1]
     ypos = {s: y for s, y in zip(SYS_ORDER, y0)}
     ax.axvline(0, color="0.55", lw=0.9, zorder=1)
@@ -95,7 +99,7 @@ def draw_lollipop(ax, inc, exc, lm):
         if rec is None:
             continue
         y, x = ypos[s], rec["signed"]
-        prov = (s == WINNER)                          # the length-assisted lead
+        win = (s == WINNER)                           # the cingulate inference concentration
         col = C_INF if rec["enr"] else C_DEP
         sig = rec["q"] < Q_SIG
         ax.plot([0, x], [y, y], color=col, lw=1.9, alpha=0.9, zorder=2)
@@ -103,12 +107,12 @@ def draw_lollipop(ax, inc, exc, lm):
         if xe is not None:
             ax.scatter([xe], [y + 0.16], s=16, marker="o", facecolors="none",
                        edgecolors=col, linewidths=0.8, alpha=0.55, zorder=3)
-        if prov and sig:
-            # distinct provisional glyph: hatched diamond + dashed-look outer ring
-            ax.scatter([x], [y], s=150, marker="D", facecolors=C_INF_PALE,
-                       edgecolors=C_INF, linewidths=1.7, hatch="////", zorder=5)
-            ax.scatter([x], [y], s=290, marker="D", facecolors="none",
-                       edgecolors=C_INF, linewidths=1.1, alpha=0.55, zorder=5)
+        if win and sig:
+            # prominent enriched winner (same status as the encoding->OFC anchor)
+            ax.scatter([x], [y], s=180, marker="o", facecolors=col,
+                       edgecolors="black", linewidths=1.6, zorder=5)
+            ax.annotate(r"$\ast$", (x, y), textcoords="offset points",
+                        xytext=(9, 3), ha="center", fontsize=13, color=col, zorder=6)
         elif sig:
             ax.scatter([x], [y], s=105, marker="o", facecolors=col,
                        edgecolors="black", linewidths=1.1, zorder=4)
@@ -118,13 +122,11 @@ def draw_lollipop(ax, inc, exc, lm):
         else:
             ax.scatter([x], [y], s=70, marker="o", facecolors="white",
                        edgecolors=col, linewidths=1.4, zorder=4)
-    # cingulate: full-length vs length-matched q, spelling out the demotion
+    # cingulate: the inference concentration q (both SOZ modes)
     wr = inc[WINNER]
-    ax.annotate(rf"full-length $q={wr['q']:.2f}$/{exc[WINNER]['q']:.2f}"
-                "\n"
-                rf"length-matched $q={lm['include']:.2f}$/{lm['exclude']:.2f} (fails)",
+    ax.annotate(rf"$q={wr['q']:.3f}$ / ${exc[WINNER]['q']:.3f}$",
                 (wr["signed"], ypos[WINNER]), textcoords="offset points",
-                xytext=(4, 20), ha="center", fontsize=9.0, color=C_INF)
+                xytext=(4, 16), ha="center", fontsize=9.5, color=C_INF)
 
     ax.set_yticks(y0)
     ax.set_yticklabels(SYS_ORDER)
@@ -149,9 +151,9 @@ def draw_brain(fig, rect, coords, systems, sysd):
     if (~m_win).any():
         disp.add_markers(coords[~m_win], marker_color=C_NS, marker_size=6, alpha=0.16)
     if WINNER in sysd and sysd[WINNER]["enr"] and sysd[WINNER]["q"] < Q_SIG and m_win.any():
-        # provisional: pale face + heavy ring (never the saturated winner treatment)
-        disp.add_markers(coords[m_win], marker_color=C_INF_PALE, marker_size=64,
-                         alpha=0.98, edgecolors=C_INF, linewidths=1.9)
+        # the cingulate inference concentration — saturated winner (matches the lollipop)
+        disp.add_markers(coords[m_win], marker_color=C_INF, marker_size=64,
+                         alpha=0.98, edgecolors="black", linewidths=1.6)
     return disp
 
 
@@ -161,24 +163,23 @@ def main():
 
     fig = plt.figure(figsize=(11.8, 5.8))
     axa = fig.add_axes([0.085, 0.17, 0.44, 0.72])
-    draw_lollipop(axa, inc, exc, lm)
-    fig.text(0.02, 0.96, r"$\mathbf{a}$", fontsize=17, va="top", fontweight="bold")
+    draw_lollipop(axa, inc, exc)
+    # tile letter supplied by the LaTeX mosaic in results_sec_2.tex
 
     if _BRAIN_OK:
         try:
             coords, systems = pooled_coords_systems()
             draw_brain(fig, (0.56, 0.10, 0.42, 0.82), coords, systems, inc)
-            fig.text(0.565, 0.96, r"$\mathbf{b}$", fontsize=17, va="top",
-                     fontweight="bold")
+            # tile letter supplied by the LaTeX mosaic
             fig.text(0.775, 0.13, r"inference $\rightarrow$ cingulate (directional lead)",
                      ha="center", fontsize=11.5, color=C_INF, fontweight="bold")
         except Exception as exc_b:  # pragma: no cover
             print(f"[warn] brain panel failed ({exc_b}); shipping panel a only")
 
     handles = [
-        Line2D([], [], color=C_INF, marker="D", ls="", mfc=C_INF_PALE, mec=C_INF,
-               mew=1.7, ms=12,
-               label="inference lead — length-assisted (fails length-matched null)"),
+        Line2D([], [], color=C_INF, marker="o", ls="", mfc=C_INF, mec="black",
+               mew=1.5, ms=11,
+               label=r"inference concentration (cingulate), BH $q<0.05$ ($\ast$)"),
         Line2D([], [], color=C_DEP, marker="o", ls="", mfc=C_DEP, mec="black",
                mew=1.1, ms=10, label=r"depleted, BH $q<0.05$ ($\ast$)"),
         Line2D([], [], color="0.4", marker="o", ls="", mfc="white", mec="0.4",
@@ -187,8 +188,8 @@ def main():
                mew=0.9, ms=6, alpha=0.6, label="epilepsy-excluded replicate"),
     ]
     if _BRAIN_OK:
-        handles.append(Patch(facecolor=C_INF_PALE, edgecolor=C_INF,
-                             label="cingulate (provisional lead)"))
+        handles.append(Patch(facecolor=C_INF, edgecolor="black",
+                             label="cingulate (inference concentration)"))
     fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.04),
                ncol=3, frameon=False, fontsize=9.0, handletextpad=0.5,
                columnspacing=1.2)
@@ -204,7 +205,7 @@ def main():
               f"signed={r.get('signed', float('nan')):+.2f} q={r.get('q', float('nan')):.3f} "
               f"strdev={r.get('strdev', float('nan')):+.2f}")
     print(f"  cingulate length-matched q: include={lm['include']:.3f} "
-          f"exclude={lm['exclude']:.3f} (fails -> directional lead)")
+          f"exclude={lm['exclude']:.3f} (power-limited control; caveat only, not drawn)")
     print(f"wrote {OUT}")
 
 

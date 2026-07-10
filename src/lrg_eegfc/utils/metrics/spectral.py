@@ -23,13 +23,47 @@ import numpy as np
 __all__ = [
     "principal_angles",
     "chordal_distance",
+    "chordal_distances_for_k_grid",
     "chordal_from_angles",
     "grassmann_to_coord_subspace",
     "chordal_full_vs_resect",
     "participation_number",
     "node_set_mode_mass",
     "subspace_displacement",
+    "laplacian_eig",
+    "topk_basis",
 ]
+
+
+def laplacian_eig(W: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """Combinatorial-Laplacian eigendecomposition ``L = diag(W·1) − W``.
+
+    Villegas-canonical combinatorial Laplacian (never ``L_rw`` / ``L_sym``;
+    see ``feedback_combinatorial_laplacian_only``). Returns ``(eigvals,
+    eigvecs)`` from ``numpy.linalg.eigh`` — eigenvalues ascending, so the
+    trivial constant zero-mode is column 0 of ``eigvecs`` (drop it with
+    :func:`topk_basis`). ``W`` must be symmetric, non-negative, zero-diagonal.
+
+    Promoted 2026-07-09 (second caller: ``audit_165_grassmann_inference_arc``)
+    from the private copies in ``audit_66_grassmann_matched_strength_surrogate``
+    and ``matched_strength._laplacian_eig``.
+    """
+    deg = W.sum(axis=1)
+    L = np.diag(deg) - W
+    return np.linalg.eigh(L)
+
+
+def topk_basis(eigvecs: np.ndarray, k_max: int) -> np.ndarray:
+    """Slowest ``k_max`` non-trivial eigenmodes: ``eigvecs[:, 1:k_max+1]``.
+
+    Drops the trivial zero-mode at column 0 (``eigh`` ascending order) and
+    returns a contiguous ``(N, k_max)`` orthonormal block — the leading
+    invariant subspace used by the chordal Grassmann distance.
+
+    Promoted 2026-07-09 (second caller: ``audit_165_grassmann_inference_arc``)
+    from the private copy in ``audit_66_grassmann_matched_strength_surrogate``.
+    """
+    return np.ascontiguousarray(eigvecs[:, 1:k_max + 1])
 
 
 def participation_number(V: np.ndarray) -> np.ndarray:
@@ -168,6 +202,43 @@ def chordal_distance(V_a: np.ndarray, V_b: np.ndarray) -> float:
     sigma = np.clip(sigma, 0.0, 1.0)
     pq = min(V_a.shape[1], V_b.shape[1])
     return float(np.sqrt(max(pq - float((sigma ** 2).sum()), 0.0)))
+
+
+def chordal_distances_for_k_grid(
+    eigvecs_a: np.ndarray, eigvecs_b: np.ndarray, k_grid: Sequence[int]
+) -> np.ndarray:
+    """Chordal Grassmann distance ``d(k)`` for every ``k`` in ``k_grid`` at once.
+
+    Both inputs are full ``(N, N)`` eigenvector matrices in ``eigh`` ascending
+    order (column 0 = trivial zero-mode). The leading-``k`` non-trivial subspace
+    is ``eigvecs[:, 1:k+1]`` and
+
+        d(k) = sqrt( k − ‖ U_a^{(k)ᵀ} U_b^{(k)} ‖_F² ),   domain ``[0, sqrt(k)]``.
+
+    Computed once via the cumulative-Frobenius trick: form the
+    ``(N−1)×(N−1)`` cross-Gram ``M = A^T B`` (``A = eigvecs_a[:, 1:]``), then
+    ``‖U_a^{(k)ᵀ} U_b^{(k)}‖_F²`` is the 2-D cumulative sum of ``M∘M`` read at
+    ``[k-1, k-1]`` — so all ``len(k_grid)`` cutoffs come from a single matmul.
+    Mathematically identical to :func:`chordal_distance` on ``k``-sliced blocks
+    (``‖M‖_F² = Σ σ_i²``); ``nan`` where ``k`` exceeds ``N−1``.
+
+    Promoted 2026-07-09 (second caller: ``audit_165_grassmann_inference_arc``)
+    from the private ``chordal_distances_for_k_grid`` in
+    ``audit_70_grassmann_cluster_extent``.
+    """
+    A = eigvecs_a[:, 1:]  # (N, N-1)
+    B = eigvecs_b[:, 1:]  # (N, N-1)
+    M = A.T @ B           # (N-1, N-1)
+    M2 = M * M
+    csum = np.cumsum(np.cumsum(M2, axis=0), axis=1)
+    out = np.full(len(k_grid), np.nan)
+    n_max = csum.shape[0]
+    for i, k in enumerate(k_grid):
+        if k > n_max:
+            continue
+        frob2 = csum[k - 1, k - 1]
+        out[i] = np.sqrt(max(0.0, k - frob2))
+    return out
 
 
 def chordal_from_angles(theta: np.ndarray) -> float:

@@ -9,12 +9,12 @@ date: 2026-05-19
 target: methods §sssec:methods_compare_grassmann — normalize the cluster mass T_G^*
 priority: high (changes a methods-equation definition and a primary scalar)
 source_of_truth:
-  - .agents/preprint/methods/methods_grassmann_cluster_extent.md
+  - .agents/preprint/directives/methods_grassmann_cluster_extent.md
   - .agents/preprint/directives/writing_directive_2026-05-19_beta_post_methods_revision.md
   - data/audit/grassmann_cluster_extent/cohort_summary.csv
 applied_in:
   - .agents/preprint/METHODS_AUDIT_ISSUES.md (C1 lock with normalized values table)
-  - .agents/preprint/methods/methods_grassmann_cluster_extent.md (Head + §5b normalized formula + §6 + §9 checklist updated 2026-05-28)
+  - .agents/preprint/directives/methods_grassmann_cluster_extent.md (Head + §5b normalized formula + §6 + §9 checklist updated 2026-05-28)
   - .agents/preprint/bands/00_cohort.md §3 (normalized T_G^* column added 2026-05-28)
   - .agents/preprint/bands/03_gammalow.md (γ_l raw 66.14 / normalized 0.259 cited 2026-05-28)
   - .agents/preprint/bands/06_delta.md (δ raw 38.07 / normalized 0.149 cited 2026-05-28)
@@ -105,7 +105,7 @@ The relative ordering of bands is preserved (β >> γ_l > γ_h > δ > α > θ). 
 
 1. **Eq.~\eqref{eq:methods_TGstar}** — replace with the normalized form (or attach the normalization as a separate equation immediately after).
 2. **Paragraph around Eq.~\eqref{eq:methods_TGstar}** — add one sentence defining the denominator `K · log10(R+1)` and noting that the empirical-null permutation remains calibrated under simultaneous normalization.
-3. **Add the per-patient cluster mass `T_G^{*, p}` to the methods section.** Currently the per-patient cluster mass is defined only in the β table caption (`tables/beta_per_patient.tex` + `.md`). Move that definition **out of the table caption and into the methods section**, immediately after the band-level `T_G^*` definition. Suggested placement: a new short subsubsection or a paragraph titled "Per-patient cluster mass" inside §sssec:methods_compare_grassmann (just after the cluster-extent / `T_G^*` paragraph). Equation to add:
+3. **Add the per-patient cluster mass `T_G^{*, p}` to the methods section.** Currently the per-patient cluster mass is defined only in the β table caption (`overleaf/tables/beta_per_patient.tex` + `.md`). Move that definition **out of the table caption and into the methods section**, immediately after the band-level `T_G^*` definition. Suggested placement: a new short subsubsection or a paragraph titled "Per-patient cluster mass" inside §sssec:methods_compare_grassmann (just after the cluster-extent / `T_G^*` paragraph). Equation to add:
    ```
    T_G^{*, p}(b) = ( Σ_{k : p_k^{p}(b) < α_k} (−log10 max(p_k^{p}(b), 1/(R+1))) )
                           / [ K · log10(R+1) ]
@@ -119,7 +119,7 @@ The relative ordering of bands is preserved (β >> γ_l > γ_h > δ > α > θ). 
 
 ### Definition that the methods agent inherits from the writing-side (so the β table caption can be slimmed)
 
-The current β table caption (`tables/beta_per_patient.tex`) carries a full definition of the per-patient cluster mass — this content **should move to Methods**. The table caption then references the methods definition only:
+The current β table caption (`overleaf/tables/beta_per_patient.tex`) carries a full definition of the per-patient cluster mass — this content **should move to Methods**. The table caption then references the methods definition only:
 
 > "Cols.\ 6--7: per-patient normalized cluster mass \(T_G^{\ast, p}\) (see Methods Eq.~\eqref{eq:methods_TGstar_perpatient}) and the count \(n_{\rm sig, k}\) of \(k\)-cells passing the per-cell threshold \(\alpha_k = 0.05\) at the patient level."
 
@@ -135,7 +135,7 @@ This slims the caption to two lines and gives the reader a single canonical loca
 
 ## Where to file the methods edit
 
-`.agents/preprint/methods/methods_grassmann_cluster_extent.md` (the locked methods companion). The user's actual LaTeX methods section (`ssec:methods_compare`) currently quoted in the manuscript should be edited in step with the companion.
+`.agents/preprint/directives/methods_grassmann_cluster_extent.md` (the locked methods companion). The user's actual LaTeX methods section (`ssec:methods_compare`) currently quoted in the manuscript should be edited in step with the companion.
 
 ## Revision history
 

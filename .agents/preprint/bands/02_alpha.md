@@ -25,7 +25,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding methods directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding methods directive)
   - data/audit/ctm_triangle/cohort_summary.csv (α row: rho_split_median, n_above_drift, rho_xprobe, Wilcoxon)
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (α row: paired Wilcoxon vs surrogate)
   - data/audit/alpha_epi_exclusion/cohort_summary.csv (α cophenet under C5 epi-X — strengthens)
@@ -95,7 +95,7 @@ lrg = load_lrg_result(patient="Pat_02", phase="rest_pre", band="alpha", fc_metho
 ### 3.1 Per-pair multiscale correlation on `D_coph` — **PRIMARY FINDING for α**
 
 #### What `D_coph` is and why it is the per-pair multiscale object
-`D_coph_ij = h(LCA_L(i, j))` is the merge height in the UPGMA dendrogram of `D(τ_max) = 1/ρ̂(τ_max)` at which contacts `i` and `j` first coalesce. The cophenetic image of a hierarchical clustering is ultrametric by construction, and each entry reads the intrinsic communication-coalescence scale of that pair. Because our `|ImCoh|` Laplacian spectrum is continuous (no gap-induced crossover scales), the dendrogram's `N−1` merge heights replace the spectral-gap scale identification of [Villegas 2025]; `D_coph` is therefore the natural multiscale per-pair carrier in this regime. See `methods/methods_revision_2026-05-18_cophenet.md` for the full justification.
+`D_coph_ij = h(LCA_L(i, j))` is the merge height in the UPGMA dendrogram of `D(τ_max) = 1/ρ̂(τ_max)` at which contacts `i` and `j` first coalesce. The cophenetic image of a hierarchical clustering is ultrametric by construction, and each entry reads the intrinsic communication-coalescence scale of that pair. Because our `|ImCoh|` Laplacian spectrum is continuous (no gap-induced crossover scales), the dendrogram's `N−1` merge heights replace the spectral-gap scale identification of [Villegas 2025]; `D_coph` is therefore the natural multiscale per-pair carrier in this regime. See `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` for the full justification.
 
 #### Critical preamble (5-point)
 1. **Claim.** α `ρ_split^coph(taskT, rsPost, rsPre_A, rsPre_B) > 0` at cohort level.
@@ -390,7 +390,7 @@ The α verdict is anchored at C3 paired Wilcoxon p = 0.00195 alone (locked Wilco
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `strong trace, only D_coph` for α
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md` — β template (this brief mirrors its structure)
 
 ### Audit data (rows the numbers come from)

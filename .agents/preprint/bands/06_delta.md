@@ -27,7 +27,7 @@ verdict_layers:
 sources:
   - .agents/preprint/locked/CONTROLS.md (locked 5-control battery)
   - .agents/preprint/locked/VERDICT_LEDGER.md (locked verdicts; Decision 5 + Decision 6 for δ)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (binding methods directive)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (binding methods directive)
   - data/audit/ctm_triangle/cohort_summary.csv (δ row: rho_split_median, n_above_drift, rho_xprobe, Wilcoxon)
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv (δ row: paired Wilcoxon vs surrogate)
   - data/audit/grassmann_cluster_extent/cohort_summary.csv (δ cluster-extent p=0.0249, audit_70)
@@ -346,7 +346,7 @@ Mechanistically: at δ frequencies, per-pair coupling is dominated by spatially-
 ### Lockdown documents
 - `.agents/preprint/locked/CONTROLS.md` — 5-control battery (Grassmann gate at cluster-extent permutation)
 - `.agents/preprint/locked/VERDICT_LEDGER.md` — locked verdict tag `weak trace, only Grassmann` for δ; Decision 5 (anchor anatomy descriptive) + Decision 6 (cluster-extent promotion) + Decision 12 (LOO+extent preconditions for strong tier; δ fails LOO at full data, stays weak)
-- `.agents/preprint/methods/methods_revision_2026-05-18_cophenet.md` — binding methods directive
+- `.agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md` — binding methods directive
 - `.agents/preprint/bands/01_beta.md`, `02_alpha.md`, `03_gammalow.md`, `04_theta.md`, `05_gammah.md` — companion band briefs
 
 ### Audit data (rows the numbers come from)

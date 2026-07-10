@@ -16,7 +16,7 @@ OFC sits in nodes of BELOW-average coupling (strength_dev < 0) -- a concentratio
 hub artifact. OFC is sampled in 5/10 patients (coverage limit, not a null).
 
 Reads : data/audit/inference_localization_rhosym/encoding_localization_rhosym_{include,exclude}.csv
-Writes: data/reports/results_section2/fig_arc_c_encoding_ofc_anchor.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_c_encoding_ofc_anchor.pdf
 """
 from __future__ import annotations
 
@@ -48,7 +48,7 @@ except Exception as exc:  # pragma: no cover
     _BRAIN_OK = False
 
 BASE = ROOT / "data/audit/inference_localization_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_c_encoding_ofc_anchor.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_c_encoding_ofc_anchor.pdf"
 
 DROP = {"other", "non_anatomical"}
 SYS_ORDER = ["OFC", "cingulate", "MTL", "insula", "lateral_temporal",
@@ -166,14 +166,13 @@ def main():
     fig = plt.figure(figsize=(11.6, 5.7))
     axa = fig.add_axes([0.085, 0.17, 0.44, 0.76])
     draw_lollipop(axa, inc, exc)
-    fig.text(0.02, 0.96, r"$\mathbf{a}$", fontsize=17, va="top", fontweight="bold")
+    # tile letter supplied by the LaTeX mosaic in results_sec_2.tex
 
     if _BRAIN_OK:
         try:
             coords, systems = pooled_coords_systems()
             draw_brain(fig, (0.56, 0.10, 0.42, 0.82), coords, systems, inc)
-            fig.text(0.565, 0.96, r"$\mathbf{b}$", fontsize=17, va="top",
-                     fontweight="bold")
+            # tile letter supplied by the LaTeX mosaic
             fig.text(0.775, 0.14, r"encoding $\rightarrow$ OFC", ha="center",
                      fontsize=12, color=C_ENR, fontweight="bold")
             print(f"  brain: pooled {len(coords)} contacts")

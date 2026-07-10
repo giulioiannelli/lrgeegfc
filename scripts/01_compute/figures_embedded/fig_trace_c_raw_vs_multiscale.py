@@ -17,7 +17,7 @@ Filled marker = clears the cophenetic gate; thick ring = clears the raw edge gat
 
 Reads : data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv   (edge-level)
         data/audit/rho_sym_gate/cohort_summary.csv                        (cophenetic)
-Writes: data/reports/results_section1/fig_trace_c_raw_vs_multiscale.pdf
+Writes: data/preprint/figures/results_section1/fig_trace_c_raw_vs_multiscale.pdf
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ use_lrg_style()
 
 RAW = ROOT / "data/audit/raw_fc_matched_strength/cohort_summary_all_bands.csv"
 COPH = ROOT / "data/audit/rho_sym_gate/cohort_summary.csv"
-OUT = ROOT / "data/reports/results_section1/fig_trace_c_raw_vs_multiscale.pdf"
+OUT = ROOT / "data/preprint/figures/results_section1/fig_trace_c_raw_vs_multiscale.pdf"
 
 BANDS = ["delta", "theta", "alpha", "beta", "low_gamma", "high_gamma"]
 COL = {"beta": "#2166ac", "alpha": "#e08214"}

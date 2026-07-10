@@ -18,7 +18,7 @@ R2.3/R2.6 (system-enrichment demeaned test, beta column). Both report BH q.
 
 Reads : data/audit/inference_localization_rhosym/within_system_trace_rhosym_include.csv
         data/audit/inference_localization_rhosym/{encoding,inference_pe}_localization_rhosym_include.csv
-Writes: data/reports/results_section2/fig_arc_g_cingulate_multiplexing.pdf
+Writes: data/preprint/figures/results_section2/fig_arc_g_cingulate_multiplexing.pdf
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ ROOT = setup_script_env()
 use_lrg_style()
 
 BASE = ROOT / "data/audit/inference_localization_rhosym"
-OUT = ROOT / "data/reports/results_section2/fig_arc_g_cingulate_multiplexing.pdf"
+OUT = ROOT / "data/preprint/figures/results_section2/fig_arc_g_cingulate_multiplexing.pdf"
 
 DROP = {"other", "non_anatomical"}
 CING = "cingulate"

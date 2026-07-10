@@ -215,3 +215,43 @@ FAITHFUL but does NOT isolate β across bands in the raw cohort median.**
   the axis); audit_163 does this and rest_post == audit_152 to 1e-16.
 - W-sensitivity: does the β open-loop survive W ∈ {20, 30, 45} s? Sensitivity panel
   if asked.
+
+## State-space attractor embedding (audit_164) — 2026-07-09, SUPERSEDES h1/h2
+
+**Why.** User rejected `fig_arc_h1/h2` (2026-07-09) as flat 2-D axis panels / 1-D
+curves where the huge `task_test` inference peak buries the small `rest_post` residue.
+Fix = a dynamical-systems / state-space portrait: amplitude of the task excursion is a
+transient; the result is the **limit set** (where `rest_post` settles).
+
+**Embedding.** Per patient, per band: windowed condensed LRG cophenetic states
+`S_ph(w) ∈ R^P` (audit_162 backend), z-scored per window (unit-variance PATTERN), stacked
+`Z ∈ R^{W×P}`, PCA → top-8 scores saved (`{pat}_{band}_pca.npz`; W×8, evr, phase,
+t_center, w_idx). ~16 min/cohort, 6 bands. Two readouts built from the scores (no recompute):
+- **raw-PCA displacement axis** `a1 = mean(task)−mean(pre)` — TOTAL structural persistence.
+  Dramatic two-lobe separation (Pat_06 d'=6.37, 0% overlap) but NOT the verified quantity.
+- **task-contrast axes** `a1=encoding (learn−pre)`, `a2=inference (test−learn)⊥a1`,
+  `a3=residual top-PC`. rest_pre≈origin (osc σ≈7–11), task_learn jumps +40 along encoding,
+  task_test drifts +9 along inference, rest_post STAYS (tracer) or RETURNS (resetter).
+
+**Drift control (the load-bearing validation).** rest_pre is the earliest recording;
+a slow drift would carry EVERY `rest_post` outward. Discriminator = resetters, who share
+the time-order: `post/task` along the task axis = **0.99 / 1.00 (tracers Pat_06/08)** vs
+**0.01 / −0.05 (resetters Pat_10/13)**. Resetters snap back ⇒ the separation is task-driven,
+not drift; the tracer-vs-resetter contrast IS the drift control.
+
+**Honest division of labour (brutal-honesty gate).** The windowed per-patient separation
+is a NOISY proxy for the verified trace — cohort corr(gate p, windowed sep) ≈ −0.37, with
+real exceptions (Pat_07 verified-trace but windowed-returns; Pat_02 windowed-stays but
+unverified). So NO windowed axis reproduces the phase-scale matched-strength ρ_sym gate.
+Therefore: the two attractors **ILLUSTRATE** two clean, verified exemplars only; the cohort
+statistic of record stays the verified `T_infspec_pe` gate (audit_152/163), 6/10 clearing.
+Never color a cohort element by the gate on a windowed axis (it scatters — incoherent).
+
+**Figure.** `fig_arc_attractor_3d.py` → results_section2/. Two live time-ordered windowed
+trajectories (phases concatenated = "one long recording"), colored ONLY by time (phase
+emerges from motion+position; plasma, rest_pre→rest_post), within-phase Hann-smoothed flow
++ faint raw-window swarm + faint ghost-basin averages; 1:1:1 cube (encoding leap large,
+inference drift honestly small). Cohort strip = verified ρ_sym trace per patient vs own
+null, exemplars pinned in. Fully vector.
+
+Build: `audit_164_windowed_attractor_embedding.py`, `fig_arc_attractor_3d.py`.

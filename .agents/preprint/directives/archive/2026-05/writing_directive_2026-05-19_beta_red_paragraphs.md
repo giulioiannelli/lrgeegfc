@@ -12,7 +12,7 @@ source_of_truth:
   - .agents/preprint/locked/ANATOMY_LEDGER.md
   - .agents/preprint/locked/ANATOMY_CONTROLS.md
   - .agents/preprint/locked/CONTROLS.md
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md
   - .agents/preprint/directives/writing_directive_2026-05-18_beta_paragraph.md
 locked_verdicts:
   trace: "strong trace, both probes (VERDICT_LEDGER.md, locked 2026-05-18, revised 2026-05-19 with disjunctive cluster-extent gate)"

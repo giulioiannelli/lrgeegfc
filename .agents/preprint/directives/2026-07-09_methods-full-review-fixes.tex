@@ -1,0 +1,254 @@
+% =====================================================================
+% METHODS FULL-REVIEW FIX SHEET  —  2026-07-09
+% Target: .agents/preprint/overleaf/methods.tex  (== Overleaf Methods body)
+%
+% SCOPE. Deep pass over the whole Methods after the ρ_sym migration + the three
+%   new subsections (tissue / encoding-inference / anatomy) were folded in.
+%   Every number below was checked against the estimator-of-record scripts:
+%     k∈{2..112}  ✓ audit_66 (min N=113=Pat_10 → k_max=112)   [KEEP, do not touch]
+%     τ scales 1.0/2.61/6.81 — τ-SWEEP RESULT DROPPED 2026-07-09 (PI); methods now read τ_min only
+%     detector kernels (PPR/Katz/communicability/commute/diff)  ✓ audit_101
+%     k=3 seeds ✓ audit_117 K_SEED=3 ;  r≥0.70 switch ✓ memory
+%   No deprecated tokens (VI(k), optimal_threshold, imcoh_sq, suptitle) present.
+%
+% HOW TO APPLY. Each block is a literal FIND / REPLACE on the current file.
+%   Priority A = correctness + no-results-in-Methods guardrail (apply all).
+%   Priority B = notation / clarity (apply; the PageRank/Katz rename is important
+%                for a band-heavy paper).
+%   Priority C = redundancy removal (recommended).
+%   Priority D = one structural block MOVE (recommended; realizes R1→R2→R3).
+%   Priority E = notes only, no edit.
+%
+% GUARDRAILS honored in every replacement: no p-values / effect-sizes / patient
+%   counts / band verdicts in Methods; no repo/script/precision technicalities;
+%   |ImCoh| zero-lag-immune ⇒ no spatial null; matched-strength = the gate.
+% =====================================================================
+
+
+% =====================================================================
+% A. CORRECTNESS + NO-RESULTS-IN-METHODS  (apply all)
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% A1 — taskl "is computed for completeness and is not used" CONTRADICTS the
+%      encoding/inference subsection (ssec:methods_arc), which uses taskl as its
+%      central seen-only reference. Fix the stale claim + forward-point to arc.
+%      [FC-estimation subsection, ~line 21]
+% ---------------------------------------------------------------------
+% FIND:
+%   The \acrshort{taskl} phase is computed for completeness and is not used in the inter-phase comparison of Section~\ref{ssec:methods_compare}, which is anchored on the \(\txtacr{rspre} \to \txtacr{taskt} \to \txtacr{rspost}\) triangle.
+% REPLACE:
+    The \acrshort{taskl} phase does not enter the primary inter-phase comparison of Section~\ref{ssec:methods_compare}, which is anchored on the \(\txtacr{rspre} \to \txtacr{taskt} \to \txtacr{rspost}\) triangle; it supplies the seen-only reference of the encoding/inference decomposition of Section~\ref{ssec:methods_arc}.
+
+% ---------------------------------------------------------------------
+% A2 — single-patient numbers (0.775 / 0.767 / 0.008) are a RESULT sitting in
+%      Methods. The sentence already makes the conceptual point; drop the number.
+%      [perpair subsection, shared-baseline paragraph, ~line 124]
+% ---------------------------------------------------------------------
+% FIND:
+%   exists to prevent (for one patient the shared-baseline statistic sits at \num{0.775} against a surrogate median of \num{0.767}, a de-inflated signal of \num{0.008}); the arm-symmetric estimator
+% REPLACE:
+    exists to prevent; the arm-symmetric estimator
+
+% ---------------------------------------------------------------------
+% A3 — "\(R^{2}=0.06\)" / "\(\approx 6\%\)" is a RESULT. Method = the procedure;
+%      the 6% belongs in Results. Keep the procedure, cut the number.
+%      [stats subsection, Robustness diagnostics paragraph, ~line 190]
+% ---------------------------------------------------------------------
+% FIND:
+%   and the split-half Spearman of the two taken as the reliability of the estimate, which across the cohort explains only \(\approx\!6\%\) of the variance in trace strength (\(R^{2} = 0.06\)).
+% REPLACE:
+    and the split-half Spearman of the two taken as the reliability of the estimate, against which the between-patient spread in trace strength is referred.
+
+% ---------------------------------------------------------------------
+% A4 — "positive in every band and of comparable or larger magnitude" is a
+%      RESULT about the raw substrate. State ρraw's ROLE, not its outcome.
+%      [rawfc subsection, ~line 141]
+% ---------------------------------------------------------------------
+% FIND:
+%   It is the pre-transform reference: the raw cross-phase overlap is broad and band-blind --- positive in every band and of comparable or larger magnitude than the hierarchical measure --- so comparing \(\rhocoph\) against \(\rhoraw\) isolates what the \gls{lrg} multiscale transform adds over the untransformed substrate.
+% REPLACE:
+    It is the pre-transform reference against which the multiscale step is measured: comparing \(\rhocoph\) against \(\rhoraw\) isolates what the \gls{lrg} multiscale transform adds over the untransformed substrate.
+
+% ---------------------------------------------------------------------
+% A5 — "as at \(\beta\)" names the winning band in Methods (result leak).
+%      [compare overview, ~line 103]
+% ---------------------------------------------------------------------
+% FIND:
+%   Where the two agree, as at \(\beta\), the agreement certifies
+% REPLACE:
+    Where the two agree, the agreement certifies
+
+% ---------------------------------------------------------------------
+% A6 — "\(\beta\) clearing both" is the same band-result leak, AND this closing
+%      sentence duplicates the agree/dissociate logic already given in the
+%      overview (A5's paragraph). De-specify + compress.
+%      [grassmann subsection, closing sentence, ~line 172]
+% ---------------------------------------------------------------------
+% FIND:
+%   so \(\beta\) clearing both certifies robustness to how the spectrum is read, while the band-by-band dissociations (a multiscale per-pair trace with no leading-mode rotation, or a leading-mode rotation with no persistent per-pair hierarchy) separate reorganizations the multiscale geometry resolves from those a conventional spectral summary does. No combined cross-probe scalar is formed.
+% REPLACE:
+    so a band clearing both is read as robust to how the spectrum is summarized, and a band-by-band dissociation as the two summaries resolving different reorganizations. No combined cross-probe scalar is formed.
+
+% ---------------------------------------------------------------------
+% A7 — "(verified to \(10^{-6}\) per surrogate)" is a numerical-precision
+%      technicality (feedback_no_repo_or_code_technicalities). "to machine
+%      precision" already carries the guarantee.
+%      [stats subsection, primary gate, ~line 178]
+% ---------------------------------------------------------------------
+% FIND:
+%   to machine precision (verified to \(10^{-6}\) per surrogate) and keep every weight
+% REPLACE:
+    to machine precision and keep every weight
+
+
+% =====================================================================
+% B. NOTATION / CLARITY  (apply)
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% B1 — NOTATION CLASH. The fused detector reuses \(\alpha\) (PageRank damping)
+%      and \(\beta\) (Katz attenuation) — the same glyphs as the alpha and beta
+%      bands used hundreds of times in the paper. Rename to \(\eta\) (damping)
+%      and \(\kappa\) (attenuation); neither collides with a band name.
+%      [epi detector subsubsection, ~line 331]
+% ---------------------------------------------------------------------
+% FIND:
+%   personalized PageRank \((1-\alpha)\big(I-\alpha\,\degm^{-1}\Adjacency\big)^{-1}\), the Katz resolvent \((I-\beta\Adjacency)^{-1}\) at sub-critical attenuation \(\beta\),
+% REPLACE:
+    personalized PageRank \((1-\eta)\big(I-\eta\,\degm^{-1}\Adjacency\big)^{-1}\) with damping \(\eta\), the Katz resolvent \((I-\kappa\Adjacency)^{-1}\) at sub-critical attenuation \(\kappa\),
+
+% ---------------------------------------------------------------------
+% B2 — "(see after~\ref{...})" reads oddly. Straight cross-reference.
+%      [FC subsection, ~line 58]  [optional micro-edit]
+% ---------------------------------------------------------------------
+% FIND:
+%   (see after~\ref{ssec:methods_lrg})
+% REPLACE:
+    (Section~\ref{ssec:methods_lrg})
+
+% ---------------------------------------------------------------------
+% B3 — detector kernel list reads as exhaustive but the implementation carries
+%      more (normalized-Laplacian heat, RWR, three PPR dampings). Signal that
+%      the list is representative and point the full set to the Supplement.
+%      [epi detector subsubsection, ~line 331]  [optional, aids reproducibility]
+% ---------------------------------------------------------------------
+% FIND:
+%   and the diffusion distance between heat profiles --- and the seed-relative segregation \(\operatorname{aff}(i,S)-\operatorname{aff}(i,V\setminus S)\).
+% REPLACE:
+    and a diffusion distance between heat profiles (the full kernel set is listed in the Supplement) --- and the seed-relative segregation \(\operatorname{aff}(i,S)-\operatorname{aff}(i,V\setminus S)\).
+
+
+% =====================================================================
+% C. REDUNDANCY REMOVAL  (recommended)
+% =====================================================================
+
+% ---------------------------------------------------------------------
+% C1 — DELETE the stale "\paragraph{Anatomical enrichment.}" in the trace-probe
+%      stats subsection. When anatomy was a subsubsection under methods_compare
+%      this pointer made sense; now anatomy is its own subsection that fully
+%      specifies its own gating (matched-strength, BH-FDR across systems, upper/
+%      lower tails as separate families, LOO — eq:methods_anat_pval and its
+%      paragraph). This paragraph is now a pure duplicate.
+%      [stats subsection, ~lines 186-187]
+% ---------------------------------------------------------------------
+% FIND (delete the whole paragraph, including its trailing blank line):
+%   \paragraph{Anatomical enrichment.}
+%   The per-system anatomical localization of Section~\ref{sssec:methods_anatomy} is gated by the same matched-strength surrogate, with \gls{bh}--\gls{fdr} applied across the covered a-priori cortical systems within each band, upper and lower tails corrected as separate families; the multi-system family per band is the coordinated unit of inference.
+%
+% REPLACE: (nothing — remove entirely; the "Grassmann band-level gate" and
+%           "Robustness diagnostics" paragraphs stay put around the gap.)
+
+% ---------------------------------------------------------------------
+% C2 — TRIM the continuous-spectrum re-derivation in the cophenetic subsection.
+%      The "fully-connected → continuous spectrum → gap-reading of villegas2025
+%      does not apply → linkage is the multiscale carrier" argument is already
+%      made twice earlier (methods_lrg, ~line 80 and ~line 92). The cophenetic
+%      subsection only needs the D_coph-vs-D(τmin) point + a back-pointer.
+%      [ctm subsection, ~line 153]  [optional concision, ~40% shorter]
+% ---------------------------------------------------------------------
+% FIND (the whole second paragraph of sssec:methods_compare_ctm):
+%   The choice of the cophenetic image \(\Dcoph\) over the raw distance \(\distm(\tau_{\min})\) is methodologically motivated. The \gls{lrg} propagator \(\propag(\tau_{\min})\) is a single-scale object: at \(\tau_{\min} = 1/\lambda_{\max}\) the heat kernel is set to the finest scale resolved by \(\lapl\), and \(\distm(\tau_{\min})\) reads pairwise dissimilarity at that fixed scale. For our fully-connected weight-heterogeneous \(\abs{\ImCoh}\) substrate the Laplacian spectrum is continuous, so the standard \(\tau\)-sweep multiscale reading of~\cite{villegas2025multiscale} --- entropy plateaus and specific-heat peaks marking gap-induced crossovers --- does not apply. The linkage hierarchy \(\mathcal{L}(\tau_{\min})\) is the natural multiscale carrier in this regime: its \(N-1\) merge heights deterministically index the communication-coarsening scales of the network as read by \(\propag(\tau_{\min})\), replacing the spectral-gap scale identification. The cophenetic distance \(\Dcoph\) is the per-pair image of this multiscale structure --- each pair value reads the intrinsic scale at which the pair coalesces into a single communication unit. Computing the per-pair correlation on \(\Dcoph\) therefore reads cross-phase persistence of the multiscale-resolved per-pair organization, whereas the same statistic on \(\distm(\tau_{\min})\) reads single-scale per-pair persistence only.
+% REPLACE:
+    The cophenetic image \(\Dcoph\) is read in place of the fixed-scale distance \(\distm(\tau_{\min})\). The latter reads pairwise dissimilarity at the single scale \(\tau_{\min}\); \(\Dcoph\) instead reads, pair by pair, the merge scale at which two contacts coalesce into one communication unit, so the per-pair correlation on \(\Dcoph\) captures cross-phase persistence of the \emph{multiscale-resolved} organization rather than single-scale persistence only. As established in Section~\ref{ssec:methods_lrg}, the continuous Laplacian spectrum of the \(\abs{\ImCoh}\) substrate precludes the gap-based \(\tau\)-sweep reading of~\cite{villegas2025multiscale}, and the linkage hierarchy \(\mathcal{L}(\tau_{\min})\) is the multiscale carrier that replaces it.
+
+
+% =====================================================================
+% D. STRUCTURAL MOVE  (recommended — realizes a monotone R1 → R2 → R3)
+% =====================================================================
+%
+% CURRENT top-level subsection order after methods_compare:
+%     Tissue stratification        (R1 localizer)
+%     Encoding/inference  (arc)    (R2)
+%     Anatomical localization      (R1 localizer)   <-- stranded after R2
+%     Epileptogenic-zone marker    (R3)
+%
+% The two R1 "where does the trace live" localizers (anatomy = which system;
+% tissue = which tissue class) are split by the R2 decomposition, and anatomy
+% (R1) sits after arc (R2), breaking the result order.
+%
+% ACTION: cut the entire subsection
+%     \subsection{Anatomical localization of the trace}\label{sssec:methods_anatomy}
+%     ... through the end of its "\paragraph{Localization robustness.}" paragraph ...
+% and paste it so it sits immediately BEFORE
+%     \subsection{Tissue stratification of the trace}\label{ssec:methods_tissue}
+%
+% RESULT order:  methods_compare → Anatomy → Tissue → Arc → Epi
+%   = both R1 localizers adjacent, then R2, then R3.  (Anatomy before Tissue:
+%   system first, then the gray/white/SOZ tissue decomposition — but either
+%   sub-order is fine; the load-bearing move is getting both before Arc.)
+%
+% SAFE: anatomy's only forward dependency becomes its reference to
+%   Section~\ref{ssec:methods_arc} (the "encoding anchor" aside), which is a
+%   normal forward \ref. Arc does not reference anatomy or tissue; tissue does
+%   not reference anatomy or arc. No \label changes, no \ref breakage.
+%
+% (No find/replace — this is a block relocation. Do it in the editor.)
+
+
+% =====================================================================
+% E. NOTES — no edit required, flagged for the record
+% =====================================================================
+%
+% E1. LABEL PREFIX. \label{sssec:methods_anatomy} is on a \subsection now, so the
+%     "sssec" prefix is cosmetically wrong. LEAVE IT: the label is an opaque
+%     string and is referenced ~31× across the preprint tree (results directives,
+%     locked/ANATOMY_*). Renaming buys nothing and risks dangling refs.
+%
+% E2. GRASSMANN IS SINGLE-ARM by design. \(\rhocoph\)/\(\rhoraw\) are arm-
+%     symmetrized; \(T_{\rm G}\) uses the early rspre half only (audit_66). This
+%     is correct — the A↔B ambiguity is specific to a subtracted-baseline shift
+%     vector, and \(T_{\rm G}\) uses rspre as a triangle vertex, not a subtracted
+%     baseline. The text already says "the early rspre half is used." A reviewer
+%     may still ask; one clause ("...used; the subspace triangle subtracts no
+%     baseline, so the arm ambiguity of the per-pair probes does not arise")
+%     would preempt it. Optional.
+%
+% E3. COMMUNICABILITY. Text writes \(e^{\Adjacency}\); the code uses the
+%     spectral-radius-normalized \(e^{\Adjacency/\rho(\Adjacency)}\) for numerical
+%     stability. \(e^{\Adjacency}\) is the standard textbook definition and is
+%     acceptable in Methods; write \(e^{\Adjacency/\rho(\Adjacency)}\) only if you
+%     want exact correspondence. Cosmetic.
+%
+% E4. THREE EPI MANIPULATIONS coexist and are each correctly scoped, but a reader
+%     could conflate them: (i) trace-level epi-EXCLUSION with node-count
+%     decimation control (stats, Robustness diagnostics — rebuilds the hierarchy
+%     on the residual set); (ii) anatomy epi-exclusion from the read-out universe
+%     V (no rebuild, no decimation); (iii) tissue SOZ pair-CLASS restriction (no
+%     rebuild, pair-count null). The Methods already states when decimation does
+%     vs does not apply, so no fix is required — but if you want to preempt
+%     confusion, one sentence in the tissue subsection ("unlike the trace-level
+%     epi-exclusion of Section~\ref{sssec:methods_compare_stats}, which rebuilds
+%     the hierarchy on the residual contacts, here the hierarchy is unchanged and
+%     only the pair set is restricted") would seal it. Optional.
+%
+% E5. FOLDER HOUSEKEEPING (your aside). The other five files in
+%     .agents/preprint/methods/ (methods_displacement_taxonomy,
+%     methods_grassmann_cluster_extent, methods_neurophysiological_interpretation,
+%     methods_revision_2026-05-18, methods_section_review_2026-05-19) are notes /
+%     superseded reviews, not the manuscript body. Agreed they should leave
+%     methods/. methods_revision_* and methods_section_review_* are superseded
+%     (pre-ρ_sym) → archive; the other three are reference notes → directives/ or
+%     a methods-notes/ subfolder. git mv (never delete — research history). Say
+%     the word and I will relocate them.
+% =====================================================================

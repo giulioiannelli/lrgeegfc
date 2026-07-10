@@ -209,13 +209,29 @@ diffusion time τ" enforces this anti-hallucination guard.
 
 ### 5.2 Why our case is hard
 
-Villegas's BA / RR / real-PPI examples have **discrete C(τ) peaks** that identify multiple characteristic scales. Our high-band ImCoh FC graphs typically have **continuous spectra** (close to Wigner-semicircle limit; see Villegas 2025 §V, Fig. 7d) — so:
+Villegas's BA / RR / real-PPI examples have **multiple discrete C(τ) peaks** that identify a *ladder* of characteristic mesoscale scales. Our ImCoh FC graphs have **continuous spectra** (close to Wigner-semicircle limit; see Villegas 2025 §V, Fig. 7d) — so:
 
-- C(τ) is smooth, no informative peaks.
-- τ\* is poorly defined or trivially at the upper edge of the τ scan.
-- Spectrum-based scale identification largely **fails** for us.
+- **C(τ) HAS a single, well-defined interior peak τ\*** — NOT smooth/monotonic/peakless.
+  Verified empirically 2026-07-09: unimodal in every (patient, band) cell (30/30 +
+  full cohort), prominence ≈ 1.0–1.4, matching the pipeline's own cached `entropy_C`
+  to ~1e-15. τ\* sits at an intermediate scale of order **10/λ_max** (α ≡ τ\*·λ_max
+  ≈ 8–15), just coarser than the Fiedler time 1/λ_gap (which is an *interior* scale
+  of the window, at α ≈ 3, ~4× finer than τ\*).
+- What is **absent** is a *family of multiple* gap-induced peaks. The single τ\* marks
+  the **collapse scale** (where the propagator relaxes onto the trivial λ_0 mode and
+  inter-contact structure is lost), not a nested mesoscale community ladder — so `Ψ`
+  isolates no privileged interior cut, and spectrum-based *mesoscale-community*
+  identification fails. Identification of the single collapse scale τ\* does **not** fail.
+- τ\* ≈ the empirical **collapse onset** of audit_121 (α ≈ 10–15) — two independent
+  diagnostics (spectral C-peak; cross-phase placebo/self-similarity) locating the
+  same boundary. τ\* is therefore a valid coarse-τ **ceiling**: read at/below it, not past.
 
-Consequently the LRG pipeline as we use it commits to a single τ = 1/λ_max and gets all of its multiscale content from the **dendrogram's own UPGMA hierarchy** (cuts at integer-k or fixed h_rel), not from a τ-scan.
+Consequently the LRG pipeline commits to a single τ = 1/λ_max for the **cross-phase
+trace** (its multiscale content coming from the **dendrogram's own UPGMA hierarchy**,
+not a τ-scan — and coarsening the *cross-phase* comparison toward τ\* manufactures a
+collapse artifact, audit_121). A **within-phase** read-out (the epi SOZ marker) is
+immune to that cross-phase collapse and is legitimately read near the ceiling
+(τ_5 = 10/λ_max ≈ τ\*); see `overleaf/methods.tex` §`ssec:methods_epi`.
 
 ### 5.3 Open methodological question
 
@@ -228,7 +244,7 @@ Whether the right τ for the task-trace question is (a) 1/λ_max (current), (b) 
 | Paper assumes | Our case has | Implication |
 |---|---|---|
 | Topological structure (sparse adjacency, BA / RR / ER / real biological) | Fully connected weighted graph (every pair has non-zero edge weight) | Coarse-graining "by edge presence" (Kadanoff supernode rule via `ρ'_ij ≥ 1`) is degenerate — at any τ > 0 the threshold rule produces either everything-merged or nothing-merged |
-| Discrete C(τ) peaks identifying mesoscale | Continuous spectrum (semicircle-like for high spectral dimension d_S) | Cannot read off characteristic scales from C; τ\* is uninformative; `1−S` and `C` are stored but **not load-bearing** for any of our hypothesis tests. **L2 (entropy-curve task-trace rung) is permanently removed from the geometric ladder 2026-04-29** — `S(τ)` and `C(τ)` carry no useful information for our case and any L2 measure would be theatre. Cite this point when archiving entropy-curve scope drafts. |
+| *Multiple* discrete C(τ) peaks → a mesoscale community ladder | Continuous spectrum (semicircle-like for high spectral dimension d_S) → a **single** well-defined susceptibility peak τ\* (≈10/λ_max, the collapse scale), no multi-peak ladder | Cannot read a *nested mesoscale ladder* off C(τ), and `1−S` / `C` **values** are not a cross-phase discriminator — **L2 (entropy-curve task-trace rung) permanently removed 2026-04-29** (comparing C-curves across phases is theatre). BUT the peak **location** τ\* is a real, well-defined scale marker (verified 2026-07-09) and a valid coarse-τ *ceiling*. Do **not** write "C(τ) is smooth / has no peak" — that is false; write "no *multiple* gap-induced peaks". |
 | Mesoscale community detection at τ' < τ < τ\* | Single τ = 1/λ_max + dendrogram hierarchy | "Multiscale" in our work is **dendrogram-multiscale** (cuts at integer-k or h_rel), not τ-multiscale |
 | Static network analysis | Cross-phase comparison (rest_pre, task_test, rest_post per patient) | Need per-patient within-baseline null (halves cache) — no equivalent in the paper |
 | No anatomy bias | sEEG: contacts on the same probe carry trivially high coupling | Need probe-bias control (cross-probe / same-probe split per `probe-bias-guide.md`) |
@@ -386,7 +402,7 @@ These rungs are codified in the rebuild plan (`/home/giulio/.claude/plans/i-thin
 - `LRGResult.entropy_C` is `−dS/dlog τ` returned by `np.diff` so its **length is `entropy_tau − 1`**. Plot it at `(τ[i] + τ[i+1])/2` if you need alignment.
 - The dendrogram is **built once at `τ = 1/λ_max`**, not via a τ-scan. Multiscale comes from the dendrogram cuts, not from τ evolution.
 - **Ψ is NOT a τ-scan stability metric.** It's a fixed-τ index over consecutive merge-distance log-gaps in a single dendrogram.
-- **C(τ) peaks are not informative for our continuous-spectrum case.** Don't overload them with mesoscale interpretation that the paper restricts to topological-structure networks.
+- **C(τ) has a single well-defined peak τ\* (the collapse scale, ≈10/λ_max), not a family of mesoscale peaks** (verified 2026-07-09). Don't read a nested community ladder off it, and don't call C(τ) "smooth/peakless" — the correct statement is "no *multiple* gap-induced peaks". τ\* is a valid coarse-τ *ceiling*; the cross-phase trace is still read at τ_min for a cross-phase-collapse reason (audit_121), **not** because C(τ) has no peak.
 - **Don't claim "scale-invariant" or "informational phase transition" findings** in our dataset — those are paper-only arguments for fractal/sparse networks.
 
 ---
@@ -395,7 +411,15 @@ These rungs are codified in the rebuild plan (`/home/giulio/.claude/plans/i-thin
 
 These are NOT settled by the framework guide; they are flagged for explicit investigation:
 
-1. **τ choice for the task-trace question.** Should we use τ = 1/λ_max (current), 1/λ_gap, τ\*, or a sweep? Sensitivity not exhaustively tested.
+1. **τ choice for the task-trace question.** DISCHARGED for the cohort trace
+   (audit_121, 2026-06-22): τ = 1/λ_max vindicated; the trace is τ-robust
+   finest→Fiedler and coarse-τ "gains" are a placebo-confirmed collapse artifact.
+   The C(τ) peak τ\* (≈10/λ_max; verified single/unimodal 2026-07-09) coincides with
+   that collapse onset and is the natural coarse *ceiling* — used by the epi
+   within-phase marker (τ_5 = 10/λ_max ≈ τ\*), NOT by the cross-phase trace. The
+   trace/marker split is "scale follows the question": trace at the floor τ_min,
+   marker near the ceiling τ\*. Per-node (β→OFC) τ-sensitivity remains a lighter
+   open follow-up.
 2. **Logarithmic communication distance.** `−log K_ij(τ)` is a metric (not strictly ultrametric except when `K` is itself an ultrametric kernel). It's information-theoretically natural ("nats"). Could change dendrogram shape; may or may not change cohort verdicts. Worth a follow-up audit.
 3. **Random-walk Laplacian L_RW = D^{-1} L̂.** Used in the paper §V for community detection; differs from L̂ in its treatment of degree-heterogeneity. May give different dendrograms on the same FC matrix. Not currently in the codebase.
 4. **Effective spectral dimension d_S.** For a fully-connected graph the spectral dimension is poorly defined; characterising d_S for our FC matrices would tell us *how close* we are to the Wigner-semicircle limit and therefore how much the paper's "scale-invariant" framing applies (probably very little).

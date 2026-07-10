@@ -7,8 +7,8 @@ scope: neurophysiological reading of the three-rung probe ladder (raw FC ρ_spli
 sources:
   - .agents/preprint/bands/00_cohort.md (cross-band synthesis, technical)
   - .agents/preprint/bands/01_beta.md … 06_delta.md (per-band locked briefs)
-  - .agents/preprint/methods/methods_revision_2026-05-18_cophenet.md (cophenet methodology)
-  - .agents/preprint/methods/methods_grassmann_cluster_extent.md (Grassmann cluster-mass)
+  - .agents/preprint/directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md (cophenet methodology)
+  - .agents/preprint/directives/methods_grassmann_cluster_extent.md (Grassmann cluster-mass)
   - data/audit/raw_fc_matched_strength/cohort_summary.csv
   - data/audit/matched_strength_surrogate_split_baseline/cohort_summary.csv
   - data/audit/grassmann_cluster_extent/cohort_summary.csv
@@ -47,7 +47,7 @@ At this rung one band looks decisive (α), three look "almost", two look null. T
 
 Apply LRG, take the propagator distance `D(τ_max) = 1/ρ̂(τ_max)`, feed to UPGMA hierarchical clustering, then take the cophenetic matrix — the ultrametric distance induced by the merge tree. Compute ρ_split on `D_coph`.
 
-**Why this step is principled in the continuous-spectrum case.** The dendrogram-cophenet sequence does two things at once: (a) it replaces gap-based scale identification (unavailable in our continuous-spectrum LRG outlier regime — see `methods/methods_revision_2026-05-18_cophenet.md`) with a merge-tree multiscale identifier, and (b) it discards the absolute magnitude of `D(τ_max)` and keeps only the order in which nodes merge.
+**Why this step is principled in the continuous-spectrum case.** The dendrogram-cophenet sequence does two things at once: (a) it replaces gap-based scale identification (unavailable in our continuous-spectrum LRG outlier regime — see `directives/archive/2026-05/methods_revision_2026-05-18_cophenet.md`) with a merge-tree multiscale identifier, and (b) it discards the absolute magnitude of `D(τ_max)` and keeps only the order in which nodes merge.
 
 The magnitude-discarding aspect is what sharpens the matched-strength contrast. Raw `D(τ_max)` ρ_split for β is +0.220, almost identical to cophenet's +0.221, but the raw-D matched-strength surrogate cloud has variance comparable to the observed signal — paired p only reaches 0.042. Matched-strength rewiring scrambles the merge order dramatically (degree-preserving rewiring is bad at preserving who clusters with whom across the scale ladder); so the surrogate cloud in cophenet space collapses around zero. The same observed median becomes a much tighter rejection: p=0.005 instead of p=0.042.
 

@@ -12,7 +12,7 @@ always consistent because every patient carries its own bar.
 
 Reads : data/audit/rho_sym_gate/per_patient_per_band.csv
         data/audit/rho_sym_gate/cohort_summary.csv
-Writes: data/reports/results_section1/fig_perpatient_bands_forest.pdf
+Writes: data/preprint/figures/results_section1/fig_perpatient_bands_forest.pdf
 """
 from __future__ import annotations
 
@@ -23,18 +23,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
-from matplotlib.markers import MarkerStyle
 
 from lrg_eegfc.config.const import BRAIN_BAND_TEX_DICT
 from lrg_eegfc.utils.scripting import setup_script_env
-from lrg_eegfc.visuals.styles import use_lrg_style
+from lrg_eegfc.visuals.styles import band_marker, use_lrg_style
 
 ROOT = setup_script_env()
 use_lrg_style()
 
 GATE = ROOT / "data/audit/rho_sym_gate/per_patient_per_band.csv"
 SUMMARY = ROOT / "data/audit/rho_sym_gate/cohort_summary.csv"
-OUT = ROOT / "data/reports/results_section1/fig_perpatient_bands_forest.pdf"
+OUT = ROOT / "data/preprint/figures/results_section1/fig_perpatient_bands_forest.pdf"
 
 COHORT = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
           "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15"]
@@ -60,77 +59,81 @@ def _band_glyph(p):
     return "none", C_ABSENT             # absent
 
 
-def main():
+def draw(target):
     g = pd.read_csv(GATE)
     s = pd.read_csv(SUMMARY).set_index("band")
     ymap = {p: len(COHORT) - 1 - i for i, p in enumerate(COHORT)}
 
-    fig, axes = plt.subplots(2, 3, figsize=(13.2, 7.2), sharex=True, sharey=True)
+    # sizes tuned for the compound's ~3-inch-wide tile (the assembler does NOT rescale
+    # this panel): small dots so each stem to zero stays visible, legible patient labels,
+    # per-band marker so a stray dot is never confounded, and a compact legend that stays
+    # inside the panel width (it used to spill left over panel c).
+    gs = target.add_gridspec(2, 3, left=0.105, right=0.985, top=0.965, bottom=0.185,
+                             hspace=0.10, wspace=0.10)
+    axes = gs.subplots(sharex=True, sharey=True)
 
     for ax, band in zip(axes.ravel(), BAND_ORDER):
         gb = g[g.band == band].set_index("patient")
-        ax.axvline(0.0, color="0.55", lw=0.9, ls="--", zorder=1)
+        mk = band_marker(band)
+        ax.axvline(0.0, color="0.55", lw=0.7, ls="--", zorder=1)
         for pat in COHORT:
             if pat not in gb.index:
                 continue
             r = gb.loc[pat]
             y = ymap[pat]
-            # own matched-strength null (p5-p95)
-            ax.plot([r.surr_p5, r.surr_p95], [y, y], color=C_NULL, lw=5.5,
-                    solid_capstyle="round", zorder=2)
+            ax.plot([r.surr_p5, r.surr_p95], [y, y], color=C_NULL, lw=2.8,
+                    solid_capstyle="round", zorder=2)                       # own MS null p5-p95
             v = _verdict(r.obs_p_one_sided)
-            # colour follows the DIRECTION of the tree: positive=green, negative=red,
-            # regardless of significance (an empty red dot = leaned anti but n.s.)
+            # colour follows the tree direction: positive=green, negative=red (an open red
+            # marker = leaned anti but n.s.)
             sign_col = C_TRACE if r.obs_rho >= 0 else C_ANTI
-            ax.plot([0.0, r.obs_rho], [y, y], color=sign_col, lw=1.8, zorder=3)
+            ax.plot([0.0, r.obs_rho], [y, y], color=sign_col, lw=1.0, zorder=3)
             if v == "within":
-                ax.scatter(r.obs_rho, y, s=95, facecolor="white", edgecolor=sign_col,
-                           linewidth=1.7, zorder=4)
+                ax.scatter(r.obs_rho, y, s=15, marker=mk, facecolor="white",
+                           edgecolor=sign_col, linewidth=0.9, zorder=4)
             else:
                 fill = C_TRACE if v == "clears" else C_ANTI
-                ax.scatter(r.obs_rho, y, s=95, color=fill, edgecolor="white",
-                           linewidth=0.7, zorder=4)
-
-        # per-band verdict glyph + label, lower-right
-        fill, gcol = _band_glyph(s.loc[band, "gate_p_sym"])
-        ax.plot(0.80, 0.8, marker=MarkerStyle("o", fillstyle=fill), ms=17,
-                mfc=gcol, mec=gcol, mew=1.8, transform=ax.get_yaxis_transform(),
-                clip_on=False, zorder=5)
-        ax.text(0.93, 0.8, BRAIN_BAND_TEX_DICT[band], transform=ax.get_yaxis_transform(),
-                fontsize=20, color=gcol, ha="center", va="center")
+                ax.scatter(r.obs_rho, y, s=15, marker=mk, color=fill,
+                           edgecolor="white", linewidth=0.4, zorder=4)
+        # band label INSIDE each axis, lower-right, colour-coded: green=cohort-wide trace,
+        # amber=present-but-split, grey=absent
+        _, gcol = _band_glyph(s.loc[band, "gate_p_sym"])
+        ax.text(0.965, 0.05, BRAIN_BAND_TEX_DICT[band], transform=ax.transAxes,
+                fontsize=11, color=gcol, fontweight="bold", ha="right", va="bottom")
 
     for ax in axes.ravel():
         ax.set_xlim(-0.55, 1.0)
         ax.set_ylim(-0.6, len(COHORT) - 0.4)
     for ax in axes[:, 0]:
         ax.set_yticks(list(ymap.values()))
-        ax.set_yticklabels([p.replace("Pat_", "Pat ") for p in COHORT], fontsize=11.5)
+        ax.set_yticklabels([p.replace("Pat_", "") for p in COHORT], fontsize=7.5)
     for ax in axes[-1, :]:
-        ax.set_xlabel(r"$\rho^{\mathrm{coph}}$", fontsize=15)
+        ax.set_xlabel(r"$\rho^{\mathrm{coph}}$", fontsize=8)
     for ax in axes.ravel():
         ax.tick_params(axis="y", length=0)
-        ax.tick_params(axis="x", labelsize=12)
+        ax.tick_params(axis="x", labelsize=5.8, pad=1)
 
     handles = [
-        Line2D([0], [0], color=C_NULL, lw=5.5, solid_capstyle="round",
-               label="matched-strength null (p5–p95)"),
-        Line2D([0], [0], marker="o", ls="", mfc=C_TRACE, mec="white", ms=10,
-               label="patient clears null"),
-        Line2D([0], [0], marker="o", ls="", mfc="white", mec=C_TRACE, mew=1.7, ms=10,
-               label="patient within null"),
-        Line2D([0], [0], marker="o", ls="", mfc=C_ANTI, mec="white", ms=10,
+        Line2D([0], [0], color=C_NULL, lw=2.8, solid_capstyle="round",
+               label="matched-strength null"),
+        Line2D([0], [0], marker="o", ls="", mfc=C_TRACE, mec="white", ms=4.5,
+               label="clears null"),
+        Line2D([0], [0], marker="o", ls="", mfc="white", mec=C_TRACE, mew=1.0, ms=4.5,
+               label="within null"),
+        Line2D([0], [0], marker="o", ls="", mfc=C_ANTI, mec="white", ms=4.5,
                label="anti"),
-        Line2D([0], [0], marker="o", ls="", mfc=C_TRACE, mec=C_TRACE, ms=12,
-               label="band: cohort-wide trace"),
-        Line2D([0], [0], marker=MarkerStyle("o", fillstyle="left"), ls="",
-               mfc=C_SPLIT, mec=C_SPLIT, ms=12, label="band: present but split"),
-        Line2D([0], [0], marker="o", ls="", mfc="white", mec=C_ABSENT, mew=1.7, ms=12,
-               label="band: absent"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.02),
-               ncol=4, frameon=False, fontsize=10.5, handletextpad=0.5, columnspacing=1.6)
+    # single row along the very bottom, clear of the x-axis labels above it
+    target.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, 0.012),
+                  ncol=4, frameon=False, fontsize=6.0, handletextpad=0.35,
+                  columnspacing=0.9, labelspacing=0.3)
 
-    fig.subplots_adjust(left=0.07, right=0.98, top=0.97, bottom=0.16, hspace=0.12, wspace=0.08)
+
+def main():
+    # portrait, matched to the compound's right-column tile so the standalone previews
+    # exactly what the assembler embeds (this panel is authored at tile size, not rescaled).
+    fig = plt.figure(figsize=(3.4, 4.7))
+    draw(fig)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)
