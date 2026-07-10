@@ -13,7 +13,7 @@
 # Usage:
 #   sync_travel_bundle.sh push   <MOUNT> [REPO]   # desktop  -> drive
 #   sync_travel_bundle.sh pull   <MOUNT> [REPO]   # drive    -> laptop repo
-#   sync_travel_bundle.sh verify <MOUNT> [REPO]   # compare file counts + bytes
+#   sync_travel_bundle.sh verify <MOUNT> [REPO]   # is every bundle file present locally?
 # Add -n anywhere for a dry run (rsync --dry-run):
 #   sync_travel_bundle.sh push -n /media/giulio/TRAVEL
 #
@@ -28,6 +28,7 @@ BUNDLE_NAME="lrgeegfc_bundle"
 EXCLUDES=(
   --exclude 'outputs/figures/'
   --exclude 'raw/stereoeeg_patients/archive/'
+  --exclude '.trash_*/'
   --exclude '__pycache__/'
   --exclude '*.pyc'
   --exclude '.DS_Store'
@@ -75,9 +76,11 @@ count_and_bytes() {  # $1 = dir ; prints "<files> <bytes>" honoring EXCLUDES
   n=$(find "$dir" -type f \
         -not -path '*/outputs/figures/*' \
         -not -path '*/raw/stereoeeg_patients/archive/*' \
+        -not -path '*/.trash_*/*' \
         -not -path '*/__pycache__/*' 2>/dev/null | wc -l)
   b=$(du -sb --exclude=outputs/figures \
-        --exclude=raw/stereoeeg_patients/archive "$dir" 2>/dev/null | cut -f1)
+        --exclude=raw/stereoeeg_patients/archive \
+        --exclude='.trash_*' "$dir" 2>/dev/null | cut -f1)
   echo "$n $b"
 }
 
@@ -139,14 +142,32 @@ EOF
   verify)
     [[ -d "$DEST/data" ]] || die "no bundle at '$DEST/data'"
     [[ -d "$SRC_DATA" ]]  || die "no local data at '$SRC_DATA'"
-    read -r sf sb < <(count_and_bytes "$SRC_DATA")
-    read -r df db < <(count_and_bytes "$DEST/data")
-    printf "local (%s): %s files, %s bytes\n" "$SRC_DATA" "$sf" "$sb"
-    printf "drive (%s): %s files, %s bytes\n" "$DEST/data" "$df" "$db"
-    if [[ "$sf" == "$df" && "$sb" == "$db" ]]; then
-      echo ">> MATCH"
+    # Merge-safe check. A plain file/byte total over both trees is wrong here:
+    # the local data/ legitimately holds files that were never in the bundle
+    # (old-layout caches from a prior era, freshly rendered figures), so the
+    # totals always DIFFER even when the copy is perfect. Instead ask the only
+    # question that matters after a pull — "is every bundle file present and
+    # identical locally?" — by running a dry-run rsync in the restore direction
+    # and counting what would still transfer. Zero pending == the bundle fully
+    # landed. Extra local files are ignored (no --delete anywhere in this tool).
+    read -r bf bb < <(count_and_bytes "$DEST/data")
+    printf "bundle (%s): %s files, %s bytes\n" "$DEST/data" "$bf" "$bb"
+    local_pending() {  # dry-run bundle -> local; itemize; count real transfers
+      # grep -c exits 1 on zero matches (the success case here), which would
+      # trip `set -e`/pipefail — force a clean exit and let the count stand.
+      rsync -rltD --no-perms --no-owner --no-group --modify-window=1 \
+            --itemize-changes --dry-run "${EXCLUDES[@]}" \
+            "$DEST/data/" "$SRC_DATA/" 2>/dev/null | grep -Ec '^(>f|cd)' || true
+    }
+    pending=$(local_pending)
+    if [[ "$pending" -eq 0 ]]; then
+      echo ">> MATCH — every bundle file is present and identical under $SRC_DATA"
+      echo "   (extra local files outside the bundle are expected and ignored)"
     else
-      echo ">> DIFFER — re-run push/pull, or inspect with: rsync -avn ... (dry run shows deltas)"
+      echo ">> DIFFER — $pending bundle file(s) missing or out of date locally."
+      echo "   Re-run pull, or list the deltas with:"
+      echo "     rsync -rltD --no-perms --modify-window=1 -ni ${EXCLUDES[*]} \\"
+      echo "       '$DEST/data/' '$SRC_DATA/'"
     fi
     ;;
 
