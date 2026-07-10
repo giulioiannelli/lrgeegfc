@@ -28,6 +28,7 @@ BUNDLE_NAME="lrgeegfc_bundle"
 EXCLUDES=(
   --exclude 'outputs/figures/'
   --exclude 'raw/stereoeeg_patients/archive/'
+  --exclude '.trash_*/'
   --exclude '__pycache__/'
   --exclude '*.pyc'
   --exclude '.DS_Store'
@@ -75,9 +76,11 @@ count_and_bytes() {  # $1 = dir ; prints "<files> <bytes>" honoring EXCLUDES
   n=$(find "$dir" -type f \
         -not -path '*/outputs/figures/*' \
         -not -path '*/raw/stereoeeg_patients/archive/*' \
+        -not -path '*/.trash_*/*' \
         -not -path '*/__pycache__/*' 2>/dev/null | wc -l)
   b=$(du -sb --exclude=outputs/figures \
-        --exclude=raw/stereoeeg_patients/archive "$dir" 2>/dev/null | cut -f1)
+        --exclude=raw/stereoeeg_patients/archive \
+        --exclude='.trash_*' "$dir" 2>/dev/null | cut -f1)
   echo "$n $b"
 }
 
