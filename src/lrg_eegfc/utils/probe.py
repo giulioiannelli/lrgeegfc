@@ -24,6 +24,8 @@ from lrg_eegfc.utils.io.patient import parse_seeg_label
 __all__ = [
     "probe_from_label",
     "extract_probe_labels",
+    "contact_labels",
+    "split_label",
     "build_probe_mask",
     "compute_probe_weight_ratio",
     "compute_community_probe_enrichment",
@@ -79,6 +81,47 @@ def extract_probe_labels(channel_labels: Sequence[str]) -> list[str]:
         Probe identifier for each channel.
     """
     return [probe_from_label(l) for l in channel_labels]
+
+
+def contact_labels(probes: Sequence[str], n: int) -> List[str]:
+    """Build sEEG contact names (shaft identifier + running index within shaft).
+
+    Given the per-contact probe identifiers in FC/matrix order, assign each
+    contact a name ``"{probe}{k}"`` where *k* is its 1-based position within
+    that probe (e.g. ``["A", "A", "G"] -> ["A1", "A2", "G1"]``).
+
+    Parameters
+    ----------
+    probes : sequence of str
+        Probe identifier per contact (as returned by
+        :func:`extract_probe_labels`), FC-aligned.
+    n : int
+        Number of contacts to label (leading ``n`` entries of *probes*).
+
+    Returns
+    -------
+    list of str
+        Contact name per contact.
+    """
+    counts: dict[str, int] = {}
+    labels: List[str] = []
+    for p in probes[:n]:
+        counts[p] = counts.get(p, 0) + 1
+        labels.append(f"{p}{counts[p]}")
+    return labels
+
+
+def split_label(label: str) -> tuple[str, str]:
+    """Split a contact name into (shaft, index): ``"A10" -> ("A", "10")``.
+
+    The shaft is the leading non-digit run (including a prime, e.g. ``"G'"``),
+    the index the trailing digit run (rendered as a superscript by callers).
+    Falls back to ``(label, "")`` if the pattern does not match.
+    """
+    import re
+
+    m = re.match(r"^(\D*)(\d*)$", label)
+    return (m.group(1), m.group(2)) if m else (label, "")
 
 
 # ---------------------------------------------------------------------------

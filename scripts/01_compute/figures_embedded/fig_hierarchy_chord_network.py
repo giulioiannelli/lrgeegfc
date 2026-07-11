@@ -26,7 +26,6 @@ Writes: data/preprint/figures/_drafts/fig_hierarchy_chord_network_{pat}_{band}_{
 from __future__ import annotations
 
 import argparse
-import re
 import sys
 
 from lrg_eegfc.utils.scripting import setup_script_env
@@ -42,6 +41,7 @@ import graph_tool.draw as gtd
 from scipy.cluster.hierarchy import fcluster, leaves_list
 
 from lrg_eegfc.visuals.network_templates import _load_inputs
+from lrg_eegfc.utils.probe import contact_labels, split_label
 
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "audit"))
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "figures_embedded"))
@@ -69,12 +69,6 @@ STRIP = 0.12                                    # extra height (fraction of W) f
 EI_PALE = np.array([0.82, 0.81, 0.78])
 BAND_SYM = {"delta": "δ", "theta": "θ", "alpha": "α", "beta": "β",
             "low_gamma": "γ_low", "high_gamma": "γ_high"}
-
-
-def split_label(lab):
-    """'A10' -> ('A', '10'): non-digit shaft prefix + numeric index (drawn as a superscript)."""
-    m = re.match(r"^(\D*)(\d*)$", lab)
-    return (m.group(1), m.group(2)) if m else (lab, "")
 
 
 def linkage_to_gt_tree(Z, N):
@@ -162,15 +156,6 @@ def leaf_origin_colors(Z, N, efp, members, scale="rank", tscale=None):
         pw = np.clip(tot[l] / tscale, 0, 1)
         cols.append((1 - pw ** 0.7) * EI_PALE + pw ** 0.7 * hue)   # pale when weakly held
     return cols
-
-
-def contact_labels(probes, N):
-    """sEEG contact names (shaft letter + running index within shaft), FC-aligned."""
-    counts, labels = {}, []
-    for p in probes[:N]:
-        counts[p] = counts.get(p, 0) + 1
-        labels.append(f"{p}{counts[p]}")
-    return labels
 
 
 def build(pat, band, phase, k_comm, topk, beta, gamma, size, node_color, edge_cmap,
