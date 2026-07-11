@@ -83,14 +83,25 @@ def bezier_arcs(coords, edges, center, n: int = 18, lift: float = 0.32):
 
 
 def pial_mesh(surf: str = "fsaverage5", color: str = "#d2d6dc",
-              opacity: float = 0.05, lighting: Optional[dict] = None) -> go.Mesh3d:
-    """Translucent bilateral pial shell (nilearn fsaverage) as a ``Mesh3d``."""
+              opacity: float = 0.05, lighting: Optional[dict] = None,
+              hemi: str = "both") -> go.Mesh3d:
+    """Translucent pial shell (nilearn fsaverage) as a ``Mesh3d``.
+
+    ``hemi`` selects ``"both"`` (default), ``"left"`` or ``"right"`` — a
+    single-hemisphere shell frames a unilateral implant without the empty
+    contralateral half forcing the brain small / off-centre.
+    """
     from nilearn import datasets, surface
     fs = datasets.fetch_surf_fsaverage(surf)
-    vl, fl = surface.load_surf_mesh(fs["pial_left"])
-    vr, fr = surface.load_surf_mesh(fs["pial_right"])
-    V = np.vstack([vl, vr])
-    F = np.vstack([fl, fr + len(vl)])
+    if hemi == "left":
+        V, F = surface.load_surf_mesh(fs["pial_left"])
+    elif hemi == "right":
+        V, F = surface.load_surf_mesh(fs["pial_right"])
+    else:
+        vl, fl = surface.load_surf_mesh(fs["pial_left"])
+        vr, fr = surface.load_surf_mesh(fs["pial_right"])
+        V = np.vstack([vl, vr])
+        F = np.vstack([fl, fr + len(vl)])
     return go.Mesh3d(
         x=V[:, 0], y=V[:, 1], z=V[:, 2], i=F[:, 0], j=F[:, 1], k=F[:, 2],
         color=color, opacity=opacity, flatshading=False, hoverinfo="skip",

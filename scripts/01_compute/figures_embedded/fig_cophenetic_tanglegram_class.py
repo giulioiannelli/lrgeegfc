@@ -102,9 +102,15 @@ def draw_class(fate, pat, band, S, tri, task_phase):
     b_frac = BOTTOM_IN / fig_h
     gs = GridSpec(1, 1, top=0.92, bottom=b_frac, figure=fig)
     ax = fig.add_subplot(gs[0])
+    # RESET reads clearest with rest_post in the CENTRE: the reverted pair (rest_pre ≈ rest_post)
+    # then sits adjacent (gap 1, the similar/parallel one) and the task is the lone scrambled
+    # departure on the right — "first similar, second scrambled".
+    phase_order = ("rest_pre", "rest_post", task_phase) if fate == "reset" else None
     a, b, c, x1, x2, _ = build_row(ax, C, S, task_phase, is_top=True,
-                                   labels=[names[l] for l in S])
+                                   labels=[names[l] for l in S], phase_order=phase_order)
     title, desc = ROW_META[fate]
+    if fate == "reset":
+        desc = "rest-post shown centre — rest-pre ≈ rest-post (reverted); task is the lone departure"
     fig.text(0.5, 0.982, title, ha="center", va="top", fontsize=15.5, fontweight="bold",
              color="#2b2f36")
     fig.text(0.5, 0.952, f"{pat} · {BAND_SYM.get(band, band)}   ·   N = {m} contacts   ·   {desc}",

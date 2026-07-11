@@ -37,14 +37,18 @@ use_lrg_style()
 
 DET = ROOT / "data/audit/epi_propagator_detector/detector_lopo_per_patient.csv"
 CMP = ROOT / "data/audit/epi_marker_compound/compound_auc_per_patient.csv"
-OUT = ROOT / "data/reports/results_section3/fig_epi_c_two_populations.pdf"
+OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_c_two_populations.pdf"
 
 HUB_AUC = 0.60                                   # detector AUC below -> hub-type implant
 C_COMM, C_HUB = "#3a9a4f", "#d1352b"
 COH_AFF, COH_SW = 0.716, 0.750                   # off-shaft affinity -> switch (audit_104)
 
 
-def main():
+def draw(target, letters=True):
+    """Render the two-population panel (per-patient AUC + regime switch) onto ``target``.
+
+    Exposed so the §3 compound can tile it; ``main`` calls it on a standalone figure.
+    ``letters=False`` suppresses the internal per-axis a/b tags for compound use."""
     det = pd.read_csv(DET).set_index("patient")
     cmp = pd.read_csv(CMP)
     aff = cmp[cmp.compound == "affinity"].set_index("patient").auc
@@ -54,8 +58,8 @@ def main():
     det = det.sort_values("auc", ascending=True)
     is_hub = det.auc < HUB_AUC
 
-    fig, (axa, axb) = plt.subplots(1, 2, figsize=(12.4, 5.6),
-                                   gridspec_kw=dict(width_ratios=[1.05, 1.0]))
+    axa, axb = target.subplots(1, 2, gridspec_kw=dict(width_ratios=[1.05, 1.0]))
+    target.subplots_adjust(left=0.09, right=0.975, top=0.91, bottom=0.20, wspace=0.26)
 
     # -- panel a: per-patient detector AUC, two populations --------------------
     y = np.arange(len(det))
@@ -75,8 +79,9 @@ def main():
     axa.set_xlabel("detector AUC (leave-one-patient-out)", fontsize=12)
     axa.tick_params(axis="y", length=0)
     axa.spines[["top", "right"]].set_visible(False)
-    axa.text(0.0, 1.02, r"$\mathbf{a}$", transform=axa.transAxes, fontsize=17,
-             va="bottom", fontweight="bold")
+    if letters:
+        axa.text(0.0, 1.02, r"$\mathbf{a}$", transform=axa.transAxes, fontsize=17,
+                 va="bottom", fontweight="bold")
     n_comm, n_hub = int((~is_hub).sum()), int(is_hub.sum())
     axa.text(0.62, len(det) - 0.5, f"community  ({n_comm})", color=C_COMM,
              fontsize=11.5, fontweight="bold")
@@ -115,8 +120,9 @@ def main():
                    fontsize=12)
     axb.tick_params(axis="y", length=0)
     axb.spines[["top", "right"]].set_visible(False)
-    axb.text(0.0, 1.02, r"$\mathbf{b}$", transform=axb.transAxes, fontsize=17,
-             va="bottom", fontweight="bold")
+    if letters:
+        axb.text(0.0, 1.02, r"$\mathbf{b}$", transform=axb.transAxes, fontsize=17,
+                 va="bottom", fontweight="bold")
     axb.text(0.97, 0.06,
              rf"cohort: {COH_AFF:.2f} $\rightarrow$ {COH_SW:.2f},  $8/10 \rightarrow 9/10$"
              "\n" r"(Pat\_10 unrecoverable — both fail)",
@@ -134,11 +140,16 @@ def main():
         Line2D([0], [0], marker="o", ls="", mfc="0.4", mec="white", ms=11,
                label="per-patient switch (b, end)"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.05),
-               ncol=2, frameon=False, fontsize=10.0, handletextpad=0.5,
-               columnspacing=2.0)
+    target.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.05),
+                  ncol=2, frameon=False, fontsize=10.0, handletextpad=0.5,
+                  columnspacing=2.0)
+    return det, aff, stg, sw
 
-    fig.subplots_adjust(left=0.09, right=0.975, top=0.92, bottom=0.19, wspace=0.26)
+
+def main():
+    fig = plt.figure(figsize=(12.4, 5.6))
+    det, aff, stg, sw = draw(fig)
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)

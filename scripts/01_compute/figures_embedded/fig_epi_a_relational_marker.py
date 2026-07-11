@@ -40,7 +40,7 @@ ROOT = setup_script_env()
 use_lrg_style()
 
 AC = ROOT / "data/audit/epi_marker_allcontacts"
-OUT = ROOT / "data/reports/results_section3/fig_epi_a_relational_marker.pdf"
+OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_a_relational_marker.pdf"
 
 MARKER = "heat_t5"                                   # slow heat-kernel (README headline)
 BANDS = ["delta", "low_gamma", "beta", "alpha"]      # descending median AUC
@@ -52,7 +52,10 @@ COHORT = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
 Y_OFF = dict(zip(COHORT, np.linspace(-0.26, 0.26, len(COHORT))))
 
 
-def main():
+def draw(target):
+    """Render the relational-marker panel onto ``target`` (a Figure or SubFigure).
+
+    Exposed so the §3 compound can tile it; ``main`` calls it on a standalone figure."""
     pp = pd.read_csv(AC / "allcontacts_per_patient.csv")
     pp = pp[pp.marker == MARKER]
     sn = pd.read_csv(AC / "allcontacts_stratnull_per_patient.csv")
@@ -60,7 +63,8 @@ def main():
 
     yof = {b: len(BANDS) - 1 - i for i, b in enumerate(BANDS)}   # delta at top
 
-    fig, ax = plt.subplots(figsize=(8.8, 5.2))
+    ax = target.subplots()
+    target.subplots_adjust(left=0.11, right=0.97, top=0.93, bottom=0.26)
 
     # matched-strength null envelope (label-shuffle): median ~0.49, p95 ~0.55-0.57
     nmed = float(nulls.null_median_mean.mean())
@@ -108,15 +112,20 @@ def main():
         Patch(facecolor="0.82", alpha=0.6,
               label="matched-strength null (label-shuffle, $0/300$ reached obs.)"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.06),
-               ncol=2, frameon=False, fontsize=10, handletextpad=0.5,
-               columnspacing=1.6)
+    target.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.06),
+                  ncol=2, frameon=False, fontsize=10, handletextpad=0.5,
+                  columnspacing=1.6)
+    return dict(nulls=nulls, sn=sn)
 
-    fig.subplots_adjust(left=0.11, right=0.97, top=0.95, bottom=0.24)
+
+def main():
+    fig = plt.figure(figsize=(8.8, 5.2))
+    stats = draw(fig)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)
 
+    nulls, sn = stats["nulls"], stats["sn"]
     print("fig:epi_a — relational SOZ marker (strength-residual, all contacts)\n")
     for b in BANDS:
         beats = int(sn[sn.band == b].beats_p95.sum())

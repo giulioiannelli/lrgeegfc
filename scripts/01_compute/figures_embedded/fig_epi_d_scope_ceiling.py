@@ -41,7 +41,7 @@ use_lrg_style()
 
 DET = ROOT / "data/audit/epi_propagator_detector/detector_node_predictions.csv"
 OCC = ROOT / "data/audit/epi_propagator_detector/occult_candidates_graymatter.csv"
-OUT = ROOT / "data/reports/results_section3/fig_epi_d_scope_ceiling.pdf"
+OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_d_scope_ceiling.pdf"
 
 KMAX = 15
 N_OCC = 10
@@ -77,7 +77,11 @@ def precision_at_k(nd, kmax):
     return ks, prec / nd.patient.nunique()
 
 
-def main():
+def draw(target, letters=True):
+    """Render the scope/ceiling panel (precision@k + tissue + occult) onto ``target``.
+
+    Exposed so the §3 compound can tile it; ``main`` calls it on a standalone figure.
+    ``letters=False`` suppresses the internal per-axis a/b tags for compound use."""
     nd = pd.read_csv(DET)
     occ = pd.read_csv(OCC).nlargest(N_OCC, "p_soz").reset_index(drop=True)
 
@@ -88,10 +92,9 @@ def main():
     enrich_med = float((nd.groupby("patient").apply(
         lambda g: g.nlargest(5, "p_soz").is_soz.mean() / g.is_soz.mean())).median())
 
-    fig = plt.figure(figsize=(12.6, 5.8))
-    axa = fig.add_axes([0.075, 0.32, 0.40, 0.60])     # precision@k
-    axw = fig.add_axes([0.075, 0.13, 0.40, 0.085])    # tissue composition bar
-    axb = fig.add_axes([0.60, 0.13, 0.375, 0.79])     # occult candidates
+    axa = target.add_axes([0.075, 0.32, 0.40, 0.60])     # precision@k
+    axw = target.add_axes([0.075, 0.13, 0.40, 0.085])    # tissue composition bar
+    axb = target.add_axes([0.60, 0.13, 0.375, 0.79])     # occult candidates
 
     # -- panel a: precision@k + base-rate band --------------------------------
     axa.axhspan(b25, b75, color=C_BASE, alpha=0.30, zorder=0)
@@ -110,8 +113,9 @@ def main():
     axa.set_xlabel("shortlist length $k$ (contacts per patient)", fontsize=12)
     axa.set_ylabel("precision@$k$", fontsize=12)
     axa.spines[["top", "right"]].set_visible(False)
-    axa.text(0.0, 1.03, r"$\mathbf{a}$", transform=axa.transAxes, fontsize=17,
-             va="bottom", fontweight="bold")
+    if letters:
+        axa.text(0.0, 1.03, r"$\mathbf{a}$", transform=axa.transAxes, fontsize=17,
+                 va="bottom", fontweight="bold")
 
     # -- tissue composition bar (gray vs white matter) ------------------------
     wm_frac = WM_N / SOZ_N
@@ -152,7 +156,9 @@ def main():
     axb.set_ylim(-0.6, len(occ) - 0.4)
     axb.tick_params(axis="y", length=0)
     axb.spines[["top", "right"]].set_visible(False)
-    axb.text(0.0, 1.03, r"$\mathbf{b}$   candidate occult sites (hypotheses)",
+    _occ_title = (r"$\mathbf{b}$   candidate occult sites (hypotheses)" if letters
+                  else "candidate occult sites (hypotheses)")
+    axb.text(0.0, 1.03, _occ_title,
              transform=axb.transAxes, fontsize=12.5, va="bottom", fontweight="bold")
 
     handles = [
@@ -163,14 +169,22 @@ def main():
         Patch(facecolor=C_OFC, label="orbitofrontal"),
         Patch(facecolor=C_OTHER, label="other cortex"),
     ]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.035),
-               ncol=5, frameon=False, fontsize=9.2, handletextpad=0.5,
-               columnspacing=1.3)
+    target.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.035),
+                  ncol=5, frameon=False, fontsize=9.2, handletextpad=0.5,
+                  columnspacing=1.3)
+    return dict(p5=p5, enrich_med=enrich_med, b25=b25, b50=b50, b75=b75, occ=occ)
+
+
+def main():
+    fig = plt.figure(figsize=(12.6, 5.8))
+    st = draw(fig)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)
 
+    p5, enrich_med = st["p5"], st["enrich_med"]
+    b25, b50, b75, occ = st["b25"], st["b50"], st["b75"], st["occ"]
     print("fig:epi_d — scope & ceiling\n")
     print(f"  precision@5 = {p5:.3f}  (~{enrich_med:.1f}x per-patient median base rate)")
     print(f"  base rate per-patient: q25={b25:.3f} median={b50:.3f} q75={b75:.3f}")

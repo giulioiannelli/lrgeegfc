@@ -596,6 +596,7 @@ def plot_fc_adjacency_grid(
     bands: Optional[Sequence[str]] = None,
     row_bands: Optional[Sequence[str]] = None,
     col_bands: Optional[Sequence[str]] = None,
+    colorbar_label: Optional[str] = None,
     tick_labels: TickMode = "chnames",
     channel_labels: Optional[Sequence[str]] = None,
     channel_labels_per_row: Optional[Sequence[Sequence[str]]] = None,
@@ -639,6 +640,13 @@ def plot_fc_adjacency_grid(
     ``row_titles`` are emitted as rotated bold text to the left of
     the leftmost column; ``col_titles`` go on the top row's
     ``set_title``.  TeX OK in both.
+
+    ``colorbar_label`` overrides the auto-derived FC-method/band
+    colorbar label on every colorbar (parity with
+    :func:`plot_fc_adjacency` / :func:`plot_fc_adjacency_row`).  Pass a
+    method-neutral string (e.g. ``r"$\\mathrm{FC}_{ij}$"``) to present a
+    matrix generically, or ``""`` to drop the label entirely.  Default
+    ``None`` keeps the canonical ``<|imcoh_{ij}|>_{band}`` label.
     """
     n_rows = len(matrices)
     if n_rows == 0:
@@ -809,7 +817,10 @@ def plot_fc_adjacency_grid(
     if colorbar_mode == "shared" and last_im_global is not None:
         cb_ax = fig.add_subplot(gs[:n_rows, -1])
         clb = plt.colorbar(last_im_global, cax=cb_ax)
-        cb_label = fc_method_colorbar_label(fc_method, band=band)
+        cb_label = (
+            colorbar_label if colorbar_label is not None
+            else fc_method_colorbar_label(fc_method, band=band)
+        )
         if cb_label:
             clb.set_label(cb_label, fontsize=8)
         clb.ax.tick_params(labelsize=6)
@@ -821,7 +832,10 @@ def plot_fc_adjacency_grid(
             cb_ax = fig.add_subplot(gs[i, -1])
             clb = plt.colorbar(last_im_per_row[i], cax=cb_ax)
             clb.ax.tick_params(labelsize=6)
-            lbl = fc_method_colorbar_label(fc_method, band=_band_for_row(i))
+            lbl = (
+                colorbar_label if colorbar_label is not None
+                else fc_method_colorbar_label(fc_method, band=_band_for_row(i))
+            )
             if lbl:
                 clb.set_label(lbl, fontsize=8)
             _apply_factored_sci_format(clb, axis_orientation="vertical")
@@ -834,7 +848,10 @@ def plot_fc_adjacency_grid(
                 last_im_per_col[j], cax=cb_ax, orientation="horizontal",
             )
             clb.ax.tick_params(labelsize=6)
-            lbl = fc_method_colorbar_label(fc_method, band=_band_for_col(j))
+            lbl = (
+                colorbar_label if colorbar_label is not None
+                else fc_method_colorbar_label(fc_method, band=_band_for_col(j))
+            )
             if lbl:
                 clb.set_label(lbl, fontsize=8)
             _apply_factored_sci_format(clb, axis_orientation="horizontal")

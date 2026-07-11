@@ -42,7 +42,7 @@ use_lrg_style()
 
 DET = ROOT / "data/audit/epi_propagator_detector/detector_lopo_per_patient.csv"
 CAL = ROOT / "data/audit/epi_marker_compound/calibration_curve.csv"
-OUT = ROOT / "data/reports/results_section3/fig_epi_b_calibrated_detector.pdf"
+OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_b_calibrated_detector.pdf"
 
 # detector model-selection table (audit_117 README): AUC, precision@5
 ABLATION = {"delta-only": dict(auc=0.76, prec5=0.34),
@@ -51,7 +51,7 @@ ABLATION = {"delta-only": dict(auc=0.76, prec5=0.34),
 C_D1, C_FUSE, C_GBM = "#6baed6", "#08519c", "#9a9a9a"
 
 
-def draw_fusion(ax):
+def draw_fusion(ax, letters=True):
     metrics = [("auc", "AUC", 0.5), ("prec5", r"precision@5", None)]
     x = np.array([0, 1.0])
     for gi, (key, lab, ref) in enumerate(metrics):
@@ -79,7 +79,7 @@ def draw_fusion(ax):
                 arrowprops=dict(arrowstyle="->", color="#b03030", lw=1.8))
     ax.text(1.6 - 0.36, 0.50, "+26 pts", color="#b03030", fontsize=10.5, ha="right",
             fontweight="bold", rotation=38, va="bottom")
-    ax.text(0.0, 0.865, "+5 pts", color="0.35", fontsize=10, ha="center")
+    ax.text(0.0, 0.905, "+5 pts", color="0.35", fontsize=10, ha="center")
     ax.set_xticks([0.0, 1.6])
     ax.set_xticklabels(["AUC\n(discrimination)", "precision@5\n(top-of-list)"],
                        fontsize=11.5)
@@ -87,13 +87,14 @@ def draw_fusion(ax):
     ax.set_ylabel("score", fontsize=12)
     ax.set_xlim(-0.7, 2.5)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.0, 1.02, r"$\mathbf{a}$", transform=ax.transAxes, fontsize=17,
-            va="bottom", fontweight="bold")
-    ax.legend(loc="upper left", frameon=False, fontsize=9.5, handletextpad=0.5,
-              bbox_to_anchor=(-0.02, 0.99))
+    if letters:
+        ax.text(0.0, 1.02, r"$\mathbf{a}$", transform=ax.transAxes, fontsize=17,
+                va="bottom", fontweight="bold")
+    ax.legend(loc="upper right", frameon=False, fontsize=9.5, handletextpad=0.5,
+              bbox_to_anchor=(1.02, 1.0))
 
 
-def draw_calibration(ax, det, cal):
+def draw_calibration(ax, det, cal, letters=True):
     # SOZ is rare (~8% base rate) so predictions live in the low range; zoom the
     # reliability diagram to that operative range so the on-diagonal calibration is
     # legible rather than a dot in the corner of an empty [0,1] square.
@@ -112,8 +113,9 @@ def draw_calibration(ax, det, cal):
     ax.set_xlabel("predicted P(seizure onset)", fontsize=12)
     ax.set_ylabel("observed seizure-onset fraction", fontsize=12)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.text(0.0, 1.02, r"$\mathbf{b}$", transform=ax.transAxes, fontsize=17,
-            va="bottom", fontweight="bold")
+    if letters:
+        ax.text(0.0, 1.02, r"$\mathbf{b}$", transform=ax.transAxes, fontsize=17,
+                va="bottom", fontweight="bold")
     txt = (rf"median AUC $= {med_auc:.2f}$" "\n"
            rf"{n_above}/10 patients $>$ chance" "\n"
            rf"label-shuffle null $= 0.48$" "\n"
@@ -123,16 +125,23 @@ def draw_calibration(ax, det, cal):
             bbox=dict(boxstyle="round,pad=0.4", fc="white", ec="0.8", alpha=0.9))
 
 
-def main():
+def draw(target, letters=True):
+    """Render the calibrated-detector panel (fusion + calibration) onto ``target``.
+
+    Exposed so the §3 compound can tile it; ``main`` calls it on a standalone figure.
+    ``letters=False`` suppresses the internal per-axis a/b tags for compound use."""
     det = pd.read_csv(DET)
     cal = pd.read_csv(CAL)
+    axa, axb = target.subplots(1, 2, gridspec_kw=dict(width_ratios=[1.0, 1.05]))
+    target.subplots_adjust(left=0.075, right=0.975, top=0.90, bottom=0.17, wspace=0.24)
+    draw_fusion(axa, letters=letters)
+    draw_calibration(axb, det, cal, letters=letters)
+    return det
 
-    fig, (axa, axb) = plt.subplots(1, 2, figsize=(12.0, 5.4),
-                                   gridspec_kw=dict(width_ratios=[1.0, 1.05]))
-    draw_fusion(axa)
-    draw_calibration(axb, det, cal)
 
-    fig.subplots_adjust(left=0.075, right=0.975, top=0.92, bottom=0.16, wspace=0.24)
+def main():
+    fig = plt.figure(figsize=(12.0, 5.4))
+    det = draw(fig)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(OUT, bbox_inches="tight", transparent=True)
     plt.close(fig)

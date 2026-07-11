@@ -23,6 +23,7 @@ from lrg_eegfc.config.const import PHASE_LABELS
 from lrg_eegfc.config.paths import FIGURES_ROOT, SEEG_DATAPATH
 from lrg_eegfc.visuals.fc_templates import plot_fc_adjacency_grid
 from lrg_eegfc.visuals.layout import add_provenance_footer
+from lrg_eegfc.visuals.styles import use_lrg_style
 from lrg_eegfc.workflow.fc import load_fc_matrix
 
 
@@ -42,6 +43,7 @@ def _load_channel_labels(patient: str) -> list[str]:
 
 
 def main() -> None:
+    use_lrg_style()
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument(
         "--patients", default=DEFAULT_PATIENTS,
@@ -56,6 +58,12 @@ def main() -> None:
         "--tick-labels", default="chnames",
         choices=["generic", "index", "chnames"],
         help="Default: chnames (per-row probe-family labels).",
+    )
+    parser.add_argument(
+        "--colorbar-label", default=None,
+        help="Override the auto imcoh/band colorbar label with a "
+             "method-neutral string (e.g. '$\\mathrm{FC}_{ij}$'); pass '' "
+             "to drop it. Default: canonical <|imcoh|>_band.",
     )
     parser.add_argument("--watermark", action="store_true")
     parser.add_argument(
@@ -105,6 +113,7 @@ def main() -> None:
         col_titles=[PHASE_TEX[p] for p in PHASE_LABELS],
         fc_method=args.fc_method,
         band=args.band,  # all rows share this band → every cb labelled with it
+        colorbar_label=args.colorbar_label,
         tick_labels=args.tick_labels,
         channel_labels_per_row=chnames_per_row,
         log_scale=args.log_scale,

@@ -35,13 +35,15 @@ Everything τ-dependent is tied to ONE per-τ hierarchy so the panels move toget
     this tree is one core module + a rim, so gap/Ψ/target-k all give one giant blob,
     and a literal biggest-gap shatters to singletons; a fixed absolute cut lets the
     diffusion do the coalescing.) The matrix is REORDERED into that τ's leaf order so
-    blocks stay contiguous, tinted at α=0.40 over ρ(τ) (heat shows through). Hues are
-    STABLE leaf-order bins (no reference giant), so the many fine-τ colours blend to
-    one as clusters merge — no palette flicker.
+    blocks stay contiguous, tinted at α=0.40 over ρ(τ) (heat shows through). Node colour
+    is GENEALOGICAL: each community takes the hue of the largest fine-τ atom it
+    contains, so a cluster keeps its colour as long as it keeps its members and,
+    when clusters merge, the union inherits the bigger one's colour (small joins
+    big) — no flicker.
 Combinatorial L̂ throughout.
 
 Outputs (data/outputs/figures/lrg_diffusion_zoom/):
-    fig_fc_diffusion_tausweep.mp4             dark τ-sweep animation (talk asset)
+    fig_fc_diffusion_tausweep.mp4             white τ-sweep animation (talk asset)
     fig_fc_diffusion_tausweep_snapshots.pdf   transparent 3-stage contact sheet
 
 Run from the repo root (inside lapbrain), or set LRGEEGFC_DATA_ROOT:
@@ -82,13 +84,15 @@ from lrg_eegfc.visuals.styles import use_lrg_style    # noqa: E402
 NFRAMES = 96
 FPS = 12
 HOLD = 14
-DPI = 150
+DPI = 150                       # animation-frame DPI (talk overlay; ↓ = smaller file)
 H0_FACTOR = 1.012               # fixed comm-distance cut = H0_FACTOR·n (n = fully-mixed D)
-N_HUE_BINS = 18                 # stable rainbow hue bins along the fine-τ leaf order
 OV_ALPHA = 0.40                 # matrix community-tint alpha (heat shows through)
+ELW_MIN = 0.12                  # floor on edge linewidth so weak |ImCoh| links stay visible
 DARK = {"figure.facecolor": "#0b0e17", "axes.facecolor": "#0b0e17",
         "savefig.facecolor": "#0b0e17", "text.color": "#e6edf3",
-        "axes.edgecolor": "#30363d", "axes.labelcolor": "#8b949e"}
+        "axes.edgecolor": "#9aa3af", "axes.labelcolor": "#8b949e"}
+WHITE = {"figure.facecolor": "#f6f6f8", "axes.facecolor": "#f6f6f8",
+         "savefig.facecolor": "#f6f6f8"}
 
 
 def entropy_C_from_eigs(w, steps=600, t1=-2, t2=5):
@@ -145,16 +149,23 @@ def prepare():
     print(f"  τ_end = {tau_end:.4g}   ({tau_end * lam_max:.2f}/λ_max)   "
           f"[tree flat / degenerate]", flush=True)
 
-    # STABLE rainbow hue bins along the fine-τ leaf order → each node keeps a fixed
-    # hue (no reference GIANT to collapse the palette onto), so as clusters coalesce
-    # the colours blend instead of snapping back to one dominant blob.
-    Z_ref = cophenetic_linkage(w, V)                      # UPGMA at τ = 1/λ_max
-    order_ref = dendrogram_segments(Z_ref)[0]             # fine-τ leaf order
-    rank = np.empty(n, int); rank[order_ref] = np.arange(n)
-    ref_lab = (rank * N_HUE_BINS) // n                    # ~equal bins, no giant
     h0 = H0_FACTOR * n                                    # fixed communication-distance cut
     print(f"  h0 = {H0_FACTOR:.3f}·n = {h0:.1f}   (fixed comm-distance threshold; "
           f"clusters merge as diffusion shrinks D below it)", flush=True)
+    # GENEALOGY colouring. Atoms = the finest-τ communities (h0 cut on the τ=1/λ_max
+    # tree), fixed ONCE and size-ranked (rank 0 = the biggest atom, the global core).
+    # A community at ANY τ is painted by the LARGEST atom it contains (min atom-rank),
+    # so a cluster keeps its colour while it keeps its members and, on a merge, the
+    # union inherits the bigger atom's colour — small joins big, with no flicker.
+    Z_ref = cophenetic_linkage(w, V)                      # UPGMA at τ = 1/λ_max
+    atom = fcluster(Z_ref, t=h0, criterion="distance")    # finest-τ communities = atoms
+    labs, sizes = np.unique(atom, return_counts=True)
+    order = np.argsort(-sizes, kind="stable")             # biggest atom first → rank 0
+    atom_rank = {int(labs[o]): r for r, o in enumerate(order)}
+    node_atom_rank = np.array([atom_rank[int(a)] for a in atom], int)   # per node, 0 = biggest
+    atom_color = np.array([pal(r) for r in range(len(labs))])          # rank → tab20 hue (cycled)
+    print(f"  {len(labs)} fine-τ atoms   (biggest = {int(sizes.max())} nodes → the "
+          f"hue everything coalesces to)", flush=True)
 
     P = lrg_communication_layout(w, V)                    # the bubble (not hairball)
     ei, ej = np.triu_indices(n, 1)                        # ALL edges (complete)
@@ -163,11 +174,12 @@ def prepare():
     # opacity ∝ weight, computed ONCE — they never change with τ. The propagator ρ(τ)
     # (the diffusion OUTPUT) lives only in the matrix; edges must not restate it.
     wn = A[ei, ej] / (float(A[ei, ej].max()) + 1e-12)
-    elw = 3.1 * wn ** 1.8                                  # weak links → ~0 width (declutter)
+    elw = np.maximum(ELW_MIN, 3.1 * wn ** 1.8)          # ∝ weight, floored so weak links stay visible
     ealpha = 0.04 + 0.66 * wn ** 1.25                     # opacity ∝ weight
     taus = tau_at(tau_min, tau_end, np.linspace(0.0, 1.0, NFRAMES))
     taus_static = tau_at(tau_min, tau_end, np.array([0.0, s_star, 1.0]))
-    return dict(w=w, V=V, n=n, P=P, ei=ei, ej=ej, ref_lab=ref_lab, paths=paths, h0=h0,
+    return dict(w=w, V=V, n=n, P=P, ei=ei, ej=ej, paths=paths, h0=h0,
+                node_atom_rank=node_atom_rank, atom_color=atom_color,
                 elw=elw, ealpha=ealpha,
                 taus=taus, taus_static=taus_static, s_star=s_star,
                 lam_max=lam_max, tau_min=tau_min, tau_star=tau_star, tau_end=tau_end)
@@ -188,23 +200,26 @@ def density_matrix(w, V, tau):
     return np.clip(rho, 0.0, None)
 
 
-def community_colors(comm, ref_lab):
-    """Per-node RGBA: each current-τ community painted with the hue of the stable
-    leaf-order BIN it most overlaps (ref_lab ∈ 0..N_HUE_BINS-1). Bins have no giant,
-    so a fine-τ frame shows many distinct hues; as clusters coalesce their dominant
-    bin (hence colour) blends toward one — without frame-to-frame palette flicker."""
+def community_colors(comm, node_atom_rank, atom_color):
+    """Genealogy colouring — per-node RGBA. Each current-τ community is painted by
+    the LARGEST fine-τ atom it contains (smallest atom-rank ⇒ biggest atom; rank 0 =
+    the global core). The colour is a deterministic function of the member SET, so a
+    cluster that keeps the same members keeps its colour across every τ, and on a
+    merge the union inherits the bigger atom's colour (small joins big). No mode-of-
+    bins flicker, no reference-giant palette collapse."""
     ncol = np.zeros((len(comm), 4))
     for c in np.unique(comm):
         m = comm == c
-        ncol[m] = pal(int(np.bincount(ref_lab[m]).argmax()))
+        ncol[m] = atom_color[int(node_atom_rank[m].min())]
     return ncol
 
 
 def frame_state(d, tau):
     """Everything that EVOLVES with τ: the ρ(τ) matrix reordered into THIS τ's leaf
-    order, the community tint overlay, per-node community colours, and the morphing
-    dendrogram segments/colours/y-limits. (Edges do NOT evolve — they are the fixed
-    |ImCoh| weights set once in prepare(); ρ(τ) is shown only here in the matrix.)"""
+    order, the per-edge ρ(τ) flow values, the community tint overlay, per-node
+    community colours, and the morphing dendrogram. Edge SHAPE + WIDTH are FIXED
+    (the |ImCoh| structure set once in prepare()); only the edge COLOUR evolves —
+    = ρ(τ) flux through each fixed link (same cmap + clim as the matrix panel)."""
     n = d["n"]
     rho = density_matrix(d["w"], d["V"], tau)
     vmax = max(float(np.percentile(rho[d["ei"], d["ej"]], 99.0)), 1e-12)  # matrix clim
@@ -230,7 +245,7 @@ def frame_state(d, tau):
     # singletons. A fixed absolute cut instead lets the diffusion do the coalescing.)
     comm = relabel_by_leaforder(fcluster(Z, t=d["h0"], criterion="distance"), leaves_f)
     h_cut = d["h0"]
-    ncol = community_colors(comm, d["ref_lab"])           # stable rainbow-bin hues
+    ncol = community_colors(comm, d["node_atom_rank"], d["atom_color"])           # genealogy hues (largest atom wins)
     below = dh_f < h_cut
     tcol = np.tile(GREY, (len(segs), 1))
     tcol[below] = ncol[leaves_f[drep_f[below]]]
@@ -242,6 +257,7 @@ def frame_state(d, tau):
     ov[..., :3] = ncol[leaves_f][:, :3][:, None, :]
     ov[..., 3] = np.where(same, OV_ALPHA, 0.0)
     return dict(vmax=vmax, rho_ord=rho_ord, overlay=ov,
+                edge_val=rho[d["ei"], d["ej"]],
                 ncol=ncol, segs=segs, tcol=tcol, ylim=ylim)
 
 
@@ -251,72 +267,62 @@ def _net_axes(ax, P, pad=0.1):
     ax.set_aspect("equal"); ax.axis("off")
 
 
+def edge_flow_colors(edge_val, vmax, ealpha, cmap):
+    """Per-edge RGBA for the network. The propagator FLOW ρ(τ)_ij is mapped through
+    the SAME cmap + clim [0, vmax] as the matrix panel, so an edge's colour equals its
+    cell in the ρ(τ) matrix — 'what flux passes through this link at time τ'. Shape,
+    width and opacity stay the FIXED |ImCoh| structure (from prepare()); only the
+    COLOUR carries the time-varying flow."""
+    c = cmap(np.clip(edge_val / vmax, 0.0, 1.0))
+    c[:, 3] = ealpha
+    return c
+
+
 # ----------------------------------------------------------------------------
-# animation (dark, MP4)
+# animation (white MP4 · no text)
 # ----------------------------------------------------------------------------
-def make_animation(d, out_mp4: Path):
+def make_animation(d, out_vid: Path):
     n = d["n"]
-    with rc_context(DARK):
-        fig = plt.figure(figsize=(12.4, 4.5), dpi=90)
+    ecmap = plt.get_cmap("turbo")
+    with rc_context(WHITE):
+        fig = plt.figure(figsize=(12.4, 4.52), dpi=90)
         gs = fig.add_gridspec(1, 4, width_ratios=[1.15, 0.92, 1.0, 0.16],
-                              left=0.02, right=0.985, top=0.86, bottom=0.06,
+                              left=0.02, right=0.985, top=0.97, bottom=0.06,
                               wspace=0.14)
         ax_net, ax_mat, ax_den, ax_bar = (fig.add_subplot(gs[0, c]) for c in range(4))
-        ecol = np.zeros((len(d["ei"]), 4)); ecol[:, :3] = 0.82   # fixed light-grey backbone
-        ecol[:, 3] = d["ealpha"]
-        pc = PathCollection(d["paths"], facecolors="none", edgecolors=ecol,
-                            linewidths=d["elw"])                 # FIXED |ImCoh| weights
+        st_init = frame_state(d, d["taus"][0])            # initial flow colours
+        ecol0 = edge_flow_colors(st_init["edge_val"], st_init["vmax"], d["ealpha"], ecmap)
+        pc = PathCollection(d["paths"], facecolors="none", edgecolors=ecol0,
+                            linewidths=d["elw"])          # FIXED shape+width; colour = ρ(τ) flow
         ax_net.add_collection(pc)
         sc = ax_net.scatter(d["P"][:, 0], d["P"][:, 1], s=82,
                             c=np.tile(GREY, (n, 1)), edgecolors="#0b0e17",
                             linewidths=0.6, zorder=3)
         _net_axes(ax_net, d["P"])
-        im = ax_mat.imshow(np.zeros((n, n)), cmap=EDGE_CMAP, vmin=0, vmax=1,
+        im = ax_mat.imshow(np.zeros((n, n)), cmap=ecmap, vmin=0, vmax=1,
                            interpolation="nearest", animated=True)
         ov_im = ax_mat.imshow(np.zeros((n, n, 4)), interpolation="nearest",
                               zorder=3, animated=True)
         ax_mat.set_xticks([]); ax_mat.set_yticks([])
         for s in ax_mat.spines.values():
-            s.set_color("#30363d")
+            s.set_color("#9aa3af")
         st0 = frame_state(d, d["taus"][0])                # valid initial geometry
         dlc = LineCollection(st0["segs"], linewidths=1.2)
         ax_den.add_collection(dlc)
         ax_den.set_xlim(0, 10 * n); ax_den.set_ylim(*st0["ylim"])   # LINEAR, tracks τ
         ax_den.set_xticks([])
-        ax_den.yaxis.set_major_locator(MaxNLocator(nbins=3))
-        ax_den.tick_params(axis="y", labelsize=7, colors="#8b949e")
+        ax_den.set_yticks([])
         for s in ("top", "right"):
             ax_den.spines[s].set_visible(False)
         for s in ("left", "bottom"):
-            ax_den.spines[s].set_color("#30363d")
+            ax_den.spines[s].set_color("#9aa3af")
         ax_bar.set_xlim(0, 1); ax_bar.set_ylim(0, 1); ax_bar.axis("off")
-        ax_bar.plot([0.5, 0.5], [0.16, 0.84], color="#30363d", lw=3,
+        ax_bar.plot([0.5, 0.5], [0.16, 0.84], color="#9aa3af", lw=3,
                     solid_capstyle="round")
-        ax_bar.text(0.5, 0.86, "τ", ha="center", va="bottom", color="#e08d00",
-                    fontsize=13, fontweight="bold")
-        ax_bar.text(0.5, 0.845, "flat", ha="center", va="bottom",
-                    color="#8b949e", fontsize=6.5, rotation=90)
-        ax_bar.text(0.5, 0.155, "fine", ha="center", va="top",
-                    color="#8b949e", fontsize=6.5, rotation=90)
         y_star = 0.16 + 0.68 * d["s_star"]                # τ* mark on the bar
-        ax_bar.plot([0.34, 0.66], [y_star, y_star], color="#e6edf3", lw=1.1,
+        ax_bar.plot([0.34, 0.66], [y_star, y_star], color="#8b949e", lw=1.1,
                     alpha=0.75, zorder=2)
-        ax_bar.text(0.70, y_star, "τ*", ha="left", va="center", color="#e6edf3",
-                    fontsize=8)
         marker, = ax_bar.plot([0.5], [0.16], "o", color="#e08d00", ms=10, zorder=3)
-        fig.text(0.5, 0.955,
-                 f"brain FC · {REAL['band']} · {REAL['patient']} {REAL['phase']} "
-                 f"— LRG diffusion ρ(τ) coarsens the fixed |ImCoh| connectome",
-                 ha="center", color="#e6edf3", fontsize=12, fontweight="bold")
-        fig.text(0.5, 0.918,
-                 "τ : 1/λ_max → τ* (C-peak) → degeneracy   ·   "
-                 "communities merge many → one",
-                 ha="center", color="#8b949e", fontsize=9)
-        fig.text(0.19, 0.868, "|ImCoh| edges (fixed) · communities", ha="center",
-                 color="#8b949e", fontsize=8.5)
-        fig.text(0.50, 0.868, "ρ(τ) propagator · community blocks", ha="center",
-                 color="#8b949e", fontsize=8.5)
-        fig.text(0.79, 0.868, "τ-morphing tree", ha="center", color="#8b949e", fontsize=8.5)
         t0 = time.time()
 
         def update(frame):
@@ -324,7 +330,9 @@ def make_animation(d, out_mp4: Path):
             s = f / (NFRAMES - 1)
             tau = d["taus"][f]
             st = frame_state(d, tau)
-            sc.set_facecolor(st["ncol"])                  # only the NODES evolve (edges fixed)
+            pc.set_edgecolors(edge_flow_colors(st["edge_val"], st["vmax"],
+                                               d["ealpha"], ecmap))   # edge colour = ρ(τ) flow
+            sc.set_facecolor(st["ncol"])                  # nodes recolour by community
             im.set_data(st["rho_ord"]); im.set_clim(0, st["vmax"])
             ov_im.set_data(st["overlay"])
             dlc.set_segments(st["segs"]); dlc.set_color(st["tcol"])
@@ -334,20 +342,20 @@ def make_animation(d, out_mp4: Path):
                 print(f"  [render {frame + 1:3d}/{NFRAMES + HOLD}] "
                       f"s={s:4.2f} τ={tau:.4g} elapsed={time.time() - t0:5.1f}s",
                       flush=True)
-            return [sc, im, ov_im, dlc, marker]
+            return [pc, sc, im, ov_im, dlc, marker]
 
         anim = FuncAnimation(fig, update, frames=NFRAMES + HOLD, blit=False)
-        out_mp4.parent.mkdir(parents=True, exist_ok=True)
-        print(f"writing MP4 -> {out_mp4}", flush=True)
+        out_vid.parent.mkdir(parents=True, exist_ok=True)
+        print(f"writing MP4 -> {out_vid}", flush=True)
         writer = FFMpegWriter(fps=FPS, codec="libx264",
                               extra_args=["-vf",
                                           "pad=ceil(iw/2)*2:ceil(ih/2)*2:0:0:"
-                                          "color=0x0b0e17",
+                                          "color=0xf6f6f8",
                                           "-pix_fmt", "yuv420p", "-crf", "18",
                                           "-preset", "medium"])
-        anim.save(out_mp4, writer=writer, dpi=DPI)
+        anim.save(out_vid, writer=writer, dpi=DPI)
         plt.close(fig)
-    print(f"done: {out_mp4.name}  ({out_mp4.stat().st_size / 1e6:.1f} MB)", flush=True)
+    print(f"done: {out_vid.name}  ({out_vid.stat().st_size / 1e6:.1f} MB)", flush=True)
 
 
 # ----------------------------------------------------------------------------
@@ -358,8 +366,6 @@ def make_snapshots(d, out_pdf: Path):
     stages = ("fine  τ=1/λ_max", "τ*  (C-peak)", "degenerate  (flat tree)")
     rc = {"figure.facecolor": "none", "savefig.facecolor": "none",
           "axes.facecolor": "none", "text.color": "#1f2937"}
-    ecol = np.zeros((len(d["ei"]), 4)); ecol[:, :3] = 0.12    # FIXED dark backbone (light bg)
-    ecol[:, 3] = d["ealpha"]                                  # opacity ∝ |ImCoh| weight
     with rc_context(rc):
         fig, axes = plt.subplots(3, 3, figsize=(10.0, 10.4))
         fig.subplots_adjust(left=0.065, right=0.985, top=0.945, bottom=0.02,
@@ -367,8 +373,9 @@ def make_snapshots(d, out_pdf: Path):
         for ci, tau in enumerate(d["taus_static"]):
             st = frame_state(d, tau)
             axn = axes[0, ci]
+            eflow = edge_flow_colors(st["edge_val"], st["vmax"], d["ealpha"], ecmap)
             axn.add_collection(PathCollection(d["paths"], facecolors="none",
-                                              edgecolors=ecol, linewidths=d["elw"]))
+                                              edgecolors=eflow, linewidths=d["elw"]))
             axn.scatter(d["P"][:, 0], d["P"][:, 1], s=58,
                         c=st["ncol"], edgecolors=(0, 0, 0, 0.35), linewidths=0.4,
                         zorder=3)
@@ -391,7 +398,7 @@ def make_snapshots(d, out_pdf: Path):
                 axd.spines[sp].set_visible(False)
             for sp in ("left", "bottom"):
                 axd.spines[sp].set_color("#9aa3af")
-        for r, lab in enumerate(("|ImCoh| edges (fixed) · communities",
+        for r, lab in enumerate(("structure · ρ(τ) flow · communities",
                                  "ρ(τ) propagator · community blocks",
                                  "τ-morphing UPGMA tree")):
             axes[r, 0].set_ylabel(lab, fontsize=10, color="#1f2937", labelpad=8)

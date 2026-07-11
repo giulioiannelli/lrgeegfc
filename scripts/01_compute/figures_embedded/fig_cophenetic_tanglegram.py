@@ -274,38 +274,56 @@ def draw_subtree(ax, Z, m, ypos, x_rail, direction, ext, hlo, hhi):
     rec(2 * m - 2)
 
 
-def build_row(ax, C, S, task_phase, is_top, labels=None):
+_PHASE_LABEL = {"rest_pre": "rest-pre", "rest_post": "rest-post"}
+_PHASE_SHORT = {"rest_pre": "pre", "rest_post": "post"}
+
+
+def _ph_label(ph, task_phase):
+    return f"task ({task_phase.split('_')[-1]})" if ph == task_phase else _PHASE_LABEL.get(ph, ph)
+
+
+def _ph_short(ph, task_phase):
+    return "task" if ph == task_phase else _PHASE_SHORT.get(ph, ph)
+
+
+def build_row(ax, C, S, task_phase, is_top, labels=None, phase_order=None,
+              color_phase="rest_post"):
+    """Three-panel tanglegram of clade S. `phase_order` = (left, mid, right) phase keys;
+    default is temporal (rest_pre, task, rest_post). `color_phase`'s sub-clades set the bead
+    colours — its blocks stay contiguous under any branch rotation, so THAT column reads as
+    clean colour blocks; put the reference phase there. For a RESET we pass
+    (rest_pre, rest_post, task): the reverted pair sits ADJACENT so gap 1 = pre↔post is the
+    similar/parallel one and the task is the lone scrambled departure on the right."""
     m = len(S)
-    Cl = {ph: C[ph] for ph in ("rest_pre", task_phase, "rest_post")}
-    Zp = induced_linkage(Cl["rest_pre"], S)
-    Zt = induced_linkage(Cl[task_phase], S)
-    Zr = induced_linkage(Cl["rest_post"], S)
+    if phase_order is None:
+        phase_order = ("rest_pre", task_phase, "rest_post")
+    p0, p1, p2 = phase_order
+    Z = {ph: induced_linkage(C[ph], S) for ph in phase_order}
 
-    # reference chain: pre (own optimal order) -> task -> post
-    Cs_pre = Cl["rest_pre"][np.ix_(S, S)].astype(float)
-    Zp = optimal_leaf_ordering(Zp, squareform(0.5 * (Cs_pre + Cs_pre.T)
-                                              - np.diag(np.diag(Cs_pre)), checks=False))
-    order_pre = dendrogram(Zp, no_plot=True)["leaves"]
-    pos_pre = {l: i for i, l in enumerate(order_pre)}
-    pos_task = {l: i for i, l in enumerate(untangle(Zt, m, pos_pre))}
-    pos_post = {l: i for i, l in enumerate(untangle(Zr, m, pos_task))}
-    groups = top_k_groups(Zr, m, n_groups(m))
+    # reference chain: left panel keeps its own optimal order, comb rightward
+    Cs0 = C[p0][np.ix_(S, S)].astype(float)
+    Z[p0] = optimal_leaf_ordering(Z[p0], squareform(0.5 * (Cs0 + Cs0.T)
+                                                    - np.diag(np.diag(Cs0)), checks=False))
+    pos0 = {l: i for i, l in enumerate(dendrogram(Z[p0], no_plot=True)["leaves"])}
+    pos1 = {l: i for i, l in enumerate(untangle(Z[p1], m, pos0))}
+    pos2 = {l: i for i, l in enumerate(untangle(Z[p2], m, pos1))}
+    groups = top_k_groups(Z[color_phase], m, n_groups(m))
 
-    allh = np.concatenate([Zp[:, 2], Zt[:, 2], Zr[:, 2]])
-    pos = allh[allh > 0]
-    hlo, hhi = float(np.log(pos.min())), float(np.log(pos.max()))
+    allh = np.concatenate([Z[p][:, 2] for p in phase_order])
+    posh = allh[allh > 0]
+    hlo, hhi = float(np.log(posh.min())), float(np.log(posh.max()))
 
-    draw_subtree(ax, Zp, m, pos_pre, RAIL[0], -1, EXT, hlo, hhi)
-    draw_subtree(ax, Zt, m, pos_task, RAIL[1], -1, EXT_MID, hlo, hhi)
-    draw_subtree(ax, Zr, m, pos_post, RAIL[2], +1, EXT, hlo, hhi)
+    draw_subtree(ax, Z[p0], m, pos0, RAIL[0], -1, EXT, hlo, hhi)
+    draw_subtree(ax, Z[p1], m, pos1, RAIL[1], -1, EXT_MID, hlo, hhi)
+    draw_subtree(ax, Z[p2], m, pos2, RAIL[2], +1, EXT, hlo, hhi)
 
     for l in range(m):
         col = GROUP_COLORS[groups[l] % len(GROUP_COLORS)]
-        ribbon(ax, RAIL[0], pos_pre[l], RAIL[1], pos_task[l], col)
-        ribbon(ax, RAIL[1], pos_task[l], RAIL[2], pos_post[l], col)
+        ribbon(ax, RAIL[0], pos0[l], RAIL[1], pos1[l], col)
+        ribbon(ax, RAIL[1], pos1[l], RAIL[2], pos2[l], col)
     for l in range(m):
         col = GROUP_COLORS[groups[l] % len(GROUP_COLORS)]
-        ys = [pos_pre[l], pos_task[l], pos_post[l]]
+        ys = [pos0[l], pos1[l], pos2[l]]
         ax.scatter(list(RAIL), ys, s=NODE_S, color=col, ec="#20242a", lw=NODE_LW, zorder=5)
         if labels is not None:
             txt, ink = bead_label(labels[l]), text_ink(col)
@@ -313,23 +331,27 @@ def build_row(ax, C, S, task_phase, is_top, labels=None):
                 ax.text(x, y, txt, ha="center", va="center", fontsize=LBL_FS,
                         color=ink, fontweight="bold", zorder=6)
 
-    a, b, c = abc(C, S, task_phase)
-    x1c, x2c = crossings([pos_pre[l] for l in range(m)], [pos_task[l] for l in range(m)], m), \
-        crossings([pos_task[l] for l in range(m)], [pos_post[l] for l in range(m)], m)
-    for xm, val, cross in ((0.5 * (RAIL[0] + RAIL[1]), a, x1c),
-                           (0.5 * (RAIL[1] + RAIL[2]), b, x2c)):
+    a, b, c = abc(C, S, task_phase)                    # canonical (pre,task / task,post / pre,post)
+    rho01 = subset_rho(C[p0], C[p1], S)                # displayed gaps follow the column order
+    rho12 = subset_rho(C[p1], C[p2], S)
+    rho02 = subset_rho(C[p0], C[p2], S)
+    x1c = crossings([pos0[l] for l in range(m)], [pos1[l] for l in range(m)], m)
+    x2c = crossings([pos1[l] for l in range(m)], [pos2[l] for l in range(m)], m)
+    for xm, val, cross in ((0.5 * (RAIL[0] + RAIL[1]), rho01, x1c),
+                           (0.5 * (RAIL[1] + RAIL[2]), rho12, x2c)):
         held = val >= 0.6
         ax.text(xm, m + 0.42, rf"$\rho={val:.2f}$", ha="center", va="bottom", fontsize=9.8,
                 color=("#2f6b34" if held else "#9a3b3b"), fontweight="bold")
         ax.text(xm, m + 0.30, f"{cross} crossing{'s' if cross != 1 else ''}", ha="center",
                 va="top", fontsize=7.0, color=("#2f6b34" if held else "#9a3b3b"))
-    ax.text(RAIL[2] + EXT + 0.12, -0.82, rf"$\rho_{{\rm pre,post}}={c:.2f}$",
+    ax.text(RAIL[2] + EXT + 0.12, -0.82,
+            rf"$\rho_{{\rm {_ph_short(p0, task_phase)},{_ph_short(p2, task_phase)}}}={rho02:.2f}$",
             ha="right", va="top", fontsize=8, color="#555b63")
 
     if is_top:
-        for x, lab in zip(RAIL, ("rest-pre", f"task ({task_phase.split('_')[-1]})", "rest-post")):
-            ax.text(x, m + 1.35, lab, ha="center", va="bottom", fontsize=11,
-                    color="#2b2f36", fontweight="bold")
+        for x, ph in zip(RAIL, phase_order):
+            ax.text(x, m + 1.35, _ph_label(ph, task_phase), ha="center", va="bottom",
+                    fontsize=11, color="#2b2f36", fontweight="bold")
 
     ax.set_xlim(RAIL[0] - EXT - 0.18, RAIL[2] + EXT + 0.55)
     ax.set_ylim(-1.15, m + (2.05 if is_top else 1.05))

@@ -1,36 +1,49 @@
 """
-I-1 cold-open — transitive-inference RACE BRACKET (talk schematic).
+I-1 cold-open — transitive-inference DISC-GOLF race bracket, round-by-round (talk schematic).
 
-A knockout bracket over the four Lipari guests whose first-round matchups are
-the NON-adjacent (inferred) pairs of the order FB > AG > DG > SM:
+Sport = disc golf (1-v-1, so an individual ranking makes sense). A knockout bracket
+over the four Lipari guests, re-seeded so BOTH first-round matchups are NON-adjacent
+(inferred) pairs of the order FB > AG > DG > SM, and the FINAL is the one adjacent
+result you were actually SHOWN:
 
-    Semifinal 1 (HERO):  Battiston vs Garlaschelli -> Battiston  (inferred FB>AG>DG)
-    Semifinal 2:         Gabrielli vs Meloni       -> Gabrielli  (inferred AG>DG>SM)
-    Final:               Battiston vs Gabrielli    -> Battiston  (shown FB>AG)
+    Semifinal 1:  FB vs DG -> FB   INFERRED (FB>AG>DG, never shown)      [amber]
+    Semifinal 2:  AG vs SM -> AG   INFERRED (AG>DG>SM, never shown)      [amber]
+    Final:        FB vs AG -> FB   SEEN     (FB>AG is a shown result)    [gold]
 
-Champion = Battiston; Meloni out in round 1. The accented left semifinal
-(Battiston vs Garlaschelli) is the "you were never shown this" inference.
+Champion = FB (Battiston). The whole tournament is decided by two inferences and one
+seen fact — the point of the cold open.
 
-The leaf boxes are PHOTO PLACEHOLDERS — drop the four headshots in Canva.
-Vector PDF, transparent background, light ink → sits on a DARK slide.
+THREE ROUND-STATES (one PDF each) so the deck builds it in the Canva reveal:
+    round0  full bracket drawn in GRAY, unresolved, semis tagged "inferred"  ("who wins these matches?")
+    round1  both semifinals resolve -> FB, AG advance (amber); final still gray  ("who wins the final?")
+    round2  final resolves -> champion FB ★ (gold); tag "seen (encoded): FB > AG"
+The whole skeleton is gray at every round so the shape is anticipated; resolved matches
+are over-drawn in colour (STRAIGHT lines). Winners advance as photo-placeholder chips
+(initials) — drop the headshots in Canva, same as the leaves.
 
-Output: data/outputs/figures/talk/ti_race_bracket.pdf
-QA (dark-matte PNG, opt-in): python fig_ti_race_bracket_demo.py --qa /path/to/qa.png
+Dark ink on a LIGHT slide: black text, dark-gray skeleton, amber/gold accents. Transparent PDF.
+Output: data/outputs/figures/talk/ti_race_bracket_round{0,1,2}.pdf  (+ ti_race_bracket.pdf = round2)
+QA (white-matte PNG, opt-in): python fig_ti_race_bracket_demo.py --qa /path/to/qa_prefix
 """
+import os
 import sys
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
 
 from lrg_eegfc.visuals.styles import use_lrg_style
 from lrg_eegfc.config.paths import FIGURES_ROOT
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _ti_faces import load_face, place_face  # noqa: E402
+
 use_lrg_style()
 
-# ---- palette (dark-slide, light ink) --------------------------------------
-INK = "#e6edf3"      # bracket lines, box borders, neutral names
-MUTED = "#8b949e"    # placeholder initials, secondary text
-ACCENT = "#e08d00"   # HERO node: the inferred, never-shown matchup (FB vs DG)
-GOLD = "#f2c14e"     # champion star
+# ---- palette (light slide, dark ink) --------------------------------------
+DARK = "#1a1a1a"     # names, box borders, prompts, tags, champion label
+GRAY = "#6f757c"     # unresolved bracket skeleton + placeholder initial hints
+AMBER = "#e08d00"    # INFERRED matchup (both semifinals: never shown)
+GOLD = "#f2c14e"     # SEEN matchup (the final) + champion star
 
 # ---- geometry -------------------------------------------------------------
 # leaves left->right = FB, DG, AG, SM  (matchups pair NON-adjacent ranks)
@@ -40,64 +53,134 @@ LEAF_INIT = ["FB", "DG", "AG", "SM"]
 BW = BH = 1.4                     # photo-placeholder box (square headshot)
 Y_SEMI = 3.0                      # semifinal bar height
 Y_FINAL = 4.7                     # final bar height
-Y_CHAMP = 5.15                    # champion label baseline
+Y_CHAMP = 5.55                    # champion chip baseline
+MID1 = 0.5 * (LEAF_X[0] + LEAF_X[1])      # 2.0  (SF1 winner column)
+MID2 = 0.5 * (LEAF_X[2] + LEAF_X[3])      # 6.0  (SF2 winner column)
+CHAMP_X = 0.5 * (MID1 + MID2)             # 4.0
+Y_SEMI_CHIP = Y_SEMI - 0.62               # advancing-winner chip below each semi bar
 
-fig, ax = plt.subplots(figsize=(9.5, 6.2))
-ax.set_aspect("equal")
-ax.axis("off")
+
+# ---- drawing primitives ---------------------------------------------------
+def _line(ax, p0, p1, color, lw, z=1):
+    ax.plot([p0[0], p1[0]], [p0[1], p1[1]], color=color, lw=lw,
+            solid_capstyle="round", zorder=z)
 
 
-def bracket(xL, xR, y_from, y_bar, color, lw):
+def _U(ax, xL, xR, y0, ybar, color, lw, z=1):
     """Inverted-U connector: two verticals rising to a shared horizontal bar."""
-    ax.plot([xL, xL], [y_from, y_bar], color=color, lw=lw, solid_capstyle="round")
-    ax.plot([xR, xR], [y_from, y_bar], color=color, lw=lw, solid_capstyle="round")
-    ax.plot([xL, xR], [y_bar, y_bar], color=color, lw=lw, solid_capstyle="round")
+    _line(ax, (xL, y0), (xL, ybar), color, lw, z)
+    _line(ax, (xR, y0), (xR, ybar), color, lw, z)
+    _line(ax, (xL, ybar), (xR, ybar), color, lw, z)
 
 
-# --- bracket lines ---------------------------------------------------------
-bracket(LEAF_X[0], LEAF_X[1], BH, Y_SEMI, ACCENT, 2.8)   # semi 1 (HERO)
-bracket(LEAF_X[2], LEAF_X[3], BH, Y_SEMI, INK, 2.0)      # semi 2
-mid1 = 0.5 * (LEAF_X[0] + LEAF_X[1])                     # 2.0
-mid2 = 0.5 * (LEAF_X[2] + LEAF_X[3])                     # 6.0
-bracket(mid1, mid2, Y_SEMI, Y_FINAL, INK, 2.0)           # final
-champ_x = 0.5 * (mid1 + mid2)                            # 4.0
-ax.plot([champ_x, champ_x], [Y_FINAL, Y_CHAMP - 0.10], color=INK, lw=2.0)
+def _semis(ax, color, lw, z=1):
+    _U(ax, LEAF_X[0], LEAF_X[1], BH, Y_SEMI, color, lw, z)
+    _U(ax, LEAF_X[2], LEAF_X[3], BH, Y_SEMI, color, lw, z)
 
-# --- leaf photo-placeholder boxes ------------------------------------------
-for x, name, ini in zip(LEAF_X, LEAF_NAMES, LEAF_INIT):
-    ax.add_patch(FancyBboxPatch(
-        (x - BW / 2, 0), BW, BH,
-        boxstyle="round,pad=0.02,rounding_size=0.12",
-        linewidth=1.8, edgecolor=INK, facecolor="none"))
-    ax.text(x, BH / 2, ini, ha="center", va="center", color=MUTED,
-            fontsize=13, alpha=0.5, style="italic")            # placeholder hint
-    ax.text(x, -0.30, name, ha="center", va="top", color=INK, fontsize=12)
 
-# --- winner labels (inside each U, so the rising final lines stay clean) ----
-ax.text(mid1, Y_SEMI - 0.34, "Battiston", ha="center", va="top",
-        color=ACCENT, fontsize=12.5, fontweight="bold")       # semi-1 winner (hero)
-ax.text(mid1, Y_SEMI - 0.74, "★ inferred", ha="center", va="top",
-        color=ACCENT, fontsize=9.0)                            # never-shown tag
-ax.text(mid2, Y_SEMI - 0.34, "Gabrielli", ha="center", va="top",
-        color=INK, fontsize=12)                               # semi-2 winner
+def _final(ax, color, lw, z=1):
+    _U(ax, MID1, MID2, Y_SEMI, Y_FINAL, color, lw, z)
+    _line(ax, (CHAMP_X, Y_FINAL), (CHAMP_X, Y_CHAMP - 0.34), color, lw, z)
 
-# --- champion --------------------------------------------------------------
-ax.plot(champ_x, Y_CHAMP + 0.74, marker="*", markersize=18,
-        color=GOLD, markeredgecolor=INK, markeredgewidth=0.6)
-ax.text(champ_x, Y_CHAMP, "Battiston", ha="center", va="bottom",
-        color=INK, fontsize=15, fontweight="bold")
 
-ax.set_xlim(-0.2, 8.2)
-ax.set_ylim(-0.95, Y_CHAMP + 1.25)
+def _leaf_boxes(ax):
+    for x, name, ini in zip(LEAF_X, LEAF_NAMES, LEAF_INIT):
+        img = load_face(ini)
+        patch = FancyBboxPatch(
+            (x - BW / 2, 0), BW, BH,
+            boxstyle="round,pad=0.02,rounding_size=0.12",
+            linewidth=1.8, edgecolor=DARK,
+            facecolor=("none" if img is not None else "white"), zorder=2)
+        ax.add_patch(patch)
+        if img is not None:
+            place_face(ax, img, x, BH / 2, BW, patch, zorder=1.7)
+        else:
+            ax.text(x, BH / 2, ini, ha="center", va="center", color=GRAY,
+                    fontsize=13, alpha=0.75, style="italic")        # photo hint
+        ax.text(x, -0.30, name, ha="center", va="top", color=DARK, fontsize=12)
 
-out = FIGURES_ROOT / "talk" / "ti_race_bracket.pdf"
-out.parent.mkdir(parents=True, exist_ok=True)
-fig.savefig(out, transparent=True, bbox_inches="tight")
-print("wrote", out)
 
-if "--qa" in sys.argv:                                        # dark-matte QA only
-    qa = sys.argv[sys.argv.index("--qa") + 1]
-    fig.savefig(qa, facecolor="#0b0e17", bbox_inches="tight", dpi=130)
-    print("wrote QA", qa)
+def _chip(ax, x, y, ini, edge, size=0.64, fs=12.5):
+    """Advancing-winner chip — the guest's headshot behind a coloured border."""
+    img = load_face(ini)
+    patch = FancyBboxPatch(
+        (x - size / 2, y - size / 2), size, size,
+        boxstyle="round,pad=0.02,rounding_size=0.08",
+        linewidth=2.2, edgecolor=edge,
+        facecolor=("none" if img is not None else "white"), zorder=4)
+    ax.add_patch(patch)
+    if img is not None:
+        place_face(ax, img, x, y, size, patch, zorder=3.7)
+    else:
+        ax.text(x, y, ini, ha="center", va="center", color=DARK,
+                fontsize=fs, fontweight="bold", zorder=5)
 
-plt.close(fig)
+
+def _prompt(ax, text):
+    ax.text(CHAMP_X, Y_CHAMP + 0.10, text, ha="center", va="center", color=DARK,
+            fontsize=12.5, style="italic", linespacing=1.1)
+
+
+# ---- round-by-round figure ------------------------------------------------
+def draw(rnd):
+    fig, ax = plt.subplots(figsize=(9.5, 6.6))
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+    _leaf_boxes(ax)
+    _semis(ax, GRAY, 1.8, z=1)                              # full skeleton, gray
+    _final(ax, GRAY, 1.8, z=1)
+
+    if rnd == 0:                                            # all unresolved
+        for xx in (MID1, MID2):
+            ax.text(xx, Y_SEMI_CHIP, "?", ha="center", va="center", color=GRAY,
+                    fontsize=15)
+        _prompt(ax, "who wins\nthese matches?")
+
+    if rnd >= 1:                                            # semifinals resolved
+        _semis(ax, AMBER, 3.0, z=3)
+        _chip(ax, MID1, Y_SEMI_CHIP, "FB", AMBER)
+        _chip(ax, MID2, Y_SEMI_CHIP, "AG", AMBER)
+        for xx in (MID1, MID2):
+            ax.text(xx, Y_SEMI_CHIP - 0.58, "★ inferred", ha="center", va="top",
+                    color=DARK, fontsize=9.0)
+
+    if rnd == 1:                                            # final still unresolved
+        _prompt(ax, "who wins\nthe final?")
+
+    if rnd >= 2:                                            # final resolved + champion
+        _final(ax, GOLD, 3.0, z=3)
+        ax.text(CHAMP_X, 0.5 * (Y_SEMI + Y_FINAL), "seen (encoded):\nFB > AG",
+                ha="center", va="center", color=DARK, fontsize=9.5,
+                fontweight="bold", linespacing=1.15)
+        ax.plot(CHAMP_X, Y_CHAMP + 0.70, marker="*", markersize=20, color=GOLD,
+                markeredgecolor=DARK, markeredgewidth=0.7, zorder=6)
+        _chip(ax, CHAMP_X, Y_CHAMP, "FB", GOLD, size=0.78, fs=15)
+
+    ax.set_xlim(-0.2, 8.2)
+    ax.set_ylim(-0.95, Y_CHAMP + 1.25)
+    return fig
+
+
+def main():
+    outdir = FIGURES_ROOT / "talk"
+    outdir.mkdir(parents=True, exist_ok=True)
+    qa_prefix = sys.argv[sys.argv.index("--qa") + 1] if "--qa" in sys.argv else None
+
+    for rnd in range(3):
+        fig = draw(rnd)
+        out = outdir / f"ti_race_bracket_round{rnd}.pdf"
+        fig.savefig(out, transparent=True, bbox_inches="tight")
+        if rnd == 2:                                        # alias: full bracket
+            fig.savefig(outdir / "ti_race_bracket.pdf", transparent=True,
+                        bbox_inches="tight")
+        if qa_prefix:
+            fig.savefig(f"{qa_prefix}_round{rnd}.png", facecolor="white",
+                        bbox_inches="tight", dpi=130)
+        plt.close(fig)
+        print(f"wrote {out.name}")
+    print("wrote ti_race_bracket.pdf (= round2)")
+
+
+if __name__ == "__main__":
+    main()
