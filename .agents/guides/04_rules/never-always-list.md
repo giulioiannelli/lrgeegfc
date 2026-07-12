@@ -38,6 +38,18 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
 - Never start a new scalar hypothesis test when the signal is visible
   in existing VI(k) / partition-multiscale / H2d-θ artifacts — surface
   the existing signal first.
+- Never collapse a τ/scale-resolved result to a scale-max (or any
+  single scalar) and report that scalar as the verdict. ALWAYS report
+  and PLOT the per-scale τ-dependence first; a scale-max is a
+  conservative supplement only, and valid only when the null is a
+  proper distribution — for a single-realization null (drift arc) the
+  fair test is per-scale paired `obs(s) vs null(s)` at the scale where
+  the signal emerges, never max-over-scale. And OPEN the rendered
+  figure before stating what it shows — never infer the shape from a
+  CSV or from memory. (Added 2026-07-12 — I reported the backbone drift
+  null as "β = drift, all bands fail" from an unfair scale-max gate;
+  per-scale, β is above drift at every scale and high_γ beats it at
+  coarse scales. `feedback_report_tau_dependence_no_scalar_collapse`.)
 - Never build opaque matrix-level surrogate nulls (e.g. Haar-rotation
   coherency surrogates). Default null is **matched-strength**; a null must
   be explainable in one sentence and not swingable by an unconstrained

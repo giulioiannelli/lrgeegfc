@@ -5,7 +5,7 @@ Talk slide 14 (the SETUP beat). The same task->rest connectivity, read three way
 about which bands carry a trace. Each row is one method's OWN matched-strength per-band verdict,
 shown BEFORE the strict nulls (drift + localization, slides 15-17) resolve the contest:
 
-  raw edges (pairwise)        ~ undifferentiated: every band sits near threshold -> "no structure"
+  raw edges (pairwise)        low-contrast: only beta + low-gamma barely cross; rest hug threshold
   Grassmann (spectral)        -> delta, beta, low-gamma
   cophenetic (multiscale)     -> alpha, beta
 

@@ -55,6 +55,7 @@ __all__ = [
     "tmfg_backbone",
     "mst_union_top_fraction",
     "percolation_backbone",
+    "percolation_sweep",
     "backbone_density",
     "giant_component",
     "geodesic_distance",
@@ -250,6 +251,78 @@ def percolation_backbone(W: NDArray) -> tuple[NDArray, float]:
     B = np.where(A >= theta, A, 0.0)
     np.fill_diagonal(B, 0.0)
     return B, theta
+
+
+def percolation_sweep(W: NDArray, n_thresholds: int = 200) -> dict:
+    """Percolation curve of a dense weighted graph vs a global weight threshold.
+
+    Raises a global threshold ``theta`` over the observed edge-weight range and,
+    at each level, keeps edges with ``weight >= theta`` and measures how the giant
+    (largest connected) component erodes:
+
+    - ``p_inf`` -- node fraction in the LCC (``= 1`` while the graph spans all N
+      nodes, drops once ``theta`` passes the connectivity **bottleneck**);
+    - ``e_inf`` -- fraction of the graph's edges that lie **inside** the LCC;
+    - ``edge_frac`` -- surviving-edge fraction (kept / total), the density.
+
+    Thresholds are placed at the empirical edge-weight quantiles (plus ``0`` and
+    ``w_max``) so the curve is resolved where edges actually drop -- most edges
+    fall in the first few percent of a linear grid, which would hide the giant
+    component's collapse. ``theta_star`` is the largest threshold with
+    ``p_inf == 1`` (the bottleneck), identical to :func:`percolation_backbone`.
+
+    Returns a dict with arrays ``theta, p_inf, e_inf, edge_frac`` (each length
+    ``n_kept <= n_thresholds+2``), scalars ``theta_star, edge_frac_star,
+    p_inf_star`` (``== 1`` by construction), ``n_nodes, n_edges``, and
+    ``w_max`` for normalising the threshold axis to ``theta/w_max in [0,1]``.
+    """
+    A = _clean(W)
+    N = A.shape[0]
+    r, c = np.triu_indices(N, k=1)
+    w = A[r, c]
+    w = w[w > 0]
+    total_edges = float(w.size)
+    if total_edges == 0:
+        return dict(theta=np.zeros(1), p_inf=np.zeros(1), e_inf=np.zeros(1),
+                    edge_frac=np.zeros(1), theta_star=0.0, edge_frac_star=0.0,
+                    p_inf_star=0.0, n_nodes=int(N), n_edges=0, w_max=0.0)
+    w_max = float(w.max())
+    # thresholds at empirical quantiles (dense near the weak-edge mass) + endpoints
+    qs = np.linspace(0.0, 1.0, n_thresholds)
+    theta = np.unique(np.concatenate(([0.0], np.quantile(w, qs), [w_max])))
+
+    p_inf = np.empty(theta.size)
+    e_inf = np.empty(theta.size)
+    edge_frac = np.empty(theta.size)
+    for i, th in enumerate(theta):
+        keep = A >= th
+        np.fill_diagonal(keep, False)
+        kept_edges = float(keep[r, c].sum())
+        edge_frac[i] = kept_edges / total_edges
+        n_comp, labels = connected_components(csr_matrix(keep), directed=False)
+        if n_comp == N:                       # fully disconnected
+            p_inf[i] = 1.0 / N
+            e_inf[i] = 0.0
+            continue
+        sizes = np.bincount(labels)
+        big = int(np.argmax(sizes))
+        mask = labels == big
+        p_inf[i] = float(mask.sum()) / N
+        sub = keep[np.ix_(mask, mask)]
+        e_inf[i] = float(np.triu(sub, 1).sum()) / total_edges
+
+    connected = p_inf >= 1.0 - 1e-12
+    if connected.any():
+        j = int(np.where(connected)[0].max())
+        theta_star = float(theta[j])
+        edge_frac_star = float(edge_frac[j])
+        p_inf_star = float(p_inf[j])
+    else:                                     # never fully connected (should not happen for FC)
+        theta_star, edge_frac_star, p_inf_star = 0.0, 1.0, float(p_inf[0])
+    return dict(theta=theta, p_inf=p_inf, e_inf=e_inf, edge_frac=edge_frac,
+                theta_star=theta_star, edge_frac_star=edge_frac_star,
+                p_inf_star=p_inf_star, n_nodes=int(N), n_edges=int(total_edges),
+                w_max=w_max)
 
 
 def mst_union_top_fraction(W: NDArray, frac: float) -> NDArray:
