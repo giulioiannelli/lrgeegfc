@@ -80,11 +80,20 @@ def _resistance_triu(ev, V):
 
 
 def descriptor_vectors(W):
-    """All ladder descriptors for one phase FC matrix W (dense, cleaned)."""
-    out = {"raw_fc": raw_edges(W), "strength": node_strength(W),
-           "clustering": weighted_clustering_onnela(W)}
+    """All ladder descriptors for one phase FC matrix W, read on the SAME mst@0.20
+    backbone B -- apples-to-apples, so the read-out is the ONLY variable.
+
+    Fixed 2026-07-13: the earlier version read raw_fc/strength/clustering on the
+    dense W and geodesic/resistance/cophenetic on B, confounding graph with
+    read-out. Now every descriptor sees B. Note the matched-strength null preserves
+    *dense* node strength, so strength-on-B is no longer null-invariant (the old
+    ``p=1 by construction`` was an artifact of reading strength on the dense graph);
+    it is now an honest low-order backbone descriptor.
+    """
     B = mst_union_top_fraction(W, FRAC)
     ev, V = laplacian_eig(B)
+    out = {"raw_fc": raw_edges(B), "strength": node_strength(B),
+           "clustering": weighted_clustering_onnela(B)}
     out["geodesic"] = _triu(geodesic_distance(B))
     out["resistance"] = _resistance_triu(ev, V)
     out["coph_taumin"] = cophenetic_at_scale(ev, V, 1.0)
@@ -172,10 +181,17 @@ def cohort_gate(df):
 
 
 def main():
+    global R, OUT
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--bands", type=str, default="")
+    ap.add_argument("--R", type=int, default=0)
+    ap.add_argument("--tag", type=str, default="")
     a = ap.parse_args()
+    if a.R:
+        R = a.R
+    if a.tag:
+        OUT = OUT.parent / f"controls_ladder_{a.tag}"
     OUT.mkdir(parents=True, exist_ok=True)
     _ = matched_strength_shuffle(np.zeros((5, 5)), 4, np.random.default_rng(0))
     pats = COHORT[:a.limit] if a.limit else COHORT
