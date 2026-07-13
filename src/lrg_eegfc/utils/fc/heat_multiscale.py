@@ -39,6 +39,8 @@ __all__ = [
     "specific_heat_peaks",
     "scale_grid",
     "cophenetic_at_tau",
+    "cophenetic_at_scale",
+    "linkage_at_scale",
     "rho_sym",
     "rho_sym_over_scales",
 ]
@@ -164,6 +166,23 @@ def scale_grid(ev: NDArray, n: int = 16, s_floor: float = 0.02,
 # --------------------------------------------------------------------------- #
 # cophenetic distances at a diffusion time
 # --------------------------------------------------------------------------- #
+def _linkage_at_tau(ev: NDArray, V: NDArray, tau: float,
+                    rho_floor: float = RHO_FLOOR) -> NDArray:
+    """UPGMA linkage ``Z`` of the diffusion communication tree at time ``tau``.
+
+    ``rho = e^{-tau L}/Tr``, floored at ``rho_floor`` (underflow only), ``D=1/rho``,
+    average linkage. Shared body of :func:`cophenetic_at_tau` and
+    :func:`linkage_at_scale` (single source for the tree geometry).
+    """
+    rho = (V * np.exp(-tau * ev)) @ V.T
+    rho /= np.trace(rho)
+    rho = np.where(rho > rho_floor, rho, rho_floor)
+    T = 1.0 / rho
+    np.fill_diagonal(T, 0.0)
+    T = np.maximum(T, T.T)
+    return linkage(squareform(T, checks=False), method="average")
+
+
 def cophenetic_at_tau(ev: NDArray, V: NDArray, tau: float,
                       rho_floor: float = RHO_FLOOR) -> NDArray:
     """Condensed cophenetic distances of the UPGMA tree at diffusion time ``tau``.
@@ -172,19 +191,24 @@ def cophenetic_at_tau(ev: NDArray, V: NDArray, tau: float,
     average linkage, cophenet. Identical to the established ``ultra``/``diff_coph``
     at ``tau=1/lambda_max`` (the floor never triggers on a full graph).
     """
-    rho = (V * np.exp(-tau * ev)) @ V.T
-    rho /= np.trace(rho)
-    rho = np.where(rho > rho_floor, rho, rho_floor)
-    T = 1.0 / rho
-    np.fill_diagonal(T, 0.0)
-    T = np.maximum(T, T.T)
-    return cophenet(linkage(squareform(T, checks=False), method="average"))
+    return cophenet(_linkage_at_tau(ev, V, tau, rho_floor))
 
 
 def cophenetic_at_scale(ev: NDArray, V: NDArray, s: float,
                         rho_floor: float = RHO_FLOOR) -> NDArray:
     """:func:`cophenetic_at_tau` addressed by the dimensionless scale ``s=tau*lambda_max``."""
     return cophenetic_at_tau(ev, V, s / ev[-1], rho_floor)
+
+
+def linkage_at_scale(ev: NDArray, V: NDArray, s: float,
+                     rho_floor: float = RHO_FLOOR) -> NDArray:
+    """UPGMA linkage ``Z`` of the diffusion tree at dimensionless scale ``s=tau*lambda_max``.
+
+    The tree behind :func:`cophenetic_at_scale`, returned as a SciPy ``linkage``
+    matrix so callers can draw the dendrogram / cut clades at scale ``s``
+    (tanglegrams, chord layouts, ribbon trees, the tau-morph). ``tau = s / lambda_max``.
+    """
+    return _linkage_at_tau(ev, V, s / ev[-1], rho_floor)
 
 
 # --------------------------------------------------------------------------- #
