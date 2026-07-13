@@ -203,8 +203,18 @@ def _project_walls(ax, P, T, ph, pcol, lo, hi):
 
 
 def portrait(ax, pat, tag):
-    ax.computed_zorder = False                          # our explicit zorders decide layering
+    """Load a patient's dense embedding and render its state-space portrait."""
     P, ph, tc = embed_ei(pat)
+    render_portrait(ax, P, ph, tc, tag)
+
+
+def render_portrait(ax, P, ph, tc, tag, subtitle=None):
+    """Render one state-space portrait from a precomputed embedding ``(P, ph, tc)``.
+
+    Split out from :func:`portrait` so callers with their own embedding (e.g. the
+    mst@0.20 windowed-trajectory gallery) reuse the identical blob / wall-contour /
+    glowing-flow rendering instead of forking it."""
+    ax.computed_zorder = False                          # our explicit zorders decide layering
     # smoothed, time-ordered path: within-phase Gaussian smoothing turns window jitter
     # into a smooth flow; phase-to-phase jumps stay sharp (per-phase smoothing).
     Tsm = []
@@ -250,6 +260,9 @@ def portrait(ax, pat, tag):
 
     ax.text2D(0.5, 0.99, tag, transform=ax.transAxes, ha="center", va="top",
               fontsize=14, fontweight="bold")
+    if subtitle:
+        ax.text2D(0.5, 0.945, subtitle, transform=ax.transAxes, ha="center", va="top",
+                  fontsize=8.5, color="0.35")
     ax.set_xlabel("encoding", fontsize=13, labelpad=-2)
     ax.set_ylabel("inference", fontsize=13, labelpad=-2)
     ax.set_zlabel("residual", fontsize=11.5, labelpad=-8)
