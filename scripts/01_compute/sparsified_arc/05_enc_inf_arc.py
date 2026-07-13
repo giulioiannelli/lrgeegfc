@@ -81,7 +81,10 @@ def functionals_over_scales(eig5, s_grid):
         g = D["task_test"] - D["A"]; g2 = D["task_test"] - D["B"]
         p = D["rest_post"] - D["B"]; p2 = D["rest_post"] - D["A"]
         out["T_test"][i] = 0.5 * (_rho(g, p) + _rho(g2, p2))
-        out["T_learn"][i] = 0.5 * (_rho(e, p2) + _rho(e2, p))
+        # cross-baseline (canonical rho_sym): pair the A-referenced task change with the
+        # B-referenced post change, matching T_test. (The earlier e-with-p2 / e2-with-p
+        # pairing shared the A/B baseline within each arm -> shared-baseline inflation.)
+        out["T_learn"][i] = 0.5 * (_rho(e, p) + _rho(e2, p2))
         out["T_infspec"][i] = 0.5 * (_rho(f, p) + _rho(f, p2))
         out["T_infspec_pe"][i] = 0.5 * (_partial(f, p, e) + _partial(f, p2, e2))
     return out

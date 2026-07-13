@@ -4,8 +4,8 @@ type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym)
 slide: 13
 status: draft
-updated: 2026-07-11
-canva: page 13
+updated: 2026-07-13
+canva: page 13  (⚠ 2026-07-13: drift-null reference removed — matched-strength is the sole null)
 ---
 
 # Slide 13 — A lasting trace, read three ways
@@ -55,7 +55,7 @@ Generators (repo): `scripts/01_compute/figures_embedded/fig_talk_raw_fc_three_ph
 
 Number to verify on the deck: the reinstatement panel prints **10/10, p = 0.003**; the finalized compound `fig_trace1.pdf` reports **p = 0.001** (LOO 0.002) — use the finalized number, or say "10/10" without the exact p.
 
-Fig 4 honesty note: bars = observed cohort effect (native value annotated), *before* the matched-strength / drift nulls that adjudicate on the next slide. The ✓ is each read's own basic cohort test, and it is deliberately not uniform — raw & coph: one-sided Wilcoxon of per-patient effect vs 0 (no surrogate); Grassmann: observed contiguous cohort-significant run > null p95. Note raw β is loudest by median yet fails its plain Wilcoxon (p = 0.053, no ✓) — the per-patient spread swamps it, which is exactly why the raw edges can't certify a band and the null is needed.
+Fig 4 honesty note: bars = observed cohort effect (native value annotated), *before* the matched-strength null that adjudicates on the next slide (drift retired 2026-07-12 — matched-strength is the sole null). The ✓ is each read's own basic cohort test, and it is deliberately not uniform — raw & coph: one-sided Wilcoxon of per-patient effect vs 0 (no surrogate); Grassmann: observed contiguous cohort-significant run > null p95. Note raw β is loudest by median yet fails its plain Wilcoxon (p = 0.053, no ✓) — the per-patient spread swamps it, which is exactly why the raw edges can't certify a band and the null is needed.
 
 ---
 

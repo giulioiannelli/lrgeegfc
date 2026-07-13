@@ -63,14 +63,28 @@ is RESTORED — the percolation "all-bands-fire" (D2) was a percolation-specific
 `data/sparsified_arc/enc_inf_arc_mst020/`. Per-scale MS gate on T_test/T_learn/T_infspec/
 T_infspec_pe (formulas: e=D_L−D_A, f=D_T−D_L, g=D_T−D_A, p=D_P−D_B; T_x=ρ_sym of the pair).
 - **T_test reproduces the trace** (β 16/16, α 12/16). Consistency ✓.
-- **T_learn (encoding) is null in every band** (0/16) — obs high (0.4–0.6) but strength-
-  matched → encoding reorganization is strength-explained.
+- **T_learn (encoding) RECOVERED** — the earlier "null in every band (0/16)" was a
+  SHARED-BASELINE BUG in the T_learn estimator (`0.5(ρ(e,p2)+ρ(e2,p))`, fixed to
+  cross-baseline `0.5(ρ(e,p)+ρ(e2,p2))`). Corrected verdict: **β 16/16 scales**
+  (p@s1 .032, p@meso **.003**, p_min .001); **α 3/16** (p@s1 .042, p@meso .032 —
+  MARGINAL: the controls-ladder run puts the same α-meso cell at .053, i.e. it flips
+  across p=.05). Encoding is NOT washed out and NOT strength-explained (strength null
+  is degenerate p=1 by construction). ⚑ Do not cite the old "0/16 / strength-explained".
 - **T_infspec_pe** clears **δ/α/β** — NOT β-only (the full-graph β-only did not survive).
-- **T_infspec (raw)** clears **β only**, fine scale s∈[1.4,4] — β is the sole standalone
-  inference-specific persistence.
-- Reframe in progress (`14_controls_ladder`): show T_learn is readable from a basic
-  network metric (encoding = stored in simple connectivity) while T_infspec is readable
-  only from the multiscale cophenetic (inference = multiscale).
+- **T_infspec (raw)** clears **β only**, fine scale s∈[1.4,4].
+- **Controls-ladder verdict (`14_controls_ladder`, CORRECTED — the earlier "encoding =
+  basic metric, inference = multiscale" prediction was REFUTED and is INVERTED for β):**
+  - **β encoding is COPHENETIC-UNIQUE** — only the hierarchy clears it (coph_τmin .024,
+    coph_meso .003); raw FC is a near-miss (.053), clustering (.216), geodesic (.116),
+    spectral resistance (.138) all FAIL. β encoding IS a multiscale, strength-independent,
+    simpler-methods-can't-see-it result.
+  - **α encoding is readable from a BASIC metric** — raw FC .032, clustering .010; it does
+    NOT need the hierarchy (and is marginal in coph). α = the "stored in a basic metric" one.
+  - **β inference (T_infspec_pe) is readable from raw FC too** (.010) — so inference is NOT
+    multiscale-exclusive; the coph value-add for β inference is **localization** (cingulate,
+    audit_171; raw FC placeless), not detection.
+  - Net: for β specifically the dissociation is FLIPPED — encoding is the multiscale-unique
+    component, inference is the raw-visible one whose value-add is where-not-whether.
 
 ## 4. Epilepsy marker/detector (`06_epi_arc.py` SA_BACKBONE=mst020)
 `data/sparsified_arc/epi_arc_mst020/`. Seeded heat-kernel marker, leave-self-out,

@@ -87,10 +87,12 @@ here show the pipeline as a panel where we start from timeseries of brain and we
 - here pur results without statistical control tests
   
 ## Slide 12: Statistical tests: the failing of standard pairwise and spectral clustering methods → it must be multiscale (find better title)
+⚠ SUPERSEDED 2026-07-13 — this raw outline predates the current per-slide files. See slides 14 (the null) + 15 (controls ladder). DRIFT RETIRED: the "drift washes out grassmann/raw fc" bullet below is void — a directional task makes a drift null degenerate with the trace, so matched-strength is the SOLE null. The current "it must be multiscale" argument is the CONTROLS LADDER (raw / strength / clustering / geodesic / spectral-resistance all fail; only cophenetic carves the bands).
 Put here the controls we performed, 
 - describe controls and rationale
 - matched strengt partly kills raw fc
-- drift completely washes out grassmann and raw fc, the pure passage of time is responsible 
+- ~~drift completely washes out grassmann and raw fc~~ ← RETIRED (drift null discarded 2026-07-12)
+- controls ladder: simple pairwise, network, geodesic, AND spectral (effective resistance) all fail; cophenetic (multiscale, τ-swept) is the only band-selective read
 figures of trace pre and post tests 
 
 ## Slide 13: Localizaiton of beta to ofc

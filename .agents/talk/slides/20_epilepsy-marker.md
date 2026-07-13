@@ -4,8 +4,8 @@ type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym)
 slide: 20
 status: draft
-updated: 2026-07-11
-canva: page 19 · ~30% (cuttable)
+updated: 2026-07-13
+canva: page 19 · ~30% (cuttable; ⚠ 2026-07-13 added τ role = ranking-not-precision + mst@0.20 robustness)
 ---
 
 # Slide 20 — Coda: the same operator reads epileptogenic tissue
@@ -18,6 +18,7 @@ Coda — the same operator reads epileptogenic tissue
 - Matched-strength-gated co-diffusion AUC: δ 0.80, γ_low 0.74, β 0.69; off-shaft δ LOSO 0.72, 8/10 — strength-independent, not "where connectivity is strong".
 - The cognitive bands split over the clinical core: β spares the SOZ (the cognitive trace lives off the epileptogenic tissue), α recruits it.
 - One operator, two independent read-outs — a cognitive → clinical bridge for free.
+- τ's role here (honest): sweeping the diffusion time *deepens* the picture — the seizure zone separates better as a co-diffusing community, so multiscale AUC beats single-scale in most patients. But the top-of-list precision (~60% @5) comes from *fusing the bands*, not from τ. So τ buys **ranking, not precision** — a marker, not a τ-boosted detector. And the marker reproduces on the sparsified `mst@0.20` backbone → it's a property of the operator, robust to how the graph is thinned.
 
 3. ON-SLIDE TEXT
 SOZ = a strength-independent diffusion community
