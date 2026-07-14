@@ -31,7 +31,7 @@ Network neuroscience is mature — the simple graph metrics are well mined, and 
 5. FIGURES
 - Betzel three-axis multiscale schematic (external — Betzel & Bassett 2017). ✅ FETCHED by Lane R: `betzel_bassett_2017_fig1_multiscale_brain.png` (⚠ nested 3rd-party sub-images — talk-only, attribute on slide).
 - A small hypergraph / simplicial sketch = the "other road" icon (build in Canva; one filled triangle / hyperedge is enough — it is only named to be set aside).
-- NO result on this slide. This is the gap-statement slide; results start slide 12 and slide 6 carries the stakes. The band-map result Lane F already built (data/reports/rho_sym_band_map/fig_rho_sym_band_map.pdf) is RE-HOMED — hold it for slide 6's field-results montage or slide 19 (per-band). (Decision 2026-07-11: don't spoil results on the motivation slide.)
+- NO result on this slide. This is the gap-statement slide; results start slide 12 and slide 6 carries the stakes. The band-map result Lane F already built (data/reports/rho_sym_band_map/fig_rho_sym_band_map.pdf) is RE-HOMED — hold it for slide 6's field-results montage (the old per-band slide 19 was archived in the 2026-07-13 restructure). (Decision 2026-07-11: don't spoil results on the motivation slide.)
 
 6. REFERENCES
 - Betzel, R. F. & Bassett, D. S. (2017), "Multi-scale brain networks", NeuroImage 160, 73–83.

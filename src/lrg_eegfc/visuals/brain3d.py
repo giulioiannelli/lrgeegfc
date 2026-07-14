@@ -58,8 +58,16 @@ def spheres_mesh(centers, radii, color, opacity: float = 1.0, name: str = "",
         showscale=False, showlegend=False, name=name)
 
 
-def bezier_arcs(coords, edges, center, n: int = 18, lift: float = 0.32):
-    """None-separated quadratic-bezier polylines bowing outward from ``center``.
+def bezier_arcs(coords, edges, center, n: int = 18, lift: float = 0.32,
+                bulge: float = 6.0):
+    """None-separated quadratic-bezier polylines bowing radially from ``center``.
+
+    The control point is offset from each edge midpoint by
+    ``lift * |pb - pa| + bulge`` along the outward radial direction. With the
+    defaults the arcs bow *outward* (toward the shell). Pass a **negative**
+    ``bulge`` (and/or ``lift``) to bow the arcs *inward*, dipping them into the
+    volume behind the contacts — useful when the nodes must read on top of a
+    dense edge web.
 
     Returns flat ``(xs, ys, zs)`` lists (``None`` between arcs) ready for a
     single ``Scatter3d(mode='lines')`` trace.
@@ -73,7 +81,7 @@ def bezier_arcs(coords, edges, center, n: int = 18, lift: float = 0.32):
         mid = 0.5 * (pa + pb)
         out = mid - center
         nrm = np.linalg.norm(out) or 1.0
-        ctrl = mid + (lift * np.linalg.norm(pb - pa) + 6.0) * out / nrm
+        ctrl = mid + (lift * np.linalg.norm(pb - pa) + bulge) * out / nrm
         curve = (np.outer((1 - t) ** 2, pa) + np.outer(2 * (1 - t) * t, ctrl)
                  + np.outer(t ** 2, pb))
         xs += [*curve[:, 0], None]

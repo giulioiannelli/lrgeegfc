@@ -39,13 +39,21 @@ ROOT = setup_script_env()
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "audit"))
 from audit_150_rho_sym_gate import load_phase, COHORT, BANDS, BASE_SEED
 from lrg_eegfc.utils.io.patient import build_epi_masks
-from lrg_eegfc.utils.fc.backbone import percolation_backbone, mst_union_top_fraction
+from lrg_eegfc.utils.fc.backbone import select_backbone
 from lrg_eegfc.utils.fc.heat_multiscale import laplacian_eig, scale_grid
 
-# Backbone via env: BACKBONE=mst020 (recovered scheme) | perc (legacy percolation).
+# Backbone via env: BACKBONE=mst020 (trace scheme) | tmfg | pmfg | disparity | perc (legacy).
+# SA_FRAC sets the mst-union fraction (single-family marker sweep: 0.05/0.10/0.20).
 BACKBONE = os.environ.get("SA_BACKBONE", "mst020")
-FRAC = 0.20
-OUT = ROOT / "data" / "sparsified_arc" / ("epi_arc_mst020" if BACKBONE == "mst020" else "epi_arc")
+DISP_ALPHA = float(os.environ.get("SA_DISP_ALPHA", "0.20"))
+FRAC = float(os.environ.get("SA_FRAC", "0.20"))
+if BACKBONE == "mst020":
+    _OUTNAME = f"epi_arc_mst{int(round(FRAC * 100)):03d}"     # mst020 / mst010 / mst005
+elif BACKBONE == "disparity":
+    _OUTNAME = f"epi_arc_disparity_a{DISP_ALPHA:g}"
+else:
+    _OUTNAME = f"epi_arc_{BACKBONE}"
+OUT = ROOT / "data" / "sparsified_arc" / _OUTNAME
 N_S = 16
 R_NULL = 200
 MIN_EPI = 3
@@ -119,7 +127,7 @@ def run_cell(pat, band):
     y = np.asarray(pm.epi_mask, bool)
     if int(y.sum()) < MIN_EPI or (~y).sum() < MIN_EPI:
         return None, None
-    B = mst_union_top_fraction(W, FRAC) if BACKBONE == "mst020" else percolation_backbone(W)[0]
+    B = select_backbone(W, BACKBONE, frac=FRAC, disparity_alpha=DISP_ALPHA)
     ev, V = laplacian_eig(B)
     strength = B.sum(1)
     s_grid = scale_grid(ev, n=N_S)
@@ -224,7 +232,7 @@ def main():
                          n_beat_null=int((x.p_null_multi < 0.05).sum()),
                          multi_gt_single=int((x.auc_gain_multi_vs_single > 0).sum())))
     sdf = pd.DataFrame(summ); sdf.to_csv(OUT / "cohort_summary.csv", index=False)
-    print("\n=== EPI MARKER: multiscale vs single-scale (percolation backbone, rest_post) ===", flush=True)
+    print(f"\n=== EPI MARKER: multiscale vs single-scale ({BACKBONE} backbone, rest_post) ===", flush=True)
     print(sdf.to_string(index=False), flush=True)
     (OUT / "config.json").write_text(json.dumps(dict(
         deliverable="D4_epi_arc", backbone=BACKBONE, phase="rest_post",

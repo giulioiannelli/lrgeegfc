@@ -1,28 +1,32 @@
 #!/usr/bin/env python3
-r"""Talk slide — the "network-analysis pipeline" as FIVE separate clean panels.
+r"""Talk slide 11 — the network-analysis pipeline as SEVEN separate clean panels.
 
-One script, five standalone high-res transparent PNGs (Canva import; + QA PNGs). Left-to-right
-in Canva and draws the arrows between them, so each panel is a self-contained icon with no
-cross-panel decoration. Every panel uses ONE (patient, band) — default Pat_05 / beta — so the
-sequence tells a single coherent story: raw signal -> connectivity -> diffusion -> hierarchy ->
-cross-phase similarity.
+One script, seven standalone high-res transparent PNGs (Canva import; + white-matte QA
+PNGs). Composed left-to-right in Canva with arrows, so each panel is a self-contained
+icon with no cross-panel decoration. Every panel uses ONE (patient, band) -- default
+Pat_05 / beta -- so the sequence tells a single coherent story:
 
-    1  pipeline_seq_1_timeseries.pdf        a handful of raw sEEG contacts (rest_pre window)
-    2  pipeline_seq_2_imcoh_matrix.pdf      the |ImCoh| functional-connectivity matrix A
-    3  pipeline_seq_3_distance.pdf          the communication distance D(tau)=(1-d_ij)/K, K=exp(-tau L)
-    4  pipeline_seq_4_dendrogram.pdf        the cophenetic (LRG) dendrogram
-    5  pipeline_seq_5_rhocoph_tanglegram.pdf   rho^coph explainer: rest_pre vs rest_post trees
+    1  pipeline_seq_1_brain.png            glass-brain projection of the implant (electrodes)
+    2  pipeline_seq_2_timeseries.png       a handful of raw sEEG contacts (rest_pre window)
+    3  pipeline_seq_3_imcoh_matrix.png      the |ImCoh| functional-connectivity matrix (dense)
+    4  pipeline_seq_4_backbone_network.png  the mst@0.20 sparse backbone (spring layout)
+    5  pipeline_seq_5_specific_heat.png     C(tau) & Shat(tau) on the backbone, 4 tau marked,
+                                            propagator K(tau)=exp(-tau L) inset at those 4 tau
+    6  pipeline_seq_6_dendrogram.png        the cophenetic (LRG) dendrogram of the backbone
+    7  pipeline_seq_7_rho.png               the trace estimator symbol rho (the output)
 
-Panel 5 is an EXPLAINER (no cohort statistic): rho^coph = Spearman of the two phases'
-cophenetic-distance vectors. To stay legible we crop to one mid-size rest_post clade (~18
-contacts), untangle both induced sub-trees by topology-preserving branch rotation, and
-HIGHLIGHT a sub-clade that keeps its grouping across the two phases (parallel amber ribbons =
-retained; crossing grey ribbons = reorganised). The annotated rho is the LOCAL subset value
-(labelled "illustrative subset"); the honest full-matrix rho^coph is printed underneath.
+The scientific point of the sequence (2026-07 sparsification arc): the |ImCoh| graph is
+FULLY CONNECTED and therefore single-scale -- the diffusion propagator is degenerate at
+the fine scale (audit_174). Sparsifying to a connected, cycle-rich backbone (mst@0.20 =
+maximum spanning tree union the strongest ~20% of edges) is what makes the propagator
+telescope: C(tau) grows a mesoscale ladder (audit_175, Villegas 2025). Panels 4-5 make
+that step visible; the propagator inset shows K(tau) spreading from localized (tau_min) to
+uniform as tau is swept.
 
-Nothing is recomputed that a cache already holds; if a required cache is missing the script
-reports which one and stops (no fabricated data). House rules: use_lrg_style(), PDF-only +
-transparent, no suptitle, no rasterisation, plt.close per panel.
+Nothing here is recomputed that a cache already holds for the raw FC; the backbone,
+spectrum, specific heat and tree are computed fresh from the cached FC (cheap: N~100-130,
+a few seconds total). House rules: use_lrg_style(), transparent PNG for Canva + white-matte
+QA PNG, no suptitle, no rasterisation of vector artists, plt.close per panel.
 
 Usage:
     /home/giulio/Documents/miniconda3/envs/lapbrain/bin/python \
@@ -31,7 +35,6 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
 import time
 from pathlib import Path
 
@@ -40,29 +43,27 @@ ROOT = setup_script_env()
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.linalg import expm
-from scipy.cluster.hierarchy import dendrogram, optimal_leaf_ordering
-from scipy.spatial.distance import squareform
-from scipy.stats import spearmanr
+from scipy.cluster.hierarchy import dendrogram, set_link_color_palette
 
 from lrg_eegfc.visuals.styles import use_lrg_style
-from lrg_eegfc.config.paths import SEEG_DATAPATH, IMCOH_LRG_CACHE, FIGURES_ROOT
+from lrg_eegfc.config.paths import SEEG_DATAPATH, FIGURES_ROOT
 from lrg_eegfc.config.const import FS_OVERRIDES, DEFAULT_SAMPLE_RATE
 from lrg_eegfc.utils.io import load_timeseries
 from lrg_eegfc.workflow.fc import load_fc_matrix
-from lrg_eegfc.workflow.lrg import load_lrg_result
 from lrg_eegfc.visuals.fc_templates import plot_fc_adjacency
-
-# ---- tanglegram machinery: reuse the cophenetic-tanglegram helpers (DRY) ----
-# These modules live under scripts/ and self-configure sys.path at import; we
-# only need their directories importable first.
-sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "audit"))
-sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "figures_embedded"))
-from fig_cophenetic_tanglegram import (            # type: ignore  # noqa: E402
-    induced_linkage, untangle, ribbon, subset_rho, crossings, clades, draw_subtree,
+from lrg_eegfc.visuals.network_templates import load_probe_labels
+from lrg_eegfc.visuals.spatial_coords import (
+    load_spatial_metadata,
+    prepare_spatial_coordinates,
 )
-from fig_branch_origin_tree import coph_square      # type: ignore  # noqa: E402
-from audit_63_split_baseline_surrogate import load_phase_fc   # type: ignore  # noqa: E402
+from lrg_eegfc.utils.probe import extract_probe_labels
+from lrg_eegfc.utils.fc.backbone import mst_union_top_fraction, backbone_density
+from lrg_eegfc.utils.fc.heat_multiscale import (
+    laplacian_eig,
+    entropy_specific_heat,
+    specific_heat_peaks,
+    linkage_at_scale,
+)
 
 OUTDIR = FIGURES_ROOT / "talk"
 QA = Path(
@@ -70,17 +71,27 @@ QA = Path(
     "20c35621-890b-48ca-8413-660e8b128ed1/scratchpad"
 )
 
+BACKBONE_FRAC = 0.20                 # mst@0.20 = MST union strongest 20% of edges
+
+# cohort (panel 1 establishing shot) — one vivid colour per patient (Trubetskoy distinct-20)
+COHORT_10 = ["Pat_02", "Pat_03", "Pat_05", "Pat_06", "Pat_07",
+             "Pat_08", "Pat_10", "Pat_13", "Pat_14", "Pat_15"]
+PAT_PAL = {
+    "Pat_02": "#e6194B", "Pat_03": "#3cb44b", "Pat_05": "#4363d8", "Pat_06": "#f58231",
+    "Pat_07": "#911eb4", "Pat_08": "#279fbf", "Pat_10": "#f032e6", "Pat_13": "#9A6324",
+    "Pat_14": "#469990", "Pat_15": "#808000",
+}
+
 # palette
-DARK = "#1f2a37"          # raw sEEG traces / dendrogram ink
-BRACKET_INK = "#2b2f36"   # tree brackets + phase headers
-HL = "#e08a1e"            # retained-clade highlight (amber)
-GREY_RIB = "#b9bdc4"      # reorganised (faint) connectors
-BEAD_GREY = "#cfd3d9"     # non-highlighted leaf beads
+DARK = "#1f2a37"          # raw sEEG traces / dendrogram ink / electrodes
+BRACKET_INK = "#2b2f36"   # tree brackets
+C_COL = "#c1440e"         # specific-heat curve (warm)
+S_COL = "#2b6cb0"         # entropy curve (cool)
+MARK_CMAP = plt.get_cmap("plasma")   # the 4 tau markers / inset frames
 
 
 def _save(fig, name: str) -> Path:
-    """Write a panel to a high-res TRANSPARENT PNG for Canva import (user opt-in 2026-07-11:
-    Canva imports PNG far more reliably than PDF) + a white-matte QA PNG, then close it."""
+    """High-res TRANSPARENT PNG for Canva import + a white-matte QA PNG, then close."""
     OUTDIR.mkdir(parents=True, exist_ok=True)
     QA.mkdir(parents=True, exist_ok=True)
     png = OUTDIR / f"{name}.png"
@@ -91,9 +102,65 @@ def _save(fig, name: str) -> Path:
     return png
 
 
-# ============================ Panel 1 — raw sEEG ============================
-def panel1_timeseries(patient: str, *, n_contacts: int, win_s: float, start_s: float) -> Path:
-    """A few stacked raw sEEG contacts over a short rest_pre window (common gain, seconds axis)."""
+# ============================ Panel 1 — brain electrodes ============================
+def _patient_mni(pat: str) -> np.ndarray:
+    """Finite per-contact MNI(mm) coordinates for one patient."""
+    md = load_spatial_metadata(pat, SEEG_DATAPATH)
+    xyz = md[["x", "y", "z"]].to_numpy(float)
+    fin = np.all(np.isfinite(xyz), axis=1)
+    return np.asarray(prepare_spatial_coordinates(
+        md.loc[fin].reset_index(drop=True), scale="mm", center=False, to_mni=True), float)
+
+
+def panel1_brain(patient: str, *, brain: str = "cohort") -> Path:
+    """3D pial brain, contacts as mm-space spheres, ONE (left-hemisphere) view.
+
+    ``brain='cohort'`` → all 10 implants inside one translucent shell, one colour per
+    patient (the establishing "here is our sEEG coverage" shot, same style as the slide-03
+    cohort overlay). ``brain='patient'`` → only the example patient's contacts (dark).
+    Rendered via plotly + kaleido to a transparent PNG (matches the 3D results style, not
+    the flat nilearn glass brain).
+    """
+    import plotly.graph_objects as go
+    from lrg_eegfc.visuals.brain3d import pial_mesh, spheres_mesh
+    from PIL import Image
+
+    pats = COHORT_10 if brain == "cohort" else [patient]
+    # matte lighting — no specular highlight (kills the shiny "reference" glare on each bead)
+    matte = dict(ambient=0.82, diffuse=0.40, specular=0.0, roughness=1.0, fresnel=0.0)
+    fig = go.Figure()
+    fig.add_trace(pial_mesh(color="#8b929c", opacity=0.09))
+    ntot = 0
+    for p in pats:
+        c = _patient_mni(p)
+        ntot += len(c)
+        col = PAT_PAL.get(p, DARK) if brain == "cohort" else DARK
+        fig.add_trace(spheres_mesh(c, np.full(len(c), 1.8), col, opacity=1.0, name=p,
+                                   lighting=matte))
+    # zoomed out so the frontal/temporal poles are not clipped at the frame edge
+    view = dict(eye=dict(x=-1.55, y=-0.20, z=0.26), up=dict(x=0, y=0, z=1))   # left hemisphere
+    fig.update_layout(
+        scene=dict(xaxis=dict(visible=False), yaxis=dict(visible=False),
+                   zaxis=dict(visible=False), aspectmode="data",
+                   bgcolor="rgba(0,0,0,0)", camera=view),
+        paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=8, r=8, t=8, b=8),
+        showlegend=False, width=900, height=820)
+
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    QA.mkdir(parents=True, exist_ok=True)
+    png = OUTDIR / "pipeline_seq_1_brain.png"
+    fig.write_image(str(png), scale=2)
+    im = Image.open(png).convert("RGBA")                 # white-matte QA composite
+    bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
+    Image.alpha_composite(bg, im).convert("RGB").save(QA / "pipeline_seq_1_brain.png")
+    print(f"      3D brain ({brain}, {len(pats)} implant(s), {ntot} contacts, left view)  "
+          f"wrote {png}", flush=True)
+    return png
+
+
+# ============================ Panel 2 — raw sEEG ============================
+def panel2_timeseries(patient: str, *, n_contacts: int, win_s: float, start_s: float) -> Path:
+    """A few stacked raw sEEG contacts over a short rest_pre window (common gain)."""
     fs = FS_OVERRIDES.get(patient, DEFAULT_SAMPLE_RATE)
     ts = np.asarray(load_timeseries(patient, "rest_pre", SEEG_DATAPATH), dtype=float)
     if ts.shape[0] < ts.shape[1]:                    # -> (n_samples, n_channels)
@@ -104,7 +171,6 @@ def panel1_timeseries(patient: str, *, n_contacts: int, win_s: float, start_s: f
     seg = ts[s0:s0 + n]
     seg = seg - seg.mean(0, keepdims=True)
     sel = np.linspace(0, n_chan - 1, n_contacts).round().astype(int)
-    # common gain (median across-channel std * 6) keeps relative amplitudes honest
     spacing = 6.0 * float(np.median(seg[:, sel].std(0))) or 1.0
     t = np.arange(n) / fs
 
@@ -119,237 +185,533 @@ def panel1_timeseries(patient: str, *, n_contacts: int, win_s: float, start_s: f
         ax.spines[sp].set_visible(False)
     print(f"      window {s0 / fs:.1f}-{s0 / fs + win_s:.1f}s @ {int(fs)} Hz  "
           f"contacts={list(map(int, sel))}", flush=True)
-    return _save(fig, "pipeline_seq_1_timeseries")
+    return _save(fig, "pipeline_seq_2_timeseries")
 
 
-# ======================= Panel 2 — |ImCoh| FC matrix =======================
+# ======================= Panel 3 — |ImCoh| FC matrix =======================
 def _load_fc_or_die(patient: str, phase: str, band: str) -> np.ndarray:
     try:
         A = load_fc_matrix(patient, phase, band, "imcoh_abs")
     except FileNotFoundError as e:
-        sys.exit(f"!! missing FC cache for {patient}/{phase}/{band} (imcoh_abs): {e}")
+        raise SystemExit(f"!! missing FC cache for {patient}/{phase}/{band} (imcoh_abs): {e}")
     if A is None:
-        sys.exit(f"!! missing FC cache for {patient}/{phase}/{band} (imcoh_abs)")
+        raise SystemExit(f"!! missing FC cache for {patient}/{phase}/{band} (imcoh_abs)")
     return np.asarray(A, dtype=float)
 
 
-def panel2_fc(patient: str, band: str, A: np.ndarray) -> Path:
+def panel3_fc(A: np.ndarray) -> Path:
     """The |ImCoh| functional-connectivity matrix, log colour, generic FC_{ij} colorbar."""
     fig, ax = plt.subplots(figsize=(3.4, 3.0))
     plot_fc_adjacency(
         A, ax=ax, fc_method="imcoh_abs", band=None,
         colorbar_label=r"$\mathrm{FC}_{ij}$", tick_labels="generic", log_scale=True,
     )
-    return _save(fig, "pipeline_seq_2_imcoh_matrix")
+    return _save(fig, "pipeline_seq_3_imcoh_matrix")
 
 
-# ===================== Panel 3 — communication distance D=1/K ======================
-def panel3_distance(patient: str, band: str, A: np.ndarray) -> tuple[Path, float]:
-    """LRG communication distance D_ij(tau) = (1-delta_ij)/K_ij, K=exp(-tau L), tau=1/lambda_max.
-
-    This is the matrix that actually FEEDS the hierarchical clustering (UPGMA runs on
-    D, not on K). It is the photographic negative of the FC matrix — strong coupling ->
-    SMALL distance (dark), weak coupling -> LARGE distance (bright) — so it reads as a
-    distinct object from panel 2 rather than a near-copy of it. Off-diagonal, log colour,
-    robust vmax (98th pct) so a few huge weak-pair distances don't wash out the structure."""
-    L = np.diag(A.sum(1)) - A
-    lam = np.linalg.eigvalsh(L)
-    tau = 1.0 / float(lam.max())
-    K = expm(-tau * L)
-    if not np.allclose(K, K.T, atol=1e-9):
-        sys.exit("!! propagator K is not symmetric — refusing to plot")
-    with np.errstate(divide="ignore"):
-        Dist = 1.0 / K                                   # communication distance
-    np.fill_diagonal(Dist, 0.0)                          # D_ii = 0 (Villegas 1-delta_ij)
-    Dist = np.maximum(Dist, Dist.T)
-    off = Dist[np.triu_indices_from(Dist, 1)]
-    vmin = float(off[off > 0].min())
-    vmax = float(np.percentile(off, 98))                 # robust: clip the weak-pair tail
-    fig, ax = plt.subplots(figsize=(3.4, 3.0))
-    plot_fc_adjacency(
-        Dist, ax=ax, fc_method="imcoh_abs", band=None,
-        colorbar_label=r"$D_{ij}(\tau)$", tick_labels="generic", log_scale=True,
-        vmin=vmin, vmax=vmax,
-    )
-    return _save(fig, "pipeline_seq_3_distance"), tau
+# ==================== Panel 4 — mst@0.20 backbone network ====================
+def _shaft_colors(probes: list[str]) -> list:
+    """One tab20 colour per sEEG shaft (probe), for the node markers."""
+    shafts = extract_probe_labels(probes)
+    uniq = sorted(set(shafts))
+    cmap = plt.get_cmap("tab20", max(len(uniq), 3))
+    cd = {s: cmap(i % 20) for i, s in enumerate(uniq)}
+    return [cd[s] for s in shafts]
 
 
-# ===================== Panel 4 — cophenetic dendrogram =====================
-def panel4_dendrogram(patient: str, band: str) -> Path:
-    """The LRG cophenetic dendrogram: clean monochrome tree, log merge-height axis, no leaves."""
-    r = load_lrg_result(patient, "rest_pre", band, "imcoh_abs", IMCOH_LRG_CACHE)
-    if r is None:
-        sys.exit(f"!! missing LRG cache for {patient}/rest_pre/{band} (imcoh_abs)")
-    Z = r.linkage_matrix
-    try:
-        Z = optimal_leaf_ordering(Z, r.ultrametric_matrix)
-    except Exception:                                # noqa: BLE001
-        pass
-    h = r.linkage_matrix[:, 2]
+def panel4_backbone(patient: str, B: np.ndarray, Z: np.ndarray, dens: float,
+                    *, beta: float = 0.88, edge_cmap: str = "magma_r",
+                    ring_order: str = "shaft") -> Path:
+    """The mst@0.20 backbone as a circular hierarchical-edge-bundled chord (graph-tool).
 
-    fig, ax = plt.subplots(figsize=(4.4, 3.0))
-    dendrogram(Z, ax=ax, no_labels=True, color_threshold=0.0,
-               above_threshold_color=BRACKET_INK)
+    Leaves sit evenly on a ring; the backbone edges are Holten-bundled THROUGH the LRG
+    communication hierarchy ``Z`` (``get_hierarchy_control_points``, beta), so coupling
+    within a community routes as tight cool arcs and cross-community coupling sweeps across
+    the disk — the "cool graph-tool chord" look. ONLY the circular layout + bundled arcs +
+    shaft-coloured node beads; NO dendrogram overlay, colorbars, or labels. Rendered with
+    cairo to a transparent PNG.
+
+    ``ring_order``:
+      - ``"shaft"``  — beads sorted by sEEG probe, so each shaft is a contiguous coloured
+        arc segment (anatomical reading). Output ``..._shaft.png``.
+      - ``"tree"``   — beads in the LRG hierarchy's own leaf order (``leaves_list(Z)``), i.e.
+        the order the drawing algorithm itself produces; communities become contiguous and
+        the bundling tightens (the classic HEB look). Beads stay shaft-coloured so you can
+        see how each probe scatters across communities. Output ``..._auto.png``.
+    """
+    import math
+    import cairo
+    import graph_tool.all as gt
+    import graph_tool.draw as gtd
+    from scipy.cluster.hierarchy import leaves_list
+
+    N = B.shape[0]
+    probes = list(load_probe_labels(patient)[:N])
+    shafts = list(extract_probe_labels(probes))
+    RAD = 100.0
+
+    if ring_order == "shaft":
+        # same-probe contacts contiguous (one coloured arc per shaft); ties by contact index
+        order = sorted(range(N), key=lambda i: (shafts[i], i))
+        suffix, tag = "_shaft", "shaft-sorted"
+    else:
+        # the drawing algorithm's own order = the LRG hierarchy leaf order (communities
+        # contiguous, bundles tightest). Beads still shaft-coloured.
+        order = list(map(int, leaves_list(Z)))
+        suffix, tag = "_auto", "tree/auto-ordered"
+    posmap = {int(l): i for i, l in enumerate(order)}
+    members = {i: [i] for i in range(N)}
+    for k in range(N - 1):
+        members[N + k] = members[int(Z[k, 0])] + members[int(Z[k, 1])]
+    depth = {2 * N - 2: 0}
+    stack = [2 * N - 2]
+    while stack:
+        nd = stack.pop()
+        if nd >= N:
+            for ch in (int(Z[nd - N, 0]), int(Z[nd - N, 1])):
+                depth[ch] = depth[nd] + 1
+                stack.append(ch)
+    maxd = max(depth.values())
+
+    # circular-mean angle: internal nodes sit at the centroid of their leaves even when the
+    # tree cluster is scattered around the (shaft-sorted) ring -> bundling stays sensible.
+    leaf_ang = {i: 2 * math.pi * posmap[i] / N for i in range(N)}
+
+    def angof(nd):
+        a = [leaf_ang[l] for l in members[nd]]
+        return math.atan2(sum(math.sin(x) for x in a), sum(math.cos(x) for x in a))
+
+    t = gt.Graph(directed=True)
+    t.add_vertex(N + (N - 1))
+    for k in range(N - 1):
+        t.add_edge(t.vertex(N + k), t.vertex(int(Z[k, 0])))
+        t.add_edge(t.vertex(N + k), t.vertex(int(Z[k, 1])))
+    tpos = t.new_vertex_property("vector<double>")
+    for v in range(2 * N - 1):
+        rad = RAD if v < N else RAD * depth[v] / maxd
+        a = angof(v)
+        tpos[t.vertex(v)] = [rad * math.cos(a), rad * math.sin(a)]
+
+    # backbone edges, bundled through the hierarchy
+    r, c = np.triu_indices(N, 1)
+    w = B[r, c]
+    keep = np.where(w > 0)[0]
+    g = gt.Graph(directed=False)
+    g.add_vertex(N)
+    for kk in keep:
+        g.add_edge(g.vertex(int(r[kk])), g.vertex(int(c[kk])))
+    cts = gt.get_hierarchy_control_points(g, t, tpos, beta=beta, is_tree=False)
+    vpos = g.own_property(tpos)
+
+    ei, ej, wk = r[keep], c[keep], w[keep]
+    rank = (np.argsort(np.argsort(wk)) + 1) / max(len(keep), 1)
+    tw = rank ** 2.0                                   # emphasise strong edges (gentler)
+    # guarantee EVERY node shows at least one clear arc: mark each node's strongest incident
+    # edge (the spanning backbone reaches all nodes, so no node is truly disconnected — only
+    # its weak arcs were near-invisible). Those get a visibility floor and draw on top.
+    strongest = np.zeros(len(keep), bool)
+    best = {}
+    for idx in range(len(keep)):
+        for nd in (int(ei[idx]), int(ej[idx])):
+            if nd not in best or wk[idx] > best[nd][0]:
+                best[nd] = (wk[idx], idx)
+    for _, idx in best.values():
+        strongest[idx] = True
+
+    mag = plt.colormaps[edge_cmap]
+    rng = np.random.default_rng(0)
+    zrand = rng.permutation(len(keep))                 # interleave strong/weak in the stack
+    ecol = g.new_edge_property("vector<double>")
+    epw = g.new_edge_property("double")
+    eord = g.new_edge_property("double")
+    for idx, e in enumerate(g.edges()):
+        col = mag(0.16 + 0.55 * tw[idx])
+        alpha = 0.14 + 0.62 * tw[idx]
+        width = 0.45 + 4.6 * tw[idx]
+        order_z = float(zrand[idx])
+        if strongest[idx]:                             # one visible arc per node
+            alpha = max(alpha, 0.60)
+            width = max(width, 1.7)
+            order_z += len(keep)                       # draw on top of the faint web
+        ecol[e] = [col[0], col[1], col[2], float(alpha)]
+        epw[e] = float(width)
+        eord[e] = order_z
+
+    leafcol = _shaft_colors(probes)
+
+    W = 1100
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, W)   # transparent background
+    cr = cairo.Context(surf)
+    half = RAD * 1.16
+    pad = W * 0.04
+    scale = (W - 2 * pad) / (2 * half)
+    cr.save()
+    cr.translate(W / 2.0, W / 2.0)
+    cr.scale(scale, -scale)
+    epw_u = g.new_edge_property("double")
+    for e in g.edges():
+        epw_u[e] = float(epw[e]) / scale
+    gtd.cairo_draw(g, vpos, cr, edge_control_points=cts, edge_color=ecol,
+                   edge_pen_width=epw_u, eorder=eord,
+                   vertex_fill_color=[0, 0, 0, 0], vertex_color=[0, 0, 0, 0],
+                   vertex_pen_width=0.0, vertex_size=1.0)
+    cr.restore()
+
+    spacing = 2 * math.pi * RAD / N * scale
+    R_node = spacing * 0.62
+    for l in range(N):
+        a = angof(l)
+        dx = W / 2.0 + RAD * math.cos(a) * scale
+        dy = W / 2.0 - RAD * math.sin(a) * scale
+        rgb = leafcol[l]
+        cr.new_sub_path()
+        cr.arc(dx, dy, R_node, 0.0, 2 * math.pi)
+        cr.set_source_rgb(float(rgb[0]), float(rgb[1]), float(rgb[2]))
+        cr.fill_preserve()
+        cr.set_source_rgba(0.12, 0.12, 0.14, 0.85)
+        cr.set_line_width(max(0.4, R_node * 0.10))
+        cr.stroke()
+
+    OUTDIR.mkdir(parents=True, exist_ok=True)
+    QA.mkdir(parents=True, exist_ok=True)
+    png = OUTDIR / f"pipeline_seq_4_backbone_network{suffix}.png"
+    surf.write_to_png(str(png))
+    from PIL import Image                               # white-matte QA composite
+    im = Image.open(png).convert("RGBA")
+    bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
+    Image.alpha_composite(bg, im).convert("RGB").save(QA / png.name)
+    print(f"      HEB chord ({tag}): {N} nodes, {len(keep)} bundled edges (density {dens:.2f})  "
+          f"wrote {png}", flush=True)
+    return png
+
+
+# =============== Panel 5 — specific heat + entropy + propagator inset ===============
+def _propagator(ev: np.ndarray, V: np.ndarray, tau: float) -> np.ndarray:
+    """Heat-kernel propagator K = exp(-tau L) = V diag(exp(-tau ev)) V^T (>= 0 exactly)."""
+    return (V * np.exp(-tau * ev)) @ V.T
+
+
+def panel5_specific_heat(ev: np.ndarray, V: np.ndarray, order: list[int]) -> tuple[Path, dict]:
+    """C(tau) & Shat(tau) on the backbone; 4 timescales marked; propagator inset at each.
+
+    The propagator insets share the (tau_min-tree) leaf order ``order`` so the eye can
+    watch the same block structure emerge and then wash out as tau grows: at s=1 (tau_min)
+    K is diagonal-dominant (localized); at large s it homogenizes toward the uniform ground
+    state -- diffusion has "spread" across the graph. Each inset is per-matrix normalized
+    (structure, not absolute scale) and framed in its marker colour.
+    """
+    res = entropy_specific_heat(ev)
+    s, C, S = res["s"], res["C"], res["S"]
+    lam_max, lam2 = res["lambda_max"], res["lambda_2"]
+    s_hi_win = lam_max / lam2 if lam2 > 1e-30 else s.max()
+    Cn = C / max(float(C.max()), 1e-12)
+
+    pk = specific_heat_peaks(res)
+
+    # 4 marker scales anchored to the C(tau) structure: s=1 (tau_min, fine) -> the
+    # specific-heat peak(s) (the mesoscale ladder the sparsification unlocks) -> the valley
+    # between them, so the four propagator insets are FOUR distinct spread states (sparse ->
+    # block -> more fill -> near-uniform), all inside the resolution window. Falls back to a
+    # geometric spread when <2 interior peaks are present.
+    coll = np.where(S <= 0.1)[0]
+    s_end = min(float(s[coll[0]]) if coll.size else float(s.max()), float(s.max()))
+    peaks = np.sort(pk["s_peaks"]) if pk["s_peaks"].size else np.array([])
+    peaks = peaks[(peaks > 1.3) & (peaks < s_end)]
+    if peaks.size >= 2:
+        p1, p2 = float(peaks[0]), float(peaks[-1])
+        marks = [1.0, p1, float(np.sqrt(p1 * p2)), p2]     # fine · peak1 · valley · peak2
+    elif peaks.size == 1:
+        p1 = float(peaks[0])
+        marks = [1.0, float(np.sqrt(p1)), p1, min(p1 * 3.0, s_end)]
+    else:
+        marks = list(np.geomspace(1.0, max(s_end, 4.0), 4))
+    s_marks = np.array(sorted(dict.fromkeys(marks))[:4])
+    mark_cols = [MARK_CMAP(0.08 + 0.80 * i / 3) for i in range(len(s_marks))]
+
+    fig, ax = plt.subplots(figsize=(7.8, 3.3))         # wide landscape: curve left, insets right
+    fig.subplots_adjust(left=0.075, right=0.60, top=0.93, bottom=0.17)
+
+    ax.plot(s, Cn, color=C_COL, lw=2.0, label=r"$C(\tau)$")
+    ax.plot(s, S, color=S_COL, lw=1.6, ls="--", label=r"$\hat{S}(\tau)$")
+    ax.axvspan(1.0, s_hi_win, color="0.85", alpha=0.30, zorder=0)   # resolution window
+    for sm, col in zip(s_marks, mark_cols):
+        ax.axvline(sm, color=col, lw=1.4, alpha=0.9, zorder=1)
+    ax.set_xscale("log")
+    ax.set_xlim(float(s.min()), float(s.max()))
+    ax.set_ylim(-0.02, 1.05)
+    ax.set_xlabel(r"$s=\tau\,\lambda_{\max}$")
+    ax.set_ylabel("norm.")
+    ax.legend(fontsize=8.5, frameon=False, loc="center right")
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+
+    # propagator insets in a 2x2 block to the right, colour-matched to the markers. Show the
+    # OFF-diagonal communicability (diagonal zeroed) on a SHARED power-normalised scale
+    # so the eye reads the spread: sparse near-neighbour reach at s=1 (only backbone edges
+    # lit) -> multi-step fill-in at the mesoscale -> near-uniform at the collapse scale.
+    from matplotlib.colors import PowerNorm
+    Ks = []
+    for sm in s_marks:
+        K = _propagator(ev, V, sm / lam_max)[np.ix_(order, order)]
+        np.fill_diagonal(K, 0.0)
+        Ks.append(K)
+    vmax = max(float(np.percentile(K[K > 0], 99.5)) if np.any(K > 0) else 1.0 for K in Ks)
+    norm = PowerNorm(gamma=0.5, vmin=0.0, vmax=vmax)
+    # 2x2 grid of propagator insets on the RIGHT (wide landscape). Each inset framed in its
+    # mark colour = the matching vertical line on C(tau); NO s= titles -- the frame colour is
+    # the key, the imshow colour carries the value. Reading order TL,TR,BL,BR = ascending s.
+    iw = 0.170
+    ih = iw * 7.8 / 3.3                                 # square boxes given the figure aspect
+    x0, xgap, ytop, ygap = 0.635, 0.015, 0.55, 0.03
+    xs = [x0, x0 + iw + xgap]
+    ys = [ytop, ytop - ih - ygap]
+    grid = [(xs[0], ys[0]), (xs[1], ys[0]), (xs[0], ys[1]), (xs[1], ys[1])]
+    for (gx, gy), col, K in zip(grid, mark_cols, Ks):
+        iax = fig.add_axes([gx, gy, iw, ih])
+        iax.imshow(K, cmap="magma", norm=norm, interpolation="nearest")
+        iax.set_xticks([]); iax.set_yticks([])
+        for sp in iax.spines.values():
+            sp.set_color(col); sp.set_linewidth(2.4)
+
+    info = dict(n_peaks=int(pk["n_peaks"]), s_marks=[float(x) for x in s_marks],
+                s_hi_win=float(s_hi_win))
+    print(f"      C(tau): {pk['n_peaks']} peak(s); s_marks={info['s_marks']}", flush=True)
+    return _save(fig, "pipeline_seq_5_specific_heat"), info
+
+
+# ===================== Panel 6 — cophenetic dendrogram (backbone) =====================
+# distinct, non-near-white partition palette (matches the fc band feel; not tab10 red/gray)
+PART_PALETTE = ["#c1440e", "#2b6cb0", "#2e8b57", "#8e44ad",
+                "#d19a00", "#0e7c7b", "#b5179e", "#5a6b1f"]
+
+
+def panel6_dendrogram(Z: np.ndarray, cut_k: int = 12) -> tuple[Path, dict]:
+    """Normalised UPGMA tree of the backbone with ONE hand-selected illustrative cut.
+
+    Purely illustrative pipeline schematic: heights are normalised by the max merge height
+    (dimensionless ultrametric distance in (0, 1]) and a SINGLE horizontal cut is placed by
+    hand at a height that carves the tree into ``cut_k`` visible partitions, labelled
+    psi_n(tau) (the LRG's natural partition scale of the diffusion hierarchy). Clades below
+    the cut are coloured, the trunk above is grey. The real cross-phase comparison uses the
+    full cophenetic distances, not this partition — the cut is a teaching device.
+    """
+    h = Z[:, 2]
+    hmax = float(h.max())
+    Zn = Z.copy()
+    Zn[:, 2] = Zn[:, 2] / hmax                    # normalise: ultrametric distance in (0, 1]
+    hs = np.sort(Zn[:, 2])                         # ascending merge heights (N-1 of them)
+    n = Zn.shape[0] + 1                            # leaves
+    # cut between the (n-cut_k)-th and (n-cut_k+1)-th smallest heights -> exactly cut_k clusters
+    j = n - cut_k
+    cut = float(np.sqrt(hs[j - 1] * hs[j])) if 1 <= j < hs.size else float(hs[-1] * 0.9)
+
+    set_link_color_palette(list(PART_PALETTE))
+    fig, ax = plt.subplots(figsize=(4.6, 3.0))
+    dendrogram(Zn, ax=ax, no_labels=True, color_threshold=cut,
+               above_threshold_color="#000000")               # trunk above the cut = black
+    ax.axhline(cut, ls=(0, (5, 3)), lw=1.4, color=BRACKET_INK, zorder=5)
     ax.set_yscale("log")
-    ax.set_ylim(float(h.min()) * 0.8, float(h.max()) * 1.05)   # house convention
-    ax.set_ylabel("ultrametric distance")
+    ax.set_ylim(float(Zn[:, 2].min()) * 0.7, 1.30)            # full tree (top merge = 1)
+    ax.set_ylabel("ultrametric distance (norm.)")
     ax.set_xticks([])
     for sp in ("top", "right", "bottom"):
         ax.spines[sp].set_visible(False)
-    return _save(fig, "pipeline_seq_4_dendrogram")
+    set_link_color_palette(None)
+    print(f"      illustrative cut -> {cut_k} partitions (norm height {cut:.2e})", flush=True)
+    return _save(fig, "pipeline_seq_6_dendrogram"), dict(cut_norm=cut, cut_k=cut_k)
 
 
-# ==================== Panel 5 — rho^coph tanglegram ========================
-def _subclades_local(Z: np.ndarray, m: int, lo: int, hi: int) -> list[list[int]]:
-    """Local-index clades (leaf lists) of an induced tree of ``m`` leaves, size in [lo, hi]."""
-    members = {i: [i] for i in range(m)}
-    out: list[list[int]] = []
-    for k in range(m - 1):
-        mm = members[int(Z[k, 0])] + members[int(Z[k, 1])]
-        members[m + k] = mm
-        if lo <= len(mm) <= hi:
-            out.append(sorted(mm))
-    return out
+# ============ Panel 6 (v2) — dendrogram TENSOR: trees across tau, stacked ============
+def panel6_dendrogram_tensor(ev: np.ndarray, V: np.ndarray,
+                             *, n_cards: int = 4, cut_k: int = 12) -> Path:
+    """v2 of the tree panel: ``n_cards`` UPGMA dendrograms at increasing diffusion time τ,
+    each drawn 2D but laid on oblique-projected 'slices' receding up-and-right into the page
+    — a tensor stack (messy-but-nice).
 
+    Scales span the FULL diffusion range, from the finest (``Shat~0.98``, many communities)
+    to the collapse (``Shat~0.02``, all nodes in ONE cluster = the ground state). As τ grows
+    the propagator homogenises and communities MERGE, so the hand cut coarsens
+    (``cut_k → 1``): the front (lower-left, opaque, finest τ) slice carves many partitions and
+    each deeper slice fewer, the last (coarsest, largest-τ) slice being the single-cluster
+    collapse the LRG renormalises to — the textbook multiscale coarsening (more diffusion =
+    more merging = fewer clusters). Deeper slices are colour-matched to the panel-5 propagator
+    insets (``MARK_CMAP``) and faded with depth; each uses that scale's native leaf order and
+    its own normalised log-height. Purely illustrative; cards labelled by τ (not s).
 
-def _layout_S(Cpre: np.ndarray, Cpost: np.ndarray, S: list[int]):
-    """Untangled two-tree layout for a subset S: fix rest_post order, branch-rotate rest_pre to it."""
-    m = len(S)
-    Zp = induced_linkage(Cpre, S)
-    Zr = induced_linkage(Cpost, S)
-    Cs = Cpost[np.ix_(S, S)].astype(float)
-    Zr = optimal_leaf_ordering(
-        Zr, squareform(0.5 * (Cs + Cs.T) - np.diag(np.diag(Cs)), checks=False)
-    )
-    pos_post = {l: i for i, l in enumerate(dendrogram(Zr, no_plot=True)["leaves"])}
-    pos_pre = {l: i for i, l in enumerate(untangle(Zp, m, pos_post))}
-    return m, Zp, Zr, pos_pre, pos_post, subset_rho(Cpre, Cpost, S)
-
-
-def _select_retained(Cpre, Cpost, Zpost, N, *, size_lo=16, size_hi=22):
-    """Pick (subset S, retained clade G) for the explainer.
-
-    A retained clade = a rest_post sub-clade that is ALSO a contiguous block in the untangled
-    rest_pre order (so its grouping survived the phase change). Composite score rewards a
-    crossing-free clade (gc=0), a larger clade, and a subset rho near 0.6 so the surrounding
-    ribbons still show some reorganisation for contrast. Deterministic single pass.
+    NB β is delocalised (the *natural* community count is ~2 at every resolved scale, then a
+    singleton comb before collapse); the stepped ``cut_k`` is an illustrative teaching cut,
+    not a balanced-community claim.
     """
-    best = None
-    for S in clades(Zpost, N, size_lo, size_hi):
-        m, Zp, Zr, pos_pre, pos_post, rhoS = _layout_S(Cpre, Cpost, S)
-        for G in _subclades_local(Zr, m, 4, 8):
-            PL = sorted(pos_pre[l] for l in G)
-            spread = PL[-1] - PL[0]
-            blockL = (len(G) - 1) / spread if spread > 0 else 1.0
-            if blockL < 0.999:                       # must be contiguous in rest_pre too
-                continue
-            gc = crossings([pos_pre[l] for l in G], [pos_post[l] for l in G], len(G))
-            in_band = 0.40 <= rhoS <= 0.85
-            score = len(G) - 3.0 * gc - 2.0 * abs(rhoS - 0.6) - (0.0 if in_band else 5.0)
-            key = (score, len(G), -gc)
-            if best is None or key > best[0]:
-                best = (key, dict(S=S, G=set(G), m=m, Zp=Zp, Zr=Zr,
-                                  pos_pre=pos_pre, pos_post=pos_post,
-                                  rhoS=rhoS, blockL=blockL, gc=gc))
-    return None if best is None else best[1]
+    from matplotlib.collections import LineCollection
+    from matplotlib.patches import Polygon
+    from matplotlib.colors import to_rgb
 
+    nc = int(n_cards)
+    lam_max = float(ev[-1])
+    # scales span the FULL diffusion range: finest (Shat~0.98, many communities) down to the
+    # collapse (Shat~0.02, all nodes in ONE cluster = the ground state). As tau grows the
+    # propagator homogenises, communities MERGE, and the tree coarsens -> the last (coarsest,
+    # largest-tau) slice is the single-cluster collapse the LRG renormalises to.
+    res = entropy_specific_heat(ev)
+    Sarr, sarr = res["S"], res["s"]
+    idxc = np.where(Sarr <= 0.02)[0]
+    s_collapse = float(sarr[idxc[0]]) if idxc.size else float(sarr[-1])
+    # head cards at ascending order-of-magnitude tau (10^-1, 10^0, 10^1, ...); the last card is
+    # the Shat->0 collapse (single cluster), shown as tau -> infinity. The tau numbers are
+    # order-of-magnitude scale markers only, not precise values.
+    exps = np.arange(nc - 1) - 1                             # [-1, 0, 1, ...]
+    s_head = np.clip(10.0 ** exps.astype(float) * lam_max, 1.0, None)   # tau~10^e, but s>=1
+    s_vals = np.append(s_head, s_collapse)
+    tau_vals = s_vals / lam_max
+    card_labels = [rf"$\tau\!\sim\!10^{{{int(e)}}}$" for e in exps] + [r"$\tau\!\to\!\infty$"]
+    # partitions coarsen with tau: many at fine tau -> 1 (all nodes together) at the collapse
+    cut_ks = np.round(np.geomspace(cut_k, 1, nc)).astype(int)
+    cut_ks[-1] = 1
 
-def panel5_tanglegram(patient: str, band: str) -> tuple[Path, dict]:
-    """rho^coph explainer tanglegram: rest_pre (left) vs rest_post (right), one retained clade lit."""
-    Wpre = load_phase_fc(patient, "rest_pre", band)
-    Wpost = load_phase_fc(patient, "rest_post", band)
-    if Wpre.shape != Wpost.shape:
-        sys.exit(f"!! phase N mismatch {Wpre.shape} vs {Wpost.shape} — cannot align pairs")
-    Cpre, _ = coph_square(Wpre)
-    Cpost, Zpost = coph_square(Wpost)
-    N = Cpre.shape[0]
-    iu = np.triu_indices(N, 1)
-    rho_full = float(spearmanr(Cpre[iu], Cpost[iu]).statistic)
+    # oblique parallel projection: card-local (u∈[0,1] leaf span, v∈[0,1] log-height),
+    # depth d = card index. screen = u*E_u + v*E_v + d*E_d. The depth axis is laid MORE
+    # horizontal (larger angle off the face-on/orthogonal view) so the stack reads as a wide,
+    # tilted deck of slices rather than an upright pile.
+    E_u = np.array([1.00, -0.10])         # cards tilt back a touch (tabletop feel)
+    E_v = np.array([0.00, 1.000])         # height straight up
+    E_d = np.array([0.62, 0.34])          # deeper cards recede mostly RIGHTWARD (~45° laid back)
+    cols_scale = [MARK_CMAP(0.08 + 0.80 * i / max(nc - 1, 1)) for i in range(nc)]
 
-    pick = _select_retained(Cpre, Cpost, Zpost, N)
-    if pick is None:
-        sys.exit("!! no clean retained clade found for the tanglegram (relax size window)")
-    m, Zp, Zr = pick["m"], pick["Zp"], pick["Zr"]
-    pos_pre, pos_post, G, rhoS = pick["pos_pre"], pick["pos_post"], pick["G"], pick["rhoS"]
-
-    RAIL_L, RAIL_R, EXT = 0.0, 1.0, 0.34
-    allh = np.concatenate([Zp[:, 2], Zr[:, 2]])
-    pos = allh[allh > 0]
-    hlo, hhi = float(np.log(pos.min())), float(np.log(pos.max()))
-
-    fig, ax = plt.subplots(figsize=(4.6, 4.2))
-    # left tree opens left (leaves face centre), right tree opens right
-    draw_subtree(ax, Zp, m, pos_pre, RAIL_L, -1, EXT, hlo, hhi)
-    draw_subtree(ax, Zr, m, pos_post, RAIL_R, +1, EXT, hlo, hhi)
-    # reorganised connectors first (faint), retained on top (bold amber)
-    for l in range(m):
-        if l in G:
+    fig, ax = plt.subplots(figsize=(6.6, 3.4))
+    allpts = []
+    ncl = []
+    for i in range(nc - 1, -1, -1):       # draw back (coarsest) first, front (finest) last (on top)
+        s = float(s_vals[i]); ck = int(cut_ks[i])
+        Z = linkage_at_scale(ev, V, s)
+        n = Z.shape[0] + 1
+        hs = np.sort(Z[:, 2])
+        j = n - ck
+        cut = float(np.sqrt(hs[j - 1] * hs[j])) if 1 <= j < hs.size else float(hs[-1] * 0.9)
+        set_link_color_palette(list(PART_PALETTE))
+        dn = dendrogram(Z, no_plot=True, color_threshold=cut, above_threshold_color="#000000")
+        set_link_color_palette(None)
+        ic = np.asarray(dn["icoord"], float)
+        dc = np.asarray(dn["dcoord"], float)
+        lcolors = dn["color_list"]
+        pos = dc[dc > 0]
+        if pos.size == 0:
             continue
-        ribbon(ax, RAIL_L, pos_pre[l], RAIL_R, pos_post[l], GREY_RIB, alpha=0.55, lw=1.3, z=2)
-    for l in G:
-        ribbon(ax, RAIL_L, pos_pre[l], RAIL_R, pos_post[l], HL, alpha=0.95, lw=2.4, z=4)
-    for l in range(m):
-        in_g = l in G
-        ax.scatter([RAIL_L, RAIL_R], [pos_pre[l], pos_post[l]],
-                   s=46 if in_g else 30, color=HL if in_g else BEAD_GREY,
-                   ec="#20242a" if in_g else "#9aa0a8", lw=0.8, zorder=6 if in_g else 5)
+        collapse = ck <= 1                                    # Shat~0 slice: one cluster
+        ncl.append(1 if collapse else len(set(c for c in lcolors if c != "k")))
+        u = ic / ic.max()                                     # leaf span -> [0,1]
+        lo, hi = np.log10(pos.min()), np.log10(dc.max())      # log-height -> [0,1] (leaves at 0)
+        v = np.where(dc > 0, (np.log10(np.where(dc > 0, dc, 1.0)) - lo) / (hi - lo), 0.0)
+        v = np.clip(v, 0.0, 1.0)
 
-    gy = float(np.mean([pos_post[l] for l in G]))
-    ax.text(RAIL_R + EXT + 0.06, gy, "retained\nclade", ha="left", va="center",
-            fontsize=9, color=HL, fontweight="bold")
-    ymax = m - 1
-    ax.text(RAIL_L, ymax + 1.1, "rest-pre", ha="center", va="bottom",
-            fontsize=10.5, fontweight="bold", color=BRACKET_INK)
-    ax.text(RAIL_R, ymax + 1.1, "rest-post", ha="center", va="bottom",
-            fontsize=10.5, fontweight="bold", color=BRACKET_INK)
-    ax.text(0.5, ymax + 1.9,
-            r"$\rho^{\mathrm{coph}}\ \mathrm{(illustrative\ subset)}=%.2f$" % rhoS,
-            ha="center", va="bottom", fontsize=9.5, color=BRACKET_INK)
-    ax.text(0.5, -1.5, r"full-matrix $\rho^{\mathrm{coph}}=%.2f$" % rho_full,
-            ha="center", va="top", fontsize=8, color="#6a7078")
-    ax.set_xlim(RAIL_L - EXT - 0.1, RAIL_R + EXT + 0.5)
-    ax.set_ylim(-2.0, ymax + 3.0)
+        d = float(i)
+        depth = d / max(nc - 1, 1)
+        alpha = 1.0 - 0.50 * depth          # front pops, deeper slices recede
+        lw = 1.5 - 0.6 * depth
+        z = 10 * (nc - i)
+
+        cu = np.array([0.0, 1.0, 1.0, 0.0]); cv = np.array([0.0, 0.0, 1.0, 1.0])
+        cp = cu[:, None] * E_u + cv[:, None] * E_v + d * E_d          # slab corners
+        allpts.append(cp)
+        sc = to_rgb(cols_scale[i])
+        ax.add_patch(Polygon(cp, closed=True,
+                             facecolor=(*sc, 0.05 * alpha + 0.015),
+                             edgecolor=(*sc, 0.45 * alpha), lw=1.1, zorder=z))
+
+        segs = []
+        for k in range(ic.shape[0]):
+            segs.append(u[k][:, None] * E_u + v[k][:, None] * E_v + d * E_d)   # (4,2) ⊓ path
+        allpts.append(np.concatenate(segs, 0))
+        # fine/intermediate slices keep the informative partition palette + black trunk; the
+        # collapse slice (Shat~0) is a single hue = all nodes in one cluster (the ground state).
+        seg_c = (to_rgb(cols_scale[i]) if collapse
+                 else [c if c != "k" else "#000000" for c in lcolors])
+        ax.add_collection(LineCollection(segs, colors=seg_c, linewidths=lw, alpha=alpha,
+                                         zorder=z + 1, capstyle="round", joinstyle="round"))
+
+        tl = 1.0 * E_v + d * E_d                                       # card top-left corner
+        ax.text(tl[0] - 0.02, tl[1] + 0.03, card_labels[i], color=cols_scale[i], fontsize=11,
+                ha="right", va="bottom", zorder=z + 2, fontweight="bold")
+
+    # shared height-axis cue along the front card's (vertical) left edge: the dendrogram
+    # merge-height symbol only (D-script, NOT D^coph — avoids confounding the tree height
+    # with the cophenetic-distance matrix used in the cross-phase comparison).
+    ax.annotate("", xy=(-0.05, 1.0), xytext=(-0.05, 0.0),
+                arrowprops=dict(arrowstyle="->", color=DARK, lw=1.3))
+    ax.text(-0.135, 0.5, r"$\mathcal{D}$", rotation=90,
+            va="center", ha="center", fontsize=14, color=DARK)
+
+    P = np.concatenate([p.reshape(-1, 2) for p in allpts], 0)
+    xmin, ymin = P.min(0); xmax, ymax = P.max(0)
+    mx, my = 0.05 * (xmax - xmin), 0.05 * (ymax - ymin)
+    ax.set_xlim(xmin - mx - 0.16, xmax + mx * 3)                       # left room for the axis cue
+    ax.set_ylim(ymin - my, ymax + my * 3)                             # top room for the τ labels
+    ax.set_aspect("equal")
     ax.axis("off")
+    print(f"      tensor: {nc} trees, τ={[round(float(x),2) for x in tau_vals]}, "
+          f"partitions(front→back)={list(reversed(ncl))}", flush=True)
+    return _save(fig, "pipeline_seq_6_dendrogram_tensor")
 
-    info = dict(rho_full=rho_full, rho_subset=rhoS, subset_size=m,
-                clade_size=len(G), subset=sorted(pick["S"]), clade_local=sorted(G))
-    return _save(fig, "pipeline_seq_5_rhocoph_tanglegram"), info
+
+# ===================== Panel 7 — the trace estimator symbol =====================
+def panel7_rho() -> Path:
+    """The cross-phase cophenetic correlation symbol -- the pipeline's output."""
+    fig, ax = plt.subplots(figsize=(2.6, 2.0))
+    ax.text(0.5, 0.5, r"$\rho^{\mathrm{coph}}$", ha="center", va="center",
+            fontsize=66, color=DARK)
+    ax.axis("off")
+    return _save(fig, "pipeline_seq_7_rho")
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(
-        description="Five-panel network-analysis pipeline sequence for a talk slide."
+        description="Seven-panel network-analysis pipeline sequence for talk slide 11."
     )
     ap.add_argument("--patient", default="Pat_05")
     ap.add_argument("--band", default="beta")
-    ap.add_argument("--n-contacts", type=int, default=6, help="panel 1: stacked sEEG contacts")
-    ap.add_argument("--win-s", type=float, default=2.0, help="panel 1: window length (s)")
-    ap.add_argument("--start-s", type=float, default=60.0, help="panel 1: window start (s)")
+    ap.add_argument("--n-contacts", type=int, default=6, help="panel 2: stacked sEEG contacts")
+    ap.add_argument("--win-s", type=float, default=2.0, help="panel 2: window length (s)")
+    ap.add_argument("--start-s", type=float, default=60.0, help="panel 2: window start (s)")
+    ap.add_argument("--brain", choices=["cohort", "patient"], default="cohort",
+                    help="panel 1: all-implant cohort overlay (default) or the example patient only")
+    ap.add_argument("--cut-k", type=int, default=12, help="panel 6: illustrative number of partitions at the psi_n cut")
+    ap.add_argument("--tensor-cards", type=int, default=4, help="panel 6 v2: number of stacked dendrograms (3-4)")
     a = ap.parse_args()
 
     t0 = time.perf_counter()
     use_lrg_style()
     print(f"[pipeline-seq] patient={a.patient} band={a.band}  ->  {OUTDIR}", flush=True)
 
-    print("[1/5] raw sEEG timeseries", flush=True)
-    panel1_timeseries(a.patient, n_contacts=a.n_contacts, win_s=a.win_s, start_s=a.start_s)
+    print(f"[1/7] brain electrodes (3D, {a.brain})", flush=True)
+    panel1_brain(a.patient, brain=a.brain)
 
-    print("[2/5] |ImCoh| FC matrix", flush=True)
+    print("[2/7] raw sEEG timeseries", flush=True)
+    panel2_timeseries(a.patient, n_contacts=a.n_contacts, win_s=a.win_s, start_s=a.start_s)
+
+    print("[3/7] |ImCoh| FC matrix (dense)", flush=True)
     A = _load_fc_or_die(a.patient, "rest_pre", a.band)
-    panel2_fc(a.patient, a.band, A)
+    panel3_fc(A)
 
-    print("[3/5] communication distance D(tau)=1/K", flush=True)
-    _, tau = panel3_distance(a.patient, a.band, A)
-    print(f"      tau = 1/lambda_max = {tau:.4g}", flush=True)
+    print(f"[4/6] mst@{BACKBONE_FRAC:.2f} backbone chord network (HEB) — 2 ring orders", flush=True)
+    B = mst_union_top_fraction(A, BACKBONE_FRAC)
+    dens = backbone_density(B)
+    # shared spectrum + tau_min tree (chord bundling hierarchy + panels 5 & 6 leaf order)
+    ev, V = laplacian_eig(B)
+    Z0 = linkage_at_scale(ev, V, 1.0)                 # s=1 => tau=1/lambda_max
+    order = list(dendrogram(Z0, no_plot=True)["leaves"])
+    panel4_backbone(a.patient, B, Z0, dens, ring_order="shaft")   # v1: anatomical
+    panel4_backbone(a.patient, B, Z0, dens, ring_order="tree")    # v2: algorithm-ordered
+    print(f"      backbone density = {dens:.3f}", flush=True)
 
-    print("[4/5] cophenetic dendrogram", flush=True)
-    panel4_dendrogram(a.patient, a.band)
+    print("[5/6] specific heat C(tau) & entropy + propagator inset", flush=True)
+    panel5_specific_heat(ev, V, order)
 
-    print("[5/5] rho^coph tanglegram (explainer)", flush=True)
-    _, info = panel5_tanglegram(a.patient, a.band)
-    print(f"      full rho^coph={info['rho_full']:.4f}   subset rho^coph={info['rho_subset']:.4f}"
-          f"   |subset|={info['subset_size']}   retained clade |G|={info['clade_size']}", flush=True)
+    print("[6/6] cophenetic dendrogram (backbone) + illustrative psi_n cut", flush=True)
+    panel6_dendrogram(Z0, cut_k=a.cut_k)
+    print("[6/6 v2] dendrogram TENSOR — trees stacked across tau, 3D", flush=True)
+    panel6_dendrogram_tensor(ev, V, n_cards=a.tensor_cards, cut_k=a.cut_k)
 
+    # NB: the trace-estimator symbol (rho^coph) lives on the dedicated rho-measure slide,
+    # NOT this pipeline slide — panel7_rho() is retained in the module but not emitted here.
     print(f"[done] {time.perf_counter() - t0:.1f}s", flush=True)
 
 

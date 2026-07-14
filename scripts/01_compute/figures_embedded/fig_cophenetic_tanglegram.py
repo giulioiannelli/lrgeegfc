@@ -287,14 +287,22 @@ def _ph_short(ph, task_phase):
 
 
 def build_row(ax, C, S, task_phase, is_top, labels=None, phase_order=None,
-              color_phase="rest_post"):
+              color_phase="rest_post", show_outer_rho=True,
+              rail=None, ext=None, ext_mid=None):
     """Three-panel tanglegram of clade S. `phase_order` = (left, mid, right) phase keys;
     default is temporal (rest_pre, task, rest_post). `color_phase`'s sub-clades set the bead
     colours — its blocks stay contiguous under any branch rotation, so THAT column reads as
     clean colour blocks; put the reference phase there. For a RESET we pass
     (rest_pre, rest_post, task): the reverted pair sits ADJACENT so gap 1 = pre↔post is the
-    similar/parallel one and the task is the lone scrambled departure on the right."""
+    similar/parallel one and the task is the lone scrambled departure on the right.
+
+    `rail` (3 x-positions of the leaf-rails), `ext` (outer-tree horizontal extent) and `ext_mid`
+    (middle-tree extent) default to the module constants; pass a tighter `rail` + larger `ext` to
+    give the dendrograms more width and the cross-phase ribbons less (e.g. the side-by-side quad)."""
     m = len(S)
+    rail = RAIL if rail is None else rail
+    ext = EXT if ext is None else ext
+    ext_mid = EXT_MID if ext_mid is None else ext_mid
     if phase_order is None:
         phase_order = ("rest_pre", task_phase, "rest_post")
     p0, p1, p2 = phase_order
@@ -313,21 +321,21 @@ def build_row(ax, C, S, task_phase, is_top, labels=None, phase_order=None,
     posh = allh[allh > 0]
     hlo, hhi = float(np.log(posh.min())), float(np.log(posh.max()))
 
-    draw_subtree(ax, Z[p0], m, pos0, RAIL[0], -1, EXT, hlo, hhi)
-    draw_subtree(ax, Z[p1], m, pos1, RAIL[1], -1, EXT_MID, hlo, hhi)
-    draw_subtree(ax, Z[p2], m, pos2, RAIL[2], +1, EXT, hlo, hhi)
+    draw_subtree(ax, Z[p0], m, pos0, rail[0], -1, ext, hlo, hhi)
+    draw_subtree(ax, Z[p1], m, pos1, rail[1], -1, ext_mid, hlo, hhi)
+    draw_subtree(ax, Z[p2], m, pos2, rail[2], +1, ext, hlo, hhi)
 
     for l in range(m):
         col = GROUP_COLORS[groups[l] % len(GROUP_COLORS)]
-        ribbon(ax, RAIL[0], pos0[l], RAIL[1], pos1[l], col)
-        ribbon(ax, RAIL[1], pos1[l], RAIL[2], pos2[l], col)
+        ribbon(ax, rail[0], pos0[l], rail[1], pos1[l], col)
+        ribbon(ax, rail[1], pos1[l], rail[2], pos2[l], col)
     for l in range(m):
         col = GROUP_COLORS[groups[l] % len(GROUP_COLORS)]
         ys = [pos0[l], pos1[l], pos2[l]]
-        ax.scatter(list(RAIL), ys, s=NODE_S, color=col, ec="#20242a", lw=NODE_LW, zorder=5)
+        ax.scatter(list(rail), ys, s=NODE_S, color=col, ec="#20242a", lw=NODE_LW, zorder=5)
         if labels is not None:
             txt, ink = bead_label(labels[l]), text_ink(col)
-            for x, y in zip(RAIL, ys):
+            for x, y in zip(rail, ys):
                 ax.text(x, y, txt, ha="center", va="center", fontsize=LBL_FS,
                         color=ink, fontweight="bold", zorder=6)
 
@@ -337,23 +345,24 @@ def build_row(ax, C, S, task_phase, is_top, labels=None, phase_order=None,
     rho02 = subset_rho(C[p0], C[p2], S)
     x1c = crossings([pos0[l] for l in range(m)], [pos1[l] for l in range(m)], m)
     x2c = crossings([pos1[l] for l in range(m)], [pos2[l] for l in range(m)], m)
-    for xm, val, cross in ((0.5 * (RAIL[0] + RAIL[1]), rho01, x1c),
-                           (0.5 * (RAIL[1] + RAIL[2]), rho12, x2c)):
+    for xm, val, cross in ((0.5 * (rail[0] + rail[1]), rho01, x1c),
+                           (0.5 * (rail[1] + rail[2]), rho12, x2c)):
         held = val >= 0.6
         ax.text(xm, m + 0.42, rf"$\rho={val:.2f}$", ha="center", va="bottom", fontsize=9.8,
                 color=("#2f6b34" if held else "#9a3b3b"), fontweight="bold")
         ax.text(xm, m + 0.30, f"{cross} crossing{'s' if cross != 1 else ''}", ha="center",
                 va="top", fontsize=7.0, color=("#2f6b34" if held else "#9a3b3b"))
-    ax.text(RAIL[2] + EXT + 0.12, -0.82,
-            rf"$\rho_{{\rm {_ph_short(p0, task_phase)},{_ph_short(p2, task_phase)}}}={rho02:.2f}$",
-            ha="right", va="top", fontsize=8, color="#555b63")
+    if show_outer_rho:
+        ax.text(rail[2] + ext + 0.12, -0.82,
+                rf"$\rho_{{\rm {_ph_short(p0, task_phase)},{_ph_short(p2, task_phase)}}}={rho02:.2f}$",
+                ha="right", va="top", fontsize=8, color="#555b63")
 
     if is_top:
-        for x, ph in zip(RAIL, phase_order):
+        for x, ph in zip(rail, phase_order):
             ax.text(x, m + 1.35, _ph_label(ph, task_phase), ha="center", va="bottom",
                     fontsize=11, color="#2b2f36", fontweight="bold")
 
-    ax.set_xlim(RAIL[0] - EXT - 0.18, RAIL[2] + EXT + 0.55)
+    ax.set_xlim(rail[0] - ext - 0.18, rail[2] + ext + 0.55)
     ax.set_ylim(-1.15, m + (2.05 if is_top else 1.05))
     ax.axis("off")
     return a, b, c, x1c, x2c, m

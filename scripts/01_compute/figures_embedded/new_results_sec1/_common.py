@@ -69,6 +69,7 @@ RECOV = SA / "sparsification_recovery"
 ENCINF = SA / "enc_inf_arc_mst020"
 LADDER = SA / "controls_ladder_apples"   # apples-to-apples: ALL descriptors on mst@0.20 (2026-07-13)
 EPI = SA / "epi_arc_mst020"
+REACH = SA / "spatial_reach_mst020"      # diffusion physical reach R(s) vs scale (2026-07-13)
 
 
 # --------------------------------------------------------------------------- #

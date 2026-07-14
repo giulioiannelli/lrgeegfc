@@ -136,22 +136,31 @@ Geodesic fires the **wrong** bands (\(\delta\)/low-\(\gamma\), misses \(\alpha\)
 The **spectral resistance distance is dead everywhere** — a multiscale-blind
 Laplacian read-out that *should* be the strongest foil and finds nothing.
 
+> ⚠ **FRAMING LOCKED — read `.agents/preprint/established_results/2026-07-13_settled-three-results.md`.**
+> This is **selectivity, NOT exclusive detection.** Raw FC *does* detect α and β (it just
+> also fires the δ/low-γ false positives); Grassmann detects β too. **Never write "only the
+> hierarchy sees the trace" / "multiscale-exclusive".** The cophenetic edge is exactly two
+> things: (a) **selectivity** — it fires only α/β and rejects raw FC's false positives; and
+> (b) **scale-characterization** — β is scale-invariant, α is mesoscale-peaked, a distinction
+> no single-scale tool (raw, clustering, resistance, Grassmann-at-one-scale) can make. Plus
+> (c) localization downstream. That is the whole contribution.
+
 **Encoding / inference** — `05_enc_inf_arc` (mst020, T\_learn bug fixed), per-scale:
 
 | component | band | \(p\) at mesoscale | scales | note |
 |---|---|---|---|---|
-| encoding \(T_{\mathrm{learn}}\) | \(\beta\) | 0.003 | 16/16 | scale-invariant; **cophenetic-UNIQUE** (raw/clustering/geodesic/spectral all fail) |
+| encoding \(T_{\mathrm{learn}}\) | \(\beta\) | 0.003 | 16/16 | **scale-invariant**; hierarchy-cleanest (raw FC a .053 knife-edge near-miss, Grassmann untested → present as scale-invariance, NOT "exclusive") |
 | encoding \(T_{\mathrm{learn}}\) | \(\alpha\) | 0.032 | 3/16 | marginal (0.053 in ladder run); **readable from raw FC + clustering = basic metric** |
 | inference \(T_{\mathrm{inf}\cdot e}\) | \(\beta\) | 0.005 | 7/16 | mesoscale; **also readable from raw FC (0.010)** → value-add = localization |
 | inference \(T_{\mathrm{inf}\cdot e}\) | \(\alpha\) | 0.024 | 7/16 | mesoscale |
 | inference \(T_{\mathrm{inf}\cdot e}\) | \(\delta\) | 0.019 | 10/16 | mesoscale |
 
 > **Encoding is NOT washed out** (an earlier bug faked that). The band-split is the point:
-> **β encoding is the multiscale-exclusive result** (only the hierarchy sees it), while
-> **α encoding lives in a basic metric** (raw FC/clustering read it directly). For β the
-> "encoding=basic / inference=multiscale" story is in fact **inverted** — β *encoding* is
-> hierarchy-only; β *inference* is raw-visible (its coph value-add is localization, not
-> detection). Do not carry the stale "encoding strength-explained / null in multiscale".
+> **β encoding is scale-invariant** (16/16; hierarchy-cleanest — but raw FC is only a .053
+> near-miss and Grassmann is untested, so present it as scale-invariance, not as "only the
+> hierarchy sees it"), while **α encoding lives in a basic metric** (raw FC/clustering read
+> it directly). Do not carry the stale "encoding strength-explained / null in multiscale".
+> (The β enc-vs-inf "inversion" is a soft observation, not a headline — see the settled doc.)
 
 **Epilepsy marker** — `06_epi_arc` (mst020), strength-residual seed affinity AUC:
 

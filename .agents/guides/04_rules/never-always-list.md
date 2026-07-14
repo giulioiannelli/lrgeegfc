@@ -187,6 +187,16 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   the geometric ladder; any new "entropy-curve trace" proposal is
   theatre. See `lrg-framework-guide.md` §6 + memory entry
   `lrg_outlier_case_fully_connected.md`.
+- Never truncate / "length-match" a recording (e.g. head-truncate
+  `task_test` to `task_learn` length). No analysis series is ever
+  shortened. The truncation-based duration null (audit_113b/161) is
+  **retired-invalid** — a contiguous window injects a common-mode shift
+  into `D_TT` and the δ negative-control false-positives. The clean,
+  locked duration control is **duration-ratio regression** (regress the
+  per-patient effect on the `task_test/task_learn` ratio; non-destructive,
+  uses all data), plus the fact that encoding (`e = c_learn − c_pre`) is
+  length-symmetric by construction. See `feedback_no_series_truncation.md`,
+  `arc_inference_consolidation_2026_06_18.md`. Locked 2026-07-13.
 - Don't confuse the four cross-phase phenomena. The taxonomy at
   `.agents/guides/01_project/terminology.md` defines **trace** (task
   reorganized AND change stuck — our `T_d < 0` finding), **anchor**
@@ -666,6 +676,34 @@ whole-task β drift-robust under a 2nd construction; α/γ_low construction-depe
 the **inference-specific decomposition is drift-unverified** (β p=0.22); raw-FC
 traces are **entirely drift**. **Grep `locked/CONTROLS.md` before declaring a
 control missing.** See `feedback_drift_null_mandatory.md`.
+
+## ρ^coph ALWAYS means ρ_sym — never the non-symmetric raw form
+
+**Locked 2026-07-13.** The notation `ρ^coph` — with or without a `sym`
+subscript, in code, figures, captions, prose, or memory — ALWAYS denotes the
+symmetric, split-baseline-subtracted estimator
+
+```
+ρ_sym = ½[ Spearman(D_task − D_preA, D_post − D_preB)
+         + Spearman(D_task − D_preB, D_post − D_preA) ]
+```
+
+Never report, plot, or bar the **non-symmetric raw** cophenetic correlation
+`Spearman(D_X[triu], D_test[triu])` (a bare phase→phase similarity such as
+"phase → task_test") as a result or as a `ρ^coph` value again. The raw form
+(a) is **not baseline-subtracted**, so it is dominated by the shared anchor
+structure any two phases trivially have in common — its matched-strength null
+is HIGH (~0.2), not ~0.01 — and (b) is **asymmetric** in the arbitrary A/B
+split-half assignment. ρ_sym removes both.
+
+Consequences for every ρ^coph axis/bar: its reference is the matched-strength
+**null value** (mark it), and its **reachable maximum is the split-half
+reliability** `ρ(A,B) ≈ 0.5` (β), NEVER 1 — anchor the bar to that reachable
+ceiling, cut the unreachable region, and mark the null; never draw a full bar
+to 1.0. Supersedes the raw definition previously given in
+`feedback_no_partition_metrics_use_rho_coph.md`. See
+`feedback_rho_coph_always_rho_sym.md` and
+`feedback_rho_sym_canonical_estimator.md`.
 
 ## Meta-rule
 

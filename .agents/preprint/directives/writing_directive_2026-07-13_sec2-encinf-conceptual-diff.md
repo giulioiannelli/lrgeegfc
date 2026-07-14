@@ -17,10 +17,13 @@ pointers:
 > ⚠ **STOP — do NOT rewrite this section around "encoding is washed out / null in the
 > multiscale read."** That premise is a **bug artifact** and is FALSE. The shared-baseline
 > error in `T_learn` made encoding look null; with it fixed, **encoding is recovered, and
-> β encoding is the single most multiscale-exclusive result in the whole section** (only
-> the cophenetic hierarchy sees it; raw FC, clustering, geodesic, and the spectral read
-> all miss it). If your draft says encoding is strength-explained or invisible to the
-> hierarchy, discard it and use the band-split below.
+> β encoding is scale-invariant (16/16 scales)** — the hierarchy reads it cleanest.
+> ⚠ But do **NOT** upgrade that to "multiscale-exclusive / only the hierarchy sees it":
+> raw FC is a knife-edge near-miss (.053) and Grassmann is untested for encoding, and for
+> the *trace* raw FC + Grassmann both detect β. Frame β encoding as **scale-invariant**
+> and **α encoding as simple-tool-visible** — that is the honest split. See
+> `.agents/preprint/established_results/2026-07-13_settled-three-results.md` for the locked
+> framing (selectivity + scale-characterization + localization, NOT exclusive detection).
 
 ## Head
 
@@ -43,12 +46,15 @@ opening paragraphs around that; keep the anatomy paragraphs, which are the point
 ## What STAYS (these are the section's spine now)
 
 - **Encoding persists — but the two bands are NOT the same kind of result; split them.**
-  - **β encoding = the multiscale-exclusive result.** Scale-invariant (16/16 scales,
-    \(p_{\mathrm{meso}}=0.003\), \(p_{\min}=0.001\)) AND **cophenetic-unique**: on the
-    controls ladder only the hierarchy clears it (coph \(p=0.003\)); raw FC is a near-miss
-    (\(p=0.053\)), clustering (\(0.216\)), geodesic (\(0.116\)) and the spectral resistance
-    (\(0.138\)) all fail. So the premises the brain was shown leave a trace that *only the
-    multiscale read recovers* — this is a strong sentence, use it.
+  - **β encoding = the scale-invariant result.** It clears at 16/16 scales
+    (\(p_{\mathrm{meso}}=0.003\), \(p_{\min}=0.001\)) — a genuinely multiscale component.
+    On the controls ladder the hierarchy reads it cleanest (coph \(p=0.003\)) while raw FC
+    is a near-miss (\(p=0.053\)), clustering (\(0.216\)), geodesic (\(0.116\)) and spectral
+    resistance (\(0.138\)) do not clear. ⚠ But **do NOT write "only the hierarchy recovers
+    it / multiscale-exclusive"** — raw FC misses by a hair (.053 vs .05) and Grassmann is
+    untested for encoding; the honest, robust claim is **scale-invariance** (β holds at
+    every scale), not exclusivity. Say "β encoding is genuinely multiscale — held across
+    all scales."
   - **α encoding = the "stored in a basic metric" result.** It is readable straight from
     raw FC (\(p=0.032\)) and clustering (\(p=0.010\)) — it does **not** need the hierarchy;
     and in the cophenetic read it is marginal and run-fragile (3/16 scales; \(p=0.042\) at
@@ -116,7 +122,7 @@ while the inference-specific parts are mesoscale is enough. Do not best-scale.
   \(p_{\mathrm{meso}}=0.003\); α 3/16, \(p_{\tau_{\min}}=0.042\),
   \(p_{\mathrm{meso}}=0.032\) (α-meso is fragile: 0.053 in the controls-ladder run);
   δ/θ/low-γ 0/16.
-- Controls ladder, ENCODING cell (`14`, gate p): **β cophenetic-unique** — coph_τmin
+- Controls ladder, ENCODING cell (`14`, gate p): **β hierarchy-cleanest** (raw FC a .053 near-miss, NOT "unique") — coph_τmin
   0.024 / coph_meso **0.003**; raw FC 0.053 (near-miss, fails), clustering 0.216,
   geodesic 0.116, resistance 0.138, strength 1.0. **α basic-metric** — raw FC **0.032**,
   clustering **0.010**, coph_τmin 0.032, coph_meso 0.053. ⇒ β encoding needs the

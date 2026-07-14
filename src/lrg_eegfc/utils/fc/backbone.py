@@ -53,13 +53,53 @@ from scipy.sparse.csgraph import (
 __all__ = [
     "maximum_spanning_tree",
     "tmfg_backbone",
+    "pmfg_backbone",
+    "disparity_backbone",
     "mst_union_top_fraction",
     "percolation_backbone",
     "percolation_sweep",
+    "select_backbone",
     "backbone_density",
     "giant_component",
     "geodesic_distance",
 ]
+
+
+def select_backbone(
+    W: NDArray, kind: str, frac: float = 0.20, disparity_alpha: float = 0.20
+) -> NDArray:
+    """Dispatch to a named sparsifier -- one entry point for all pipelines.
+
+    ``kind`` (matches the ``SA_BACKBONE`` env used across ``scripts/01_compute/
+    sparsified_arc``):
+
+    - ``"dense"``      -- the cleaned fully-connected graph (no sparsification);
+    - ``"mst020"`` / ``"mst"`` -- :func:`mst_union_top_fraction` at the ``frac``
+      argument (the callers pass ``frac`` explicitly; the name only selects the
+      family);
+    - ``"perc"``       -- :func:`percolation_backbone`;
+    - ``"tmfg"``       -- :func:`tmfg_backbone` (fast chordal planar filter);
+    - ``"pmfg"``       -- :func:`pmfg_backbone` (exact planar filter, slow);
+    - ``"disparity"``  -- :func:`disparity_backbone` at ``disparity_alpha``
+      (spanning via MST-union).
+
+    Every returned backbone is connected + spanning, so cross-phase per-pair
+    alignment holds without giant-component bookkeeping.
+    """
+    k = kind.lower()
+    if k == "dense":
+        return _clean(W)
+    if k.startswith("mst"):                       # name selects family; frac is explicit
+        return mst_union_top_fraction(W, frac)
+    if k == "perc":
+        return percolation_backbone(W)[0]
+    if k == "tmfg":
+        return tmfg_backbone(W)
+    if k == "pmfg":
+        return pmfg_backbone(W)
+    if k == "disparity":
+        return disparity_backbone(W, alpha=disparity_alpha, ensure_connected=True)
+    raise ValueError(f"unknown backbone kind {kind!r}")
 
 
 def _clean(W: NDArray) -> NDArray:
@@ -224,6 +264,110 @@ def tmfg_backbone(W: NDArray) -> NDArray:
     B = np.zeros_like(A)
     B[keep] = A[keep]
     np.fill_diagonal(B, 0.0)
+    return B
+
+
+def pmfg_backbone(W: NDArray) -> NDArray:
+    """Planar Maximally Filtered Graph backbone (Tumminello 2005), weights preserved.
+
+    The *exact* planar-maximal filter, of which :func:`tmfg_backbone` is a fast
+    chordal (greedy triangulation) approximation. Insert edges in **decreasing
+    weight order**, keeping an edge iff the graph stays planar; stop at the
+    maximal-planar budget ``3N-6``. The result is parameter-free, connected,
+    spanning (it provably **contains the maximum spanning tree** -- the top-weight
+    edges are inserted first and a forest is always planar) and cycle-rich (a
+    maximal planar graph is a triangulation).
+
+    Unlike TMFG, PMFG is **not** constrained to be chordal, so it is the
+    principled parent method; TMFG trades that generality for an O(N^2) numba
+    computation. This exact version uses incremental planarity testing
+    (``networkx.check_planarity``, Left-Right algorithm) and costs O(N^3) --
+    seconds per graph at N ~ 120 -- so it is intended for **observed graphs**,
+    not inside a per-surrogate null (use TMFG there and verify PMFG ~ TMFG on the
+    observed readout).
+
+    Reference: Tumminello, Aste, Di Matteo & Mantegna, *PNAS* **102**, 10421 (2005).
+    """
+    import networkx as nx
+
+    A = _clean(W)
+    N = A.shape[0]
+    if N <= 4:                                  # already planar (K4 is planar)
+        B = A.copy()
+        np.fill_diagonal(B, 0.0)
+        return B
+    r, c = np.triu_indices(N, k=1)
+    w = A[r, c]
+    order = np.argsort(-w)                        # decreasing weight
+    G = nx.Graph()
+    G.add_nodes_from(range(N))
+    emax = 3 * N - 6
+    added = 0
+    for k in order:
+        if w[k] <= 0.0:                           # never add zero/negative edges
+            break
+        i, j = int(r[k]), int(c[k])
+        G.add_edge(i, j)
+        planar, _ = nx.check_planarity(G, counterexample=False)
+        if not planar:
+            G.remove_edge(i, j)
+        else:
+            added += 1
+            if added >= emax:                    # maximal planar: no further edge fits
+                break
+    B = np.zeros((N, N))
+    for i, j in G.edges():
+        B[i, j] = A[i, j]
+        B[j, i] = A[i, j]
+    np.fill_diagonal(B, 0.0)
+    return B
+
+
+def disparity_backbone(
+    W: NDArray, alpha: float = 0.05, ensure_connected: bool = True
+) -> NDArray:
+    """Disparity-filter (multiscale) backbone (Serrano 2009), weights preserved.
+
+    The one principled sparsifier that drops the planarity prior of PMFG/TMFG:
+    it is purely **statistical and local**. For each node ``i`` of degree
+    ``k_i``, normalise its incident weights ``p_ij = w_ij / s_i`` and keep edge
+    ``(i, j)`` iff it is significant against the null "the node's strength is
+    distributed uniformly at random over its edges" from **either** endpoint::
+
+        (1 - p_ij) ** (k_i - 1) < alpha        (Serrano et al. eq. for the p-value)
+
+    This preserves edges that carry a disproportionate share of a node's
+    strength at *every scale* of strength -- hence "multiscale backbone" -- with
+    no global threshold. Its costs (relative to PMFG/TMFG): it carries the
+    significance level ``alpha`` (swept, not tuned, in our use) and it can
+    **fragment** the graph. To keep the backbone spanning -- required for
+    cross-phase per-pair alignment (``rho_sym``) -- we optionally union it with
+    the maximum spanning tree (``ensure_connected=True``); the MST adds at most
+    ``N-1`` edges and never removes a disparity-significant one.
+
+    O(N^2) pure-numpy: fast enough to recompute inside a per-surrogate null.
+
+    Reference: Serrano, Boguna & Vespignani, "Extracting the multiscale backbone
+    of complex weighted networks." *PNAS* **106**, 6483 (2009).
+    """
+    A = _clean(W)
+    N = A.shape[0]
+    if N < 2:
+        return A
+    strength = A.sum(1)
+    deg = (A > 0).sum(1)                          # k_i (dense FC: N-1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        p = A / strength[:, None]                 # p_ij from i's perspective (row-normalised)
+        p = np.where(np.isfinite(p), p, 0.0)
+        # p-value that edge (i,j) is compatible with the null, from i's view
+        pval = np.where(A > 0, (1.0 - p) ** (deg[:, None] - 1), 1.0)
+    sig = (A > 0) & (pval < alpha)               # significant from i's (row) view
+    keep = sig | sig.T                           # keep if significant from EITHER endpoint
+    if ensure_connected:
+        keep = keep | (maximum_spanning_tree(A) > 0.0)
+    np.fill_diagonal(keep, False)
+    B = np.zeros((N, N))
+    B[keep] = A[keep]
     return B
 
 

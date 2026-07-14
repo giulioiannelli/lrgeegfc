@@ -9,8 +9,10 @@ overlay are drawn from: the dense single-scale LRG tree (``tau = 1/lambda_max`` 
 fully-connected FC, via ``audit_65.lrg_linkage`` / ``fig_branch_origin_tree.coph_square``)
 is replaced by the ``mst_union_top_fraction(W, 0.20)`` backbone addressed at the reporting
 scale ``s = S_REPORT`` (``_common.tree_at_scale`` / ``coph_square_at_scale``). The drawn
-edges stay the dense |ImCoh| connections; only the hierarchy they bundle along is
-sparsified, so the community routing reads cleaner. Everything else — the even-circle HEB
+network edges are now ALSO the ``mst_union_top_fraction(W, 0.20)`` backbone (not the dense
+|ImCoh| connectome) — centre network + hierarchy are one consistent sparse object. The
+branch tint is inference-SPECIFIC (raw ``f`` orthogonalised against encoding ``e``, matching
+``T_infspec_pe``). Everything else — the even-circle HEB
 layout, encoding/inference node tint, cairo rendering, colorbars — is inherited unchanged.
 
 Does NOT modify ``_common.py``, ``fig_branch_origin_tree.py`` or the original figure script.
@@ -43,9 +45,10 @@ from lrg_eegfc.utils.probe import contact_labels, split_label
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "figures_embedded" / "new_results_sec1"))
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "figures_embedded"))
 from _common import (                                                  # type: ignore
-    load_phase, tree_at_scale, coph_square_at_scale, S_REPORT,
+    load_phase, tree_at_scale, coph_square_at_scale, S_REPORT, FRAC,
     use_lrg_style, DRAFTDIR,
 )
+from lrg_eegfc.utils.fc.backbone import mst_union_top_fraction         # sparse-backbone edges
 # --- shared branch-origin machinery (pure helpers; DRY, unchanged) ---
 from fig_branch_origin_tree import (                                   # type: ignore
     attribute, link_color, leaf_origin_weights,
@@ -161,8 +164,24 @@ def leaf_origin_colors(Z, N, efp, members, scale="rank", tscale=None):
     return cols
 
 
+def to_inference_specific(efp):
+    """Recast raw inference f = D_test - D_learn into inference-SPECIFIC f_spec by orthogonalising
+    it against the encoding component e = D_learn - D_pre across all merges (through-origin
+    projection removal, the scalar analog of the gallery's (test-learn)_|_encoding axis and of the
+    cohort statistic T_infspec_pe = partial rho(f, p | e)). Encoding e and persistence p are left
+    untouched -- p only sets branch vividness. This is what makes the branch tint read encoding vs
+    inference on the CURRENT (sparse, encoding-partialled) framework, not the retired raw f."""
+    keys = list(efp)
+    e = np.array([efp[k][0] for k in keys], float)
+    f = np.array([efp[k][1] for k in keys], float)
+    p = np.array([efp[k][2] for k in keys], float)
+    b = float(np.dot(e, f) / (np.dot(e, e) + 1e-12))       # projection of f onto the encoding axis
+    f_spec = f - b * e                                     # inference-specific residual (f _|_ e)
+    return {k: (float(e[i]), float(f_spec[i]), float(p[i])) for i, k in enumerate(keys)}
+
+
 def build(pat, band, phase, k_comm, topk, beta, gamma, size, node_color, edge_cmap,
-          origin_scale, ref=None):
+          origin_scale, ref=None, transparent=True):
     use_lrg_style()
     A, probes = _load_inputs(pat, band, phase, "imcoh_abs")
     A = np.asarray(A, float); np.fill_diagonal(A, 0.0)
@@ -174,6 +193,7 @@ def build(pat, band, phase, k_comm, topk, beta, gamma, size, node_color, edge_cm
     # --- branch-origin attribution across the four phases (same Z skeleton) ---
     coph = {ph: coph_square_at_scale(load_phase(pat, ph, band), S_REPORT) for ph in PHASES}
     efp, members_attr = attribute(Z, coph)
+    efp = to_inference_specific(efp)      # CURRENT framework: inference-SPECIFIC (encoding _|_ out)
     pscale = np.percentile([abs(p) for _, _, p in efp.values()], 75) or 1e-9
     tscale_ref = None                                          # per-figure node scale
     if ref:                                                    # absolute reference scale
@@ -183,10 +203,14 @@ def build(pat, band, phase, k_comm, topk, beta, gamma, size, node_color, edge_cm
         pscale = ps_rel * medH                                 # weak trace -> grey + thin
         tscale_ref = ts_rel * medH                             # weak trace -> pale nodes
 
-    # --- edges: keep top-`topk` (0 = all) ---
+    # --- edges: the mst@0.20 BACKBONE only (same sparse object the hierarchy is built on),
+    #     then keep top-`topk` of those (0 = all backbone edges). Earlier this fork drew the
+    #     full dense |ImCoh| connectome; on the current sparse framework the drawn network IS
+    #     the backbone, so centre + hierarchy are one consistent object. ---
     r, c = np.triu_indices(N, k=1)
     w = A[r, c]
-    pos = np.where(w > 0)[0]
+    bb = np.asarray(mst_union_top_fraction(A, FRAC), float)[r, c] != 0
+    pos = np.where((w > 0) & bb)[0]
     order_e = pos[np.argsort(w[pos])[::-1]]
     keep = order_e[:topk] if topk and topk < len(order_e) else order_e
     rank = (np.argsort(np.argsort(w[keep])) + 1) / len(keep)
@@ -262,7 +286,8 @@ def build(pat, band, phase, k_comm, topk, beta, gamma, size, node_color, edge_cm
         return 2 * math.pi * (0.5 * (min(ps) + max(ps))) / N
 
     def render(cr, W):
-        cr.set_source_rgb(*BG); cr.paint()
+        if not transparent:                        # default: leave the surface clear (slides)
+            cr.set_source_rgb(*BG); cr.paint()
         half = r_max * 1.05
         pad = W * 0.03
         scale = (W - 2 * pad) / (2 * half)
@@ -402,6 +427,8 @@ def main():
                     help="edge-weight colormap (sampled in a light window). e.g. rocket_r, "
                          "mako_r, YlGnBu, BuPu, PuRd, cividis_r")
     ap.add_argument("--size", type=int, default=1300)
+    ap.add_argument("--opaque", action="store_true",
+                    help="paint a white background (default: transparent, for slides)")
     ap.add_argument("--ref", default=None,
                     help="absolute colour anchor 'PATIENT,BAND' (e.g. Pat_06,beta): colour "
                          "this figure on the reference's persistence scale so a weak / "
@@ -410,7 +437,8 @@ def main():
     for pat in a.patients:
         for band in a.bands:
             build(pat, band, a.phase, a.k_comm, a.topk, a.beta, a.gamma, a.size,
-                  a.node_color, a.edge_cmap, a.origin_scale, a.ref)
+                  a.node_color, a.edge_cmap, a.origin_scale, a.ref,
+                  transparent=not a.opaque)
 
 
 if __name__ == "__main__":

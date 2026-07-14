@@ -47,7 +47,7 @@ R-7 is the exception — it carries several locked guardrails, so its Careful is
 
 The reference exemplar of this format is [R-7](R-7_inference-persists-beta.md).
 
-## Slide index (22 slides — restructured 2026-07-11; 14+15+16 → two, 17+18 → one, 18+19 → one)
+## Slide index (18 slides — results act RE-COMPRESSED 2026-07-13 PM to the mst@0.20 settled results)
 
 Part I — Introduction
 - [x] [01 · Title](01_title.md)
@@ -62,23 +62,28 @@ Part I — Introduction
 Part II — Methods
 - [x] [09 · Imaginary coherence](09_imaginary-coherence.md)
 - [x] [10 · Frequency bands](10_frequency-bands.md)
-- [x] [11 · The network-analysis pipeline (ρ^coph)](11_pipeline.md)
+- [x] [11 · The network-analysis pipeline](11_pipeline.md)
+- [x] [11b · The measure — ρ^coph](11b_the-measure.md)
 
 Part III — Results
 - [x] [12 · A taxonomy of neuronal populations — trace / anchor / reset / reorganized (tanglegrams)](12_tanglegram-categories.md)
-- [x] [13 · A lasting, multiscale trace](13_lasting-trace.md)
-- [x] [14 · Who's right? — the nulls decide](14_the-nulls.md) *(merge: old 14 who's-right + 15 the-nulls)*
-- [x] [15 · Who survives — it must be multiscale](15_survivors-table.md)
-- [x] [16 · β → OFC — a held consolidation](16_beta-ofc-consolidation.md) *(merge: old 17 β→OFC + 18 consolidation)*
-- [x] [17 · Encoding vs inference — the decomposition](17_encoding-vs-inference.md)
-- [x] [18 · Inference persists (β only), and localizes — encoding→OFC, inference→cingulate](18_inference-persists.md) *(merge: old inference-persists + localization)*
-- [x] [19 · The band taxonomy — β is the flagship](19_per-band-taxonomy.md)
-- [x] [20 · Coda — epilepsy marker](20_epilepsy-marker.md) *(cuttable)*
+- [~] [13 · A lasting, multiscale trace](13_lasting-trace.md) *(other agent — folds in selectivity + scale-shape)*
+- [x] [14 · Detect ≠ discriminate](14_detect-vs-discriminate.md) *(the multiscale read resolves what edges can't: discriminate bands + scale-resolution + higher-order; θ the non-circularity control; raw = robust complementary detector)*
+- [⚠] [14b · What the scale parameter means](14b_scale-meaning-localization.md) *(s coarse-grains topology AND space. ⚠ UNDER REVIEW 2026-07-14 — its payoff "coarse home → β-LEFT on slide 16" points at the now-DROPPED localization slide; the "coarse spatial home" bridge needs cutting or repurposing since anatomical localization is not presentable)*
+- [x] [15 · Encoding vs inference — held offline](15_encoding-vs-inference.md) *(both persist; inference α/β not β-only, mesoscale-emergent)*
+- [x] [16 · One operator, two readouts](16_one-operator-epilepsy.md) *(band dissociation + SOZ marker; β the bridge)*
 
 Part IV — Conclusion
-- [x] [21 · Take-homes](21_take-homes.md)
-- [x] [22 · Outlook & thanks](22_outlook-thanks.md)
+- [x] [17 · Take-homes](17_take-homes.md)
+- [x] [18 · Outlook & thanks](18_outlook-thanks.md)
 
-Old I-/M-/R-/C- files superseded by this numbered set (content rewritten in plain format;
-git history retains the originals). 2026-07-11: 14+15+16 → the nulls (14) + survivors table (15);
-17+18 → β→OFC / held-not-replayed (16); 18+19 → inference-persists + localization (18); → 22 slides.
+**Restructure log.** 2026-07-13 PM (mst@0.20 settled results, per
+`.agents/talk/2026-07-13_results-restructure-9slot.md` + the PM checkpoint):
+the post-trace act was re-compressed 9→6 result slides. Old 14 (selectivity) + 15 (scale-shape)
+folded into **13** (other agent); old 16 (β held/placeless/lateralized) superseded by the new
+localization slide **16** (β coarse-left, not placeless); old 17+18 merged into **15**
+(encoding vs inference, dissociation now by SCALE — OFC/cingulate localization RETIRED); old 19+20
+merged into **17** (epilepsy); old 21→**18**, old 22→**19**. Superseded specs live in
+`archive/2026-07/`. Older I-/M-/R-/C- files retained in git history.
+
+**2026-07-14 — localization slide DROPPED.** Slide 16 ("Where the trace lives") retired to `archive/2026-07/`: the β "coarse LEFT-hemisphere home" is incoherent (it welds the *mesoscale diffusion* scale onto *macro* anatomy — a whole hemisphere) and only marginal; there is no presentable cognitive localization (the one focal address, low-γ→SOZ, is the disease band, carried by the epilepsy slide). Slides 17→16, 18→17, 19→18 renumbered; the figure `fig_localization_spectrum` was removed. **14b** (scale→localization bridge) is UNDER REVIEW — cut or repurpose. `15`/`16` localization pointers reconciled 2026-07-14.

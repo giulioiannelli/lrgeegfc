@@ -105,11 +105,34 @@ def autopick(scale):
     return picks
 
 
+def _axis_triad(fig, rect):
+    """A single shared enc/inf/residual KEY drawn in the central gap: three arrows
+    (encoding=x, inference=y, residual=z) rendered in the SAME 3-D view as every panel
+    (view_init elev=18, azim=-58), so one legend serves all four instead of labelling each
+    axis of each subplot (which reads as clutter)."""
+    ax = fig.add_axes(rect, projection="3d")
+    ax.view_init(elev=18, azim=-58)
+    ax.set_box_aspect((1, 1, 1))
+    kw = dict(color="0.15", lw=2.1, arrow_length_ratio=0.16)
+    ax.quiver(0, 0, 0, 1, 0, 0, **kw)                       # encoding
+    ax.quiver(0, 0, 0, 0, 1, 0, **kw)                       # inference
+    ax.quiver(0, 0, 0, 0, 0, 1, **kw)                       # residual
+    ax.text(1.42, 0, -0.06, "encoding", ha="center", va="center", fontsize=11, fontweight="bold")
+    ax.text(0, 1.46, -0.06, "inference", ha="center", va="center", fontsize=11, fontweight="bold")
+    ax.text(0, 0, 1.34, "residual", ha="center", va="center", fontsize=10.5, fontweight="bold")
+    ax.set_xlim(-0.15, 1.55); ax.set_ylim(-0.15, 1.55); ax.set_zlim(-0.15, 1.4)
+    ax.set_axis_off()
+    return ax
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scale", type=float, default=5.6)
     ap.add_argument("--cells", nargs="+", default=None,
                     help="override picks, e.g. anchor=Pat_15:theta reset=Pat_10:beta ...")
+    ap.add_argument("--talk", action="store_true",
+                    help="talk variant: keep ONLY the taxonomy titles, tight zero-gap tiling, "
+                         "PNG to data/outputs/figures/talk/")
     args = ap.parse_args()
 
     order = ["anchor", "reset", "reorganize", "trace"]
@@ -131,25 +154,39 @@ def main():
         picks = autopick(args.scale)
         chosen = {a: (picks[a].patient, picks[a].band, picks[a].to_dict()) for a in order}
 
-    fig = plt.figure(figsize=(10.4, 9.4))
+    # talk: four panels pushed to the corners, leaving a central gap for the shared axis triad
+    TALK_POS = [(0.00, 0.53, 0.42, 0.42), (0.58, 0.53, 0.42, 0.42),
+                (0.00, 0.03, 0.42, 0.42), (0.58, 0.03, 0.42, 0.42)]
+    fig = plt.figure(figsize=(9.2, 9.2) if args.talk else (10.4, 9.4))
     for i, arch in enumerate(order, 1):
         pat, band, meta = chosen[arch]
         P, ph, _ = load_embedding(pat, band, args.scale)
         d_home, d_task = phase_dists(P, ph)
-        ax = fig.add_subplot(2, 2, i, projection="3d")
+        ax = fig.add_axes(TALK_POS[i - 1], projection="3d") if args.talk \
+            else fig.add_subplot(2, 2, i, projection="3d")
         tt = meta.get("T_test__obs_s1", float("nan"))
-        sub = (rf"{pat} $\cdot$ {band}    $d_\mathrm{{home}}$={d_home:.2f}  "
-               rf"$d_\mathrm{{task}}$={d_task:.2f}    real $T$={tt:+.2f}")
+        sub = None if args.talk else (
+            rf"{pat} $\cdot$ {band}    $d_\mathrm{{home}}$={d_home:.2f}  "
+            rf"$d_\mathrm{{task}}$={d_task:.2f}    real $T$={tt:+.2f}")
         att.render_portrait(ax, P, ph, np.arange(len(P)), label[arch], subtitle=sub)
+        if args.talk:                                   # keep ONLY the taxonomy title
+            ax.set_xlabel(""); ax.set_ylabel(""); ax.set_zlabel("")
+            ax.set_box_aspect((1, 1, 1), zoom=1.30)     # fill the cube -> kill internal white
 
-    handles = [Line2D([0], [0], marker="o", color="w", markerfacecolor=TCMAP(c),
-                      markeredgecolor="0.4", markersize=9, label=PHLAB[p])
-               for p, c in zip(PHASES, [0.0, 0.34, 0.66, 1.0])]
-    fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.01),
-               ncol=4, frameon=False, fontsize=10)
-    fig.tight_layout(rect=(0, 0.02, 1, 1))
-    out = OUT / f"dynamics_gallery_s{args.scale:g}.pdf"
-    fig.savefig(out, transparent=True)
+    if args.talk:
+        _axis_triad(fig, (0.40, 0.40, 0.20, 0.20))      # shared enc/inf/residual key in the gap
+        out = ROOT / "data" / "outputs" / "figures" / "talk" / "slide15_encoding_inference_gallery.png"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(out, transparent=True, dpi=200, bbox_inches="tight", pad_inches=0.03)
+    else:
+        handles = [Line2D([0], [0], marker="o", color="w", markerfacecolor=TCMAP(c),
+                          markeredgecolor="0.4", markersize=9, label=PHLAB[p])
+                   for p, c in zip(PHASES, [0.0, 0.34, 0.66, 1.0])]
+        fig.legend(handles=handles, loc="lower center", bbox_to_anchor=(0.5, -0.01),
+                   ncol=4, frameon=False, fontsize=10)
+        fig.tight_layout(rect=(0, 0.02, 1, 1))
+        out = OUT / f"dynamics_gallery_s{args.scale:g}.pdf"
+        fig.savefig(out, transparent=True)
     plt.close(fig)
     print(f"wrote {out}")
     for arch in order:

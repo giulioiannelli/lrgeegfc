@@ -29,13 +29,23 @@ from lrg_eegfc.utils.scripting import setup_script_env
 ROOT = setup_script_env()
 sys.path.insert(0, str(ROOT / "scripts" / "01_compute" / "audit"))
 from audit_150_rho_sym_gate import COHORT, BANDS, load_phase
-from lrg_eegfc.utils.fc.backbone import mst_union_top_fraction
+from lrg_eegfc.utils.fc.backbone import select_backbone
 from lrg_eegfc.utils.fc.heat_multiscale import laplacian_eig, rho_sym_over_scales
 from lrg_eegfc.utils.metrics.surrogate import matched_strength_shuffle
 
-OUT = ROOT / "data" / "sparsified_arc" / "ms_mst020"
+# Backbone via env: mst020 (recovery baseline) | tmfg | pmfg | disparity.
+# SA_FRAC sets the mst-union fraction (single-fraction unification test: 0.05/0.10/0.20).
+BACKBONE = os.environ.get("SA_BACKBONE", "mst020")
+DISP_ALPHA = float(os.environ.get("SA_DISP_ALPHA", "0.20"))
+FRAC = float(os.environ.get("SA_FRAC", "0.20"))
+if BACKBONE == "mst020":
+    _OUTNAME = f"ms_mst{int(round(FRAC * 100)):03d}"          # ms_mst020 / ms_mst010 / ms_mst005
+elif BACKBONE == "disparity":
+    _OUTNAME = f"ms_disparity_a{DISP_ALPHA:g}"
+else:
+    _OUTNAME = f"ms_{BACKBONE}"
+OUT = ROOT / "data" / "sparsified_arc" / _OUTNAME
 PHASES = ("A", "B", "task_test", "rest_post")
-FRAC = 0.20
 SGRID = np.logspace(0.0, np.log10(180.0), 16)
 R = 200
 SWAP_FACTOR = 20
@@ -44,7 +54,7 @@ BASE_SEED = 20260712
 
 
 def eig_mst(W):
-    return laplacian_eig(mst_union_top_fraction(W, FRAC))
+    return laplacian_eig(select_backbone(W, BACKBONE, frac=FRAC, disparity_alpha=DISP_ALPHA))
 
 
 def per_cell(job):
@@ -106,8 +116,9 @@ def main():
     bands = a.bands.split(",") if a.bands else BANDS
     jobs = [(i, p, b) for i, (b, p) in enumerate((b, p) for b in bands for p in pats)]
     ncpu = int(os.environ.get("SA_WORKERS", 12))
-    print(f"[ms-mst020] {len(jobs)} cells, R={R}, frac={FRAC}, {len(SGRID)} scales, "
-          f"{ncpu} workers", flush=True)
+    print(f"[ms-{BACKBONE}] {len(jobs)} cells, R={R}, backbone={BACKBONE}"
+          f"{f'(a={DISP_ALPHA:g})' if BACKBONE=='disparity' else ''}, "
+          f"{len(SGRID)} scales, {ncpu} workers -> {OUT.name}", flush=True)
     t0 = time.time(); rows = []
     with Pool(ncpu) as pool:
         for i, rl in enumerate(pool.imap_unordered(per_cell, jobs), 1):
@@ -136,9 +147,11 @@ def main():
               f"n_above={int(b.n_above)}/{int(b.n_pat)}  obs_med={b.obs_med:+.3f}  "
               f"surr_med={b.surr_med:+.3f}  [{star}]", flush=True)
     (OUT / "config.json").write_text(json.dumps(dict(
-        deliverable="matched_strength_mst020", frac=FRAC, R=R, swap_factor=SWAP_FACTOR,
+        deliverable="matched_strength_trace", backbone=BACKBONE,
+        disparity_alpha=DISP_ALPHA if BACKBONE == "disparity" else None,
+        frac=FRAC, R=R, swap_factor=SWAP_FACTOR,
         s_grid=[float(x) for x in SGRID], cohort=pats, bands=bands,
-        null="matched-strength on dense FC -> sparsify@0.20 -> LRG -> rho_sym, per scale",
+        null=f"matched-strength on dense FC -> sparsify({BACKBONE}) -> LRG -> rho_sym, per scale",
         base_seed=BASE_SEED), indent=2))
     print(f"\n[ms-mst020] done -> {OUT}", flush=True)
 
