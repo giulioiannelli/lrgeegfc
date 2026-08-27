@@ -74,7 +74,7 @@ Under BH-FDR across the common (5 bands × 16 scales) family, within rung: ms β
 
 The effect does not disappear under N1. Cohort median margin over scales: β **+0.174** under N1 against **+0.214** under matched-strength; α +0.016 against +0.130.
 
-What changes is the null. The N1 surrogate spread (`p95 − p50`) is **3–4× wider** than matched-strength's (β 0.375 vs 0.096; α 0.285 vs 0.100), and the N1 null *height* is patient-specific in a way matched-strength's is not. At β's best scale:
+What changes is the null, in two ways that compound. Its **spread** is 3–4× wider than matched-strength's (β 0.375 vs 0.096; α 0.285 vs 0.100) and 7–8× wider than N1b's (0.050, 0.045). And its **height varies across patients**, which matched-strength's and N1b's do not: the interquartile range of the per-patient null median, taken across the cohort and pooled over scales, is **0.232 (β) and 0.534 (α) under N1**, against **0.0024 and 0.0029 under N1b**. Matched-strength and N1b supply an essentially constant floor near zero for every patient; N1 supplies a floor that is a property of that patient's own coherence geometry. At β's best scale:
 
 | patient | observed | N1 null p50 | N1 margin | MS null p50 | MS margin |
 |---|---|---|---|---|---|
@@ -93,7 +93,7 @@ What changes is the null. The N1 surrogate spread (`p95 − p50`) is **3–4× w
 
 ## 5. What each rung CANNOT reject
 
-**N1 / N2** cannot reject an account in which the trace lives in cross-phase changes of coherence **magnitude** — they hold each phase's own `|C_ij(f)|` fixed by construction. They cannot reach session nonstationarity, drift, artifact epochs, or the phase segmentation, because all phases keep their true boundaries. N2 is additionally **not an independent rung**: it has the same first moment as N1 and differs only by having lower realization variance (measured sd over 20 draws: 1.5e-04 vs 1.4e-04 on the band-mean, with N2's per-bin phases averaging down), so it should be reported as the low-variance limit of N1, never as corroboration of it.
+**N1 / N2** cannot reject an account in which the trace lives in cross-phase changes of coherence **magnitude** — they hold each phase's own `|C_ij(f)|` fixed by construction. They cannot reach session nonstationarity, drift, artifact epochs, or the phase segmentation, because all phases keep their true boundaries. N2 is additionally **not an independent rung**, and the measured reason is not the one theory predicts. Both send the cross-spectral phase to uniform, so they share a first moment; the expectation was that N2 would be the *low-variance* limit, because its per-bin phases average down while N1's single coherent ramp does not. In ρ_sym that difference does **not** materialize: the null spread `p95 − p50` is 0.335 (N1) against 0.322 (N2) pooled, and 0.375 against 0.418 for β. With only 7–35 in-band bins the frequency averaging is too weak to separate them, and the variance that matters for ρ_sym is structural (which edges get up-weighted) rather than in the band mean. N1 and N2 are therefore near-duplicates on this pipeline: report one, and never treat the second as corroboration of the first.
 
 **N1b** destroys coupling magnitude along with lag (mean `|C|` 0.241 → 0.036), so clearing it proves only that *some* genuine simultaneous cross-channel coupling is required. It cannot separate lag from magnitude, and it must never be described as "the circular-shift null" without that qualification.
 
