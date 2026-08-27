@@ -90,7 +90,9 @@ def load_segs5(pat, band):
     nps = nperseg_for_fs(fs); nps_h = max(256, nps // 2)
     bnd = BRAIN_BANDS[band]
     out = {}
-    Xr = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), float)
+    # float32: the raw recording is the peak allocation here; the FFT output is
+    # complex64 regardless, so nothing downstream sees the difference.
+    Xr = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), dtype=np.float32)
     if Xr.shape[0] > Xr.shape[1]:
         Xr = Xr.T
     T = Xr.shape[1]
@@ -98,7 +100,7 @@ def load_segs5(pat, band):
         out[tag] = segment_fft(Xr[:, sl], fs, nps_h, band=bnd) + (fs, nps_h)
     del Xr
     for ph in ("task_learn", "task_test", "rest_post"):
-        X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
+        X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), dtype=np.float32)
         if X.shape[0] > X.shape[1]:
             X = X.T
         out[ph] = segment_fft(X, fs, nps, band=bnd) + (fs, nps)
@@ -188,15 +190,24 @@ def main():
     print(f"[func-null] {len(jobs)} cells | rungs={rungs} bands={bands} R={R} "
           f"funcs={CROSS_PHASE_FUNCTIONALS} workers={a.workers}", flush=True)
 
-    t0, rows = time.time(), []
-    with Pool(a.workers) as pool:
-        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, jobs), 1):
-            if rl:
-                rows.extend(rl)
-            el = time.time() - t0
-            print(f"[{i}/{len(jobs)}] {msg} | {el:.0f}s ETA {el/i*(len(jobs)-i):.0f}s", flush=True)
+    parts = OUT_ROOT / "_parts_func"           # per-cell checkpoint; resumable
+    parts.mkdir(parents=True, exist_ok=True)
+    done = {p.stem for p in parts.glob("*.csv")}
+    todo = [j for j in jobs if f"{j[1]}__{j[2]}__{j[3]}" not in done]
+    print(f"[func-null] {len(done)} cells checkpointed; {len(todo)} to run", flush=True)
 
-    df = pd.DataFrame(rows)
+    t0 = time.time()
+    with Pool(a.workers) as pool:
+        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, todo), 1):
+            if rl:
+                r0 = rl[0]
+                pd.DataFrame(rl).to_csv(
+                    parts / f"{r0['patient']}__{r0['band']}__{r0['rung']}.csv", index=False)
+            el = time.time() - t0
+            print(f"[{i}/{len(todo)}] {msg} | {el:.0f}s ETA {el/i*(len(todo)-i):.0f}s", flush=True)
+
+    got = [pd.read_csv(p) for p in sorted(parts.glob("*.csv"))]
+    df = pd.concat(got, ignore_index=True) if got else pd.DataFrame()
     if df.empty:
         print("[func-null] no rows"); return
     for rung in rungs:
@@ -205,12 +216,7 @@ def main():
             continue
         od = OUT_ROOT / f"func_{rung}"
         od.mkdir(parents=True, exist_ok=True)
-        pp = od / "per_patient_scale.csv"
-        if pp.exists():
-            d = (pd.concat([pd.read_csv(pp), d], ignore_index=True)
-                   .drop_duplicates(subset=["patient", "band", "rung", "func", "s"],
-                                    keep="last"))
-        d.to_csv(pp, index=False)
+        d.to_csv(od / "per_patient_scale.csv", index=False)
         g = cohort_gate(d)
         g.to_csv(od / "cohort_gate.csv", index=False)
         (od / "config.json").write_text(json.dumps(dict(

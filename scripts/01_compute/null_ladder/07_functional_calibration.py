@@ -257,8 +257,8 @@ def per_cell(job):
                    f"ord T_ispe[s=1]={ro['T_infspec_pe'][0]:+.3f} "
                    f"shuf={np.nanmedian([x['T_infspec_pe'][0] for x in rs]):+.3f}")
     except Exception as e:
-        return None, f"{pat}/{band}/{source}: FAILED ({type(e).__name__}: {e})"
-    return rows, f"{msg} ({time.time()-t0:.0f}s)"
+        return None, f"{pat}/{band}/{source}: FAILED ({type(e).__name__}: {e})", None
+    return rows, f"{msg} ({time.time()-t0:.0f}s)", f"{pat}__{band}__{source}"
 
 
 def main():
@@ -276,22 +276,25 @@ def main():
     print(f"[calib] {len(jobs)} cells | sources={srcs} bands={bands} "
           f"N_shuf={N_SHUF} workers={a.workers}", flush=True)
 
-    t0, rows = time.time(), []
-    with Pool(a.workers) as pool:
-        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, jobs), 1):
-            if rl:
-                rows.extend(rl)
-            el = time.time() - t0
-            print(f"[{i}/{len(jobs)}] {msg} | {el:.0f}s ETA {el/i*(len(jobs)-i):.0f}s", flush=True)
+    parts = OUT / "_parts"                    # per-cell checkpoint; resumable
+    parts.mkdir(parents=True, exist_ok=True)
+    done = {p.stem for p in parts.glob("*.csv")}
+    todo = [j for j in jobs if f"{j[1]}__{j[2]}__{j[3]}" not in done]
+    print(f"[calib] {len(done)} cells checkpointed; {len(todo)} to run", flush=True)
 
-    df = pd.DataFrame(rows)
+    t0 = time.time()
+    with Pool(a.workers) as pool:
+        for i, (rl, msg, tag) in enumerate(pool.imap_unordered(per_cell, todo), 1):
+            if rl and tag:
+                pd.DataFrame(rl).to_csv(parts / f"{tag}.csv", index=False)
+            el = time.time() - t0
+            print(f"[{i}/{len(todo)}] {msg} | {el:.0f}s ETA {el/i*(len(todo)-i):.0f}s", flush=True)
+
+    got = [pd.read_csv(p) for p in sorted(parts.glob("*.csv"))]
+    df = pd.concat(got, ignore_index=True) if got else pd.DataFrame()
     if df.empty:
         print("[calib] no rows"); return
     pp = OUT / "per_cell.csv"
-    if pp.exists():
-        df = (pd.concat([pd.read_csv(pp), df], ignore_index=True)
-                .drop_duplicates(subset=["patient", "band", "source", "construction",
-                                         "func", "s"], keep="last"))
     df.to_csv(pp, index=False)
 
     # cohort: is each (construction, func, band, scale) different from ZERO?
