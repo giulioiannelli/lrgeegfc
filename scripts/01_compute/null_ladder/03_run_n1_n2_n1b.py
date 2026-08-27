@@ -257,7 +257,15 @@ def main():
             continue
         od = OUT_ROOT / rung
         od.mkdir(parents=True, exist_ok=True)
-        d.to_csv(od / "per_patient_scale.csv", index=False)
+        # MERGE, never clobber: a band-subset re-run must extend the table, not
+        # replace it. New rows win on (patient, band, rung, s).
+        pp = od / "per_patient_scale.csv"
+        if pp.exists():
+            prev = pd.read_csv(pp)
+            d = (pd.concat([prev, d], ignore_index=True)
+                   .drop_duplicates(subset=["patient", "band", "rung", "s"], keep="last")
+                   .sort_values(["band", "patient", "s"]))
+        d.to_csv(pp, index=False)
         g = cohort_gate(d)
         g.to_csv(od / "cohort_gate.csv", index=False)
         (od / "config.json").write_text(json.dumps(dict(

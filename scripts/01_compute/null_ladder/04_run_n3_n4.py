@@ -123,44 +123,52 @@ def readout(W_by_phase):
 
 
 def build_session(pat, band):
-    """Concatenated-session per-segment FFTs + block labels + true phase sizes.
+    """Session-wide per-segment FFTs + block labels + true phase block counts.
 
-    Returns (F, scale, block_of_segment, sizes, n_blocks). ``block_of_segment``
-    is -1 for any segment that straddles a block boundary (dropped).
+    Each phase is segmented SEPARATELY and only the (small) Fourier coefficients
+    are concatenated. Two reasons, one physical and one practical:
+
+    * the three recordings are distinct acquisitions, so a Welch segment that
+      straddled a phase boundary would splice unrelated data -- segmenting per
+      phase makes such a segment impossible by construction;
+    * concatenating the raw float64 session first would cost ~4.5 GB per worker,
+      which is what the coefficient-level concatenation avoids.
+
+    Blocks are ``BLOCK_SECONDS`` long, numbered globally in true temporal order,
+    and never span a phase boundary. Segments straddling a block boundary are
+    labelled -1 and dropped, so no segment ever mixes two blocks.
+
+    Returns ``(F, scale, block_of_segment, sizes, n_blocks)``.
     """
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nps = nperseg_for_fs(fs)
     step = nps // 2
-    parts, lens = [], {}
+    blk = int(round(BLOCK_SECONDS * fs))
+
+    Fs, labels, n_blocks, per_phase = [], [], 0, {}
+    scale = None
     for ph in ("rest_pre", "task_test", "rest_post"):
         X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
         if X.shape[0] > X.shape[1]:
             X = X.T
-        parts.append(X)
-        lens[ph] = X.shape[1]
-    Xs = np.concatenate(parts, axis=1)
-    del parts
-    freqs, F, scale = segment_fft(Xs, fs, nps, band=BRAIN_BANDS[band])
-    del Xs
-    n_seg = F.shape[1]
+        _, F, scale = segment_fft(X, fs, nps, band=BRAIN_BANDS[band])
+        del X
+        n_seg = F.shape[1]
+        seg_start = np.arange(n_seg) * step
+        b0, b1 = seg_start // blk, (seg_start + nps - 1) // blk
+        nb_ph = int(b0.max()) + 1                       # blocks in this phase
+        lab = np.where(b0 == b1, b0 + n_blocks, -1).astype(np.int64)
+        Fs.append(F)
+        labels.append(lab)
+        per_phase[ph] = nb_ph
+        n_blocks += nb_ph
 
-    blk = int(round(BLOCK_SECONDS * fs))
-    seg_start = np.arange(n_seg) * step
-    seg_end = seg_start + nps
-    b0 = seg_start // blk
-    b1 = (seg_end - 1) // blk
-    block_of_segment = np.where(b0 == b1, b0, -1).astype(np.int64)   # drop straddlers
-    n_blocks = int(block_of_segment.max()) + 1
-
-    # true per-phase block counts (a block belongs to the phase its start is in)
-    bnd_pre = lens["rest_pre"]
-    bnd_task = bnd_pre + lens["task_test"]
-    blk_start = np.arange(n_blocks) * blk
-    n_pre = int((blk_start < bnd_pre).sum())
-    n_task = int(((blk_start >= bnd_pre) & (blk_start < bnd_task)).sum())
-    n_post = n_blocks - n_pre - n_task
+    F = np.concatenate(Fs, axis=1)
+    del Fs
+    block_of_segment = np.concatenate(labels)
+    n_pre = per_phase["rest_pre"]
     sizes = {"A": n_pre // 2, "B": n_pre - n_pre // 2,
-             "task_test": n_task, "rest_post": n_post}
+             "task_test": per_phase["task_test"], "rest_post": per_phase["rest_post"]}
     return F, scale, block_of_segment, sizes, n_blocks
 
 
@@ -309,7 +317,13 @@ def main():
             continue
         od = OUT_ROOT / v
         od.mkdir(parents=True, exist_ok=True)
-        d.to_csv(od / "per_patient_scale.csv", index=False)
+        pp = od / "per_patient_scale.csv"          # MERGE, never clobber
+        if pp.exists():
+            prev = pd.read_csv(pp)
+            d = (pd.concat([prev, d], ignore_index=True)
+                   .drop_duplicates(subset=["patient", "band", "rung", "s"], keep="last")
+                   .sort_values(["band", "patient", "s"]))
+        d.to_csv(pp, index=False)
         g = cohort_gate(d)
         g.to_csv(od / "cohort_gate.csv", index=False)
         (od / "config.json").write_text(json.dumps(dict(

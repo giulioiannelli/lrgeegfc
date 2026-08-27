@@ -43,6 +43,10 @@ __all__ = [
     "linkage_at_scale",
     "rho_sym",
     "rho_sym_over_scales",
+    "partial_spearman",
+    "CROSS_PHASE_FUNCTIONALS",
+    "cross_phase_functionals",
+    "cross_phase_functionals_over_scales",
 ]
 
 RHO_FLOOR = 1e-30          # heat-kernel underflow floor (K>=0 exactly; far pairs)
@@ -225,6 +229,107 @@ def rho_sym(DA: NDArray, DB: NDArray, Dt: NDArray, Dp: NDArray) -> tuple[float, 
     r_ab, _ = spearmanr(Dt - DA, Dp - DB)
     r_ba, _ = spearmanr(Dt - DB, Dp - DA)
     return float(0.5 * (r_ab + r_ba)), float(r_ab)
+
+
+def partial_spearman(a: NDArray, b: NDArray, c: NDArray) -> float:
+    """Partial Spearman correlation of ``a`` and ``b`` controlling for ``c``.
+
+    ``(r_ab - r_ac r_bc) / sqrt((1 - r_ac^2)(1 - r_bc^2))`` on the rank
+    correlations. ``NaN`` when the denominator vanishes.
+
+    .. warning::
+       A partial correlation is **not** automatically zero-centred under a
+       no-signal input: the conditioning is entangled with the estimator, and a
+       construction that manufactures shared structure between ``a``, ``b`` and
+       ``c`` can return a large positive partial from data containing no effect.
+       This is not hypothetical -- a windowed sham arc built entirely from
+       pre-task ``rest_pre`` returned ``+0.243`` for beta (real value ``+0.091``,
+       sham-above-zero ``p = 0.007``); see
+       ``.agents/preprint/supplementary/S2_drift_controls.md``. Any null used with
+       :data:`CROSS_PHASE_FUNCTIONALS` ``T_infspec_pe`` must therefore be
+       CALIBRATED on a no-signal input first, and its p-values must not be
+       reported until it is shown to sit near zero there.
+    """
+    r_ab, _ = spearmanr(a, b)
+    r_ac, _ = spearmanr(a, c)
+    r_bc, _ = spearmanr(b, c)
+    den = np.sqrt(max(0.0, (1.0 - r_ac ** 2) * (1.0 - r_bc ** 2)))
+    return float((r_ab - r_ac * r_bc) / den) if den > 0 else float("nan")
+
+
+#: The five-phase cross-phase functionals, keyed by name. Each maps a dict of
+#: condensed cophenetic distance vectors -- keys ``A``, ``B``, ``task_learn``,
+#: ``task_test``, ``rest_post`` -- to a scalar. Phase labels are passed in by the
+#: caller, so the same functionals apply to a real arc, a pseudo-phase arc from a
+#: block permutation, or a sham arc built inside a single recording.
+CROSS_PHASE_FUNCTIONALS = ("T_test", "T_learn", "T_infspec", "T_infspec_pe")
+
+
+def cross_phase_functionals(D: dict) -> dict:
+    """The four symmetric five-phase cross-phase functionals at one scale.
+
+    With ``e = D_learn - D_A`` (encoding), ``f = D_test - D_learn``
+    (inference-specific), ``g = D_test - D_A`` (whole task), ``p = D_post - D_B``
+    (persistence), and the mirrored arm (``e2``, ``g2``, ``p2``) obtained by
+    swapping the two ``rest_pre`` halves:
+
+    ``T_test``        ``1/2[rho(g,p) + rho(g2,p2)]``  -- the whole-task trace;
+                      equals :func:`rho_sym` on the four-phase arc.
+    ``T_learn``       ``1/2[rho(e,p) + rho(e2,p2)]``  -- encoding echo.
+    ``T_infspec``     ``1/2[rho(f,p) + rho(f,p2)]``   -- inference-specific.
+                      ``f`` never references ``rest_pre``, so this contrast is
+                      structurally immune to split-half baseline artifacts.
+    ``T_infspec_pe``  ``1/2[pr(f,p|e) + pr(f,p2|e2)]`` -- inference-specific GIVEN
+                      encoding. See the warning in :func:`partial_spearman`: this
+                      one requires an explicit no-signal calibration before any
+                      p-value attached to it means anything.
+
+    Cross-baseline pairing (the A-referenced task change with the B-referenced
+    persistence) is deliberate: pairing within an arm would share the baseline
+    half between the two sides of the correlation and inflate it.
+    """
+    e = D["task_learn"] - D["A"]
+    e2 = D["task_learn"] - D["B"]
+    f = D["task_test"] - D["task_learn"]
+    g = D["task_test"] - D["A"]
+    g2 = D["task_test"] - D["B"]
+    p = D["rest_post"] - D["B"]
+    p2 = D["rest_post"] - D["A"]
+
+    def r(a, b):
+        v, _ = spearmanr(a, b)
+        return float(v)
+
+    return {
+        "T_test": 0.5 * (r(g, p) + r(g2, p2)),
+        "T_learn": 0.5 * (r(e, p) + r(e2, p2)),
+        "T_infspec": 0.5 * (r(f, p) + r(f, p2)),
+        "T_infspec_pe": 0.5 * (partial_spearman(f, p, e)
+                               + partial_spearman(f, p2, e2)),
+    }
+
+
+def cross_phase_functionals_over_scales(
+    eig_by_phase: dict, s_grid: NDArray, rho_floor: float = RHO_FLOOR,
+    phases: tuple = ("A", "B", "task_learn", "task_test", "rest_post"),
+) -> dict:
+    """:func:`cross_phase_functionals` swept over the diffusion-scale grid.
+
+    ``eig_by_phase`` maps each phase label to its ``(eigenvalues, eigenvectors)``.
+    Returns ``{functional: array(len(s_grid))}``, ``NaN`` where the tree is
+    degenerate. The phase labels are a parameter so a surrogate arc built from
+    pseudo-phases can be scored by exactly this code path.
+    """
+    out = {k: np.full(len(s_grid), np.nan) for k in CROSS_PHASE_FUNCTIONALS}
+    for i, s in enumerate(s_grid):
+        try:
+            D = {ph: cophenetic_at_scale(*eig_by_phase[ph], s, rho_floor)
+                 for ph in phases}
+            for k, v in cross_phase_functionals(D).items():
+                out[k][i] = v
+        except Exception:
+            continue
+    return out
 
 
 def rho_sym_over_scales(eig_by_phase: dict, s_grid: NDArray,
