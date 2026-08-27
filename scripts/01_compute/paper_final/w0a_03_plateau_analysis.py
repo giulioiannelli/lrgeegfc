@@ -188,6 +188,57 @@ def main():
             print(f"    {band:11s} {prof}", flush=True)
 
     # ------------------------------------------------------------------ #
+    # 3b. CONTINUOUS margin surface (post-hoc description, NOT the rule)
+    # ------------------------------------------------------------------ #
+    # A binary clear/not verdict at n=10 is a coarse readout: the Wilcoxon
+    # p-grid on 10 pairs is discrete and a cell sitting near alpha flips on
+    # nothing. The cohort MARGIN (median over patients of obs - surr_p50) is the
+    # underlying effect size and is far better behaved. Two things are reported:
+    # its level, and the SHAPE of its 16-scale profile -- because the project's
+    # scientific claims are about tau-dependence (beta scale-invariant vs alpha
+    # scale-tuned), so a substrate that preserves the profile shape preserves the
+    # claim even where a marginal cell flips its binary verdict.
+    print("\n=== continuous margin surface (POST-HOC description, not the frozen rule) ===",
+          flush=True)
+    print("    per (functional, band): median margin over scales, and Spearman of the "
+          "16-scale margin PROFILE against mst@0.2", flush=True)
+    mrows2 = []
+    for func in FUNCTIONALS:
+        for band in bands:
+            ref = gate[(gate.config == "mst@0.2") & (gate.functional == func)
+                       & (gate.band == band)].sort_values("s")
+            if ref.empty:
+                continue
+            rv = ref.margin_med.values
+            for cfg in gate.config.unique():
+                x = gate[(gate.config == cfg) & (gate.functional == func)
+                         & (gate.band == band)].sort_values("s")
+                if len(x) != len(rv):
+                    continue
+                from scipy.stats import spearmanr
+                sp = float(spearmanr(x.margin_med.values, rv).statistic)
+                mrows2.append(dict(functional=func, band=band, config=cfg,
+                                   method=x.method.iloc[0], param=x.param.iloc[0],
+                                   density=dens.get(cfg, np.nan),
+                                   margin_med_over_scales=float(np.median(x.margin_med)),
+                                   margin_max=float(np.max(x.margin_med)),
+                                   profile_spearman_vs_ref=sp))
+    ms = pd.DataFrame(mrows2)
+    ms.to_csv(OUT / "margin_surface.csv", index=False)
+    for func in FUNCTIONALS:
+        x = ms[(ms.functional == func) & (ms.method == "mst")]
+        if x.empty:
+            continue
+        print(f"  [{func}] median margin across the mst f-grid, by band "
+              f"(profile Spearman vs mst@0.2 in brackets):", flush=True)
+        for band in bands:
+            y = x[x.band == band].sort_values("param")
+            prof = " ".join(f"{p:g}:{v:+.3f}[{c:+.2f}]" for p, v, c
+                            in zip(y.param, y.margin_med_over_scales,
+                                   y.profile_spearman_vs_ref))
+            print(f"    {band:11s} {prof}", flush=True)
+
+    # ------------------------------------------------------------------ #
     # 4. cross-MECHANISM reproduction at matched density (R2.2 second clause)
     # ------------------------------------------------------------------ #
     print("\n=== R2.2 cross-mechanism check: mst-union vs plain threshold at MATCHED "
