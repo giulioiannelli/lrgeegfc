@@ -170,6 +170,10 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--transform", default=os.environ.get("W0A_TRANSFORM", "abs"))
     ap.add_argument("--n-perm", type=int, default=N_PERM)
+    ap.add_argument("--null-bands", default="theta",
+                    help="comma list of bands required to stay NULL for a fraction to be "
+                         "admissible. The project's band-selectivity claim is "
+                         "'theta,low_gamma'; 'theta' alone is the weaker criterion.")
     a = ap.parse_args()
     OUT = ROOT / "data" / "paper_final" / "w0a_substrate" / "a2_stability" / a.transform
     per = pd.read_csv(OUT / "per_patient_scale.csv")
@@ -418,6 +422,78 @@ def main():
                   f"median cluster p = {fam.cluster_p.median():.4f}; "
                   f"median margin = {fam.margin_med.median():+.4f}", flush=True)
     pd.DataFrame(krows).to_csv(OUT / "knob_integrated.csv", index=False)
+
+    # ---------------------------------------------------------------- #
+    # ADMISSIBLE WINDOW — the actual substrate decision
+    # ---------------------------------------------------------------- #
+    # A substrate is admissible only where the SIGNAL bands are positive AND the
+    # NULL bands are null, on the same graph. Per R2's three-way label, an
+    # all-zeros plateau on a signal band is a failure, and a positive verdict on
+    # a null band is a leak. Reported on T_probe, the standard trace, because
+    # that is the functional the contract is chosen on; the other functionals are
+    # then read ON the chosen window rather than used to choose it.
+    SIGNAL = ("alpha", "beta")
+    NULLB = tuple(b.strip() for b in a.null_bands.split(",") if b.strip())
+    print(f"\n=== ADMISSIBLE WINDOW on T_probe: signal {SIGNAL} positive AND "
+          f"null {NULLB} null, at the same f ===", flush=True)
+    fam = cg[(cg.method == "mst") & (cg.functional == "T_probe")]
+    fracs = sorted(set(fam.param.dropna()))
+    arows = []
+    for f in fracs:
+        row = {"frac": f, "density": float(dens.get(f"mst@{f:g}", np.nan))}
+        ok_sig, ok_null = True, True
+        for b in bands:
+            y = fam[(fam.band == b) & np.isclose(fam.param, f)]
+            p = float(y.cluster_p.iloc[0]) if len(y) else np.nan
+            row[b] = p
+            if b in SIGNAL and not (p < ALPHA):
+                ok_sig = False
+            if b in NULLB and (p < ALPHA):
+                ok_null = False
+        row["admissible"] = bool(ok_sig and ok_null)
+        arows.append(row)
+    ad = pd.DataFrame(arows)
+    ad.to_csv(OUT / f"admissible_window_null-{'-'.join(NULLB)}.csv", index=False)
+    for r in ad.itertuples():
+        marks = " ".join(f"{b[:5]}={getattr(r, b):.3f}{'*' if getattr(r, b) < ALPHA else ' '}"
+                         for b in bands)
+        print(f"  f={r.frac:<5g} d={r.density:.3f}  {marks}   "
+              f"{'ADMISSIBLE' if r.admissible else ''}", flush=True)
+    good = ad[ad.admissible]
+    if len(good):
+        lo, hi = float(good.frac.min()), float(good.frac.max())
+        contiguous = list(good.frac) == [f for f in fracs if lo <= f <= hi]
+        centre = float(np.sqrt(lo * hi))
+        nearest = min(fracs, key=lambda f: abs(np.log(f) - np.log(centre)))
+        print(f"\n  --> admissible f in [{lo:g}, {hi:g}] "
+              f"({np.log2(hi/lo):.2f} octaves, {len(good)} of {len(fracs)} fractions, "
+              f"{'contiguous' if contiguous else 'NOT contiguous'}); "
+              f"density [{good.density.min():.3f}, {good.density.max():.3f}]", flush=True)
+        print(f"  --> log-centre f = {centre:.3f}; nearest swept fraction = {nearest:g}",
+              flush=True)
+        print(f"  --> incumbent f = 0.20 is "
+              f"{'INSIDE' if 0.20 in list(good.frac) else 'OUTSIDE'} the window, at its "
+              f"{'upper edge' if abs(np.log(0.20) - np.log(hi)) < 1e-9 else 'interior'}",
+              flush=True)
+        # knob-integrated readout over the admissible window, all functionals
+        print(f"\n  knob-integrated readout over the admissible window "
+              f"(median over f in [{lo:g},{hi:g}]):", flush=True)
+        for func in FUNCTIONALS:
+            tag = " [UNCALIBRATED]" if func in UNCALIBRATED else ""
+            cells = []
+            for b in bands:
+                y = cg[(cg.method == "mst") & (cg.functional == func) & (cg.band == b)
+                       & (cg.param >= lo) & (cg.param <= hi)]
+                if y.empty:
+                    continue
+                cells.append(f"{b[:5]}:p={y.cluster_p.median():.3f}"
+                             f"/m={y.margin_med.median():+.3f}"
+                             f"({int((y.cluster_p < ALPHA).sum())}/{len(y)})")
+            print(f"    {func:15s} " + "  ".join(cells) + tag, flush=True)
+    else:
+        print("\n  --> NO admissible fraction: no f makes both signal bands positive "
+              "while the null band stays null. The substrate is NOT fixable on this "
+              "grid and the verdict is knob-dependent.", flush=True)
     print(f"\n[a2-analysis] -> {OUT}", flush=True)
 
 
