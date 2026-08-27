@@ -13,7 +13,7 @@ on each contiguous half. The ``abs`` arm is written alongside and diffed against
 the existing cache as a reproduction check (expected max|diff| ~ 1e-8, float32
 round-trip of the incumbent files).
 
-Output: data/paper_final/w0a_substrate/halves/{patient}/{band}_rest_pre_{A|B}_imcoh_{abs|sq}.npy
+Output: IMCOH_HALVES_CACHE/{patient}/{band}_rest_pre_{A|B}_imcoh_{abs|sq}.npy
 """
 from __future__ import annotations
 
@@ -34,12 +34,12 @@ from lrg_eegfc.config.const import (
     PATIENTS_4PHASE,
     nperseg_for_fs,
 )
-from lrg_eegfc.config.paths import CACHE_ROOT, SEEG_DATAPATH
+from lrg_eegfc.config.paths import CACHE_ROOT, IMCOH_HALVES_CACHE, SEEG_DATAPATH
 from lrg_eegfc.utils.fc.split_half import imcoh_split_half_adjacencies
 from lrg_eegfc.utils.io.patient import load_timeseries
 
-OUT = ROOT / "data" / "paper_final" / "w0a_substrate" / "halves"
-REF = CACHE_ROOT / "imcoh_halves_fc"
+OUT = IMCOH_HALVES_CACHE                       # canonical cache, config-driven
+REF = CACHE_ROOT / "imcoh_halves_fc"           # legacy abs-only cache (reproduction check)
 TRANSFORMS = ("abs", "sq")
 
 
