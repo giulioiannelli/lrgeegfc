@@ -43,6 +43,9 @@ __all__ = [
     "linkage_at_scale",
     "rho_sym",
     "rho_sym_over_scales",
+    "effective_cluster_count",
+    "communication_neighbourhood_size",
+    "scale_resolution",
 ]
 
 RHO_FLOOR = 1e-30          # heat-kernel underflow floor (K>=0 exactly; far pairs)
@@ -209,6 +212,77 @@ def linkage_at_scale(ev: NDArray, V: NDArray, s: float,
     (tanglegrams, chord layouts, ribbon trees, the tau-morph). ``tau = s / lambda_max``.
     """
     return _linkage_at_tau(ev, V, s / ev[-1], rho_floor)
+
+
+# --------------------------------------------------------------------------- #
+# how much structure a scale actually resolves (the unit of the s axis)
+# --------------------------------------------------------------------------- #
+def effective_cluster_count(ev: NDArray, s: float) -> float:
+    """Effective number of resolved components ``N_eff(s) = exp(S_nats(tau))``.
+
+    The exponential of the (un-normalised) von Neumann entropy of
+    ``rho = e^{-tau L}/Tr``, at ``tau = s/lambda_max``. This is the standard
+    entropy-based effective rank: ``N_eff = N`` when ``rho`` is maximally mixed
+    (``tau -> 0``, every node its own component) and ``N_eff -> 1`` when the
+    diffusion has collapsed the graph to its connected ground state
+    (``tau -> inf``). Continuous, threshold-free, and defined by the spectrum
+    alone.
+
+    Its purpose is to give the dimensionless scale axis ``s`` an interpretable
+    unit. A scale is never described as fine / meso / coarse without a number;
+    ``N_eff(s)`` is that number (see ``feedback_no_unquantified_scale_labels``).
+    """
+    ev = np.maximum(np.asarray(ev, float), 0.0)
+    return float(np.exp(_entropy_nats(ev, s / ev[-1])))
+
+
+def communication_neighbourhood_size(ev: NDArray, V: NDArray, s: float) -> float:
+    """Effective number of nodes one node communicates with at scale ``s``.
+
+    Row ``i`` of the heat kernel, normalised to a probability vector
+    ``p_ij = K_ij / sum_j K_ij``, is where the heat released at ``i`` sits at
+    time ``tau = s/lambda_max``. Its participation ratio
+    ``m_i = 1 / sum_j p_ij^2`` is the effective size of that neighbourhood:
+    ``m_i -> 1`` when the heat has not left ``i`` and ``m_i -> N`` at
+    equilibrium. The returned value is the mean of ``m_i`` over nodes.
+
+    Threshold-free companion to :func:`effective_cluster_count`, read from the
+    kernel rather than the spectrum: the two together say "at ``s`` the process
+    resolves ``N_eff`` groups and each node mixes with ``m`` others". Use them
+    to attach a number to any scale that is described in words.
+    """
+    ev = np.maximum(np.asarray(ev, float), 0.0)
+    K = (V * np.exp(-(s / ev[-1]) * ev)) @ V.T
+    K = np.maximum(K, 0.0)
+    row = K.sum(1, keepdims=True)
+    P = np.divide(K, row, out=np.zeros_like(K), where=row > 0)
+    denom = np.sum(P * P, axis=1)
+    m = np.divide(1.0, denom, out=np.full(denom.shape, np.nan), where=denom > 0)
+    return float(np.nanmean(m))
+
+
+def scale_resolution(ev: NDArray, V: NDArray, s_grid: NDArray) -> dict:
+    """Both resolution readouts over a scale grid.
+
+    Returns ``dict(s, n_eff, m_comm, N)`` with ``n_eff`` from
+    :func:`effective_cluster_count` and ``m_comm`` from
+    :func:`communication_neighbourhood_size`. Attach to every reported scale so
+    the ``s`` axis carries an interpretable unit rather than a bare number.
+
+    A UPGMA-tree cut was tried as a third readout and **discarded**: on
+    ``D = 1/rho`` the merge heights span many decades and every fixed or
+    relative cut (at ``D = N``, at ``N/e``, at the largest log-height gap) is
+    either saturated at ``N`` over the whole usable range or jumps
+    non-monotonically at the coarse end. The spectral and kernel readouts above
+    are monotone by construction and are the ones to report.
+    """
+    s_grid = np.asarray(s_grid, float)
+    return dict(
+        s=s_grid,
+        n_eff=np.array([effective_cluster_count(ev, s) for s in s_grid]),
+        m_comm=np.array([communication_neighbourhood_size(ev, V, s) for s in s_grid]),
+        N=int(ev.size),
+    )
 
 
 # --------------------------------------------------------------------------- #
