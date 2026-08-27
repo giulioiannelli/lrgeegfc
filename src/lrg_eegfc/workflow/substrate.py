@@ -315,9 +315,10 @@ def canonical_structure(patient: str, phase: str, band: str, **kwargs) -> dict:
     state the graph it was computed on without re-deriving it.
     """
     sub = kwargs.pop("substrate", None) or CANONICAL
-    if kwargs.get("frac") is not None or kwargs.get("backbone") is not None:
-        sub = sub.with_(**{k: v for k, v in kwargs.items()
-                           if k in ("frac", "backbone", "transform", "disparity_alpha")})
+    field_overrides = {k: v for k, v in kwargs.items()
+                       if k in ("frac", "backbone", "transform", "disparity_alpha")}
+    if field_overrides:
+        sub = sub.with_(**field_overrides)
     halves = kwargs.get("halves_cache")
     W = _dense_fc(patient, phase, band, sub, halves)
     B = canonical_graph(patient, phase, band, substrate=sub, halves_cache=halves)
