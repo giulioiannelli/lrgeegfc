@@ -228,10 +228,24 @@ Two things follow. The **physical** reach saturates at ~92% of the implant span 
 
 ## 4. Limitations, and what this lane did not settle
 
-*(filled at close)*
+Stated up front rather than at the end, per project rule.
+
+**The null is still injected at the last stage.** Every verdict here is conditioned on "given this FC matrix". Matched-strength shuffles the finished N×N connectivity and therefore cannot test the coherency estimator, the band transform, the frequency split, session nonstationarity, drift or artifact epochs. That is lane W0-B's null ladder and it is a live dependency: **nothing in this report is verified against a timeseries-level null.**
+
+**No data-based placebo was run.** The role-permutation placebo in §3 bounds the conditional estimator's structural bias using the real graphs, and the held-out-realization test calibrates the gate against the null in use. Neither can detect a bias that the null itself shares. The documented failure mode — a sham arc inside pre-task rest returning a significantly positive conditional trace — needs a no-signal arc built from the recording, which requires recomputing FC on rest_pre sub-segments and belongs with W0-B. Until it exists, `T_infspec_pe` should be treated as provisional whatever its p-value.
+
+**Substrate sensitivity, explicitly.** Every number here is on `imcoh_abs` × `mst_union_top_fraction @ 0.20`. W0-A reports `imcoh_abs` and `imcoh_sq` are nearly but not exactly rank-equivalent (Spearman ≈ 0.986–0.990; backbone Jaccard ≈ 0.83–0.88 at f = 0.20), so the substrate may shift. My assessment of what would and would not move:
+
+- **Robust to the substrate.** The three τ negatives. Detection fails by a wide margin (q_min 0.14 against a 0.05 line, 0/168 in both residualizers); characterization fails at chance; the selection interaction fails with p-values of 0.12–0.62. A backbone with 85% edge overlap will not turn any of those into positives. The methodological findings — the obs/null covariation, n_eff ≈ 1.2–1.9, the BH-at-n=10 headroom problem — are properties of the design, not the substrate.
+- **Substrate-sensitive.** The exact per-scale q values, β's 23/28 count, α's single cleared scale, and the cluster p-values (β 0.0032, α 0.030). α in particular sits close enough to the line that a substrate change could move it either way. Any claim resting on α must be re-derived on the locked contract.
+- **Unknown.** The `N_eff(s)` and `ℓ(s)` scale units are backbone-dependent by construction and must be recomputed for whatever backbone is locked. They are cheap (`w0c_04`, ~2 s).
+
+**Power.** n = 10 with an exact signed-rank has a p-floor of 1/1024 and a coarse grid above it. The gap and interaction tests in §2.3 are differences of two noisy margins and are intrinsically low-powered; "not demonstrated" there must not be read as "demonstrated absent". Equivalence claims (scale-invariance) cannot be made at this n at all — the Friedman is blind to a monotone trend below about 0.75 within-patient SD.
+
+**What I did not do.** No z-standardised variant of the margin was evaluated, though §1.2 shows it is the obvious next lever. The role-permutation null treats the five phases as exchangeable, which they are not. The `N_eff` estimators disagree by an order of magnitude and are reported as a bracket rather than adjudicated.
 
 ---
 
-## 5. The inheritance rule
+## 5. The inheritance rule — what a cohort claim in this paper must show
 
-*(filled at close)*
+> A cohort claim is reportable only if it is a **margin** claim — one-sided Wilcoxon signed-rank on `obs − (that patient's own surrogate median)` across the **full n = 10**, with any exclusion argued at the point of use and never inferred from a row count — evaluated **at every position of every swept axis and reported at all of them**, never at a selected best; corrected within a **deliberately chosen multiplicity family**, stating which family and why, given that a 28-point scale sweep is worth 1.2–1.9 independent tests so whole-grid BH over (band × scale) overcharges roughly twenty-fold while a per-band sign-flip cluster test does not; accompanied by a **bootstrap CI and rank-biserial effect size**, by the **leave-one-patient-out swing in the verdict** (the whole grid and its correction re-run per drop, not the statistic re-computed), and by the **measured false-positive rate of that statistic against that null** from held-out surrogate realizations — with the p-value **withheld, not caveated**, if the pair is not calibrated, which is mandatory for any conditional or partial statistic. Per-patient counts may be reported and are never the gate. Any claim of the form "representation A sees what representation B does not" must test the **difference** directly, paired within patient, because the difference between a significant and a non-significant result is not itself significant. And no scale may be described in words without `N_eff(s)` or `ℓ(s)` attached.
