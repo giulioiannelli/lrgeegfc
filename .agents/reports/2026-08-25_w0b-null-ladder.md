@@ -18,7 +18,7 @@ pointers:
 
 ## Head
 
-**The β and α traces do not survive the one null that preserves coherence magnitude and destroys only lag.** Under N1 (per-channel circular shift, realized as its exact frequency-domain phase ramp) β clears **0 of 16 scales**, best cohort p = 0.080; α clears **0 of 16**, best p = 0.138. They survive everything else on the ladder: the incumbent matched-strength null (β 16/16, α 12/16) and the segment-lattice independence null N1b (β 16/16, α 13/16) — so the trace is not noise, and genuine cross-channel coupling is required to produce it. What fails is the *attribution*: a surrogate that keeps each phase's own coherence-magnitude structure `|C_ij(f)|` intact and randomizes only the phase reproduces the trace as well as the observed `|ImCoh|` does. The effect size is not what collapses — β's median cohort margin under N1 is +0.174, against +0.214 under matched-strength — the **null floor rises and becomes patient-specific**, by up to an order of magnitude (Pat_06 α: observed +0.886, N1 null +0.865). Stated precisely, because the distinction matters: this is **not** a finding that the measurement is contaminated by volume conduction. `|ImCoh|` remains volume-conduction-immune by construction — zero-phase mixing contributes exactly zero, and that is a property of the estimator that no null can take away. What fails is narrower and still serious: the *discriminative content* of the cross-phase trace is **not lag-specific**. A surrogate that discards the observed lag structure entirely, keeping only each phase's coherence-magnitude geometry, reproduces the trace at cohort level. So the result cannot be presented as evidence about time-lagged interaction, and the choice of `|ImCoh|` over ordinary coherence cannot be justified by pointing at this result — the result does not distinguish them.
+**The β and α traces do not survive the one null that preserves coherence magnitude and destroys only lag, and they do not survive it under the control that was designed to rescue them either.** Under N1 (per-channel circular shift, realized as its exact frequency-domain phase ramp) β clears **0 of 16 scales**, best cohort p = 0.080; α clears **0 of 16**, best p = 0.138. Holding the backbone edge set fixed at the observed one — which removes the objection that the surrogate is being scored on a different graph — β fails at **0 of 16** with best p = **0.216**, its lag-randomized surrogate sitting at +0.206 against an observed +0.288. They survive everything else on the ladder: the incumbent matched-strength null (β 16/16, α 12/16) and the segment-lattice independence null N1b (β 16/16, α 13/16) — so the trace is not noise, and genuine cross-channel coupling is required to produce it. What fails is the *attribution*: a surrogate that keeps each phase's own coherence-magnitude structure `|C_ij(f)|` intact and randomizes only the phase reproduces the trace as well as the observed `|ImCoh|` does. The effect size is not what collapses — β's median cohort margin under N1 is +0.174, against +0.214 under matched-strength — the **null floor rises and becomes patient-specific**, by up to an order of magnitude (Pat_06 α: observed +0.886, N1 null +0.865). Stated precisely, because the distinction matters: this is **not** a finding that the measurement is contaminated by volume conduction. `|ImCoh|` remains volume-conduction-immune by construction — zero-phase mixing contributes exactly zero, and that is a property of the estimator that no null can take away. What fails is narrower and still serious: the *discriminative content* of the cross-phase trace is **not lag-specific**. A surrogate that discards the observed lag structure entirely, keeping only each phase's coherence-magnitude geometry, reproduces the trace at cohort level. So the result cannot be presented as evidence about time-lagged interaction, and the choice of `|ImCoh|` over ordinary coherence cannot be justified by pointing at this result — the result does not distinguish them.
 
 ---
 
@@ -48,23 +48,25 @@ Literature anchors: Theiler et al. (1992) for phase randomization; Perkel, Gerst
 
 Scales cleared out of 16, cohort one-sided Wilcoxon on the margin `obs − surr_p50` across the 10 patients. `high_gamma` was **not run** on the new rungs (see §8).
 
-| band | ms (incumbent) | **N1 (lag)** | **N2 (lag, low-var)** | N1b (independence) |
-|---|---|---|---|---|
-| delta | 8 | **0** | **0** | 8 |
-| theta | 0 | **0** | **0** | 0 |
-| **alpha** | 12 | **0** | **0** | 13 |
-| **beta** | 16 | **0** | **0** | 16 |
-| low_gamma | 0 | **0** | **0** | 0 |
+| band | ms (incumbent) | **N1 (lag)** | **N1 fixed-backbone** | **N2 (lag)** | N1b (independence) |
+|---|---|---|---|---|---|
+| delta | 8 | **0** | **0** | **0** | 8 |
+| theta | 0 | **0** | **0** | **0** | 0 |
+| **alpha** | 12 | **0** | **0** | **0** | 13 |
+| **beta** | 16 | **0** | **0** | **0** | 16 |
+| low_gamma | 0 | **0** | **0** | **0** | 0 |
 
-Best (smallest) cohort p over the 16 scales — best-scale selection is already optimistic, and the lag rungs still fail:
+Best (smallest) cohort p over the 16 scales — best-scale selection is already optimistic, and every lag rung still fails:
 
-| band | ms | **N1** | **N2** | N1b |
-|---|---|---|---|---|
-| delta | 0.0137 | 0.7842 | 0.4229 | 0.0029 |
-| theta | 0.2158 | 0.5771 | 0.6875 | 0.1875 |
-| **alpha** | 0.0068 | **0.1377** | **0.1611** | 0.0068 |
-| **beta** | 0.0010 | **0.0801** | **0.0654** | 0.0010 |
-| low_gamma | 0.1162 | 0.2461 | 0.2158 | 0.1162 |
+| band | ms | **N1** | **N1 fixed-bb** | **N2** | N1b |
+|---|---|---|---|---|---|
+| delta | 0.0137 | 0.7842 | 0.2158 | 0.4229 | 0.0029 |
+| theta | 0.2158 | 0.5771 | 0.2783 | 0.6875 | 0.1875 |
+| **alpha** | 0.0068 | **0.1377** | **0.1377** | **0.1611** | 0.0068 |
+| **beta** | 0.0010 | **0.0801** | **0.2158** | **0.0654** | 0.0010 |
+| low_gamma | 0.1162 | 0.2461 | 0.0801 | 0.2158 | 0.1162 |
+
+**The fixed-backbone control removes the strongest objection to this negative.** N1 drives `W` toward `(2/π)|C|`, and the `|C|` edge ranking is not the `|ImCoh|` ranking — on sEEG, `|C|` is dominated by same-probe pairs (a 2–8× bias, CLAUDE.md invariant 5). A plain N1 surrogate therefore lives on a *different* graph from the observed, so one could argue its high floor is the cross-phase stability of that anatomical scaffold rather than anything about lag. `n1_fixedbb` pins the backbone edge set to the observed `|ImCoh|` one for surrogate and observed alike, so only the weights' lag content varies. The trace still fails, and by a wider margin: β best p rises from 0.080 to **0.216**, with the surrogate median at **+0.206** against an observed **+0.288** at that scale. Once the graph is held fixed, a lag-randomized surrogate reproduces roughly **seven-tenths** of the observed β trace.
 
 Under BH-FDR across the common (5 bands × 16 scales) family, within rung: ms β 16/16 and N1b β 16/16 survive; N1 and N2 reach a minimum q of 0.905 and 0.819. Under leave-one-patient-out of the *verdict*, ms β 16/16 and N1b β 16/16 hold with any single patient dropped; N1 and N2 hold at 0 scales for every band.
 
