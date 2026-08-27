@@ -109,9 +109,15 @@ What changes is the null, in two ways that compound. Its **spread** is 3–4× w
 
 ## 7. What was not run, and why
 
-`high_gamma` (80–300 Hz, 441 in-band bins) was excluded from N1/N2/N1b: its per-segment coefficient array is 284 MB per phase per worker, and the machine has 31 GB. The incumbent matched-strength gate gives it 4/16 scales at raw p, 0/16 under BH, so it is not load-bearing — but its status under the lag null is **unknown**, not null.
+Everything cut is listed here explicitly; nothing was silently truncated.
 
-The lag null was applied to the five-phase functionals via N1 only; N2 was not run there, on the grounds established in §5 that it is not an independent rung.
+**`high_gamma`** (80–300 Hz, 441 in-band bins) was excluded from every new rung: its per-segment coefficient array is 284 MB per phase per worker, and the box was already OOM-killing processes across the three Wave-0 lanes. The incumbent matched-strength gate gives it 4/16 scales at raw p and 0/16 under BH, so it is not load-bearing — but its status under the lag null is **unknown**, not null.
+
+**`n3_free`** (the free block permutation) was dropped after the mid-run resource throttle capped this lane at 4 workers. It is the *looser* of the two N3 brackets — it destroys temporal order entirely, so it cannot distinguish "the boundaries matter" from "the session has any temporal structure at all". `n3_order`, the exact rotation test, is the scientifically sharper variant and was kept. A partial `n3_free` run before the throttle showed per-patient behaviour consistent with `n3_order` but was not checkpointed and is not reported.
+
+**N2 on the five-phase functionals** was not run, on the grounds established in §5 that N2 is a near-duplicate of N1 on this pipeline rather than an independent rung.
+
+**Surrogate count** was held at R = 200 throughout; no rung had its R reduced.
 
 ## 8. The inheritance rule — what must accompany every cohort claim
 
