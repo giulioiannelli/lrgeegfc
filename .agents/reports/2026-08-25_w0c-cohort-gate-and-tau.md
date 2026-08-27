@@ -93,7 +93,20 @@ The alternative offered in the library is `axis_cluster_gate`: one sign-flip clu
 
 Under whole-grid BH over 168 cells, the full cohort clears 24 cells; dropping any of Pat_02, 03, 05, 06, 07, 08, 10 or 14 leaves **zero** cleared cells. Dropping Pat_13 leaves 36 and dropping Pat_15 leaves 33 (both are anti-aligned at β, Pat_15 canonically so).
 
-This is not evidence that the β trace rides on one patient. It is the multiplicity design failing: the exact one-sided signed-rank p at n = 10 has a floor of 1/1024 and its next values are 2/1024, 3/1024, …; at n = 9 the grid coarsens to 1/512, and a 168-fold BH correction turns that single step into a cliff that the entire grid falls off at once. It is the sharpest possible demonstration that **whole-grid BH at n = 10 leaves the gate no dynamic range at all.** The same LOO under the per-band cluster family, whose permutation p is continuous, is in `data/paper_final/w0c_gate_tau/axis_cluster_loo.csv` and reported in §1.5b.
+This is not evidence that the β trace rides on one patient. It is the multiplicity design failing: the exact one-sided signed-rank p at n = 10 has a floor of 1/1024 and its next values are 2/1024, 3/1024, …; at n = 9 the grid coarsens to 1/512, and a 168-fold BH correction turns that single step into a cliff that the entire grid falls off at once. It is the sharpest possible demonstration that **whole-grid BH at n = 10 leaves the gate no dynamic range at all.**
+
+Repeating the same LOO on the per-band axis-cluster gate, whose permutation p is continuous and whose family is 6, settles it:
+
+| band | full p | LOO p range | worst drop | drops pushing p ≥ 0.05 |
+|---|---|---|---|---|
+| delta | 0.045 | [0.040, 0.098] | Pat_02 | 8/10 |
+| theta | 1.000 | [0.289, 1.000] | Pat_02 | 10/10 |
+| alpha | 0.030 | [0.010, 0.078] | Pat_07 | 3/10 |
+| **beta** | **0.0032** | **[0.0038, 0.0091]** | Pat_06 | **0/10** |
+| low_gamma | 0.114 | [0.110, 0.275] | Pat_05 | 10/10 |
+| high_gamma | 0.116 | [0.030, 0.184] | Pat_08 | 9/10 |
+
+**β survives every single-patient drop** (worst LOO p = 0.0091). α does not — three drops push it past 0.05, and it already fails the 6-band BH at q = 0.090. So the LOO collapse in the paragraph above was entirely a multiplicity artifact, and under the family that matches the question the picture is clean: β robust, α fragile, everything else null.
 
 ### 1.6 Calibration
 
@@ -101,7 +114,7 @@ Two tests, because a Gaussian toy tests almost nothing that matters.
 
 **Toy null** (independent Gaussian obs and surrogates, each patient with its own mean and scale — the situation the margin exists for): FPR at nominal 0.10 / 0.05 / 0.01 = 0.094 / 0.042 / 0.011 (heteroscedastic) and 0.104 / 0.044 / 0.010 (homoscedastic), 4000 draws each. Slightly conservative at 0.05, exactly as the discreteness of the exact test predicts.
 
-**Held-out-realization null on the real graphs** — the one that counts. One surrogate realization is promoted to the role of "observed" and tested against the remaining 199 of the *same patients*, so the test sees the real K, the real R, the real per-patient heteroscedasticity and the real surrogate ensemble. Under the null the true observation is exchangeable with its own surrogates, so these p-values are draws from the gate's null distribution on the actual data. Results over all 168 cells × 200 draws are in §1.6b.
+**Held-out-realization null on the real graphs** — the one that counts. One surrogate realization is promoted to the role of "observed" and tested against the remaining 199 of the *same patients*, so the test sees the real K, the real R, the real per-patient heteroscedasticity and the real surrogate ensemble. Under the null the true observation is exchangeable with its own surrogates, so these p-values are draws from the gate's null distribution on the actual data. Over all 168 cells × 200 draws: FPR at nominal 0.10 / 0.05 / 0.01 = **0.107 / 0.048 / 0.012**, with per-cell ranges 0.060–0.165, 0.015–0.095 and 0.000–0.035. The worst single cell sits at 0.095 at the 0.05 level and **no cell of 168 exceeds 0.10**. The gate is calibrated on the graphs it is actually used on.
 
 A Kolmogorov–Smirnov test against the continuous uniform is *not* the right check here and is reported as a statistic only: the exact signed-rank p at n = 10 takes 1024 values, so its null distribution is discrete and KS rejects by construction however well calibrated the gate is. The statement that matters is `P(p ≤ a) ≤ a`, which the FPRs measure directly.
 
