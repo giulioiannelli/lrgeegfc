@@ -148,7 +148,10 @@ def build_session(pat, band):
     Fs, labels, n_blocks, per_phase = [], [], 0, {}
     scale = None
     for ph in ("rest_pre", "task_test", "rest_post"):
-        X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
+        # float32: the raw recording is the peak allocation in this worker
+        # (118 x 1.4e6 is 1.3 GB in float64) and the FFT output is complex64
+        # regardless, so nothing downstream sees the difference.
+        X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), dtype=np.float32)
         if X.shape[0] > X.shape[1]:
             X = X.T
         _, F, scale = segment_fft(X, fs, nps, band=BRAIN_BANDS[band])
@@ -300,15 +303,26 @@ def main():
     print(f"[w0b-n3] {len(jobs)} cells | variants={variants} bands={bands} "
           f"n_pat={len(pats)} block={BLOCK_SECONDS}s workers={a.workers}", flush=True)
 
-    t0, rows = time.time(), []
-    with Pool(a.workers) as pool:
-        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, jobs), 1):
-            if rl:
-                rows.extend(rl)
-            el = time.time() - t0
-            print(f"[{i}/{len(jobs)}] {msg} | {el:.0f}s ETA {el/i*(len(jobs)-i):.0f}s", flush=True)
+    # Per-cell checkpointing: a cell's rows hit disk the moment it finishes, so an
+    # OOM kill or a parent exit costs at most the cells in flight, never the run.
+    parts = OUT_ROOT / "_parts"
+    parts.mkdir(parents=True, exist_ok=True)
+    done = {p.stem for p in parts.glob("*.csv")}
+    todo = [j for j in jobs if f"{j[1]}__{j[2]}__{j[3]}" not in done]
+    print(f"[w0b-n3] {len(done)} cells already checkpointed; {len(todo)} to run", flush=True)
 
-    df = pd.DataFrame(rows)
+    t0 = time.time()
+    with Pool(a.workers) as pool:
+        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, todo), 1):
+            if rl:
+                r0 = rl[0]
+                pd.DataFrame(rl).to_csv(
+                    parts / f"{r0['patient']}__{r0['band']}__{r0['rung']}.csv", index=False)
+            el = time.time() - t0
+            print(f"[{i}/{len(todo)}] {msg} | {el:.0f}s ETA {el/i*(len(todo)-i):.0f}s", flush=True)
+
+    got = [pd.read_csv(p) for p in sorted(parts.glob("*.csv"))]
+    df = pd.concat(got, ignore_index=True) if got else pd.DataFrame()
     if df.empty:
         print("[w0b-n3] no rows"); return
     for v in variants:

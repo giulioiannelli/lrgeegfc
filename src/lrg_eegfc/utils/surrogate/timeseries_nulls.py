@@ -165,6 +165,11 @@ def segment_fft(
     freqs = np.fft.rfftfreq(nperseg, 1.0 / fs)
     window = get_window("hann", nperseg)
     scale = 1.0 / (fs * float((window * window).sum()))
+    # Match the window to X's dtype: a float64 window silently upcasts a float32
+    # recording mid-multiply and doubles the transient footprint. The scale
+    # factor is computed in float64 above, so precision of the normalization is
+    # unaffected.
+    window = window.astype(X.dtype, copy=False)
 
     mask = slice(None)
     if band is not None:

@@ -68,7 +68,7 @@ calibration offset can be compared against the effect it is supposed to gate.
 Outputs: data/paper_final/w0b_nulls/calibration/{per_cell.csv, cohort.csv}
 """
 from __future__ import annotations
-import argparse, os, sys, time
+import argparse, json, os, sys, time
 import numpy as np, pandas as pd
 from multiprocessing import Pool
 from scipy.stats import wilcoxon
@@ -98,6 +98,10 @@ BLOCK_SECONDS = 30.0
 N_SHUF = 40                      # shuffled-sham realizations per cell
 BASE_SEED = 20260826
 OUT = ROOT / "data" / "paper_final" / "w0b_nulls" / "calibration"
+_DP = ROOT / "data" / "paper_final" / "w0b_nulls" / "durations.json"
+if not _DP.exists():
+    raise SystemExit(f"missing {_DP}; run 09_cache_durations.py first")
+DURS = json.loads(_DP.read_text())
 
 
 def eig(W):
@@ -109,28 +113,36 @@ def W_from_segments(F, idx, scale):
         coherency_from_csd(csd_from_segment_subset(F, np.sort(idx), scale)))
 
 
-def real_arc(pat, band, keep_frac=None):
-    """The REAL five-phase arc, recomputed from timeseries through this code path.
+def real_arcs(pat, band, keep_fracs):
+    """REAL five-phase arcs at several truncation fractions, ONE load per phase.
 
-    ``keep_frac`` truncates each phase to its leading fraction of segments. That
-    is what produces the DURATION-MATCHED real comparator: the sham carves five
+    ``keep_fracs`` maps a tag to a fraction of each phase's leading segments
+    (``None`` = full). Every requested arc is derived from the SAME per-segment
+    coefficients, so the recording is read once -- reloading it per arc dominated
+    the runtime (9.5 h ETA) for no scientific gain.
+
+    The truncated arc is the DURATION-MATCHED comparator: the sham carves five
     pseudo-phases out of one ~600 s resting recording, so each sham phase holds
     roughly a quarter of the segments of its real counterpart. Comparing the sham
-    against the FULL real arc would therefore confound "no task" with "less data".
-    Comparing it against the truncated real arc does not.
+    against the FULL real arc would confound "no task" with "less data".
     """
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nps = nperseg_for_fs(fs); nps_h = max(256, nps // 2)
     bnd = BRAIN_BANDS[band]
-    W = {}
+    W = {t: {} for t in keep_fracs}
+
+    def add(ph, F, sc):
+        for t, kf in keep_fracs.items():
+            n = F.shape[1] if kf is None else max(8, int(F.shape[1] * kf))
+            W[t][ph] = W_from_segments(F, np.arange(n), sc)
+
     Xr = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), float)
     if Xr.shape[0] > Xr.shape[1]:
         Xr = Xr.T
     T = Xr.shape[1]
     for tag, sl in (("A", slice(0, T // 2)), ("B", slice(T // 2, T))):
         _, F, sc = segment_fft(Xr[:, sl], fs, nps_h, band=bnd)
-        n = F.shape[1] if keep_frac is None else max(8, int(F.shape[1] * keep_frac))
-        W[tag] = W_from_segments(F, np.arange(n), sc)
+        add(tag, F, sc)
         del F
     del Xr
     for ph in ("task_learn", "task_test", "rest_post"):
@@ -138,10 +150,10 @@ def real_arc(pat, band, keep_frac=None):
         if X.shape[0] > X.shape[1]:
             X = X.T
         _, F, sc = segment_fft(X, fs, nps, band=bnd)
-        n = F.shape[1] if keep_frac is None else max(8, int(F.shape[1] * keep_frac))
-        W[ph] = W_from_segments(F, np.arange(n), sc)
+        add(ph, F, sc)
         del X, F
-    return cross_phase_functionals_over_scales({p: eig(W[p]) for p in PHASES5}, SGRID)
+    return {t: cross_phase_functionals_over_scales(
+        {p: eig(W[t][p]) for p in PHASES5}, SGRID) for t in keep_fracs}
 
 
 def sham_arcs(pat, band, source, rng):
@@ -156,20 +168,14 @@ def sham_arcs(pat, band, source, rng):
     nps = nperseg_for_fs(fs)
     bnd = BRAIN_BANDS[band]
 
-    durs = {}
-    for ph in ("rest_pre", "task_learn", "task_test", "rest_post"):
-        X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
-        if X.shape[0] > X.shape[1]:
-            X = X.T
-        durs[ph] = X.shape[1]
-        if ph == source:
-            Xs = X
-        else:
-            del X
+    durs = DURS[pat]                       # cached shapes; no reload just for a shape
     frac = np.array([durs["rest_pre"] / 2, durs["rest_pre"] / 2, durs["task_learn"],
                      durs["task_test"], durs["rest_post"]], float)
     frac /= frac.sum()
 
+    Xs = np.asarray(load_timeseries(pat, source, SEEG_DATAPATH), float)
+    if Xs.shape[0] > Xs.shape[1]:
+        Xs = Xs.T
     _, F, sc = segment_fft(Xs, fs, nps, band=bnd)
     del Xs
     n_seg = F.shape[1]
@@ -219,27 +225,21 @@ def per_cell(job):
         if source == "REAL":
             # rest_pre duration / whole-session duration = the fraction of each
             # phase the sham can afford; the matched real arc uses the same.
-            durs = {}
-            for ph in ("rest_pre", "task_learn", "task_test", "rest_post"):
-                X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
-                if X.shape[0] > X.shape[1]:
-                    X = X.T
-                durs[ph] = X.shape[1]
-                del X
-            kf = durs["rest_pre"] / float(sum(durs.values()))
-            for tag, frac in (("real", None), ("real_durmatched", kf)):
-                r = real_arc(pat, band, keep_frac=frac)
+            durs = DURS[pat]
+            kf = durs["rest_pre"] / float(durs["rest_pre"] + durs["task_learn"]
+                                          + durs["task_test"] + durs["rest_post"])
+            arcs = real_arcs(pat, band, {"real": None, "real_durmatched": kf})
+            for tag, r in arcs.items():
                 for k in CROSS_PHASE_FUNCTIONALS:
                     for j, s in enumerate(SGRID):
                         rows.append(dict(patient=pat, band=band, source="real",
                                          construction=tag, func=k, s=float(s),
                                          value=float(r[k][j])))
-                if tag == "real":
-                    msg = (f"{pat}/{band}/real T_test[s=1]={r['T_test'][0]:+.3f} "
-                           f"T_ispe[s=1]={r['T_infspec_pe'][0]:+.3f}")
-                else:
-                    msg += (f" | durmatched(kf={kf:.2f}) T_test={r['T_test'][0]:+.3f} "
-                            f"T_ispe={r['T_infspec_pe'][0]:+.3f}")
+            msg = (f"{pat}/{band}/real T_test[s=1]={arcs['real']['T_test'][0]:+.3f} "
+                   f"T_ispe[s=1]={arcs['real']['T_infspec_pe'][0]:+.3f} | "
+                   f"durmatched(kf={kf:.2f}) "
+                   f"T_test={arcs['real_durmatched']['T_test'][0]:+.3f} "
+                   f"T_ispe={arcs['real_durmatched']['T_infspec_pe'][0]:+.3f}")
         else:
             ro, rs, nb, sz = sham_arcs(pat, band, source, rng)
             for k in CROSS_PHASE_FUNCTIONALS:
