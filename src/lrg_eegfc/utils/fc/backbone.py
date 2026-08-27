@@ -56,10 +56,12 @@ __all__ = [
     "pmfg_backbone",
     "disparity_backbone",
     "mst_union_top_fraction",
+    "top_fraction_threshold",
     "percolation_backbone",
     "percolation_sweep",
     "select_backbone",
     "backbone_density",
+    "backbone_structure",
     "giant_component",
     "geodesic_distance",
 ]
@@ -81,16 +83,21 @@ def select_backbone(
     - ``"tmfg"``       -- :func:`tmfg_backbone` (fast chordal planar filter);
     - ``"pmfg"``       -- :func:`pmfg_backbone` (exact planar filter, slow);
     - ``"disparity"``  -- :func:`disparity_backbone` at ``disparity_alpha``
-      (spanning via MST-union).
+      (spanning via MST-union);
+    - ``"thresh"``     -- :func:`top_fraction_threshold` at ``frac`` (the plain
+      global threshold; **may fragment** -- the only non-spanning member, kept
+      as the mechanism contrast for density-invariance sweeps).
 
-    Every returned backbone is connected + spanning, so cross-phase per-pair
-    alignment holds without giant-component bookkeeping.
+    Every returned backbone except ``"thresh"`` is connected + spanning, so
+    cross-phase per-pair alignment holds without giant-component bookkeeping.
     """
     k = kind.lower()
     if k == "dense":
         return _clean(W)
     if k.startswith("mst"):                       # name selects family; frac is explicit
         return mst_union_top_fraction(W, frac)
+    if k == "thresh":
+        return top_fraction_threshold(W, frac)
     if k == "perc":
         return percolation_backbone(W)[0]
     if k == "tmfg":
@@ -495,6 +502,72 @@ def mst_union_top_fraction(W: NDArray, frac: float) -> NDArray:
     B[keep] = A[keep]
     np.fill_diagonal(B, 0.0)
     return B
+
+
+def top_fraction_threshold(W: NDArray, frac: float) -> NDArray:
+    """Plain global weight threshold keeping the strongest ``frac`` of edges.
+
+    The textbook proportional-threshold filter: no spanning-tree union, so the
+    graph **fragments** once ``frac`` falls below the percolation point (see
+    :func:`percolation_backbone` for where that is). Its value is as the
+    *mechanism contrast* to :func:`mst_union_top_fraction` in a density sweep:
+    the two keep the same edge budget by the same weight ranking and differ
+    only by the ``N-1`` spanning edges, so a verdict that survives both at
+    matched density is not an artifact of either connectivity policy.
+    """
+    A = _clean(W)
+    N = A.shape[0]
+    if frac >= 1.0:
+        return A
+    r, c = np.triu_indices(N, k=1)
+    w = A[r, c]
+    if w.size == 0:
+        return A
+    n_keep = max(1, int(np.ceil(frac * w.size)))
+    thr = np.partition(w, -n_keep)[-n_keep]
+    B = np.where(A >= thr, A, 0.0)
+    np.fill_diagonal(B, 0.0)
+    return B
+
+
+def backbone_structure(A: NDArray) -> dict:
+    """Structural covariates of a (sparsified) weighted graph.
+
+    The descriptors that explain *why* a diffusion readout does or does not
+    change as a density knob is swept -- reported alongside any sparsification
+    sweep so a plateau has a mechanism and not only a shape:
+
+    ``density`` (kept / possible edges), ``mean_degree``, ``n_components``,
+    ``weight_fraction`` is left to the caller (it needs the parent graph),
+    ``clustering`` (mean Onnela weighted clustering), ``lambda_2`` (algebraic
+    connectivity of ``L = D - W``), ``lambda_max``, ``spectral_gap``
+    (``lambda_2 / lambda_max``, the dimensionless separation that sets how many
+    diffusion scales are resolvable) and ``gini`` of the surviving weights.
+    """
+    from lrg_eegfc.utils.metrics.graph_descriptors import (
+        gini_coefficient,
+        weighted_clustering_onnela,
+    )
+
+    B = _clean(A)
+    N = B.shape[0]
+    r, c = np.triu_indices(N, k=1)
+    w = B[r, c]
+    kept = w > 0
+    ev = np.maximum(np.linalg.eigvalsh(np.diag(B.sum(1)) - B), 0.0)
+    lam_max = float(ev[-1])
+    lam_2 = float(ev[1]) if N > 1 else float("nan")
+    return dict(
+        density=float(kept.sum()) / (N * (N - 1) / 2.0),
+        mean_degree=float(2.0 * kept.sum() / N),
+        n_components=int(connected_components(csr_matrix(B > 0), directed=False)[0]),
+        clustering=float(np.mean(weighted_clustering_onnela(B))),
+        lambda_2=lam_2,
+        lambda_max=lam_max,
+        spectral_gap=lam_2 / lam_max if lam_max > 0 else float("nan"),
+        gini=gini_coefficient(w[kept]) if kept.any() else float("nan"),
+        total_weight=float(w.sum()),
+    )
 
 
 def giant_component(A: NDArray) -> tuple[NDArray, NDArray]:
