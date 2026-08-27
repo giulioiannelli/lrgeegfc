@@ -42,8 +42,10 @@ import pandas as pd
 
 from lrg_eegfc.config.const import PATIENTS_4PHASE
 from lrg_eegfc.utils.metrics.cohort_gate import (
-    DESCRIPTIVE_ALPHA, calibrate_from_surrogates, calibrate_synthetic,
-    gate_grid, loo_grid_flips, null_height_covariation)
+    DESCRIPTIVE_ALPHA, axis_cluster_gate, calibrate_from_surrogates,
+    calibrate_synthetic, effective_tests, gate_grid, loo_grid_flips,
+    null_height_covariation, patient_margin)
+from lrg_eegfc.utils.metrics.hypothesis import bh_fdr
 from lrg_eegfc.utils.scripting import setup_script_env
 
 ROOT = setup_script_env()
@@ -155,6 +157,38 @@ def main():
             else f"{'--':>8s}" for q in x.q)
         print(f"  {b:11s} " + cells_txt, flush=True)
 
+    # ---- 2b. the multiplicity family -------------------------------------- #
+    print("\n=== 2b. how many tests is a 28-point scale sweep actually worth? ===",
+          flush=True)
+    print("  Whole-grid BH charges one test per (band, scale) cell. A scale sweep is", flush=True)
+    print("  a smooth curve, so that price is far above what was really paid. Below:", flush=True)
+    print("  the effective number of independent scales, and the axis-cluster gate --", flush=True)
+    print("  ONE sign-flip cluster-mass test per band, family = 6 bands, not 168 cells.",
+          flush=True)
+    prof = {b: patient_margin(D["obs"][ib].ravel(),
+                              D["surr"][ib].reshape(-1, D["surr"].shape[-1])
+                              ).reshape(len(pats), s.size)
+            for ib, b in enumerate(bands)}
+    crows = []
+    for ib, b in enumerate(bands):
+        et = effective_tests(prof[b])
+        ac = axis_cluster_gate(prof[b], n_perm=10000, rng=np.random.default_rng(7))
+        crows.append(dict(band=b, n_eff_pr=et["n_eff_pr"], n_eff_cn=et["n_eff_cn"],
+                          mean_offdiag=et["mean_offdiag"], cluster_p=ac["p"],
+                          mass=ac["mass"], n_clusters=ac["n_clusters"],
+                          s_lo=float(s[ac["cluster"][0]]) if ac["cluster"] else np.nan,
+                          s_hi=float(s[ac["cluster"][1]]) if ac["cluster"] else np.nan))
+    cdf = pd.DataFrame(crows)
+    cdf["cluster_q"] = bh_fdr(cdf["cluster_p"].to_numpy())
+    cdf.to_csv(BASE / "axis_cluster.csv", index=False)
+    print("\n  band        n_eff of 28 scales (PR / CN)  mean r   cluster_p  "
+          "cluster_q   supra-threshold scale span", flush=True)
+    for _, r in cdf.iterrows():
+        span = f"{r.s_lo:6.2f} - {r.s_hi:6.2f}" if np.isfinite(r.s_lo) else "     none     "
+        print(f"  {r.band:11s} {r.n_eff_pr:6.2f} / {r.n_eff_cn:6.2f}          "
+              f"{r.mean_offdiag:+.2f}   {r.cluster_p:8.4f}   {r.cluster_q:8.4f}   {span}",
+              flush=True)
+
     # ---- 3. leave-one-patient-out of the verdict -------------------------- #
     per_pat, per_cell = loo_grid_flips(cells, labels=pats, q_level=DESCRIPTIVE_ALPHA)
     per_pat.to_csv(BASE / "loo_patient.csv", index=False)
@@ -175,7 +209,44 @@ def main():
             print(f"    {b:11s} {int((x.n_drop_lost == 0).sum())}/{len(x)} robust "
                   f"| worst cell loses to {int(x.n_drop_lost.max())} drops", flush=True)
 
+    # ---- 3b. LOO of the verdict under the honest family -------------------- #
+    print("\n=== 3b. LOO of the verdict under the PER-BAND family (axis cluster) ===",
+          flush=True)
+    print("  Section 3 drops a patient from a 168-cell BH whose p-values sit on the", flush=True)
+    print("  discrete exact signed-rank grid; at n=9 the floor moves from 1/1024 to", flush=True)
+    print("  1/512 and the whole grid falls off the cliff at once. That is the", flush=True)
+    print("  multiplicity design failing, not the signal. Repeated here on the", flush=True)
+    print("  axis-cluster gate, whose permutation p is continuous and whose family is", flush=True)
+    print("  6 bands:", flush=True)
+    print("\n  band        full p     LOO p range              worst drop   "
+          "drops where p >= 0.05", flush=True)
+    lrows = []
+    for ib, b in enumerate(bands):
+        M = prof[b]
+        full_p = axis_cluster_gate(M, n_perm=10000,
+                                   rng=np.random.default_rng(7))["p"]
+        loo = []
+        for i in range(len(pats)):
+            keep = np.ones(len(pats), bool)
+            keep[i] = False
+            loo.append(axis_cluster_gate(M[keep], n_perm=10000,
+                                         rng=np.random.default_rng(11 + i))["p"])
+        loo = np.array(loo)
+        iw = int(np.nanargmax(loo))
+        n_fail = int(np.sum(loo >= DESCRIPTIVE_ALPHA))
+        lrows.append(dict(band=b, full_p=full_p, loo_min=float(np.nanmin(loo)),
+                          loo_max=float(np.nanmax(loo)), worst=pats[iw],
+                          n_drop_above_alpha=n_fail,
+                          **{f"loo_{pats[j]}": float(loo[j]) for j in range(len(pats))}))
+        print(f"  {b:11s} {full_p:8.4f}   [{np.nanmin(loo):.4f}, {np.nanmax(loo):.4f}]"
+              f"        {pats[iw]:8s}     {n_fail}/{len(pats)}", flush=True)
+    pd.DataFrame(lrows).to_csv(BASE / "axis_cluster_loo.csv", index=False)
+
     # ---- 4. calibration --------------------------------------------------- #
+    if os.environ.get("W0C_SKIP_CAL", "0") in ("1", "true", "True"):
+        print("\n=== 4. calibration SKIPPED (W0C_SKIP_CAL) ===", flush=True)
+        print(f"\n[w0c-gate] -> {BASE}", flush=True)
+        return
     print("\n=== 4. calibration ===", flush=True)
     syn_h = calibrate_synthetic(n_draws=4000, heteroscedastic=True)
     syn_o = calibrate_synthetic(n_draws=4000, heteroscedastic=False)

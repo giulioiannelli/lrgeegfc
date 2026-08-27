@@ -47,7 +47,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import friedmanchisquare, wilcoxon
+from scipy.stats import friedmanchisquare, spearmanr, wilcoxon
 
 from lrg_eegfc.utils.metrics.cohort_gate import DESCRIPTIVE_ALPHA, gate_grid
 from lrg_eegfc.utils.scripting import setup_script_env
@@ -215,6 +215,36 @@ def characterization(D, out):
               f"{x.cv.median():6.2f} [{x.cv.quantile(.25):5.2f},{x.cv.quantile(.75):6.2f}] "
               f"  {x.s_at_max.median():7.2f}", flush=True)
 
+    # A flatness statistic defined for every patient. CV and relative range both
+    # require a positive mean / max margin and silently drop patients; the rank
+    # correlation between the margin and log s does not, and it is signed, so it
+    # separates "flat" from "tuned" without discarding anyone.
+    slope = {}
+    for ib, b in enumerate(bands):
+        v = []
+        for ip in range(len(pats)):
+            m = M[ib, ip]
+            ok = np.isfinite(m)
+            v.append(spearmanr(ls[ok], m[ok])[0] if ok.sum() >= 5 else np.nan)
+        slope[b] = np.array(v, float)
+    print("\n  scale-dependence of the margin profile, defined for every patient:",
+          flush=True)
+    print("    rho(margin, log s) per patient -- 0 = flat, |rho| large = tuned",
+          flush=True)
+    print("    band        median rho   median |rho|   n", flush=True)
+    for b in bands:
+        v = slope[b]
+        print(f"    {b:11s} {np.nanmedian(v):+8.3f}     {np.nanmedian(np.abs(v)):8.3f}   "
+              f"{int(np.isfinite(v).sum())}", flush=True)
+    print("\n    paired |rho| contrasts vs beta (is beta flatter?):", flush=True)
+    for b in bands:
+        if b == "beta":
+            continue
+        g, l, n = _paired(np.abs(slope[b]), np.abs(slope["beta"]))
+        print(f"      {b:11s} |rho| {np.nanmedian(np.abs(slope[b])):.3f} vs beta "
+              f"{np.nanmedian(np.abs(slope['beta'])):.3f}  n={n}  "
+              f"p(band more scale-tuned than beta)={g:.4f}", flush=True)
+
     print("\n  paired per-patient contrasts (alpha vs beta):", flush=True)
     a = prof[prof.band == "alpha"].set_index("patient")
     bt = prof[prof.band == "beta"].set_index("patient")
@@ -267,7 +297,57 @@ def selection(D, desc, gate_coph, gate_raw):
     print("(c) SELECTION -- what the hierarchy rejects, and why", flush=True)
     print("=" * 78, flush=True)
     bands, pats = D["bands"], D["pats"]
-    print("\n  raw vs hierarchy, side by side:", flush=True)
+
+    # --- the selection itself, tested rather than inferred ----------------- #
+    # "raw clears and the hierarchy does not" compares two verdicts, and a
+    # difference between a significant and a non-significant result is not
+    # itself significant. The claim is tested directly here: within each
+    # patient, is the raw margin larger than the cophenetic margin, and does
+    # that gap differ between a band the hierarchy keeps and one it rejects?
+    m_raw = D["obs_raw"] - np.nanmedian(D["surr_raw"], axis=2)        # (nB, K)
+    m_coph = D["obs"] - np.nanmedian(D["surr"], axis=3)               # (nB, K, nS)
+    print("\n  DOES THE HIERARCHY REALLY DISCARD ANYTHING? paired within patient.",
+          flush=True)
+    print("  gap(s) = raw margin - cophenetic margin, per patient. Positive means", flush=True)
+    print("  the raw representation registers more of the trace than the hierarchy.",
+          flush=True)
+    print("    band        gap at s=1.04   p(gap>0)   gap at s=6.40   p(gap>0)   "
+          "median over all s", flush=True)
+    sel_rows = []
+    idx_sel = [int(np.argmin(np.abs(D["s"] - v))) for v in (1.0, 6.4)]
+    for ib, b in enumerate(bands):
+        gaps = m_raw[ib][:, None] - m_coph[ib]                        # (K, nS)
+        cells = []
+        for j in idx_sel:
+            gj = gaps[:, j]
+            gj = gj[np.isfinite(gj)]
+            pj = (float(wilcoxon(gj, alternative="greater").pvalue)
+                  if gj.size >= 3 and not np.allclose(gj, 0) else np.nan)
+            cells.append((float(np.median(gj)), pj))
+        med_all = float(np.nanmedian(gaps))
+        sel_rows.append(dict(band=b, gap_s1=cells[0][0], p_s1=cells[0][1],
+                             gap_s6=cells[1][0], p_s6=cells[1][1], gap_med=med_all))
+        print(f"    {b:11s} {cells[0][0]:+8.4f}      {cells[0][1]:7.4f}   "
+              f"{cells[1][0]:+8.4f}      {cells[1][1]:7.4f}   {med_all:+8.4f}",
+              flush=True)
+    print("\n  and the interaction -- is the gap LARGER for a rejected band than for beta?",
+          flush=True)
+    ibb = bands.index("beta")
+    for ib, b in enumerate(bands):
+        if b == "beta":
+            continue
+        for j, sv in zip(idx_sel, (1.04, 6.40)):
+            d = ((m_raw[ib] - m_coph[ib][:, j]) - (m_raw[ibb] - m_coph[ibb][:, j]))
+            d = d[np.isfinite(d)]
+            pj = (float(wilcoxon(d, alternative="greater").pvalue)
+                  if d.size >= 3 and not np.allclose(d, 0) else np.nan)
+            print(f"    {b:11s} vs beta at s={sv:5.2f}: median gap difference "
+                  f"{np.median(d):+.4f}  p(larger than beta)={pj:.4f}  n={d.size}",
+                  flush=True)
+    pd.DataFrame(sel_rows).to_csv(BASE / "selection_gap.csv", index=False)
+
+    print("\n  raw vs hierarchy, side by side (the two verdicts, for reference):",
+          flush=True)
     print("    band        raw q     hierarchy: cleared scales   verdict", flush=True)
     for b in bands:
         rq = float(gate_raw[gate_raw.band == b].q.iloc[0])
