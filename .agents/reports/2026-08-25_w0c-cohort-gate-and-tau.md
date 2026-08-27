@@ -305,7 +305,28 @@ Stated up front rather than at the end, per project rule.
 
 **Power.** n = 10 with an exact signed-rank has a p-floor of 1/1024 and a coarse grid above it. The gap and interaction tests in §2.3 are differences of two noisy margins and are intrinsically low-powered; "not demonstrated" there must not be read as "demonstrated absent". Equivalence claims (scale-invariance) cannot be made at this n at all — the Friedman is blind to a monotone trend below about 0.75 within-patient SD.
 
-**What I did not do.** No z-standardised variant of the margin was evaluated, though §1.2 shows it is the obvious next lever. The role-permutation null treats the five phases as exchangeable, which they are not. The `N_eff` estimators disagree by an order of magnitude and are reported as a bracket rather than adjudicated.
+**What I did not do.** No z-standardised variant of the margin was evaluated, though §1.2 shows it is the obvious next lever. The role-permutation null treats the five phases as exchangeable, which they are not. The `N_eff` estimators disagree by an order of magnitude and are reported as a bracket rather than adjudicated. Nothing in the five-phase arc was re-derived on any substrate other than the incumbent, and the §3.3 dissociation in particular sits close enough to the line that a substrate change could move it either way.
+
+**One housekeeping item for whoever owns the repo docs.** `CLAUDE.md`'s "Hypothesis-test helpers (library)" block still lists only `utils.metrics.hypothesis`. `utils.metrics.cohort_gate` is now the entry point for any cross-patient claim and should be added there. I have not edited `CLAUDE.md` myself.
+
+---
+
+## 6. Reproduce
+
+Run from the worktree. `run_py.sh` pins the worktree's `src/` ahead of the editable install and holds BLAS to one thread; worker pools default to 4 after the 2026-08-27 resource cap. Every grid is resumable — an existing per-cell file is reused, and the surrogate draws are seeded per cell so a resumed run is identical to an unbroken one.
+
+```
+cd scripts/01_compute/paper_final
+./run_grid.sh                                  # four-phase master grid   (~25 min at 4 workers)
+./run_gate.sh w0c_02_gate_verdict.py           # the locked gate + calibration (~20 min)
+./run_gate.sh w0c_03_tau_verdict.py            # detection / characterization / selection / units
+./run_gate.sh w0c_04_scale_reach.py            # ell(s) in mm            (~2 s)
+./run_gate.sh w0c_05_residual_diagnostics.py   # residualization variance retained (~30 s)
+./run_encinf.sh                                # five-phase arc          (~35 min at 4 workers)
+./run_gate.sh w0c_07_encinf_verdict.py         # placebo / gates / scale dissociation
+```
+
+Substrate and null are injected: `W0C_FC_METHOD` (default `imcoh_abs`), `W0C_BACKBONE` (`mst020`, any `select_backbone` name, or `dense`), `W0C_FRAC` (0.20), `W0C_R` (200), `W0C_NPERM` (200), `W0C_WORKERS` (4). Re-running the whole lane on W0-A's locked contract is a matter of changing two environment variables and pointing `W0C_OUT` / `W0C_ENCINF_OUT` at a new directory. `W0C_SKIP_CAL=1` skips the expensive calibration pass on a re-run.
 
 ---
 
