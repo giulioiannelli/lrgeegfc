@@ -78,6 +78,7 @@ Environment (the injection points)
   W0C_R           default 200           surrogate realizations
   W0C_WORKERS     default 12
   W0C_OUT         default data/paper_final/w0c_gate_tau/grid
+  W0C_RESUME      default 1             reuse existing per-cell surrogate files
 
 Outputs (under W0C_OUT):
   cells/<patient>__<band>.npz   obs + full (R, nS) surrogate ensembles
@@ -114,6 +115,9 @@ FRAC = float(os.environ.get("W0C_FRAC", "0.20"))
 R = int(os.environ.get("W0C_R", "200"))
 WORKERS = int(os.environ.get("W0C_WORKERS", "12"))
 OUT = Path(os.environ.get("W0C_OUT", ROOT / "data" / "paper_final" / "w0c_gate_tau" / "grid"))
+#: Reuse an existing cell file instead of redrawing its surrogate ensemble. The
+#: draws are seeded per cell, so a resumed run is identical to an unbroken one.
+RESUME = os.environ.get("W0C_RESUME", "1") not in ("0", "false", "False")
 
 PHASES = CROSS_PHASE_PHASES
 SGRID = np.logspace(np.log10(0.05), np.log10(180.0), 28)
@@ -298,6 +302,12 @@ def per_cell(job):
         return dict(patient=pat, band=band, error=str(exc))
     N = Ws["A"].shape[0]
 
+    # Resume: the surrogate ensemble is ~99% of the cost, so an existing cell
+    # file is reused as-is. The descriptive probes below are recomputed either
+    # way (they take about a second and are needed for the summary table).
+    cell_path = OUT / "cells" / f"{pat}__{band}.npz"
+    have = cell_path.exists() and RESUME
+
     obs_vals, obs_raw = realization(Ws)
 
     # --- descriptive probes on the observed graphs only -------------------- #
@@ -320,6 +330,10 @@ def per_cell(job):
         m_comm[j] = communication_neighbourhood_size(ev_p, V_p, s)
 
     # --- matched-strength ensemble ----------------------------------------- #
+    if have:
+        desc["elapsed_s"] = time.time() - t0
+        desc["reused"] = True
+        return desc
     rng = np.random.default_rng(BASE_SEED + idx)
     n_swaps = SWAP_FACTOR * N * (N - 1) // 2
     surr = np.full((R, SGRID.size, len(MEASURES)), np.nan)
@@ -331,13 +345,14 @@ def per_cell(job):
         except Exception:                                       # noqa: BLE001
             continue
 
-    OUT.joinpath("cells").mkdir(parents=True, exist_ok=True)
+    cell_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
-        OUT / "cells" / f"{pat}__{band}.npz",
+        cell_path,
         s=SGRID, measures=np.array(MEASURES), obs=obs_vals, surr=surr,
         obs_raw=np.array([obs_raw]), surr_raw=surr_raw,
         absorb_r2=absorb, n_eff=n_eff, m_comm=m_comm, N=np.array([N]))
     desc["elapsed_s"] = time.time() - t0
+    desc["reused"] = False
     return desc
 
 

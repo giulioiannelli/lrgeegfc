@@ -116,29 +116,40 @@ def _shape(M):
     return np.divide(M - mu, sd, out=np.full_like(M, np.nan), where=sd > 0)
 
 
+def _unit(X):
+    """Row-wise mean-centred, unit-norm copy (so a dot product is a correlation)."""
+    Y = X - X.mean(axis=-1, keepdims=True)
+    n = np.linalg.norm(Y, axis=-1, keepdims=True)
+    return np.divide(Y, n, out=np.zeros_like(Y), where=n > 0)
+
+
 def _loo_nearest_centroid(S):
     """LOO nearest-centroid accuracy of band identity from profile shape.
 
     ``S`` is ``(nB, K, nS)``. For each held-out patient the band centroids are
-    rebuilt from the others, and each of that patient's band profiles is
-    assigned to the most correlated centroid.
+    rebuilt from the other patients, and each of that patient's band profiles is
+    assigned to the centroid it correlates with most. Vectorised: the leave-one-
+    out centroid is the full sum minus the held-out row, so no inner loop.
     """
     nB, K, _ = S.shape
-    hits = 0
-    total = 0
+    ok = np.isfinite(S).all(axis=-1)                                 # (nB, K)
+    Sf = np.where(ok[..., None], S, 0.0)
+    tot = Sf.sum(axis=1, keepdims=True)                              # (nB, 1, nS)
+    cnt = ok.sum(axis=1, keepdims=True)[..., None]                   # (nB, 1, 1)
+    cen = (tot - Sf) / np.maximum(cnt - ok[..., None], 1)            # (nB, K, nS)
+    U = _unit(Sf)                                                    # (nB, K, nS)
+    C = _unit(cen)
+    # corr[b, k, c] = profile of band b in patient k vs centroid of band c in k
+    corr = np.einsum("bks,cks->bkc", U, C)
+    pred = np.argmax(np.where(np.isfinite(corr), corr, -np.inf), axis=2)  # (nB, K)
     conf = np.zeros((nB, nB), int)
-    for k in range(K):
-        keep = np.ones(K, bool)
-        keep[k] = False
-        cen = np.nanmean(S[:, keep, :], axis=1)                      # (nB, nS)
-        for b in range(nB):
-            v = S[b, k, :]
-            if not np.isfinite(v).all():
+    hits = total = 0
+    for b in range(nB):
+        for k in range(K):
+            if not ok[b, k]:
                 continue
-            r = np.array([np.corrcoef(v, cen[c])[0, 1] for c in range(nB)])
-            pred = int(np.nanargmax(r))
-            conf[b, pred] += 1
-            hits += int(pred == b)
+            conf[b, pred[b, k]] += 1
+            hits += int(pred[b, k] == b)
             total += 1
     return hits / total if total else np.nan, conf, total
 
@@ -283,27 +294,27 @@ def selection(D, desc, gate_coph, gate_raw):
               f"{x.top5pct_raw.median():.3f}   {x['ret_0.001'].median():+.3f} / "
               f"{x['ret_0.01'].median():+.3f} / {x['ret_0.05'].median():+.3f}", flush=True)
 
-    print("\n  paired per-patient contrasts of concentration (the edge-locality test):",
-          flush=True)
+    print("\n  paired per-patient contrasts vs beta (the edge-locality test).", flush=True)
+    print("    The hypothesis predicts a REJECTED band is MORE concentrated than beta", flush=True)
+    print("    (larger top-1% share) and LESS robust to deleting its top pairs", flush=True)
+    print("    (smaller retained fraction).", flush=True)
     piv = {c: d.pivot_table(index="patient", columns="band", values=c)
            for c in ("gini_raw", "top1pct_raw", "ret_0.01", "ret_0.05")}
-    for ref in ("beta", "alpha"):
-        for other in bands:
-            if other == ref:
-                continue
-            for c, lab, direction in (("top1pct_raw", "top-1% share", "greater"),
-                                      ("ret_0.01", "trace retained after -1%", "less")):
-                t = piv[c]
-                if ref not in t.columns or other not in t.columns:
-                    continue
-                x = t[other].to_numpy(float)
-                y = t[ref].to_numpy(float)
-                g, l, n = _paired(x, y)
-                p = g if direction == "greater" else l
-                if ref == "beta" and other in ("low_gamma", "theta", "delta"):
-                    print(f"    {other:11s} vs {ref:9s} {lab:26s} "
-                          f"{np.nanmedian(x):+.3f} vs {np.nanmedian(y):+.3f}  "
-                          f"n={n}  p({direction})={p:.4f}", flush=True)
+    print("    band vs beta   top1% median (band/beta)  p(band>beta)  "
+          "retained median (band/beta)  p(band<beta)", flush=True)
+    for other in bands:
+        if other == "beta":
+            continue
+        t1, t2 = piv["top1pct_raw"], piv["ret_0.01"]
+        if other not in t1.columns:
+            continue
+        x1, y1 = t1[other].to_numpy(float), t1["beta"].to_numpy(float)
+        x2, y2 = t2[other].to_numpy(float), t2["beta"].to_numpy(float)
+        g1, _, n1 = _paired(x1, y1)
+        _, l2, n2 = _paired(x2, y2)
+        print(f"    {other:11s}    {np.nanmedian(x1):.3f} / {np.nanmedian(y1):.3f}"
+              f"           {g1:8.4f}      {np.nanmedian(x2):+.3f} / "
+              f"{np.nanmedian(y2):+.3f}          {l2:8.4f}  (n={n1}/{n2})", flush=True)
 
     # ---- hierarchy absorption --------------------------------------------- #
     print("\n  how much of the RAW per-pair task reorganization the hierarchy can "
