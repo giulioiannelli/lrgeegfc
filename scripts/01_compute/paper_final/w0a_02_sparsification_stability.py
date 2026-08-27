@@ -112,6 +112,7 @@ from lrg_eegfc.utils.fc.heat_multiscale import (
     cross_phase_functionals_over_scales, laplacian_eig,
 )
 from lrg_eegfc.utils.metrics.surrogate import matched_strength_shuffle
+from lrg_eegfc.config.paths import IMCOH_HALVES_CACHE
 from lrg_eegfc.workflow.fc import load_fc_matrix
 
 COHORT = list(PATIENTS_4PHASE)
@@ -127,14 +128,26 @@ W_MAX = 1.0
 BASE_SEED = 20260825
 
 TRANSFORM = os.environ.get("W0A_TRANSFORM", "abs")
-R = int(os.environ.get("W0A_R", 200))
-HALVES = ROOT / "data" / "paper_final" / "w0a_substrate" / "halves"
+# R = 100 (was 200) under the resource cap. The cohort gate uses the surrogate
+# MEDIAN, which is stable at R=100; the per-cell upper-tail p resolution drops
+# from 0.005 to 0.01, which is below the alpha=0.05 yardstick used here.
+R = int(os.environ.get("W0A_R", 100))
+HALVES = IMCOH_HALVES_CACHE
 OUT = ROOT / "data" / "paper_final" / "w0a_substrate" / "a2_stability" / TRANSFORM
 
 # --- the config grid: density knob x mechanism ------------------------------ #
-MST_FRACS = (0.02, 0.03, 0.04, 0.05, 0.07, 0.10, 0.14, 0.20, 0.28, 0.40, 0.55, 0.75, 1.00)
-THRESH_FRACS = (0.05, 0.10, 0.20, 0.40)                 # mechanism contrast (may fragment)
-DISP_ALPHAS = (0.01, 0.05, 0.10, 0.20, 0.50)
+# REDUCED 2026-08-25 under a machine-resource cap (4 workers, shared box). What
+# was cut, explicitly: the mst grid lost its three interior points 0.03 / 0.55 /
+# 0.75 (13 -> 10) -- every retained point is bracketed by neighbours on the same
+# log grid, so the knob is still resolved at ~1.4x steps through the region of
+# interest and only the coarse tail is thinned; the threshold arm lost f=0.40
+# (4 -> 3) and disparity lost alpha = 0.01 and 0.50 (5 -> 3), both of which sat
+# outside the density range the mst arm spans. Surrogates were cut 200 -> 100
+# (see R). NOTHING was cut from the band set (all 6) or the functional set (all
+# 4): coverage of the science axes is intact, only knob resolution was reduced.
+MST_FRACS = (0.02, 0.04, 0.05, 0.07, 0.10, 0.14, 0.20, 0.28, 0.40, 1.00)
+THRESH_FRACS = (0.05, 0.10, 0.20)                       # mechanism contrast (may fragment)
+DISP_ALPHAS = (0.05, 0.10, 0.20)
 
 CONFIGS: list[tuple[str, str, float]] = []
 CONFIGS += [(f"mst@{f:g}", "mst", f) for f in MST_FRACS]
@@ -269,7 +282,11 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     bands = os.environ.get("W0A_BANDS", "").split(",") if os.environ.get("W0A_BANDS") else ALL_BANDS
     pats = COHORT[:a.limit] if a.limit else COHORT
-    ncpu = int(os.environ.get("SA_WORKERS", 12))
+    # Capped at 4: the box is shared with two other Wave-0 lanes and the OOM
+    # killer has already truncated runs today. Per-worker RSS here is ~0.3 GB
+    # (the surrogate ensemble is a (R, 16) array per config x functional, ~1 MB
+    # total -- nothing large is materialised), so the cap is on process count.
+    ncpu = int(os.environ.get("SA_WORKERS", 4))
 
     # warm numba (matched-strength shuffle + TMFG) outside the timed region
     _ = matched_strength_shuffle(np.zeros((5, 5)), 4, np.random.default_rng(0))
@@ -312,6 +329,11 @@ def main():
                 srows.extend(sl)
             el = time.time() - t0
             print(f"[{i}/{len(jobs)}] {el:.0f}s ETA {el/i*(len(jobs)-i):.0f}s", flush=True)
+            # checkpoint: a shared box means this run can be killed at any point;
+            # partial coverage on disk beats losing hours of it.
+            if i % 5 == 0 or i == len(jobs):
+                pd.DataFrame(rows).to_csv(OUT / "per_patient_scale.csv", index=False)
+                pd.DataFrame(srows).to_csv(OUT / "structure.csv", index=False)
     df = pd.DataFrame(rows)
     df.to_csv(OUT / "per_patient_scale.csv", index=False)
     pd.DataFrame(srows).to_csv(OUT / "structure.csv", index=False)
