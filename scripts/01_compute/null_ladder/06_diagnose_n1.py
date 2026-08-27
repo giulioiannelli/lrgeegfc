@@ -128,25 +128,36 @@ def d3_plain_coherence():
         for band in ("alpha", "beta"):
             bnd = BRAIN_BANDS[band]
             Wc, Wi = {}, {}
-            Xr = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), float)
-            if Xr.shape[0] > Xr.shape[1]:
-                Xr = Xr.T
-            T = Xr.shape[1]
-            src = {"A": (Xr[:, :T // 2], nps_h), "B": (Xr[:, T // 2:], nps_h)}
-            for ph in ("task_test", "rest_post"):
-                X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
-                if X.shape[0] > X.shape[1]:
-                    X = X.T
-                src[ph] = (X, nps)
-            for ph, (Xp, np_) in src.items():
+
+            def absorb(ph, Xp, np_):
+                """Derive both adjacencies and drop the recording immediately.
+
+                Holding all phases' timeseries at once was this script's 5.5 GB
+                peak (three ~1.3 GB float64 recordings resident together); each
+                phase is now loaded, reduced to two (N, N) matrices, and freed.
+                """
                 _, F, sc = segment_fft(Xp, fs, np_, band=bnd)
                 C = coherency_from_csd(csd_from_segment_subset(F, None, sc))
                 A = np.abs(C).mean(axis=0).astype(float)          # <|C|>_f
-                np.fill_diagonal(A, 0.0); A = 0.5 * (A + A.T)
-                Wc[ph] = A
+                np.fill_diagonal(A, 0.0)
+                Wc[ph] = 0.5 * (A + A.T)
                 Wi[ph] = imcoh_abs_from_coherency(C)
-                del F, C
-            del Xr, src
+                del F, C, A
+
+            Xr = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH),
+                            dtype=np.float32)
+            if Xr.shape[0] > Xr.shape[1]:
+                Xr = Xr.T
+            T = Xr.shape[1]
+            absorb("A", Xr[:, :T // 2], nps_h)
+            absorb("B", Xr[:, T // 2:], nps_h)
+            del Xr
+            for ph in ("task_test", "rest_post"):
+                X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), dtype=np.float32)
+                if X.shape[0] > X.shape[1]:
+                    X = X.T
+                absorb(ph, X, nps)
+                del X
             eig = lambda W: laplacian_eig(select_backbone(W, "mst020", frac=0.20))
             r_coh = rho_sym_over_scales({p: eig(Wc[p]) for p in PHASES}, SGRID)
             r_imc = rho_sym_over_scales({p: eig(Wi[p]) for p in PHASES}, SGRID)
