@@ -103,9 +103,27 @@ What changes is the null, in two ways that compound. Its **spread** is 3–4× w
 
 **Matched-strength**, the incumbent, cannot test the coherency estimator, the band transform, the frequency-band split, session nonstationarity, drift, artifact epochs, or the phase segmentation. Its empirical behaviour here (cell-for-cell agreement with N1b) shows it is functioning as an independence null.
 
-## 6. Null calibration of the five-phase functionals
+## 6. Null calibration of the five-phase functionals — none of them is zero-centred
 
-*(section completed below once the calibration run lands — see §8)*
+**Every one of the four cross-phase functionals returns a significantly positive value on an input that contains no task at all, and this is not confined to the conditional statistic.** Five pseudo-phases {A, B, task_learn, task_test, rest_post} were carved out of a *single resting recording*, sized in proportion to the true phase durations, in two variants: **ordered** (contiguous windows in true temporal order — the audit_168 construction, drift retained) and **shuffled** (same sizes, randomly reassigned 30 s blocks — drift destroyed). Both were run on `rest_pre` and, independently, on `rest_post`. Cohort medians over the 16 scales, with the count of scales at which the value is significantly above zero (one-sided Wilcoxon, n = 10):
+
+| functional | band | real (full) | real (dur-matched) | sham ordered (rest_pre) | sham shuffled (rest_pre) | sham shuffled (rest_post) |
+|---|---|---|---|---|---|---|
+| **T_test** | alpha | +0.127 · 12/16 | +0.004 · 1/16 | +0.110 · 9/16 | +0.062 · **16/16** | +0.039 · **16/16** |
+| **T_test** | beta | +0.237 · 16/16 | +0.046 · 0/16 | +0.167 · 14/16 | +0.081 · **16/16** | +0.090 · **16/16** |
+| **T_learn** | beta | +0.208 · 16/16 | +0.007 · 0/16 | +0.132 · 15/16 | +0.077 · **16/16** | +0.054 · 15/16 |
+| **T_infspec** | beta | +0.043 · 6/16 | +0.069 · 5/16 | +0.089 · 9/16 | +0.037 · **16/16** | +0.058 · **16/16** |
+| **T_infspec_pe** | beta | +0.090 · 9/16 | +0.066 · 2/16 | **+0.119 · 16/16** | +0.053 · **16/16** | +0.077 · **16/16** |
+
+Three things follow, and the third is the actionable one.
+
+**The offset is not only drift.** The ordered sham runs roughly twice the shuffled sham (β `T_infspec_pe` +0.119 vs +0.053; β `T_test` +0.167 vs +0.081), so session order does inflate these statistics. But the **shuffled** sham — in which temporal order, and therefore drift, has been destroyed — is still significantly positive at 16 of 16 scales for α and β on both source recordings. The construction itself manufactures a positive value: five pseudo-phases carved from one recording share structure, and these difference-correlations convert shared structure into a positive score. This is the mechanism separation the earlier work could not perform, and it rules out "just fix the drift null" as a remedy.
+
+**`T_infspec_pe` reproduces the S2 precedent and generalizes it.** The ordered sham (+0.119, 16/16) **exceeds** the real value (+0.090, 9/16) for β, exactly as `S2_drift_controls.md` recorded (+0.243 sham vs +0.091 real). The withdrawal of the "inference is drift-confounded" verdict was correct — the null was invalid — but the deeper problem is now visible: the statistic is not zero-centred under *any* of these constructions, drift-free ones included.
+
+**What this does and does not invalidate.** It is not the algebra: fed five independent white-noise vectors the four functionals return −0.031 to +0.030, so the estimator is unbiased on independent input and the offset comes from shared structure in real cophenetic distances. And critically, **the project's gate has never been "T > 0"** — it is "observed > surrogate", and a per-phase surrogate (matched-strength, N1) inherits the same construction and therefore carries the same baseline. So this calibration does **not** retroactively void the surrogate-referenced results. What it does void is any statement of the form "`T_infspec_pe` is positive, therefore there is an inference-specific trace", and it imposes a standing requirement: **before quoting a p-value for a conditional functional against any null, show that the null reproduces the no-signal baseline** rather than sitting at zero.
+
+**Limits of this calibration, stated plainly.** The sham is a *probe, not a gate*, for two reasons. Its five pseudo-phases come from one recording and so share more structure than genuinely distinct recordings do, which biases it **upward** relative to a fair no-task arc. And it necessarily uses ~20 % of each real phase's duration, which matters enormously: truncating the real arc to the same duration collapses β `T_test` from +0.237 (16/16) to +0.046 (0/16). These functionals are strongly data-hungry, so "real full-duration exceeds sham" and "real duration-matched falls below sham" are both true and neither is the decisive comparison. The decisive comparison remains observed-versus-surrogate at full duration. One further inconsistency to note: the sham estimates all five pseudo-phases at the full `nperseg`, while the real arc uses `nperseg // 2` for A and B (see §7a).
 
 ## 7. What was not run, and why
 

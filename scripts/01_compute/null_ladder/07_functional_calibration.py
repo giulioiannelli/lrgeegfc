@@ -336,8 +336,11 @@ def main():
                        & (co.source == src)].sort_values("s")
                 if g.empty:
                     continue
-                print(f"  {band:11s} {con:15s} {src:10s} {g.median.values[0]:+10.3f} "
-                      f"{np.median(g['median'].values):+12.3f} "
+                # NB: g["median"], never g.median -- the latter is the DataFrame
+                # method and silently shadows the column of that name.
+                med = g["median"].values
+                print(f"  {band:11s} {con:15s} {src:10s} {med[0]:+10.3f} "
+                      f"{np.median(med):+12.3f} "
                       f"{int((g.p_vs0_greater < 0.05).sum()):>13d}/{len(g)}")
     print(f"\nwrote {OUT/'per_cell.csv'} and {OUT/'cohort.csv'}", flush=True)
     print(f"[calib] {len(df)} rows in {time.time()-t0:.0f}s", flush=True)
