@@ -43,12 +43,25 @@ The contract, and why each clause exists
    readers want them, and are never consulted by the decision. The signed-rank
    test is the gate.
 
-Substrate and null are injected, not chosen here
-------------------------------------------------
-This module never loads data, never builds a graph and never draws a surrogate.
-It consumes ``(obs, surr)`` arrays. Swapping the FC transform, the backbone or
-the surrogate family changes what is handed in and changes nothing here, which
-is exactly the decoupling that lets a locked gate outlive an unlocked pipeline.
+Statistic, substrate and null are all injected, not chosen here
+--------------------------------------------------------------
+This module never loads data, never builds a graph, never draws a surrogate and
+never computes the statistic. It consumes ``(obs, surr)`` arrays, so it gates a
+cross-phase trace, a partial correlation, a detector AUC or a localization score
+identically. Swapping the FC transform, the backbone, the surrogate family or
+the functional changes what is handed in and changes nothing here -- the
+decoupling that lets a locked gate outlive an unlocked pipeline.
+
+Multiplicity
+------------
+The default is whole-grid BH, because the grid is the coordinated family. But a
+*swept axis* -- diffusion scale, frequency, lag -- is a smooth curve whose
+positions are near-duplicates, and BH charges full price for every one of them.
+:func:`effective_tests` measures how many independent tests the sweep is really
+worth, and :func:`axis_cluster_gate` offers the alternative that respects the
+smoothness: one sign-flip cluster-mass test for the whole axis, so a family of
+six bands is six tests rather than six times the axis length. Report the grid in
+full (its shape is a result) and choose the family deliberately.
 
 Calibration
 -----------
@@ -59,6 +72,22 @@ observed value is exchangeable with its own surrogates, so the resulting
 p-values must be uniform; the empirical rejection rate at a nominal level is the
 gate's false-positive rate on the real graphs, not on a Gaussian toy.
 :func:`calibrate_synthetic` provides the toy as a cross-check.
+
+**Conditional statistics must be calibrated before they are gated.** A partial
+correlation entangles the conditioning variable with the estimator, and can
+return systematically positive values from input containing no signal at all --
+this is not hypothetical here: a sham arc constructed entirely inside pre-task
+rest, where no consolidation can exist, produced a significantly positive
+conditional trace (p = 0.007) that exceeded the real value. So
+``gate_grid(..., calibrate=True)`` measures each cell's false-positive rate and,
+by default, **withholds** ``p`` and ``q`` for any cell whose statistic/null pair
+fails. A p-value from a miscalibrated pair is not conservative, not liberal and
+not interpretable, and reporting it with a caveat is worse than not reporting
+it. Note what this does and does not cover: the held-out-realization test
+calibrates the statistic against *the null actually being used*. It cannot
+detect a bias that the null shares -- for that the statistic needs a
+**data-based placebo** (a no-signal arc built from the recording itself), which
+is a separate deliverable and a separate dependency.
 
 General statistics primitive -- no dataset-, band- or manuscript-local scope.
 """
@@ -73,6 +102,7 @@ from scipy.stats import kstest, spearmanr
 from lrg_eegfc.utils.metrics.hypothesis import (
     bh_fdr,
     boot_ci_mean,
+    cluster_stats,
     rank_biserial,
     wilcoxon_z,
 )
@@ -83,6 +113,8 @@ __all__ = [
     "cohort_margin_gate",
     "gate_grid",
     "loo_grid_flips",
+    "effective_tests",
+    "axis_cluster_gate",
     "calibrate_from_surrogates",
     "calibrate_synthetic",
     "DESCRIPTIVE_ALPHA",
@@ -320,6 +352,10 @@ def gate_grid(
     full: bool = True,
     expect_n: Optional[int] = None,
     exclusion_reason: Optional[str] = None,
+    calibrate: bool = False,
+    calibration_draws: int = 200,
+    fpr_tolerance: float = 0.10,
+    refuse_uncalibrated: bool = True,
 ):
     """Run :func:`cohort_margin_gate` over a grid of cells and add BH q-values.
 
@@ -337,6 +373,27 @@ def gate_grid(
         explicit argument that the groups are independent claims.
     full
         Forwarded to :func:`cohort_margin_gate`.
+    calibrate
+        Run :func:`calibrate_from_surrogates` on every cell and add ``fpr_05``,
+        ``fpr_01`` and ``calibrated``. **Required for any statistic whose
+        estimator can manufacture signal from null input** -- conditional and
+        partial correlations above all, which entangle the conditioning variable
+        with the estimator and are known in this project to have returned a
+        significantly positive value on a no-signal placebo. An ordinary
+        difference-of-correlations statistic is much less exposed, but the check
+        is cheap enough to run on everything.
+    calibration_draws
+        Held-out realizations per cell.
+    fpr_tolerance
+        A cell is marked ``calibrated=False`` when its measured false-positive
+        rate at the 0.05 level exceeds this. It is a *calibration* tolerance --
+        a statement about whether the test is a test at all -- and never an
+        acceptance threshold on the science.
+    refuse_uncalibrated
+        When ``True`` (default) an uncalibrated cell's ``p`` and ``q`` are set to
+        NaN rather than reported. A p-value from a miscalibrated statistic/null
+        pair is not conservative, not liberal, and not interpretable; it is
+        withheld. The measured FPR is still reported so the failure is visible.
 
     Returns
     -------
@@ -353,6 +410,15 @@ def gate_grid(
                                  rng=rng, full=full, expect_n=expect_n,
                                  exclusion_reason=exclusion_reason)
         res.pop("loo_p", None)
+        if calibrate:
+            cal = calibrate_from_surrogates(np.asarray(surr, float),
+                                            n_draws=calibration_draws, rng=rng)
+            res["fpr_05"] = cal["fpr_0.05"]
+            res["fpr_01"] = cal["fpr_0.01"]
+            res["calibrated"] = bool(np.isfinite(cal["fpr_0.05"])
+                                     and cal["fpr_0.05"] <= fpr_tolerance)
+            if refuse_uncalibrated and not res["calibrated"]:
+                res["p"] = np.nan
         rows.append({**dict(keys), **res})
     df = pd.DataFrame(rows)
     if df.empty:
@@ -437,6 +503,121 @@ def loo_grid_flips(
     per_cell["n_drop_lost"] = lost
     per_cell["loo_p_max"] = loo_p_max
     return pd.DataFrame(rows), per_cell
+
+
+# --------------------------------------------------------------------------- #
+# multiplicity: how many tests were really run
+# --------------------------------------------------------------------------- #
+def effective_tests(M) -> dict:
+    """How many independent tests a correlated sweep is really worth.
+
+    ``M`` is ``(K, n_axis)`` -- one row per patient, one column per position on a
+    swept axis (diffusion scale, frequency, lag). Benjamini-Hochberg treats the
+    ``n_axis`` columns as ``n_axis`` separate tests, but a swept axis is a smooth
+    curve: neighbouring positions are near-duplicates, and correcting as if they
+    were independent can cost an order of magnitude of power for nothing.
+
+    Two standard readouts of the correlation matrix ``C`` of the columns:
+
+    ``n_eff_pr``
+        participation ratio of the eigenvalues, ``(sum l)^2 / sum l^2`` -- the
+        effective number of independent directions.
+    ``n_eff_cn``
+        the Cheverud-Nyholt style estimate ``1 + (n - 1)(1 - var(l)/n)``.
+
+    Returns both plus ``n_axis`` and the mean off-diagonal correlation. This is a
+    *diagnostic*, not a correction: report it alongside a whole-grid BH so the
+    reader knows how conservative that correction is. Substituting ``n_eff`` for
+    ``n`` in a BH denominator is not a validated procedure and this module does
+    not do it.
+    """
+    M = np.asarray(M, dtype=float)
+    ok = np.isfinite(M).all(axis=0)
+    X = M[:, ok]
+    n = X.shape[1]
+    out = dict(n_axis=int(M.shape[1]), n_finite=int(n),
+               n_eff_pr=np.nan, n_eff_cn=np.nan, mean_offdiag=np.nan)
+    if n < 2 or X.shape[0] < 3:
+        return out
+    C = np.corrcoef(X, rowvar=False)
+    C = np.where(np.isfinite(C), C, 0.0)
+    lam = np.linalg.eigvalsh(C)
+    lam = np.clip(lam, 0.0, None)
+    ssum = lam.sum()
+    if ssum > 0:
+        out["n_eff_pr"] = float(ssum ** 2 / np.sum(lam ** 2))
+    out["n_eff_cn"] = float(1.0 + (n - 1) * (1.0 - np.var(lam) / n))
+    iu = np.triu_indices(n, 1)
+    out["mean_offdiag"] = float(np.mean(C[iu]))
+    return out
+
+
+def axis_cluster_gate(
+    M,
+    *,
+    n_perm: int = 10_000,
+    rng: Optional[np.random.Generator] = None,
+    z_thresh: float = 1.0,
+) -> dict:
+    """One p-value for a whole swept axis, via sign-flip cluster mass.
+
+    ``M`` is ``(K, n_axis)`` of per-patient margins. Instead of asking "does the
+    margin clear at position ``j``?" ``n_axis`` times, this asks the single
+    question the sweep was designed to answer -- "is there a contiguous stretch
+    of this axis where the cohort margin is positive?" -- and answers it against
+    a sign-flip null that respects the axis's smoothness (Maris-Oostenveld).
+
+    Procedure: form the per-position one-sample z of the margins, find
+    supra-threshold runs with :func:`~lrg_eegfc.utils.metrics.hypothesis.cluster_stats`,
+    take the largest cluster mass, and compare it with the same statistic under
+    random sign flips of each patient's entire profile. Flipping whole profiles,
+    not individual positions, is what preserves the correlation along the axis.
+
+    This collapses a 28-position sweep to ONE test, so a family of six bands is
+    six tests rather than 168 -- the honest multiplicity when the scientific
+    question is per-band. It is a companion to, not a replacement for, the
+    per-position grid: the grid is still reported in full because the shape of
+    the curve is itself a result.
+
+    ``z_thresh`` is the cluster-forming threshold. It selects which clusters are
+    *formed*, not which are significant -- the permutation distribution is built
+    with the same threshold, so the test remains exact whatever it is set to.
+
+    Returns ``p``, ``mass``, ``cluster`` (start, end indices), ``n_clusters``,
+    and ``z`` (the per-position z profile).
+    """
+    M = np.asarray(M, dtype=float)
+    rng = rng or np.random.default_rng(0)
+    ok = np.isfinite(M).all(axis=0)
+    X = M[:, ok]
+    K, n = X.shape
+    out = dict(p=np.nan, mass=np.nan, cluster=None, n_clusters=0,
+               z=np.full(M.shape[1], np.nan))
+
+    def _mass(Y):
+        mu = Y.mean(axis=0)
+        sd = Y.std(axis=0, ddof=1)
+        with np.errstate(invalid="ignore", divide="ignore"):
+            z = np.where(sd > _EPS, mu / (sd / np.sqrt(Y.shape[0])), 0.0)
+        cl = cluster_stats(z, z_thresh)
+        return (max((c[2] for c in cl), default=0.0), cl, z)
+
+    if K < 3 or n < 1:
+        return out
+    obs_mass, cl, z = _mass(X)
+    out["z"][ok] = z
+    out["mass"] = float(obs_mass)
+    out["n_clusters"] = len(cl)
+    if cl:
+        best = max(cl, key=lambda c: c[2])
+        idx = np.flatnonzero(ok)
+        out["cluster"] = (int(idx[best[0]]), int(idx[best[1]]))
+    null = np.empty(n_perm)
+    for i in range(n_perm):
+        sgn = rng.choice((-1.0, 1.0), size=(K, 1))
+        null[i] = _mass(X * sgn)[0]
+    out["p"] = float((1 + int(np.sum(null >= obs_mass))) / (n_perm + 1))
+    return out
 
 
 # --------------------------------------------------------------------------- #
