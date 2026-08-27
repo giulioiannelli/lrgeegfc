@@ -95,15 +95,22 @@ def gate_table(d, rung):
 
 
 def main():
-    tabs = {}
+    raw = {}
     for rung in RUNGS:
         d = load_rung(rung)
         if d is None:
             print(f"[skip] {rung}: no per_patient_scale.csv", flush=True)
             continue
-        tabs[rung] = gate_table(d, rung)
-    if not tabs:
+        raw[rung] = d
+    if not raw:
         print("nothing to summarize"); return
+
+    # BH must run over the SAME (band x scale) family in every rung, or the
+    # rungs are corrected against different family sizes and the q columns are
+    # not comparable. Restrict to the bands every rung actually covers.
+    common = sorted(set.intersection(*(set(d.band.unique()) for d in raw.values())))
+    print(f"[BH family] bands common to all rungs: {common}", flush=True)
+    tabs = {r: gate_table(d[d.band.isin(common)], r) for r, d in raw.items()}
 
     allg = pd.concat(tabs.values(), ignore_index=True)
     allg.to_csv(OUT / "ladder_gate_all.csv", index=False)
@@ -117,12 +124,21 @@ def main():
         ("q<0.05", lambda g: (g.gate_q < 0.05).sum(), "BH across band x scale, within rung"),
         ("LOO-robust", lambda g: g.loo_all_clear.sum(), "gate holds dropping ANY single patient"),
     ]:
+        pass
+    for metric, fn, note in [
+        ("p<0.05", lambda g: f"{int((g.gate_p < 0.05).sum())}", "raw p"),
+        ("min p", lambda g: f"{np.nanmin(g.gate_p):.4f}", "smallest over scales"),
+        ("q<0.05", lambda g: f"{int((g.gate_q < 0.05).sum())}", "BH over the COMMON band x scale family"),
+        ("min q", lambda g: f"{np.nanmin(g.gate_q):.4f}",
+         "n=10 Wilcoxon floor is 1/1024, so q near 0.05 is at the grid's resolution"),
+        ("LOO-robust", lambda g: f"{int(g.loo_all_clear.sum())}", "gate holds dropping ANY single patient"),
+    ]:
         print(f"\n--- {metric}  ({note}) ---\n{hdr}", flush=True)
         for band in BANDS:
             line = f"{band:12s}"
             for r in tabs:
                 gb = tabs[r][tabs[r].band == band]
-                line += f"{('-' if gb.empty else str(int(fn(gb)))):>12s}"
+                line += f"{('-' if gb.empty else fn(gb)):>12s}"
             print(line, flush=True)
 
     print(f"\n{'='*100}\nEFFECT SIZE — cohort median margin (obs - surr_p50), "
