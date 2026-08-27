@@ -31,10 +31,11 @@ from lrg_eegfc.utils.metrics.hypothesis import bh_fdr
 
 OUT = ROOT / "data" / "paper_final" / "w0b_nulls"
 BANDS = ["delta", "theta", "alpha", "beta", "low_gamma", "high_gamma"]
-RUNGS = ["ms", "n1", "n2", "n1b", "n3_order", "n3_free", "n4"]
+RUNGS = ["ms", "n1", "n1_fixedbb", "n2", "n1b", "n3_order", "n3_free", "n4"]
 LABEL = {
     "ms": "matched-strength (incumbent, matrix-level)",
     "n1": "N1 lag-randomized coherency (circular shift, freq domain)",
+    "n1_fixedbb": "N1 on the OBSERVED backbone (isolates lag from topology reselection)",
     "n2": "N2 per-(chan,freq) phase randomization",
     "n1b": "N1b segment-lattice shift (shift predictor / independence)",
     "n3_order": "N3 order-preserving block rotation (EXACT, drift-aware)",

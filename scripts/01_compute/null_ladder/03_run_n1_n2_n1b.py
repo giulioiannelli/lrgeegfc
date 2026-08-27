@@ -108,8 +108,27 @@ def eig_mst(W):
     return laplacian_eig(select_backbone(W, BACKBONE, frac=FRAC))
 
 
-def readout(W_by_phase):
-    return rho_sym_over_scales({ph: eig_mst(W_by_phase[ph]) for ph in PHASES}, SGRID)
+def readout(W_by_phase, masks=None):
+    """rho_sym(s) through the production backbone + LRG path.
+
+    ``masks`` pins the backbone EDGE SET to a supplied one instead of re-selecting
+    it from the surrogate weights. This is what the ``n1_fixedbb`` rung needs.
+    Rationale: N1 sends ``W`` toward ``(2/pi)|C|``, and the |C| edge ranking is not
+    the |ImCoh| ranking -- on sEEG, |C| is dominated by same-probe pairs (a known
+    2-8x bias, CLAUDE.md invariant 5). A plain N1 surrogate therefore lives on a
+    DIFFERENT graph from the observed, and part of its high floor could be the
+    stability of that anatomical scaffold across phases rather than anything about
+    lag. Holding the observed backbone fixed removes that explanation, so the
+    comparison isolates the lag content of the weights.
+    """
+    eig = {}
+    for ph in PHASES:
+        W = W_by_phase[ph]
+        if masks is None:
+            eig[ph] = eig_mst(W)
+        else:
+            eig[ph] = laplacian_eig(W * masks[ph])
+    return rho_sym_over_scales(eig, SGRID)
 
 
 def load_segment_ffts(pat, band):
@@ -156,12 +175,17 @@ def per_cell(job):
         S = csd_from_segment_subset(F, None, scale)
         Cobs[ph] = coherency_from_csd(S)
         Wobs[ph] = imcoh_abs_from_coherency(Cobs[ph])
-    obs = readout(Wobs)
+    # n1_fixedbb pins the backbone to the OBSERVED one (see readout docstring)
+    masks = None
+    if rung == "n1_fixedbb":
+        masks = {ph: (select_backbone(Wobs[ph], BACKBONE, frac=FRAC) > 0).astype(float)
+                 for ph in PHASES}
+    obs = readout(Wobs, masks)
 
     # ---- equivalence gate vs the cached-FC observed (script 13's statistic) ----
     try:
         Wc = {ph: load_phase(pat, ph, band) for ph in PHASES}
-        obs_cached = readout(Wc)
+        obs_cached = readout(Wc, masks)     # same footing as obs for every rung
         d_obs = float(np.nanmax(np.abs(obs - obs_cached)))
     except Exception:
         obs_cached, d_obs = np.full(SGRID.size, np.nan), np.nan
@@ -171,7 +195,7 @@ def per_cell(job):
     for r in range(R):
         Ws = {}
         for ph, (freqs, F, scale, fs, nps) in segs.items():
-            if rung == "n1":
+            if rung in ("n1", "n1_fixedbb"):
                 Cs = lag_randomized_coherency(Cobs[ph], freqs, fs, rng, nperseg=nps)
                 Ws[ph] = imcoh_abs_from_coherency(Cs)
             elif rung == "n2":
@@ -182,7 +206,7 @@ def per_cell(job):
                 Ws[ph] = imcoh_abs_from_coherency(coherency_from_csd(S))
             else:
                 raise ValueError(rung)
-        surr[r] = readout(Ws)
+        surr[r] = readout(Ws, masks)
 
     rows = []
     for j, s in enumerate(SGRID):
@@ -226,7 +250,8 @@ def cohort_gate(df):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--rungs", default="n1,n2,n1b")
+    ap.add_argument("--rungs", default="n1,n2,n1b",
+                    help="n1 | n2 | n1b | n1_fixedbb (N1 on the observed backbone)")
     ap.add_argument("--bands", default="")
     ap.add_argument("--patients", default="")
     ap.add_argument("--workers", type=int, default=int(os.environ.get("NL_WORKERS", 10)))
@@ -240,15 +265,24 @@ def main():
     print(f"[w0b] {len(jobs)} cells | rungs={rungs} bands={bands} n_pat={len(pats)} "
           f"R={R} scales={len(SGRID)} workers={a.workers}", flush=True)
 
-    t0, rows = time.time(), []
-    with Pool(a.workers) as pool:
-        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, jobs), 1):
-            if rl:
-                rows.extend(rl)
-            el = time.time() - t0
-            print(f"[{i}/{len(jobs)}] {msg} | {el:.0f}s ETA {el/i*(len(jobs)-i):.0f}s", flush=True)
+    parts = OUT_ROOT / "_parts_rho"             # per-cell checkpoint; resumable
+    parts.mkdir(parents=True, exist_ok=True)
+    done = {p.stem for p in parts.glob("*.csv")}
+    todo = [j for j in jobs if f"{j[1]}__{j[2]}__{j[3]}" not in done]
+    print(f"[w0b] {len(done)} cells checkpointed; {len(todo)} to run", flush=True)
 
-    df = pd.DataFrame(rows)
+    t0 = time.time()
+    with Pool(a.workers) as pool:
+        for i, (rl, msg) in enumerate(pool.imap_unordered(per_cell, todo), 1):
+            if rl:
+                r0 = rl[0]
+                pd.DataFrame(rl).to_csv(
+                    parts / f"{r0['patient']}__{r0['band']}__{r0['rung']}.csv", index=False)
+            el = time.time() - t0
+            print(f"[{i}/{len(todo)}] {msg} | {el:.0f}s ETA {el/i*(len(todo)-i):.0f}s", flush=True)
+
+    got = [pd.read_csv(p) for p in sorted(parts.glob("*.csv"))]
+    df = pd.concat(got, ignore_index=True) if got else pd.DataFrame()
     if df.empty:
         print("[w0b] no rows"); return
     for rung in rungs:
