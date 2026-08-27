@@ -222,7 +222,68 @@ Two things follow. The **physical** reach saturates at ~92% of the implant span 
 
 ## 3. Five phases, not four: encoding vs inference across scales
 
-*(section filled from `w0c_07_encinf_verdict.py`; see §4)*
+The cross-phase object is five graphs — A, B (rest_pre halves), `task_learn` (ordered premises presented), `task_test` (novel non-adjacent pairs, answerable only by inference), `rest_post`. Four functionals, every one at every scale, `w0c_06`/`w0c_07`. Separating learning a structure from applying it is what distinguishes this from a generic task effect, so it gets its own grid rather than being read off the four-phase one.
+
+### 3.1 Is the conditional functional reportable? Two checks, both passed
+
+`T_infspec_pe` is a partial correlation, and this project has a documented case of a conditional estimator returning a significantly positive value from a no-signal placebo. Two checks ran before any p-value was quoted.
+
+**Held-out-realization calibration**, per cell, with `refuse_uncalibrated=True` armed: **0 of 168 cells withheld** for any of the four functionals; median per-cell FPR at the 0.05 level 0.033–0.045 across functionals. The gate is calibrated against matched-strength for the conditional statistic exactly as it is for the ordinary one.
+
+**Role-permutation placebo** — the five *observed* graphs with the five role labels permuted (all 119 non-identity permutations), so the estimator sees real cophenetic geometries in an arbitrary arrangement. If a functional manufactures sign from its own structure, this is where it shows.
+
+| functional | placebo median over bands and scales [min, max] | cells where the placebo is itself significantly > 0 |
+|---|---|---|
+| T_test | −0.035 [−0.082, −0.010] | 0/168 |
+| T_learn | −0.036 [−0.082, −0.009] | 0/168 |
+| T_infspec | +0.000 [−0.005, +0.004] | 2/168 |
+| **T_infspec_pe** | **−0.019** [−0.038, −0.001] | **0/168** |
+
+All four sit at or slightly below zero. **The conditional functional shows no positive structural bias on this data** — if anything a small negative offset, which makes its positive observations conservative rather than inflated.
+
+The caveat is real and is not closed by this: role permutation treats the five phases as exchangeable, which they are not, and neither check can detect a bias the matched-strength null itself shares. A **data-based placebo** — a no-signal arc built from rest_pre sub-segments — is still required, and is W0-B's. Until it exists, `T_infspec_pe` is provisional.
+
+### 3.2 What persists, under the per-band family
+
+Whole-grid BH over 168 cells is the overcharging family here for the same reason as in §1.4, so both are reported. Under whole-grid BH the picture is nearly empty: `T_test` β 23/28 and α 1/28; `T_learn` **0/28 in every band** (best q = 0.062, β at s = 4.73); `T_infspec` 0/28 everywhere; `T_infspec_pe` δ 3/28, α 1/28, β 0/28. Under the axis-cluster gate (one test per band per functional, BH over the 6 bands):
+
+| functional | δ | θ | α | β | low_γ | high_γ |
+|---|---|---|---|---|---|---|
+| T_test (whole task) | 0.084 | 1.000 | 0.084 | **0.017** | 0.139 | 0.139 |
+| T_learn (encoding) | 0.124 | 0.343 | 0.100 | **0.037** | 0.124 | 0.100 |
+| T_infspec (uncond.) | 0.403 | 0.932 | 0.932 | 0.064 | 1.000 | 1.000 |
+| T_infspec_pe (inference \| encoding) | **0.043** | 0.599 | **0.043** | **0.043** | 0.607 | 0.212 |
+
+(cluster q; bold = q < 0.05)
+
+Three readings, all recomputed fresh and none taken from prior text.
+
+- **Encoding persists, in β only** (cluster p = 0.0062, q = 0.037, supra-threshold across the whole span s = 0.05–180). It does not survive whole-grid BH, which is why it reads as absent under that family.
+- **Inference-specific persistence requires conditioning on encoding.** Unconditioned `T_infspec` clears nowhere (β q = 0.064 is the closest). Conditioned on encoding it clears in **δ, α and β** (q = 0.043 for all three). So the "inference-specific in β *alone*" claim does not reproduce, and the "δ/α/β, not β alone" correction does — now derived under a proper family with the conditional estimator's bias explicitly bounded.
+- The conditional functional carries more scale structure than the whole-task one: its effective number of independent scales is 2.3–3.2, against 1.2–1.9 for `T_test`. That is the one place in this lane where the scale axis is doing measurably more work.
+
+### 3.3 The scale dissociation — suggestive, not established
+
+Do encoding and inference persist at *different* scales? Tested on the per-patient profile centroid in log s, paired within patient, so an amplitude difference between the two curves cannot produce it.
+
+| band | T_learn centroid s | T_infspec_pe centroid s | p(learn < inf) | p(learn > inf) | mean shift (log s) [95% CI] | shift in s | 80%-power MDE | n |
+|---|---|---|---|---|---|---|---|---|
+| delta | 9.43 | 3.38 | 0.615 | 0.423 | −0.240 [−1.484, +0.965] | ×0.79 | 1.79 | 10 |
+| theta | 3.10 | 2.20 | 0.722 | 0.313 | −0.621 [−2.046, +0.681] | ×0.54 | 2.00 | 10 |
+| **alpha** | **2.39** | **4.04** | **0.027** | 0.981 | **+0.996 [+0.176, +1.889]** | **×2.71** | 1.18 | 9 |
+| **beta** | **6.09** | **2.08** | 0.976 | **0.032** | **−1.204 [−2.271, −0.250]** | **×0.30** | 1.46 | 10 |
+| low_gamma | 4.67 | 2.87 | 0.633 | 0.410 | −0.249 [−1.912, +1.560] | ×0.78 | 2.40 | 9 |
+| high_gamma | 2.18 | 2.93 | 0.191 | 0.844 | +1.010 [−0.808, +3.022] | ×2.75 | 3.01 | 8 |
+
+Nominally there is a dissociation in two bands, and it is a real dissociation of *position*, not amplitude: in α the inference-specific trace sits at a scale **2.7× coarser** than the encoding trace (p = 0.027), and in β it sits **3.3× finer** (p = 0.032). Both bootstrap CIs exclude zero.
+
+Three reasons it must be reported as suggestive and not as a result:
+
+1. **It does not survive correction.** BH across the directional tests gives min q = 0.193. Nothing clears.
+2. **The two bands disagree in direction.** A single mechanism — "inference is coarser than encoding" — predicts one sign. Getting +2.71× in α and ×0.30 in β is what a pair of underpowered draws looks like as easily as what a band-specific mechanism looks like.
+3. **Both observed shifts sit at or below the design's detection threshold.** The smallest paired shift this n and this spread would catch at 80% power is 1.18 log units for α (observed 0.996) and 1.46 for β (observed 1.204). Both nominal significances are therefore lucky draws relative to the power available, which is exactly the regime that does not replicate.
+
+**Verdict: the encoding-vs-inference scale dissociation is the most interesting thing in this lane and is not established at n = 10.** It is worth a pre-registered replication with a directional hypothesis fixed in advance — that would cut the family from 12 to 1 and is the only route by which this reaches significance without more patients. It should not be written into the paper as a finding in its present state.
 
 ---
 
