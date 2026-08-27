@@ -43,6 +43,9 @@ __all__ = [
     "linkage_at_scale",
     "rho_sym",
     "rho_sym_over_scales",
+    "CROSS_PHASE_ROLES",
+    "cross_phase_functionals",
+    "cross_phase_functionals_over_scales",
 ]
 
 RHO_FLOOR = 1e-30          # heat-kernel underflow floor (K>=0 exactly; far pairs)
@@ -245,4 +248,129 @@ def rho_sym_over_scales(eig_by_phase: dict, s_grid: NDArray,
             out[i], _ = rho_sym(D["A"], D["B"], D["task_test"], D["rest_post"])
         except Exception:
             out[i] = np.nan
+    return out
+
+
+# --------------------------------------------------------------------------- #
+# cross-phase functionals over an arbitrary phase set
+# --------------------------------------------------------------------------- #
+#: Semantic role -> default phase key. The functionals below are defined on
+#: ROLES, not on dataset-specific phase names, so a study with different labels
+#: only has to remap this dict. ``encode`` is optional: drop it from the phase
+#: set and only the ``probe``-based functional is returned, so a four-phase and
+#: a five-phase caller share one code path.
+CROSS_PHASE_ROLES = {
+    "baseline_a": "A",
+    "baseline_b": "B",
+    "encode": "task_learn",
+    "probe": "task_test",
+    "follow": "rest_post",
+}
+
+
+def _average_ranks(x: NDArray) -> NDArray:
+    """Average ranks (ties shared). Pearson on these equals Spearman."""
+    from scipy.stats import rankdata
+    return rankdata(x)
+
+
+def _partial_from_corr(r_xy: float, r_xz: float, r_yz: float) -> float:
+    """First-order partial correlation ``r(x, y | z)`` from the three pairwise r."""
+    den = np.sqrt(max(0.0, (1.0 - r_xz ** 2) * (1.0 - r_yz ** 2)))
+    return float((r_xy - r_xz * r_yz) / den) if den > 0 else float("nan")
+
+
+def cross_phase_functionals(D: dict, roles: dict | None = None) -> dict:
+    """Symmetric split-half cross-phase functionals from cophenetic distances.
+
+    ``D`` maps a phase name to its condensed cophenetic distance vector (all on
+    the same pair index set). ``roles`` maps the five semantic roles --
+    ``baseline_a``, ``baseline_b``, ``encode``, ``probe``, ``follow`` -- to the
+    phase names present; it defaults to :data:`CROSS_PHASE_ROLES`.
+
+    With a **two-stage task** (an ``encode`` phase that establishes a structure
+    and a ``probe`` phase that applies it) the reorganisation vectors are
+
+    ``e  = D_encode - D_A``      (encoding, arm A)      ``e2 = D_encode - D_B``
+    ``f  = D_probe  - D_encode`` (probe-specific; arm-invariant by construction)
+    ``g  = D_probe  - D_A``      (total task change)    ``g2 = D_probe  - D_B``
+    ``p  = D_follow - D_B``      (persistence)          ``p2 = D_follow - D_A``
+
+    and the returned functionals, each symmetrised over the arbitrary A/B arm
+    assignment and each **cross-baseline** (an A-referenced change is always
+    paired with a B-referenced persistence, so no arm shares a baseline with
+    itself -- shared-baseline pairing inflates the correlation):
+
+    ``T_probe``        ``1/2[rho(g, p) + rho(g2, p2)]``  -- the standard trace.
+    ``T_encode``       ``1/2[rho(e, p) + rho(e2, p2)]``  -- does the *encoding*
+                       reorganisation persist?
+    ``T_probespec``    ``1/2[rho(f, p) + rho(f, p2)]``   -- does the change the
+                       probe adds *on top of* encoding persist?
+    ``T_probespec_pe`` ``1/2[pr(f, p | e) + pr(f, p2 | e2)]`` -- the same with
+                       the encoding component partialled out.
+
+    ``rho`` is Spearman throughout, obtained from a single rank correlation
+    matrix per call rather than by repeated pairwise ``spearmanr``. If no
+    ``encode`` phase is present only ``T_probe`` is returned.
+
+    Note: ``T_probe`` is numerically identical to :func:`rho_sym` on the same
+    four phases.
+    """
+    roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    A, B = D[roles["baseline_a"]], D[roles["baseline_b"]]
+    P, F = D[roles["probe"]], D[roles["follow"]]
+    enc_key = roles.get("encode")
+    has_enc = enc_key is not None and enc_key in D
+
+    vecs = {"g": P - A, "g2": P - B, "p": F - B, "p2": F - A}
+    if has_enc:
+        E = D[enc_key]
+        vecs.update({"e": E - A, "e2": E - B, "f": P - E})
+
+    names = list(vecs)
+    Rmat = np.corrcoef(np.vstack([_average_ranks(vecs[k]) for k in names]))
+    ix = {k: i for i, k in enumerate(names)}
+
+    def r(a, b):
+        return float(Rmat[ix[a], ix[b]])
+
+    out = {"T_probe": 0.5 * (r("g", "p") + r("g2", "p2"))}
+    if has_enc:
+        out["T_encode"] = 0.5 * (r("e", "p") + r("e2", "p2"))
+        out["T_probespec"] = 0.5 * (r("f", "p") + r("f", "p2"))
+        out["T_probespec_pe"] = 0.5 * (
+            _partial_from_corr(r("f", "p"), r("f", "e"), r("p", "e"))
+            + _partial_from_corr(r("f", "p2"), r("f", "e2"), r("p2", "e2"))
+        )
+    return out
+
+
+def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
+                                        roles: dict | None = None,
+                                        rho_floor: float = RHO_FLOOR) -> dict:
+    """:func:`cross_phase_functionals` swept over a diffusion-scale grid.
+
+    ``eig_by_phase`` maps each phase present to its ``(eigenvalues,
+    eigenvectors)``. The phase set is taken as **data**: whichever phases are in
+    the dict are used, so adding or removing the ``encode`` phase needs no
+    change here or in any caller. Returns ``{functional: array(len(s_grid))}``,
+    ``NaN`` wherever a cophenetic tree is degenerate.
+    """
+    roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    need = [roles[k] for k in ("baseline_a", "baseline_b", "probe", "follow")]
+    missing = [ph for ph in need if ph not in eig_by_phase]
+    if missing:
+        raise KeyError(f"cross-phase functionals need phases {missing}")
+    has_enc = roles.get("encode") in eig_by_phase
+    phases = need + ([roles["encode"]] if has_enc else [])
+    keys = ["T_probe"] + (["T_encode", "T_probespec", "T_probespec_pe"] if has_enc else [])
+    out = {k: np.full(len(s_grid), np.nan) for k in keys}
+    for i, s in enumerate(s_grid):
+        try:
+            D = {ph: cophenetic_at_scale(*eig_by_phase[ph], s, rho_floor) for ph in phases}
+            vals = cross_phase_functionals(D, roles)
+        except Exception:
+            continue
+        for k in keys:
+            out[k][i] = vals.get(k, np.nan)
     return out
