@@ -3,4 +3,4 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export W0C_WORKERS="${W0C_WORKERS:-4}"
-exec "$HERE/run_py.sh" "$HERE/scripts/01_compute/paper_final/w0c_06_encinf_scale_grid.py" "$@"
+exec "$HERE/run_py.sh" "$HERE/w0c_06_encinf_scale_grid.py" "$@"
