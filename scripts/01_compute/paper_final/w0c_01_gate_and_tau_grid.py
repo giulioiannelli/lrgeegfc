@@ -113,7 +113,7 @@ FC_METHOD = os.environ.get("W0C_FC_METHOD", "imcoh_abs")
 BACKBONE = os.environ.get("W0C_BACKBONE", "mst020")
 FRAC = float(os.environ.get("W0C_FRAC", "0.20"))
 R = int(os.environ.get("W0C_R", "200"))
-WORKERS = int(os.environ.get("W0C_WORKERS", "12"))
+WORKERS = int(os.environ.get("W0C_WORKERS", "4"))
 OUT = Path(os.environ.get("W0C_OUT", ROOT / "data" / "paper_final" / "w0c_gate_tau" / "grid"))
 #: Reuse an existing cell file instead of redrawing its surrogate ensemble. The
 #: draws are seeded per cell, so a resumed run is identical to an unbroken one.

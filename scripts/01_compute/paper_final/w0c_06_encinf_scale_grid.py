@@ -99,7 +99,7 @@ BACKBONE = os.environ.get("W0C_BACKBONE", "mst020")
 FRAC = float(os.environ.get("W0C_FRAC", "0.20"))
 R = int(os.environ.get("W0C_R", "200"))
 N_PERM = int(os.environ.get("W0C_NPERM", "200"))
-WORKERS = int(os.environ.get("W0C_WORKERS", "10"))
+WORKERS = int(os.environ.get("W0C_WORKERS", "4"))
 OUT = Path(os.environ.get("W0C_ENCINF_OUT",
                           ROOT / "data" / "paper_final" / "w0c_gate_tau" / "encinf"))
 RESUME = os.environ.get("W0C_RESUME", "1") not in ("0", "false", "False")
