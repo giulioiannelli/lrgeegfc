@@ -163,6 +163,26 @@ Three of the four Wave-0 fracture-6 questions are now answered, and the answers 
 
 **What is genuinely unsettled.** Whether the trace survives session repartitioning (N3, running at the time of writing — §11); `high_gamma` under any new rung; and, most importantly, the constructive question this lane can pose but not answer — **if the discriminative content is coherence magnitude rather than lag, is ordinary coherence the better substrate for this paper?** That belongs to W0-A, which owns the transform decision, and it should be told that the lag-specificity argument for `|ImCoh|` is not supported by the trace result.
 
-## 11. Results still landing
+## 11. Still running at the time of writing
+
+Two rungs were still computing when this report was finalized. Both checkpoint every cell to disk as it completes, so neither can be lost, and both write their own cohort-gate table on exit. **Whoever picks this up should read these two before treating the ladder as complete** — neither can overturn §3 (they test different alternatives), but §6's and §10's open items depend on them.
+
+| what | script | where the result lands | log |
+|---|---|---|---|
+| **N1 on the five-phase functionals** (`T_test`, `T_learn`, `T_infspec`, `T_infspec_pe`) | `scripts/01_compute/null_ladder/08_run_functionals_n1.py` | `data/paper_final/w0b_nulls/func_n1/{per_patient_scale,cohort_gate}.csv` | `logs/func_n1.log` |
+| **N3 order-preserving (exact rotation) + N4 placebo** | `scripts/01_compute/null_ladder/04_run_n3_n4.py` | `data/paper_final/w0b_nulls/{n3_order,n4}/` | `logs/n3n4_final.log` |
+
+Partial evidence already in hand for each. For the **functional N1**, the per-cell observed values printed during the run reproduce the canonical arc (e.g. Pat_05 β `T_test` +0.449, `T_learn` +0.393, `T_infspec` +0.099, `T_infspec_pe` +0.200), and the pattern visible so far in α is that `T_infspec` and `T_infspec_pe` are frequently *negative* per patient (Pat_02 −0.059/−0.053, Pat_07 −0.087/−0.056, Pat_10 −0.050/−0.031) — consistent with §6's finding that these functionals carry a construction baseline rather than a robust task signal, but not yet a cohort verdict. For **N3 order-preserving**, the pre-throttle partial run showed observed values sitting clearly above the rotation null for β in several patients (Pat_07 +0.299 vs +0.068; Pat_08 +0.575 vs +0.072) and not in others (Pat_10 +0.072 vs +0.052), i.e. plausibly a real but not unanimous effect. **Neither of these partial readings should be quoted as a result.**
+
+Re-run `scripts/01_compute/null_ladder/05_summarize_ladder.py` once they land; it picks up `n3_order` and `n4` automatically and re-derives the whole ladder table with BH over the common band × scale family.
+
+## 12. Reproducing any of this
+
+```
+ln -s <repo>/data data                        # data/ is gitignored and not in the worktree
+scripts/01_compute/null_ladder/run.sh <script>   # pins PYTHONPATH to THIS worktree's src/
+```
+
+`00_validate_identity_and_observed.py` (the preflight in §2) and `02_validate_library.py` (primitive-level invariants, the ×4.6 magnitude calibration, and the global-rescale-invariance proof) should be run first on any machine — they are the checks that make the rest interpretable.
 
 N3 (free + order-preserving), N4, the functional calibration, the functional N1, and the `n1_fixedbb` control were running when this report was first written; their sections are filled in as they complete.
