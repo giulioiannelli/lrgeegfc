@@ -109,8 +109,16 @@ def W_from_segments(F, idx, scale):
         coherency_from_csd(csd_from_segment_subset(F, np.sort(idx), scale)))
 
 
-def real_arc(pat, band):
-    """The REAL five-phase arc, recomputed from timeseries through this code path."""
+def real_arc(pat, band, keep_frac=None):
+    """The REAL five-phase arc, recomputed from timeseries through this code path.
+
+    ``keep_frac`` truncates each phase to its leading fraction of segments. That
+    is what produces the DURATION-MATCHED real comparator: the sham carves five
+    pseudo-phases out of one ~600 s resting recording, so each sham phase holds
+    roughly a quarter of the segments of its real counterpart. Comparing the sham
+    against the FULL real arc would therefore confound "no task" with "less data".
+    Comparing it against the truncated real arc does not.
+    """
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nps = nperseg_for_fs(fs); nps_h = max(256, nps // 2)
     bnd = BRAIN_BANDS[band]
@@ -121,7 +129,8 @@ def real_arc(pat, band):
     T = Xr.shape[1]
     for tag, sl in (("A", slice(0, T // 2)), ("B", slice(T // 2, T))):
         _, F, sc = segment_fft(Xr[:, sl], fs, nps_h, band=bnd)
-        W[tag] = W_from_segments(F, np.arange(F.shape[1]), sc)
+        n = F.shape[1] if keep_frac is None else max(8, int(F.shape[1] * keep_frac))
+        W[tag] = W_from_segments(F, np.arange(n), sc)
         del F
     del Xr
     for ph in ("task_learn", "task_test", "rest_post"):
@@ -129,7 +138,8 @@ def real_arc(pat, band):
         if X.shape[0] > X.shape[1]:
             X = X.T
         _, F, sc = segment_fft(X, fs, nps, band=bnd)
-        W[ph] = W_from_segments(F, np.arange(F.shape[1]), sc)
+        n = F.shape[1] if keep_frac is None else max(8, int(F.shape[1] * keep_frac))
+        W[ph] = W_from_segments(F, np.arange(n), sc)
         del X, F
     return cross_phase_functionals_over_scales({p: eig(W[p]) for p in PHASES5}, SGRID)
 
@@ -207,14 +217,29 @@ def per_cell(job):
     rows = []
     try:
         if source == "REAL":
-            r = real_arc(pat, band)
-            for k in CROSS_PHASE_FUNCTIONALS:
-                for j, s in enumerate(SGRID):
-                    rows.append(dict(patient=pat, band=band, source="real",
-                                     construction="real", func=k, s=float(s),
-                                     value=float(r[k][j])))
-            msg = (f"{pat}/{band}/real T_test[s=1]={r['T_test'][0]:+.3f} "
-                   f"T_ispe[s=1]={r['T_infspec_pe'][0]:+.3f}")
+            # rest_pre duration / whole-session duration = the fraction of each
+            # phase the sham can afford; the matched real arc uses the same.
+            durs = {}
+            for ph in ("rest_pre", "task_learn", "task_test", "rest_post"):
+                X = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
+                if X.shape[0] > X.shape[1]:
+                    X = X.T
+                durs[ph] = X.shape[1]
+                del X
+            kf = durs["rest_pre"] / float(sum(durs.values()))
+            for tag, frac in (("real", None), ("real_durmatched", kf)):
+                r = real_arc(pat, band, keep_frac=frac)
+                for k in CROSS_PHASE_FUNCTIONALS:
+                    for j, s in enumerate(SGRID):
+                        rows.append(dict(patient=pat, band=band, source="real",
+                                         construction=tag, func=k, s=float(s),
+                                         value=float(r[k][j])))
+                if tag == "real":
+                    msg = (f"{pat}/{band}/real T_test[s=1]={r['T_test'][0]:+.3f} "
+                           f"T_ispe[s=1]={r['T_infspec_pe'][0]:+.3f}")
+                else:
+                    msg += (f" | durmatched(kf={kf:.2f}) T_test={r['T_test'][0]:+.3f} "
+                            f"T_ispe={r['T_infspec_pe'][0]:+.3f}")
         else:
             ro, rs, nb, sz = sham_arcs(pat, band, source, rng)
             for k in CROSS_PHASE_FUNCTIONALS:
@@ -291,12 +316,17 @@ def main():
     print("\n" + "=" * 104)
     print("NULL CALIBRATION — value on a NO-SIGNAL input. A valid functional must sit at ~0.")
     print("=" * 104)
+    if co.empty or "func" not in co.columns:
+        print("  (cohort calibration needs >=5 patients; subset/timing run)")
+        print(f"\nwrote {OUT/'per_cell.csv'}", flush=True)
+        return
     for fn in CROSS_PHASE_FUNCTIONALS:
         print(f"\n--- {fn} ---")
         print(f"  {'band':11s} {'construction':15s} {'source':10s} "
               f"{'med(s=1)':>10s} {'med|over s|':>12s} {'scales p<.05 (>0)':>18s}")
         for band in bands:
-            for con, src in (("real", "real"), ("sham_ordered", "rest_pre"),
+            for con, src in (("real", "real"), ("real_durmatched", "real"),
+                             ("sham_ordered", "rest_pre"),
                              ("sham_shuffled", "rest_pre"), ("sham_ordered", "rest_post"),
                              ("sham_shuffled", "rest_post")):
                 g = co[(co.func == fn) & (co.band == band) & (co.construction == con)
