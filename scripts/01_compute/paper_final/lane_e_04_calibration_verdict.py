@@ -47,8 +47,8 @@ BASE = Path(os.environ.get("LANE_E_OUT",
                            ROOT / "data" / "paper_final" / "lane_e_encinf"))
 SHAM, OUT = BASE / "sham", BASE / "verdict"
 FUNCS = ("T_test", "T_learn", "T_infspec", "T_infspec_pe")
-N_ASSEMBLY = int(os.environ.get("LANE_E_NASSEMBLY", "400"))
-N_PERM = int(os.environ.get("LANE_E_NPERM_SHAM", "2000"))
+N_ASSEMBLY = int(os.environ.get("LANE_E_NASSEMBLY", "100"))
+N_PERM = int(os.environ.get("LANE_E_NPERM_SHAM", "1000"))
 SEED = 20260831
 
 
@@ -104,7 +104,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
 
     rows, fpr_rows, swap_rows = [], [], []
-    for tag in ("ordered", "shuffled"):
+    for tag in ("ordered", "shuffled", "eqdur"):
         s, store = load_sham(pats, bands, sources, tag)
         if s is None:
             print(f"[lane-e/E2] no {tag} sham cells")

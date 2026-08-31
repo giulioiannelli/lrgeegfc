@@ -243,6 +243,42 @@ def main():
         sw.loc[m, "q_pos_within_func"] = bh_fdr(sw.loc[m, "p_cluster_pos"].values)
     sw.to_csv(OUT / "swap_test.csv", index=False)
 
+    # ---------------- 5b. duration-ratio regression on the swap statistic --- #
+    # task_test is LONGER than task_learn in all 10 patients (ratio 0.40-0.74),
+    # so the swap null's exchangeability assumption is violated in a cohort-
+    # consistent way. Recordings are never truncated in this project; the
+    # sanctioned control is a duration-ratio regression, which asks whether the
+    # swap statistic would still be non-zero at a ratio of 1.
+    dur_p = ROOT / "data" / "paper_final" / "w0b_nulls" / "durations.json"
+    if dur_p.exists():
+        durs = json.loads(dur_p.read_text())
+        drows = []
+        for band in bands:
+            st = store[band]
+            if not st["patients"]:
+                continue
+            x = np.array([np.log10(durs[p]["task_learn"] / durs[p]["task_test"])
+                          for p in st["patients"]])
+            d_all = np.nanmedian(st["obs"] - st["swap"], axis=1)
+            for k, fn in enumerate(FUNCS):
+                y = np.nanmean(d_all[:, :, k], axis=1)     # scale-averaged, descriptive
+                ok = np.isfinite(x) & np.isfinite(y)
+                if ok.sum() < 5:
+                    continue
+                xx, yy = x[ok], y[ok]
+                sl, ic = np.polyfit(xx, yy, 1)
+                rr = np.corrcoef(xx, yy)[0, 1]
+                brng = np.random.default_rng(SEED)
+                bi = np.array([np.polyfit(xx[i], yy[i], 1)[1]
+                               for i in (brng.integers(0, xx.size, (2000, xx.size)))])
+                drows.append(dict(band=band, func=fn, n=int(ok.sum()), slope=float(sl),
+                                  intercept_at_ratio1=float(ic),
+                                  intercept_ci_lo=float(np.percentile(bi, 2.5)),
+                                  intercept_ci_hi=float(np.percentile(bi, 97.5)),
+                                  r_dur_vs_d=float(rr),
+                                  mean_d=float(np.nanmean(y[ok]))))
+        pd.DataFrame(drows).to_csv(OUT / "swap_duration_regression.csv", index=False)
+
     # ---------------- 6. scale position: centroids, paired ------------------ #
     cen = []
     logs = np.log10(s)
@@ -272,6 +308,20 @@ def main():
     if not ce.empty:
         ce["q_two"] = bh_fdr(ce["p_two"].values)
     ce.to_csv(OUT / "scale_centroids.csv", index=False)
+
+    # ---------------- 6b. per-patient profiles (fluctuations are signal) ----- #
+    pp = []
+    for band in bands:
+        st = store[band]
+        for i, p in enumerate(st["patients"]):
+            for k, fn in enumerate(FUNCS):
+                for j in range(nS):
+                    pp.append(dict(band=band, patient=p, func=fn, s=float(s[j]),
+                                   margin=float(st["margin"][i, j, k]),
+                                   obs=float(st["obs_knob"][i, j, k]),
+                                   swap=float(np.nanmedian(st["swap"][i, :, j, k])),
+                                   knob_spread=float(st["spread"][i, j, k])))
+    pd.DataFrame(pp).to_csv(OUT / "per_patient_profiles.csv", index=False)
 
     # ---------------- 7. scale units ---------------------------------------- #
     un = []

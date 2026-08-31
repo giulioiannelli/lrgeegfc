@@ -173,13 +173,20 @@ def _block_of_segment(n_seg: int, nperseg: int, blk: int) -> np.ndarray:
     return np.where(b0 == b1, b0, -1).astype(np.int64)
 
 
-def sham_dense(pat: str, band: str, source: str, mode: str, rng):
+def sham_dense(pat: str, band: str, source: str, mode: str, rng,
+               equal_task_durations: bool = False):
     """Five DENSE sham FC matrices carved out of ONE resting recording.
 
     ``mode`` is ``"identity"`` (contiguous windows in true order -- drift
     retained) or ``"free"`` (blocks randomly reassigned -- drift destroyed).
     Window sizes are proportional to the real phase durations, so the sham
     reproduces the real arc's duration profile and spectral degrees of freedom.
+
+    ``equal_task_durations`` gives the two task pseudo-phases the same number of
+    blocks. In the real data ``task_test`` is longer than ``task_learn`` in every
+    one of the 10 patients (ratio 0.40-0.74), so the two task blocks are not
+    exchangeable on duration alone; this arm isolates that mechanism, because
+    the only thing it changes is the duration asymmetry.
     """
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nps = nperseg_for_fs(fs)
@@ -198,6 +205,9 @@ def sham_dense(pat: str, band: str, source: str, mode: str, rng):
     d = DURS[pat]
     prop = np.array([d["rest_pre"] / 2, d["rest_pre"] / 2, d["task_learn"],
                      d["task_test"], d["rest_post"]], float)
+    if equal_task_durations:
+        m = 0.5 * (prop[2] + prop[3])
+        prop[2] = prop[3] = m
     prop /= prop.sum()
     nb = int(min(g[2].max() for g in grids.values())) + 1
     sizes = np.maximum(2, np.floor(prop * nb).astype(int))
@@ -232,10 +242,12 @@ def per_cell(job):
     rng = np.random.default_rng([BASE_SEED, idx])
     store = {}
     try:
-        for tag, mode, n_rep in (("ordered", "identity", 1), ("shuffled", "free", N_SHUF)):
+        for tag, mode, n_rep, eqd in (("ordered", "identity", 1, False),
+                                      ("shuffled", "free", N_SHUF, False),
+                                      ("eqdur", "free", max(2, N_SHUF - 1), True)):
             obs_l, swp_l, sur_l = [], [], []
             for _ in range(n_rep):
-                dense, sizes, nb = sham_dense(pat, band, source, mode, rng)
+                dense, sizes, nb = sham_dense(pat, band, source, mode, rng, eqd)
                 if dense is None:
                     continue
                 o, w, s = _arc_scores(dense, rng, R)
