@@ -27,8 +27,8 @@ may be the artifact rather than the improvement.
    deletes the edges where <|C|> has the most dynamic range, so ANY measure
    would lose. Controlled by applying the identical mask to all three transforms
    and comparing the DROP, not the level: the question is whether <|C|> loses
-   more than <|Im C|> does, on the same pairs, the same nodes, the same
-   surrogate draws.
+   more than <|Im C|> does, on the same pairs, the same nodes and the same
+   Welch estimate.
 4. Does the null control for it, by mechanism, and what it CANNOT reject.
    Same-shaft removal is applied at BOTH stages -- the edges are zeroed before
    sparsification (so the graph is not built from them) AND the pairs are
@@ -44,14 +44,19 @@ may be the artifact rather than the improvement.
 5. Falsification / limits. The claim is falsified if <|C|> keeps its advantage
    after masking. If BOTH collapse, the trace depends on same-shaft structure,
    which would be the most consequential finding in the project and must be
-   reported immediately rather than folded into a transform comparison. n = 10,
-   matched-strength only; this is a transform comparison run under the incumbent
-   null, not a re-test of the trace against the W0-B ladder.
+   reported immediately rather than folded into a transform comparison. n = 10.
+   DEFAULT MODE IS OBSERVED-ONLY (R = 0): the decisive quantity is a
+   difference-of-differences on the observed rho_sym, which is the comparison
+   W0-B made and which no surrogate enters. This arm therefore says which
+   transform carries more cross-phase structure and how much of that is
+   same-shaft; it does NOT say whether either clears a null. That is a separate
+   question, already answered for imcoh_abs by A2, and W0-B has shown neither
+   transform clears a lag-destroying null.
 
-DESIGN. Three transforms x two pair sets x three backbone fractions from the
-locked contract window, five phases, four functionals, matched-strength null.
-Every arm shares its Welch pass, its node set, its scale grid and (within an
-arm) its surrogate draws, so the arms differ only in the transform and the mask.
+DESIGN. Three transforms x two pair sets x the contract-window backbone
+fractions, five phases, four functionals. Every arm shares its Welch pass, its
+node set and its scale grid, so the arms differ only in the transform and the
+mask. Set W0A_R > 0 to add a matched-strength margin per arm.
 
 Outputs (data/paper_final/w0a_substrate/a1b_volume_conduction/):
   per_patient_scale.csv   arm, transform, probe_mask, frac, patient, band, s, ...
@@ -95,7 +100,13 @@ TRANSFORMS = ("imcoh_abs", "imcoh_sq", "coh_abs")
 MASKS = ("all", "xshaft")                       # all pairs / same-shaft removed
 FRACS = tuple(CANONICAL.plateau_fracs[1:])      # (0.10, 0.14, 0.20) -- contract window
 FUNCTIONALS = ("T_probe", "T_encode", "T_probespec", "T_probespec_pe")
-R = int(os.environ.get("W0A_R", 100))
+# R = 0 runs the arms OBSERVED-ONLY. That is scientifically sufficient for the
+# question this script exists to answer: the decisive quantity is a
+# difference-of-differences on the OBSERVED rho_sym (does coh_abs lose more than
+# imcoh_abs when same-shaft pairs are removed?), which is exactly the comparison
+# W0-B made (+0.277 vs +0.212) and which no surrogate enters. Whether either
+# transform clears matched-strength is already answered for imcoh_abs by A2.
+R = int(os.environ.get("W0A_R", 0))
 SWAP_FACTOR, W_MAX, BASE_SEED = 20, 1.0, 20260831
 SGRID = CANONICAL_SCALES
 OUT = ROOT / "data" / "paper_final" / "w0a_substrate" / "a1b_volume_conduction"
@@ -136,29 +147,42 @@ def _per_patient(job):
     nper_full, nper_half = nperseg_for_fs(fs), max(256, nperseg_for_fs(fs) // 2)
     bands = {b: BRAIN_BANDS[b] for b in BANDS}
 
-    # --- one Welch pass per phase; all three transforms share it -------------- #
-    C = {}
+    # --- one Welch pass per phase, reduced to adjacencies IMMEDIATELY --------- #
+    # The full complex coherency stack is never retained: welch_csd materialises
+    # an (N, N, F) complex array (~0.5 GB at N=117, F=2049) plus intermediates,
+    # so holding five of them per worker is what OOM-killed the first two runs.
+    # Reducing each phase to its 3 transforms x |bands| (N, N) adjacencies right
+    # away drops the retained footprint to a few MB and caps the peak at one
+    # Welch pass per worker.
+    W_by = {}                       # W_by[transform][phase][band] -> (N, N)
+    for tk in TRANSFORMS:
+        W_by[tk] = {}
+
+    def _reduce(ph, X, nper):
+        C = complex_coherency_bands(np.ascontiguousarray(X), fs, bands, nper)
+        for tk in TRANSFORMS:
+            W_by[tk][ph] = {b: band_adjacency(C[b], tk) for b in BANDS}
+        del C
+
     try:
         X = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), float)
         if X.shape[0] > X.shape[1]:
             X = X.T
         T = X.shape[1]
-        C["A"] = complex_coherency_bands(np.ascontiguousarray(X[:, : T // 2]), fs,
-                                         bands, nper_half)
-        C["B"] = complex_coherency_bands(np.ascontiguousarray(X[:, T // 2:]), fs,
-                                         bands, nper_half)
+        _reduce("A", X[:, : T // 2], nper_half)
+        _reduce("B", X[:, T // 2:], nper_half)
         del X
         for ph in ("task_learn", "task_test", "rest_post"):
             Y = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
             if Y.shape[0] > Y.shape[1]:
                 Y = Y.T
-            C[ph] = complex_coherency_bands(np.ascontiguousarray(Y), fs, bands, nper_full)
+            _reduce(ph, Y, nper_full)
             del Y
     except Exception as exc:                                    # pragma: no cover
         print(f"  [{pat}] load failed: {exc}", flush=True)
         return None, None
 
-    N = C["A"][BANDS[0]].shape[1]
+    N = W_by[TRANSFORMS[0]]["A"][BANDS[0]].shape[0]
     labels = load_channel_labels(pat)
     if labels is None or len(labels) != N:
         print(f"  [{pat}] channel_labels missing/misaligned (N={N}) — skip", flush=True)
@@ -173,8 +197,7 @@ def _per_patient(job):
     rows, bias_rows = [], []
 
     for band in BANDS:
-        Wd = {tk: {ph: band_adjacency(C[ph][band], tk) for ph in PHASES}
-              for tk in TRANSFORMS}
+        Wd = {tk: {ph: W_by[tk][ph][band] for ph in PHASES} for tk in TRANSFORMS}
         # same-shaft bias, per transform (CLAUDE.md invariant 5)
         for tk in TRANSFORMS:
             w = Wd[tk]["task_test"][iu]
@@ -201,8 +224,8 @@ def _per_patient(job):
                           {ph: laplacian_eig(mst_union_top_fraction(Wm[ph], f))
                            for ph in PHASES}, SGRID, pair_mask=pmask)
                        for f in FRACS}
-                surr = {f: {k: np.full((R, SGRID.size), np.nan) for k in FUNCTIONALS}
-                        for f in FRACS}
+                surr = {f: {k: np.full((max(R, 1), SGRID.size), np.nan)
+                            for k in FUNCTIONALS} for f in FRACS}
                 # Deterministic arm seed. Python's hash() on str is salted per
                 # process (PYTHONHASHSEED), so it must NOT appear in a seed --
                 # it would make the surrogate draws irreproducible across runs
@@ -232,7 +255,8 @@ def _per_patient(job):
                                 s=float(s), N=int(N),
                                 obs_rho=float(o) if np.isfinite(o) else np.nan,
                                 surr_p50=float(np.nanpercentile(col, 50)) if col.size else np.nan,
-                                p=float(np.mean(col >= o)) if col.size and np.isfinite(o) else np.nan))
+                                p=float(np.mean(col >= o)) if col.size and np.isfinite(o) else np.nan,
+                            R=int(R)))
         del Wd
     return rows, bias_rows
 
