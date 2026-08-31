@@ -47,6 +47,8 @@ __all__ = [
     "communication_neighbourhood_size",
     "scale_resolution",
     "CROSS_PHASE_ROLES",
+    "partial_spearman",
+    "CROSS_PHASE_FUNCTIONALS",
     "cross_phase_functionals",
     "cross_phase_functionals_over_scales",
 ]
@@ -304,6 +306,56 @@ def rho_sym(DA: NDArray, DB: NDArray, Dt: NDArray, Dp: NDArray) -> tuple[float, 
     return float(0.5 * (r_ab + r_ba)), float(r_ab)
 
 
+def partial_spearman(a: NDArray, b: NDArray, c: NDArray) -> float:
+    """Partial Spearman correlation of ``a`` and ``b`` controlling for ``c``.
+
+    ``(r_ab - r_ac r_bc) / sqrt((1 - r_ac^2)(1 - r_bc^2))`` on the rank
+    correlations. ``NaN`` when the denominator vanishes.
+
+    .. warning::
+       A partial correlation is **not** automatically zero-centred under a
+       no-signal input: the conditioning is entangled with the estimator, and a
+       construction that manufactures shared structure between ``a``, ``b`` and
+       ``c`` can return a large positive partial from data containing no effect.
+       This is not hypothetical -- a windowed sham arc built entirely from
+       pre-task ``rest_pre`` returned ``+0.243`` for beta (real value ``+0.091``,
+       sham-above-zero ``p = 0.007``); see
+       ``.agents/preprint/supplementary/S2_drift_controls.md``. Any null used with
+       :data:`CROSS_PHASE_FUNCTIONALS` ``T_infspec_pe`` must therefore be
+       CALIBRATED on a no-signal input first, and its p-values must not be
+       reported until it is shown to sit near zero there.
+    """
+    r_ab, _ = spearmanr(a, b)
+    r_ac, _ = spearmanr(a, c)
+    r_bc, _ = spearmanr(b, c)
+    den = np.sqrt(max(0.0, (1.0 - r_ac ** 2) * (1.0 - r_bc ** 2)))
+    return float((r_ab - r_ac * r_bc) / den) if den > 0 else float("nan")
+
+
+#: The five-phase cross-phase functionals, keyed by name. Each maps a dict of
+#: condensed cophenetic distance vectors -- keys ``A``, ``B``, ``task_learn``,
+#: ``task_test``, ``rest_post`` -- to a scalar. Phase labels are passed in by the
+#: caller, so the same functionals apply to a real arc, a pseudo-phase arc from a
+#: block permutation, or a sham arc built inside a single recording.
+CROSS_PHASE_FUNCTIONALS = ("T_test", "T_learn", "T_infspec", "T_infspec_pe")
+
+#: Two naming schemes for the same four functionals arrived from two independent
+#: Wave-0 implementations, verified to agree to full float precision before being
+#: unified here. The role-neutral names are canonical in the library; the
+#: task-specific names are canonical in the manuscript and in every script written
+#: against ``05_enc_inf_arc``. Both are emitted so neither breaks.
+_FUNCTIONAL_ALIASES = {
+    "T_probe": "T_test",
+    "T_encode": "T_learn",
+    "T_probespec": "T_infspec",
+    "T_probespec_pe": "T_infspec_pe",
+}
+
+
+
+
+
+
 def rho_sym_over_scales(eig_by_phase: dict, s_grid: NDArray,
                         rho_floor: float = RHO_FLOOR) -> NDArray:
     """``rho_sym(s)`` swept over the scale grid, one eigendecomposition per phase.
@@ -416,12 +468,15 @@ def cross_phase_functionals(D: dict, roles: dict | None = None) -> dict:
             _partial_from_corr(r("f", "p"), r("f", "e"), r("p", "e"))
             + _partial_from_corr(r("f", "p2"), r("f", "e2"), r("p2", "e2"))
         )
+    for _k, _v in list(out.items()):
+        out.setdefault(_FUNCTIONAL_ALIASES[_k], _v)
     return out
 
 
 def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
                                         roles: dict | None = None,
-                                        rho_floor: float = RHO_FLOOR) -> dict:
+                                        rho_floor: float = RHO_FLOOR,
+                                        phases: tuple | None = None) -> dict:
     """:func:`cross_phase_functionals` swept over a diffusion-scale grid.
 
     ``eig_by_phase`` maps each phase present to its ``(eigenvalues,
@@ -430,6 +485,8 @@ def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
     change here or in any caller. Returns ``{functional: array(len(s_grid))}``,
     ``NaN`` wherever a cophenetic tree is degenerate.
     """
+    if phases is not None and roles is None:
+        roles = dict(zip(("baseline_a", "baseline_b", "encode", "probe", "follow"), phases))
     roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
     need = [roles[k] for k in ("baseline_a", "baseline_b", "probe", "follow")]
     missing = [ph for ph in need if ph not in eig_by_phase]
@@ -438,6 +495,7 @@ def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
     has_enc = roles.get("encode") in eig_by_phase
     phases = need + ([roles["encode"]] if has_enc else [])
     keys = ["T_probe"] + (["T_encode", "T_probespec", "T_probespec_pe"] if has_enc else [])
+    keys = keys + [_FUNCTIONAL_ALIASES[k] for k in keys]
     out = {k: np.full(len(s_grid), np.nan) for k in keys}
     for i, s in enumerate(s_grid):
         try:
