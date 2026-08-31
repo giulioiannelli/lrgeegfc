@@ -60,15 +60,27 @@ OUT = Path(os.environ.get(
 BASE_SEED = 20260831
 
 
-def _carrier_matrices(Ws: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """``(cosine, spearman, sign_agreement)`` cross-scale matrices, knob-median."""
+def _carrier_matrices(Ws: dict) -> tuple:
+    """``(cosine, spearman, sign_agreement, split_half_reliability)``, knob-median.
+
+    The last one is the yardstick the cross-scale numbers need. Asking whether a
+    Spearman over ~7000 pairs "changes with scale" is meaningless without knowing
+    how much the same quantity changes for reasons that have nothing to do with
+    scale. ``rho_S(C_A(s), C_B(s))`` is exactly that: the same cophenetic vector,
+    same scale, computed on the two contiguous halves of the same pre-task rest
+    recording, so the only difference between them is measurement. If moving four
+    decades along the scale axis perturbs the vector less than splitting one rest
+    recording in half does, the axis is not delivering distinguishable objects to
+    the readout, whatever the hierarchy is doing.
+    """
     nS = SGRID.size
     acc = np.full((len(FRACS), 3, nS, nS), np.nan)
+    rel = np.full((len(FRACS), nS), np.nan)
     for fi, f in enumerate(FRACS):
         eig = {ph: laplacian_eig(select_backbone(Ws[ph], BACKBONE, frac=float(f)))
                for ph in PHASES}
         C_by_s = []
-        for s in SGRID:
+        for j, s in enumerate(SGRID):
             try:
                 Z = {ph: linkage_at_scale(*eig[ph], s) for ph in PHASES}
                 C = {ph: cophenet(Z[ph]) for ph in PHASES}
@@ -79,6 +91,9 @@ def _carrier_matrices(Ws: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
                    for v in C.values()):
                 C_by_s.append(None)
                 continue
+            ra, rb = rankdata(C["A"]), rankdata(C["B"])
+            ra, rb = ra - ra.mean(), rb - rb.mean()
+            rel[fi, j] = float(ra @ rb / (np.linalg.norm(ra) * np.linalg.norm(rb)))
             c = 0.5 * (_contrib(C["task_test"] - C["A"], C["rest_post"] - C["B"])
                        + _contrib(C["task_test"] - C["B"], C["rest_post"] - C["A"]))
             C_by_s.append(c)
@@ -96,7 +111,7 @@ def _carrier_matrices(Ws: dict) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         acc[fi, 1][idx] = Rn @ Rn.T
         acc[fi, 2][idx] = (Sg @ Sg.T) / X.shape[1] * 0.5 + 0.5
     m = np.nanmedian(acc, axis=0)
-    return m[0], m[1], m[2]
+    return m[0], m[1], m[2], np.nanmedian(rel, axis=0)
 
 
 def per_cell(job):
@@ -107,7 +122,7 @@ def per_cell(job):
     except Exception as exc:                                     # noqa: BLE001
         return dict(patient=pat, band=band, error=str(exc))
     N = Ws["A"].shape[0]
-    cos_o, spr_o, sgn_o = _carrier_matrices(Ws)
+    cos_o, spr_o, sgn_o, rel_o = _carrier_matrices(Ws)
 
     rng = np.random.default_rng(BASE_SEED + idx)
     n_swaps = SWAP_FACTOR * N * (N - 1) // 2
@@ -116,13 +131,14 @@ def per_cell(job):
         Wsh = {ph: matched_strength_shuffle(Ws[ph], n_swaps, rng, W_MAX)
                for ph in PHASES}
         try:
-            cos_n[r] = _carrier_matrices(Wsh)[0]
+            cos_n[r] = _carrier_matrices(Wsh)[0]                  # noqa: PLW2901
         except Exception:                                        # noqa: BLE001
             continue
     d = OUT / "carrier"
     d.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(d / f"{pat}__{band}.npz", s=SGRID, cos=cos_o,
-                        spearman=spr_o, sign=sgn_o, cos_null=cos_n)
+                        spearman=spr_o, sign=sgn_o, cos_null=cos_n,
+                        split_half_reliability=rel_o)
     iu = np.triu_indices(SGRID.size, 1)
     return dict(patient=pat, band=band, N=N, elapsed_s=time.time() - t0,
                 cos_mean_offdiag=float(np.nanmean(cos_o[iu])),
@@ -130,7 +146,9 @@ def per_cell(job):
                 spearman_mean_offdiag=float(np.nanmean(spr_o[iu])),
                 sign_mean_offdiag=float(np.nanmean(sgn_o[iu])),
                 cos_null_mean_offdiag=float(np.nanmean(
-                    np.nanmedian(cos_n, axis=0)[iu])))
+                    np.nanmedian(cos_n, axis=0)[iu])),
+                coph_split_half_med=float(np.nanmedian(rel_o)),
+                coph_split_half_min=float(np.nanmin(rel_o)))
 
 
 def main() -> None:
@@ -153,7 +171,8 @@ def main() -> None:
     df.to_csv(OUT / "carrier_overlap_cells.csv", index=False)
     summ = (df.groupby("band")[["cos_mean_offdiag", "cos_first_last",
                                 "spearman_mean_offdiag", "sign_mean_offdiag",
-                                "cos_null_mean_offdiag"]]
+                                "cos_null_mean_offdiag", "coph_split_half_med",
+                                "coph_split_half_min"]]
             .median().reset_index())
     summ.to_csv(OUT / "carrier_overlap_summary.csv", index=False)
     print("\n-- carrier overlap across scales (cohort median) --")
