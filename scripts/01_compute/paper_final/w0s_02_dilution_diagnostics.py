@@ -104,17 +104,26 @@ def main() -> None:
         for tag, nlab, pre in (("octave", NOCT, "Ccon_o"),
                                ("quintile", NQ, "Qcon_q")):
             con = np.stack([cs.cell(b, f"{pre}{i+1}")[0] for i in range(nlab)])
-            #  con: (nlab, K, nS) observed knob-integrated contributions
+            mar = np.stack([cs.margins(b, f"{pre}{i+1}")[0] for i in range(nlab)])
+            #  (nlab, K, nS): observed knob-integrated contributions, and the
+            #  same net of each patient's own matched-strength null. The observed
+            #  shares answer "what is the statistic made of"; the margin shares
+            #  answer "which tree levels carry the excess over the null", and the
+            #  two are different questions.
             tot = np.nansum(np.abs(con), axis=0)
+            tot_m = np.nansum(np.abs(mar), axis=0)
             for i in range(nlab):
                 for j in range(cs.n_scales):
                     with np.errstate(invalid="ignore", divide="ignore"):
                         sh = np.abs(con[i, :, j]) / tot[:, j]
+                        shm = np.abs(mar[i, :, j]) / tot_m[:, j]
                     share_rows.append(dict(
                         band=b, stratification=tag, stratum=i + 1,
                         s=float(s[j]),
                         contribution=float(np.nanmedian(con[i, :, j])),
-                        abs_share=float(np.nanmedian(sh))))
+                        abs_share=float(np.nanmedian(sh)),
+                        margin=float(np.nanmedian(mar[i, :, j])),
+                        abs_share_margin=float(np.nanmedian(shm))))
     df_share = pd.DataFrame(share_rows)
     df_share.to_csv(OUT / "dilution_contribution_shares.csv", index=False)
 
