@@ -27,7 +27,94 @@ __all__ = [
     "partition_vi_on_subset",
     "induced_linkage",
     "cophenet_matrix",
+    "pair_merge_level",
+    "pair_tree_octave",
+    "merge_height_pair_counts",
 ]
+
+
+def pair_merge_level(Z: np.ndarray, condensed: bool = True) -> np.ndarray:
+    """Merge index at which each leaf pair first shares a cluster.
+
+    For a linkage ``Z`` on ``n`` leaves the merges are numbered ``1..n-1`` in
+    increasing height. Every leaf pair ``(i, j)`` joins at exactly one of them,
+    and this returns that index for all ``n(n-1)/2`` pairs (condensed order,
+    matching :func:`scipy.spatial.distance.squareform` and
+    :func:`scipy.cluster.hierarchy.cophenet`), or the full ``(n, n)`` matrix
+    with ``condensed=False`` (diagonal ``0``).
+
+    The merge index is the *ordinal* companion of the cophenetic distance: the
+    cophenetic distance says how far apart a pair is, the merge index says how
+    deep in the hierarchy they are joined, independent of the height scale. It
+    is what lets pairs be stratified by tree level when the heights themselves
+    span many decades and are not comparable across trees.
+
+    Cost is ``O(n^2)``: each merge writes the block of cross-pairs between the
+    two clusters it joins, and those blocks tile the pair set exactly once.
+    """
+    Z = np.asarray(Z, float)
+    n = int(Z.shape[0]) + 1
+    lev = np.zeros((n, n), dtype=np.int32)
+    members: dict[int, np.ndarray] = {i: np.array([i], dtype=np.int64)
+                                      for i in range(n)}
+    for l in range(n - 1):
+        a, b = int(Z[l, 0]), int(Z[l, 1])
+        P, Q = members.pop(a), members.pop(b)
+        lev[np.ix_(P, Q)] = l + 1
+        lev[np.ix_(Q, P)] = l + 1
+        members[n + l] = np.concatenate((P, Q))
+    if not condensed:
+        return lev
+    iu = np.triu_indices(n, 1)
+    return lev[iu]
+
+
+def pair_tree_octave(Z: np.ndarray, condensed: bool = True) -> np.ndarray:
+    """Octave of the cluster count at which each leaf pair joins.
+
+    With ``n`` leaves and merges numbered ``1..n-1`` (see
+    :func:`pair_merge_level`), ``k(l) = n - l + 1`` is the number of clusters
+    present *just before* merge ``l`` -- ``n`` before the first merge and ``2``
+    at the root. A pair's octave is ``floor(log2 k)``, so
+
+    * octave ``1`` (``k in [2, 4)``) -- pairs that only join once at most three
+      clusters remain, i.e. pairs spanning the coarsest split of the graph;
+    * the top octave (``k in [n/2, n)``) -- pairs that join while most of the
+      graph is still separate, i.e. hierarchical near-neighbours.
+
+    Octave boundaries are fixed powers of two, not quantiles, so no boundary is
+    fitted to the data. Values run ``1..floor(log2 n)``.
+
+    Pairing this with a diffusion scale gives a band-pass in tree depth: if a
+    diffusion resolves ``N_eff`` components, the pairs it is *currently*
+    resolving are those with ``k ~ N_eff``, i.e. octave ``floor(log2 N_eff)``.
+    """
+    lev = pair_merge_level(Z, condensed=condensed)
+    n = int(np.asarray(Z).shape[0]) + 1
+    k = np.where(lev > 0, n - lev + 1, 0)
+    out = np.zeros_like(lev)
+    nz = k > 1
+    out[nz] = np.floor(np.log2(k[nz])).astype(out.dtype)
+    return out
+
+
+def merge_height_pair_counts(Z: np.ndarray) -> np.ndarray:
+    """Number of leaf pairs whose cophenetic distance is each merge height.
+
+    Length ``n-1``, in merge order (increasing height), summing to
+    ``n(n-1)/2``. UPGMA on a communication distance puts most pairs at the last
+    few merges, so a rank statistic computed over all pairs sees far fewer
+    distinct values than it has pairs; this is the count that quantifies it.
+    """
+    Z = np.asarray(Z, float)
+    n = int(Z.shape[0]) + 1
+    sizes = np.ones(2 * n - 1, dtype=np.int64)
+    counts = np.zeros(n - 1, dtype=np.int64)
+    for l in range(n - 1):
+        a, b = int(Z[l, 0]), int(Z[l, 1])
+        counts[l] = sizes[a] * sizes[b]
+        sizes[n + l] = sizes[a] + sizes[b]
+    return counts
 
 
 def cophenet_matrix(Z: np.ndarray, condensed: bool = False) -> np.ndarray:
