@@ -136,10 +136,21 @@ class Substrate:
 CANONICAL = Substrate(
     transform="abs",
     backbone="mst",
-    frac=0.20,
-    plateau=None,
-    plateau_fracs=(),
-    notes="provisional -- populated by the W0-A contract",
+    frac=0.14,
+    plateau=(0.07, 0.20),
+    plateau_fracs=(0.07, 0.10, 0.14, 0.20),
+    notes=(
+        "Locked 2026-08-31 by the W0-A contract. transform=abs: the reliability "
+        "rule preferred 'sq', but 'sq' admits NO octave-wide stable window "
+        "(0.00 oct vs 1.51) because the beta trace does not survive it. "
+        "backbone: no parameter-free filter qualified (TMFG alpha p=0.141, "
+        "percolation alpha p=0.312), so the free parameter is INTEGRATED OVER, "
+        "not eliminated -- report every number over plateau_fracs via "
+        "canonical_graph_ensemble, never at a single fraction. frac=0.14 is an "
+        "interior representative; the historical 0.20 sits at the window edge. "
+        "CAVEAT: low_gamma is null only for f >= 0.14, so the full "
+        "band-selectivity claim holds on [0.14, 0.20] = 0.51 octaves only."
+    ),
 )
 
 #: Default cross-phase phase set (five phases; ``A``/``B`` are the split halves
