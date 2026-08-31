@@ -168,7 +168,7 @@ def main() -> None:
             am = np.nanmean(Mm, axis=1)
             ok = np.isfinite(ai) & np.isfinite(am)
             if ok.sum() >= 5:
-                rho_beta = float(spearmanr(ai[ok], am[ok]).statistic)
+                rho_beta = float(spearmanr(ai[ok], am[ok])[0])
         beta_clears = bool(sub.loc["beta", "cluster_q"] < 0.05)
         theta_null = bool(not (sub.loc["theta", "cluster_q"] < 0.05))
         crit_a = bool(np.isfinite(rho_beta) and rho_beta >= 0.5

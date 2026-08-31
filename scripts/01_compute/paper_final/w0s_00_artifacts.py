@@ -53,6 +53,7 @@ class CellSet:
         self._obs: dict[tuple[str, str], np.ndarray] = {}
         self._surr: dict[tuple[str, str], np.ndarray] = {}
         self._diag: dict[tuple[str, str], dict] = {}
+        self._cache: dict[tuple[str, str], tuple] = {}
         self.s = self.fracs = None
         self.readouts: list[str] = []
         self.N: dict[tuple[str, str], int] = {}
@@ -84,13 +85,22 @@ class CellSet:
         return [p for p in self.patients if (p, band) in self._obs]
 
     def cell(self, band: str, readout: str) -> tuple[np.ndarray, np.ndarray, list[str]]:
-        """Knob-integrated ``(O, S, labels)``: ``O`` is ``(K, nS)``, ``S`` is ``(K, R, nS)``."""
+        """Knob-integrated ``(O, S, labels)``: ``O`` is ``(K, nS)``, ``S`` is ``(K, R, nS)``.
+
+        Memoised: the held-out-realization loops ask for the same cell hundreds
+        of times, and re-reducing the ``(R, nF, nS)`` block each time dominates
+        the analysis runtime for no benefit.
+        """
+        key = (band, readout)
+        if key in self._cache:
+            return self._cache[key]
         m = self.ix[readout]
         labs = self.have(band)
         O = np.stack([np.nanmedian(self._obs[(p, band)][:, :, m], axis=0)
                       for p in labs])
         S = np.stack([np.nanmedian(self._surr[(p, band)][:, :, :, m].astype(float),
                                    axis=1) for p in labs])
+        self._cache[key] = (O, S, labs)
         return O, S, labs
 
     def knob_spread(self, band: str, readout: str) -> np.ndarray:
