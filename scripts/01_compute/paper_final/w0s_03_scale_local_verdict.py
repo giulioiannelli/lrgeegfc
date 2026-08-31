@@ -62,14 +62,72 @@ EXPECT_N = 10
 FINE_MAX = 3.0
 
 
-def _neff_null(cs, band: str, readout: str, n_draws: int) -> np.ndarray:
-    """``n_eff_pr`` of held-out surrogate margin matrices -- the readout's noise floor."""
-    _, S, _ = cs.cell(band, readout)
-    R = S.shape[1]
-    out = np.full(min(n_draws, R), np.nan)
-    for i in range(out.size):
-        out[i] = effective_tests(cs.heldout_margins(band, readout, i))["n_eff_pr"]
+def _shape_stats(M: np.ndarray, s: np.ndarray) -> dict:
+    """Two direct readings of "does the effect vary along the scale axis?".
+
+    ``slope_abs``
+        cohort mean of each patient's own ``|Spearman(margin, log s)|`` -- how
+        monotonically scale-dependent an individual profile is. Defined for
+        every patient, unlike a coefficient of variation, which needs a positive
+        mean and silently drops patients.
+    ``shape_agreement``
+        mean off-diagonal correlation between patients' **z-scored** profiles --
+        do patients agree on *where* along the axis the effect is larger? This
+        is what separates the two readings a flat cohort curve admits: a genuine
+        within-patient invariance, and patients each having a differently-shaped
+        profile that averages flat. A Friedman cannot tell those apart, which is
+        why it is not used here.
+
+    Both are referenced to held-out surrogate draws by the caller. Neither is
+    ever compared to zero.
+    """
+    ok = np.isfinite(M).all(axis=0)
+    X, ls = M[:, ok], np.log(np.asarray(s)[ok])
+    out = dict(slope_abs=np.nan, slope_signed=np.nan, shape_agreement=np.nan,
+               n_finite=int(ok.sum()))
+    if X.shape[1] < 4 or X.shape[0] < 3:
+        return out
+    rho = np.array([spearmanr(X[k], ls)[0] for k in range(X.shape[0])])
+    rho = rho[np.isfinite(rho)]
+    if rho.size:
+        out["slope_abs"] = float(np.mean(np.abs(rho)))
+        out["slope_signed"] = float(np.mean(rho))
+    sd = X.std(axis=1, ddof=1)
+    if np.all(sd > 0):
+        Z = (X - X.mean(axis=1, keepdims=True)) / sd[:, None]
+        C = np.corrcoef(Z)
+        iu = np.triu_indices(C.shape[0], 1)
+        out["shape_agreement"] = float(np.nanmean(C[iu]))
     return out
+
+
+def _null_draws(cs, band: str, readout: str, s: np.ndarray, n_draws: int) -> dict:
+    """``n_eff_pr``, ``slope_abs`` and ``shape_agreement`` on held-out surrogate margins.
+
+    Under the null the observation is exchangeable with its own surrogates, so
+    these are draws from each statistic's null distribution *at this readout's
+    own noise level*. That last clause is the point: a noisier statistic
+    decorrelates its scales and inflates ``n_eff`` for free, so only this
+    comparison can tell extra information from extra noise.
+    """
+    _, S, _ = cs.cell(band, readout)
+    n = min(n_draws, S.shape[1])
+    out = {k: np.full(n, np.nan) for k in ("n_eff_pr", "slope_abs",
+                                           "shape_agreement")}
+    for i in range(n):
+        Mn = cs.heldout_margins(band, readout, i)
+        out["n_eff_pr"][i] = effective_tests(Mn)["n_eff_pr"]
+        sh = _shape_stats(Mn, s)
+        out["slope_abs"][i] = sh["slope_abs"]
+        out["shape_agreement"][i] = sh["shape_agreement"]
+    return out
+
+
+def _upper_p(obs: float, null: np.ndarray) -> float:
+    n = null[np.isfinite(null)]
+    if not n.size or not np.isfinite(obs):
+        return np.nan
+    return float((1 + int((n >= obs).sum())) / (n.size + 1))
 
 
 def main() -> None:
@@ -118,10 +176,9 @@ def main() -> None:
                                      rng=np.random.default_rng(7))
             ac_c = axis_cluster_gate(M[:, ~fine], n_perm=N_PERM,
                                      rng=np.random.default_rng(7))
-            nn = _neff_null(cs, b, m, N_NEFF_DRAWS)
-            nn = nn[np.isfinite(nn)]
-            p_neff = (float((1 + int((nn >= e["n_eff_pr"]).sum())) / (nn.size + 1))
-                      if nn.size and np.isfinite(e["n_eff_pr"]) else np.nan)
+            nd = _null_draws(cs, b, m, s, N_NEFF_DRAWS)
+            nn = nd["n_eff_pr"][np.isfinite(nd["n_eff_pr"])]
+            sh = _shape_stats(M, s)
             e_f = effective_tests(M[:, fine])
             rows.append(dict(
                 readout=m, band=b,
@@ -130,7 +187,15 @@ def main() -> None:
                 n_eff_pr_fine=e_f["n_eff_pr"], mean_offdiag_fine=e_f["mean_offdiag"],
                 n_eff_null_med=float(np.median(nn)) if nn.size else np.nan,
                 n_eff_null_p95=float(np.percentile(nn, 95)) if nn.size else np.nan,
-                p_neff_above_null=p_neff,
+                p_neff_above_null=_upper_p(e["n_eff_pr"], nd["n_eff_pr"]),
+                slope_abs=sh["slope_abs"], slope_signed=sh["slope_signed"],
+                slope_abs_null_med=float(np.nanmedian(nd["slope_abs"])),
+                p_slope_above_null=_upper_p(sh["slope_abs"], nd["slope_abs"]),
+                shape_agreement=sh["shape_agreement"],
+                shape_agreement_null_med=float(
+                    np.nanmedian(nd["shape_agreement"])),
+                p_shape_above_null=_upper_p(sh["shape_agreement"],
+                                            nd["shape_agreement"]),
                 cluster_p=ac["p"], cluster_mass=ac["mass"],
                 cluster_lo=(None if ac["cluster"] is None
                             else float(s[ac["cluster"][0]])),
@@ -222,6 +287,12 @@ def main() -> None:
           .to_string(index=False))
     print("\n-- S3: the axis on its two halves (incumbent) --")
     print(s3.to_string(index=False))
+    print("\n-- does the effect vary along the axis? (null-referenced) --")
+    print(ax[ax.readout.isin(HEADLINE)][
+        ["readout", "band", "slope_abs", "slope_abs_null_med",
+         "p_slope_above_null", "shape_agreement",
+         "shape_agreement_null_med", "p_shape_above_null"]]
+        .to_string(index=False))
     print(f"\n[w0s-verdict] -> {OUT}", flush=True)
 
 
