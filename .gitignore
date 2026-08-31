@@ -19,3 +19,6 @@ dist/
 .pytest_cache/
 .mypy_cache/
 .ipynb_checkpoints/
+
+# lane-local debug scaffolding (not research history)
+scratch/
