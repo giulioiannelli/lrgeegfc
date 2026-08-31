@@ -78,6 +78,17 @@ class CellSet:
             raise FileNotFoundError(f"no cells under {self.root/'cells'}")
         self.ix = {k: i for i, k in enumerate(self.readouts)}
         self.n_scales = int(self.s.size)
+        # Common surrogate depth. Cells may carry different R on disk (an early
+        # pass ran deeper before the shared machine's contention forced the
+        # ensemble down), and an unequal R would give some patients a
+        # better-estimated null floor than others in the very statistic --
+        # obs minus own-surrogate-median -- that exists to equalise them. Every
+        # cell is therefore truncated to the smallest R present, so the extra
+        # draws are retained on disk but never give one cell an advantage.
+        self.R = min(v.shape[0] for v in self._surr.values())
+        for k in list(self._surr):
+            if self._surr[k].shape[0] > self.R:
+                self._surr[k] = self._surr[k][: self.R]
 
     # ------------------------------------------------------------------ #
     def have(self, band: str) -> list[str]:
