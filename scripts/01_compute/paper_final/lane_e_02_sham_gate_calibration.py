@@ -173,7 +173,33 @@ def _block_of_segment(n_seg: int, nperseg: int, blk: int) -> np.ndarray:
     return np.where(b0 == b1, b0, -1).astype(np.int64)
 
 
-def sham_dense(pat: str, band: str, source: str, mode: str, rng,
+def band_grids(pat: str, source: str, bands) -> dict:
+    """``{band: {"full"/"half": (F, scale, block_of_segment)}}`` from ONE load.
+
+    The recording is the expensive object (a ``rest`` phase is ~1 GB in float64),
+    so it is read once per (patient, source) and every band's Welch coefficient
+    array is derived from it before it is released. Both nperseg grids are built
+    because the real pipeline estimates the split-half arms at ``nperseg // 2``.
+    """
+    fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
+    nps = nperseg_for_fs(fs)
+    nps_h = max(256, nps // 2)
+    blk = int(round(BLOCK_SECONDS * fs))
+    X = np.asarray(load_timeseries(pat, source, SEEG_DATAPATH), float)
+    if X.shape[0] > X.shape[1]:
+        X = X.T
+    out = {}
+    for band in bands:
+        g = {}
+        for tag, nperseg in (("full", nps), ("half", nps_h)):
+            _, F, sc = segment_fft(X, fs, nperseg, band=BRAIN_BANDS[band])
+            g[tag] = (F, sc, _block_of_segment(F.shape[1], nperseg, blk))
+        out[band] = g
+    del X
+    return out
+
+
+def sham_dense(pat: str, grids: dict, mode: str, rng,
                equal_task_durations: bool = False):
     """Five DENSE sham FC matrices carved out of ONE resting recording.
 
@@ -188,20 +214,6 @@ def sham_dense(pat: str, band: str, source: str, mode: str, rng,
     exchangeable on duration alone; this arm isolates that mechanism, because
     the only thing it changes is the duration asymmetry.
     """
-    fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
-    nps = nperseg_for_fs(fs)
-    nps_h = max(256, nps // 2)
-    bnd = BRAIN_BANDS[band]
-
-    X = np.asarray(load_timeseries(pat, source, SEEG_DATAPATH), float)
-    if X.shape[0] > X.shape[1]:
-        X = X.T
-    grids = {}
-    for tag, nperseg in (("full", nps), ("half", nps_h)):
-        _, F, sc = segment_fft(X, fs, nperseg, band=bnd)
-        grids[tag] = (F, sc, _block_of_segment(F.shape[1], nperseg, int(round(BLOCK_SECONDS * fs))))
-    del X
-
     d = DURS[pat]
     prop = np.array([d["rest_pre"] / 2, d["rest_pre"] / 2, d["task_learn"],
                      d["task_test"], d["rest_post"]], float)
@@ -209,7 +221,7 @@ def sham_dense(pat: str, band: str, source: str, mode: str, rng,
         m = 0.5 * (prop[2] + prop[3])
         prop[2] = prop[3] = m
     prop /= prop.sum()
-    nb = int(min(g[2].max() for g in grids.values())) + 1
+    nb = int(min(int(g[2].max()) for g in grids.values())) + 1
     sizes = np.maximum(2, np.floor(prop * nb).astype(int))
     while sizes.sum() > nb:
         sizes[int(np.argmax(sizes))] -= 1
@@ -233,40 +245,56 @@ def sham_dense(pat: str, band: str, source: str, mode: str, rng,
     return dense, sizes.tolist(), nb
 
 
+ARMS = (("ordered", "identity", 1, False),
+        ("shuffled", "free", None, False),
+        ("eqdur", "free", None, True))
+
+
 def per_cell(job):
-    idx, pat, band, source = job
+    """One (patient, source): read the recording once, score every band's arcs."""
+    idx, pat, source, bands = job
     t0 = time.time()
-    cell = OUT / "cells" / f"{pat}__{band}__{source}.npz"
-    if cell.exists() and RESUME:
-        return dict(patient=pat, band=band, source=source, reused=True)
+    todo = [b for b in bands
+            if not ((OUT / "cells" / f"{pat}__{b}__{source}.npz").exists() and RESUME)]
+    if not todo:
+        return dict(patient=pat, source=source, bands=len(bands), reused=True)
     rng = np.random.default_rng([BASE_SEED, idx])
-    store = {}
     try:
-        for tag, mode, n_rep, eqd in (("ordered", "identity", 1, False),
-                                      ("shuffled", "free", N_SHUF, False),
-                                      ("eqdur", "free", max(2, N_SHUF - 1), True)):
-            obs_l, swp_l, sur_l = [], [], []
-            for _ in range(n_rep):
-                dense, sizes, nb = sham_dense(pat, band, source, mode, rng, eqd)
-                if dense is None:
-                    continue
-                o, w, s = _arc_scores(dense, rng, R)
-                obs_l.append(o); swp_l.append(w); sur_l.append(s)
-            if not obs_l:
-                return dict(patient=pat, band=band, source=source,
-                            error="no usable sham realization")
-            store[f"obs_{tag}"] = np.array(obs_l)
-            store[f"swap_{tag}"] = np.array(swp_l)
-            store[f"surr_{tag}"] = np.array(sur_l)
-            store[f"sizes_{tag}"] = np.array(sizes)
-            store[f"nblocks_{tag}"] = np.array([nb])
+        grids = band_grids(pat, source, todo)
     except Exception as exc:                                       # noqa: BLE001
-        return dict(patient=pat, band=band, source=source,
-                    error=f"{type(exc).__name__}: {exc}")
-    cell.parent.mkdir(parents=True, exist_ok=True)
-    np.savez_compressed(cell, s=SGRID, fracs=np.array(FRACS),
-                        funcs=np.array(FUNCS), **store)
-    return dict(patient=pat, band=band, source=source, reused=False,
+        return dict(patient=pat, source=source,
+                    error=f"load/fft {type(exc).__name__}: {exc}")
+    done = []
+    for band in todo:
+        store = {}
+        try:
+            for tag, mode, n_rep, eqd in ARMS:
+                n = n_rep if n_rep is not None else (
+                    N_SHUF if tag == "shuffled" else max(2, N_SHUF - 1))
+                obs_l, swp_l, sur_l = [], [], []
+                for _ in range(n):
+                    dense, sizes, nb = sham_dense(pat, grids[band], mode, rng, eqd)
+                    if dense is None:
+                        continue
+                    o, w, s = _arc_scores(dense, rng, R)
+                    obs_l.append(o); swp_l.append(w); sur_l.append(s)
+                if not obs_l:
+                    raise RuntimeError(f"no usable {tag} realization")
+                store[f"obs_{tag}"] = np.array(obs_l)
+                store[f"swap_{tag}"] = np.array(swp_l)
+                store[f"surr_{tag}"] = np.array(sur_l)
+                store[f"sizes_{tag}"] = np.array(sizes)
+                store[f"nblocks_{tag}"] = np.array([nb])
+        except Exception as exc:                                   # noqa: BLE001
+            return dict(patient=pat, source=source, band=band,
+                        error=f"{type(exc).__name__}: {exc}")
+        cell = OUT / "cells" / f"{pat}__{band}__{source}.npz"
+        cell.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(cell, s=SGRID, fracs=np.array(FRACS),
+                            funcs=np.array(FUNCS), **store)
+        done.append(band)
+        del grids[band]
+    return dict(patient=pat, source=source, bands=len(done), reused=False,
                 elapsed_s=time.time() - t0)
 
 
@@ -288,9 +316,10 @@ def main():
     (OUT / "cells").mkdir(parents=True, exist_ok=True)
     matched_strength_shuffle(np.zeros((5, 5)), 4, np.random.default_rng(0))
 
-    jobs = [(i, p, b, s) for i, (s, b, p) in
-            enumerate((s, b, p) for s in srcs for b in bands for p in pats)]
-    print(f"[lane-e/E2a] {len(jobs)} cells | sham arcs, ordered + {N_SHUF} shuffled "
+    jobs = [(i, p, s, bands) for i, (s, p) in
+            enumerate((s, p) for s in srcs for p in pats)]
+    print(f"[lane-e/E2a] {len(jobs)} (patient, source) jobs x {len(bands)} bands | "
+          f"sham arcs: ordered + {N_SHUF} shuffled + {max(2, N_SHUF-1)} eqdur "
           f"| {CANONICAL.label()} fracs={FRACS} | R={R} | {WORKERS} workers -> {OUT}",
           flush=True)
     t0, rows = time.time(), []
@@ -298,7 +327,7 @@ def main():
         for i, res in enumerate(pool.imap_unordered(per_cell, jobs), 1):
             rows.append(res)
             el = time.time() - t0
-            print(f"[{i}/{len(jobs)}] {res.get('patient','?')}/{res.get('band','?'):11s}"
+            print(f"[{i}/{len(jobs)}] {res.get('patient','?')}"
                   f"/{res.get('source','?'):9s} {el:6.0f}s ETA {el/i*(len(jobs)-i):6.0f}s"
                   + (f"  ERROR {res['error'][:70]}" if res.get("error") else ""),
                   flush=True)
