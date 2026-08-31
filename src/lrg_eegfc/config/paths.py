@@ -43,6 +43,7 @@ __all__ = [
     # imcoh (imaginary coherence — volume-conduction immune)
     "IMCOH_CACHE",
     "IMCOH_LRG_CACHE",
+    "IMCOH_HALVES_CACHE",
     # experimental
     "BIPOLAR_CACHE",
     "RESCALED_CACHE",
@@ -94,6 +95,13 @@ SURROGATE_VALIDATION_CACHE = CACHE_ROOT / "surrogate_validation"
 # ImCoh (Imaginary Coherence — volume-conduction immune FC)
 IMCOH_CACHE = CACHE_ROOT / "imcoh"
 IMCOH_LRG_CACHE = CACHE_ROOT / "imcoh_lrg"
+#: Split halves of a continuous phase, one file per (band, phase, half,
+#: transform). These supply the within-condition baseline arms of any
+#: split-half-referenced cross-phase statistic, and the estimator's own
+#: test-retest. Written by ``imcoh_split_half_adjacencies``; file pattern
+#: ``{patient}/{band}_{phase}_{A|B}_imcoh_{abs|sq}.npy``. The legacy
+#: ``imcoh_halves_fc`` directory holds the ``abs`` arm only and is superseded.
+IMCOH_HALVES_CACHE = CACHE_ROOT / "imcoh_halves"
 
 # Experimental (failed debiasing approaches, kept for reference)
 BIPOLAR_CACHE = CACHE_ROOT / "bipolar"

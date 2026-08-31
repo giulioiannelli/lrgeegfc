@@ -169,6 +169,55 @@ def betweenness_centrality(W: np.ndarray) -> np.ndarray:
     return np.array([bc[i] for i in range(N)], dtype=float)
 
 
+def gini_coefficient(x: np.ndarray) -> float:
+    """Gini coefficient of a non-negative vector, in ``[0, 1]``.
+
+    ``0`` = every entry equal, ``1`` = all the mass on one entry. Computed from
+    the sorted vector as ``G = (2 Σ i x_(i)) / (n Σ x) − (n+1)/n``. A
+    scale-invariant concentration measure: unlike the coefficient of variation
+    it is bounded and insensitive to the units of ``x``, which matters when
+    comparing weight fields produced by different transforms (e.g. ``⟨|Im C|⟩_f``
+    vs ``⟨(Im C)²⟩_f``).
+
+    Negative entries are not meaningful for a concentration measure and are
+    clipped at ``0``.
+    """
+    v = np.sort(np.maximum(np.asarray(x, float).ravel(), 0.0))
+    n = v.size
+    tot = v.sum()
+    if n == 0 or tot <= 0:
+        return float("nan")
+    idx = np.arange(1, n + 1)
+    return float((2.0 * (idx * v).sum()) / (n * tot) - (n + 1.0) / n)
+
+
+def weight_heterogeneity(W: np.ndarray) -> dict:
+    """Scale-free descriptors of how unevenly a graph's edge weight is spread.
+
+    On a **dense** weighted graph the heat-kernel propagator is degenerate
+    (single specific-heat peak) precisely when the weight field is strongly
+    heterogeneous, so these are the quantities that say how far a substrate sits
+    from the collapsed regime -- independent of any cross-phase hypothesis.
+
+    Returns ``gini``, ``cv`` (coefficient of variation), ``p99_over_p50``,
+    ``max_over_p50`` and ``participation_ratio`` -- the last being
+    ``(Σw)² / (Σw² · n_edges) ∈ (0, 1]``, the fraction of edges that
+    effectively carry the weight (``1`` = perfectly uniform).
+    """
+    iu = np.triu_indices(W.shape[0], k=1)
+    w = np.maximum(np.asarray(W, float)[iu], 0.0)
+    mu = w.mean()
+    med = float(np.median(w))
+    return dict(
+        gini=gini_coefficient(w),
+        cv=float(w.std() / mu) if mu > 0 else float("nan"),
+        p99_over_p50=float(np.percentile(w, 99) / med) if med > 0 else float("nan"),
+        max_over_p50=float(w.max() / med) if med > 0 else float("nan"),
+        participation_ratio=float(w.sum() ** 2 / ((w ** 2).sum() * w.size))
+        if (w ** 2).sum() > 0 else float("nan"),
+    )
+
+
 # Registry: name -> (callable, level). Level 'pair' = length N(N-1)/2,
 # 'node' = length N. Used by the pairwise-descriptor-ladder audit.
 DESCRIPTORS = {

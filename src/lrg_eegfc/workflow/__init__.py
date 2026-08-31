@@ -1,6 +1,19 @@
 """Workflow orchestration subpackage."""
 
 from .core import BandComputationResult, compute_band_connectivity
+from .substrate import (
+    Substrate,
+    CANONICAL,
+    CANONICAL_PHASES,
+    CANONICAL_SCALES,
+    canonical_scale_grid,
+    canonical_graph,
+    canonical_graph_ensemble,
+    canonical_eig,
+    canonical_phase_graphs,
+    canonical_phase_eigs,
+    canonical_structure,
+)
 from .corr import CorrResult, compute_corr_matrix, load_corr_matrix, get_corr_cache_path, compute_corr_for_patient
 from .msc import MSCResult, compute_msc_matrix, load_msc_matrix, get_msc_cache_path, compute_msc_for_patient
 from .lrg import LRGResult, compute_lrg_analysis, load_lrg_result, get_lrg_cache_path, compute_lrg_for_patient
@@ -32,6 +45,18 @@ from .time_windows import (
 __all__ = [
     "BandComputationResult",
     "compute_band_connectivity",
+    # the locked substrate -- one entry point for the analysed graph
+    "Substrate",
+    "CANONICAL",
+    "CANONICAL_PHASES",
+    "CANONICAL_SCALES",
+    "canonical_scale_grid",
+    "canonical_graph",
+    "canonical_graph_ensemble",
+    "canonical_eig",
+    "canonical_phase_graphs",
+    "canonical_phase_eigs",
+    "canonical_structure",
     "CorrResult",
     "compute_corr_matrix",
     "load_corr_matrix",

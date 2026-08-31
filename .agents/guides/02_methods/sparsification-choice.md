@@ -2,8 +2,10 @@
 name: sparsification-choice
 type: methods-guide
 era: IMCOH_ABS × COHORT_N10 (mst@0.20 recovery → sparsifier-decision pending)
-status: decision-pending (recommendation = PMFG/TMFG family; to be settled by the full-suite run)
+status: SUPERSEDED 2026-08-31 by .agents/preprint/locked/PIPELINE_CONTRACT.md — its §4/§6 recommendation (adopt the PMFG/TMFG family) was TESTED AND REFUTED; read the banner below before acting on anything in this file
 created: 2026-07-13
+superseded_by: .agents/preprint/locked/PIPELINE_CONTRACT.md
+superseded_evidence: .agents/reports/2026-08-25_w0a-substrate-contract.md
 scope: PRINCIPLED choice of the graph sparsifier/filter for the LRG diffusion pipeline. Written
   BEFORE committing, to stop the empirical bake-off (pick-the-AUC-winner = cherry-picking the
   method) and replace it with a principle-first decision + a pre-registered adoption rule + a
@@ -18,6 +20,20 @@ pointers:
 ---
 
 # Choosing the sparsifier — principle first, performance only to confirm
+
+> ## ⚠️ SUPERSEDED 2026-08-31 — do not act on the recommendation below
+>
+> This document's pre-registered adoption rule (§6) was executed by lane W0-A, and **the recommendation it makes (§4, "adopt the PMFG/TMFG family") failed its own conditions**. What the suite found:
+>
+> - **Clause (iii) `PMFG ≈ TMFG` is FALSE.** Never previously tested. On the observed per-scale cross-phase readout (10 patients × 4 bands × 16 scales) Pearson(TMFG, PMFG) = 0.62 / 0.54 / 0.16 / 0.46 across the four functionals, with median |diff| ≈ 0.10–0.13 against sd(TMFG) ≈ 0.16–0.24. TMFG is **not** "the fast chordal computation of PMFG" for this readout — they are different filters. The whole §4 argument (cite PMFG as the principled parent, compute TMFG) is void.
+> - **Clause (ii) the trace does NOT hold on TMFG.** TMFG fails the cross-phase gate in every band (α cluster p = 0.141, β p = 0.086).
+> - **Planarity, not sparsity, is the cause — and the mechanism is known.** At *matched* edge budget (TMFG 0.0504 vs mst-union 0.0539) the α trace falls 4.5× (+0.189 → +0.042). At matched size the two graphs share a third of their edges (Jaccard 0.336); planarity is forced to discard edges in the **top 3.4 % by weight** and substitute ones averaging rank 0.214. The earlier "planarity kills α" verdict was right, and it is topology, not density.
+> - **Percolation is parameter-free but not stable.** Its data-set density swings 36-fold (median 0.178, range [0.018, 0.665]), so it cannot sit inside any invariance window.
+> - **Criterion 3 (parameter-free) cannot be met by any candidate.** The free parameter is therefore **integrated over**, not eliminated: the locked substrate is mst-union reported over `f ∈ [0.07, 0.20]` via `canonical_graph_ensemble`, never at a single fraction.
+>
+> **What is still valid here:** §1 (why we sparsify at all — the Villegas degeneracy argument), §2 (the five criteria as *criteria*), §3's method map as a description of the options, and §8's honesty rules. **What is dead:** §4, §5, §6 and §7's suite plan.
+>
+> Current authority: [`.agents/preprint/locked/PIPELINE_CONTRACT.md`](../../preprint/locked/PIPELINE_CONTRACT.md). Evidence: [`.agents/reports/2026-08-25_w0a-substrate-contract.md`](../../reports/2026-08-25_w0a-substrate-contract.md).
 
 ## Head
 
