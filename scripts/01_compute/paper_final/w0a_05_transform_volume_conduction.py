@@ -121,6 +121,16 @@ def band_adjacency(C: np.ndarray, transform: str) -> np.ndarray:
 
 
 def per_patient(job):
+    """Wrapper so one bad patient cannot kill a 20-minute cohort run."""
+    try:
+        return _per_patient(job)
+    except Exception:
+        import traceback
+        print(f"  [{job[1]}] FAILED:\n{traceback.format_exc()}", flush=True)
+        return None, None
+
+
+def _per_patient(job):
     idx, pat = job
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nper_full, nper_half = nperseg_for_fs(fs), max(256, nperseg_for_fs(fs) // 2)
@@ -193,8 +203,13 @@ def per_patient(job):
                        for f in FRACS}
                 surr = {f: {k: np.full((R, SGRID.size), np.nan) for k in FUNCTIONALS}
                         for f in FRACS}
-                rs = np.random.default_rng(BASE_SEED + 7919 * idx
-                                           + hash((band, tk, mask_name)) % 100000)
+                # Deterministic arm seed. Python's hash() on str is salted per
+                # process (PYTHONHASHSEED), so it must NOT appear in a seed --
+                # it would make the surrogate draws irreproducible across runs
+                # and inconsistent between workers.
+                arm_id = (BANDS.index(band) * len(TRANSFORMS) * len(MASKS)
+                          + TRANSFORMS.index(tk) * len(MASKS) + MASKS.index(mask_name))
+                rs = np.random.default_rng(BASE_SEED + 7919 * idx + arm_id)
                 for r in range(R):
                     Wsh = {ph: matched_strength_shuffle(Wm[ph], n_swaps, rs, W_MAX)
                            for ph in PHASES}

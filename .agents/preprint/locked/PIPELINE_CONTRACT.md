@@ -137,6 +137,23 @@ Over the wide window all four fractions agree: α 4/4 (median p = 0.017, margin 
 
 ---
 
+## 4b. What this substrate does and does not license
+
+This section exists because it is the single most likely thing for a referee to attack, and because sibling lane W0-B established the facts that make the old wording indefensible.
+
+**Matched-strength is an *independence* null, not a lag null.** W0-B showed it agrees cell-for-cell with an independent segment-lattice null (r = 0.983 across 800 cells), so it tests whether the cross-phase structure could arise from independently-drawn graphs with the same strength sequence. It says nothing about whether the structure is carried by coupling *magnitude* or by *lag*. Every verdict in §4.2 is therefore an independence verdict.
+
+**The trace fails the lag-destroying nulls.** With the backbone edge set pinned to the observed `|ImCoh|` one — the control built to give the trace its best chance — W0-B found a cohort median margin of **−0.003 for β and +0.004 for α**, against +0.214 and +0.130 under matched-strength. No separation, at any scale, in any band. The α and β traces clear independence nulls and survive order-preserving session repartitioning (β 10/16 scales, best p = 0.0049, not BH-significant, min q = 0.186), but they do not clear a null that preserves coherence magnitude and destroys only lag.
+
+Two rules follow, and they bind on every lane inheriting this contract:
+
+1. **Every cohort claim needs three rungs**, reported together: matched-strength / N1b (independence), **N1 with the backbone fixed** (lag), and **N3 order-preserving** (session structure). A claim resting on matched-strength alone is an independence claim and must be labelled as one.
+2. **Where N1 is not cleared — currently α, β, and all four five-phase functionals — the claim must be stated as being about *coherence structure*, not about lagged interaction, and volume-conduction immunity must not be offered as its justification.** The substrate is `|ImCoh|`, which is *constructed* to be VC-immune; but a result that does not separate from a magnitude-preserving, lag-destroying surrogate has not demonstrated that its content is the lagged part. The conservative construction is a property of the estimator, not evidence about the finding.
+
+**No functional may ever be tested against zero.** W0-B found that none of the four five-phase functionals is zero-centred: all four, `T_probe` included, are significantly positive at 16/16 scales for α and β on a sham arc carved from a single resting recording with temporal order destroyed. This does not void surrogate-referenced results — the surrogate inherits the same construction — but it does mean the only admissible statistic is a **margin against a per-configuration surrogate**. Everything in this contract is computed that way (§5); anything downstream must be too.
+
+---
+
 ## 5. The cohort gate used here
 
 One **sign-flip cluster-mass test** (Maris-Oostenveld; whole-patient-profile flips, which preserves the along-axis correlation) per (config, band, functional) over the entire 16-scale margin profile. This collapses the swept axis to a single test, so it does not inherit the per-scale multiplicity problem at all.
@@ -153,7 +170,7 @@ Per-scale cleared-counts are reported as **secondary** and under two families si
 
 ## 6. What is NOT settled by this contract
 
-1. **The null is still injected at the finished-FC-matrix stage.** Matched-strength shuffles the completed N×N matrix, so nothing here tests the coherency estimator, the band split, session nonstationarity, drift, or artifact epochs. Every verdict above is conditional on "given this FC matrix". Lane W0-B's timeseries-level ladder is what removes this, and until it has run, **every number in this contract is provisional in that specific sense.**
+1. **The trace does not clear a lag-destroying null, and that is now the largest open item in the project.** Matched-strength is an independence null (§4b); W0-B's N1 with the backbone pinned gives a cohort median margin of −0.003 (β) and +0.004 (α). Every verdict here is an **independence** verdict about **coherence structure**. Whether any of it is carried by lagged interaction is unresolved, and §4b's wording rules are mandatory until it is.
 2. **The full band-selectivity claim is knob-dependent.** low_γ is null only at `f ≥ 0.14`, giving 0.51 octaves — below the pre-registered bar. Any claim of the form "the hierarchy rejects low_γ" must be reported with that window and that width, or not made.
 3. **The free parameter is integrated over, not eliminated.** No parameter-free filter passed. A referee can still ask why mst-union; the answer is the surface in §4.2, not a principle.
 4. **`T_probespec_pe` is uncalibrated** (§2) and cannot support a claim until a data-based placebo exists.
