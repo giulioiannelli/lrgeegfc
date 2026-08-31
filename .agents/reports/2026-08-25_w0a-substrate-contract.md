@@ -161,6 +161,14 @@ The incumbent `f = 0.20` is inside both windows and at the **upper edge** of bot
 
 `T_probespec` is **invariantly null for α across the entire grid** (0/10 fractions, 5.64 octaves), and likewise for low_γ and high_γ. β is scattered (4/10). Whatever the inference-specific story becomes, it is not a knob-robust cross-phase trace in those bands. `T_probespec_pe` looks much stronger for β (9/10) but is a conditional statistic and is **uncalibrated** — W0-C showed a sham arc built inside pre-task rest can drive such a statistic to p = 0.007, so it cannot be gated until a data-based placebo exists.
 
+### 2.5b What the surface is a surface *of*
+
+Two constraints from lane W0-B change how everything above must be read, and they are recorded here rather than only in the contract because they bear on the numbers in this section.
+
+**Every verdict in §2 is an independence verdict.** Matched-strength agrees cell-for-cell with an independent segment-lattice null (r = 0.983 across 800 cells), so it tests whether the cross-phase structure could arise from independently-drawn graphs with the same strength sequence. It does not test whether that structure is carried by coupling magnitude or by lag — and against a null that preserves magnitude and destroys only lag, the trace shows **no separation at all** (cohort median margin −0.003 for β, +0.004 for α, backbone pinned). The plateau in §2.4 is therefore a stability property of an *independence* result. It says the substrate does not manufacture the finding; it does not say what the finding is made of.
+
+**No functional is zero-centred.** All four, `T_probe` included, are significantly positive at 16/16 scales for α and β on a sham arc carved from a single resting recording with temporal order destroyed. Surrogate-referenced results survive this (the surrogate inherits the same construction), but it means the only admissible statistic is a margin against a per-configuration surrogate. Every gate in this lane is one — the cohort gate is `obs − surr_p50` and the cluster test runs on that margin matrix — so nothing in §2 needed changing, but any downstream reuse must preserve it.
+
 ### 2.6 The transform arm (R1-bis resolved)
 
 Run under `imcoh_sq` on 10 configurations. On the 10 shared configurations, `T_probe`:
@@ -270,7 +278,7 @@ Supporting library work, all with general names and no manuscript-local tokens:
 
 Stated first, per the honesty rule, because several of these bear on claims already written up.
 
-1. **The null is still injected at the finished-FC-matrix stage.** Matched-strength shuffles the completed N×N matrix. Nothing in this lane tests the coherency estimator, the band split, session nonstationarity, drift, or artifact epochs. **Every verdict in this report is conditional on "given this FC matrix"**, and lane W0-B's timeseries-level ladder is what removes that.
+1. **The trace does not clear a lag-destroying null.** This supersedes the weaker statement this section originally carried, and it is now the largest open item in the project. W0-B established that matched-strength is empirically an **independence** null — it agrees cell-for-cell with an independent segment-lattice null (r = 0.983 over 800 cells) — so it cannot speak to magnitude-versus-lag. With the backbone edge set pinned to the observed `|ImCoh|` one, the cohort median margin is **−0.003 (β) and +0.004 (α)**, against +0.214 and +0.130 under matched-strength. Every verdict in this report is therefore an **independence** verdict about **coherence structure**, and until N1 is cleared, no claim here may be stated as being about lagged interaction, nor justified by volume-conduction immunity. See `PIPELINE_CONTRACT.md` §4b for the binding wording rules.
 2. **The full band-selectivity claim is knob-dependent.** low_γ is null only for f ≥ 0.14, giving 0.51 octaves — below the pre-registered bar. Any claim of the form "the hierarchy rejects low_γ" must carry that window and that width.
 3. **The free parameter is integrated over, not eliminated.** A referee can still ask why mst-union rather than another family; the answer is the surface in §2, not a principle.
 4. **`T_probespec_pe` is uncalibrated** and cannot support a claim until a data-based placebo exists. This is the specific failure mode W0-C demonstrated (sham arc, p = 0.007).
