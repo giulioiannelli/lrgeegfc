@@ -150,6 +150,21 @@ N1 was run over the full five-phase arc, scoring all four functionals per scale,
 
 The only cells reaching raw significance are `T_infspec` in δ (5/16) and β (2/16) — the one contrast whose first argument, `D_test − D_learn`, never references `rest_pre` and is therefore structurally immune to split-half baseline artifacts. That is a coherent place for residual signal to sit, and it is worth a targeted follow-up, but **at 2–5 of 16 scales with q = 0.80 it is not a result.** Taken with §6, the position on the encoding/inference decomposition is: it is not zero-centred, and what remains after conditioning does not survive a lag null.
 
+## 6b. What N1's null actually is — the pipeline on ordinary coherence
+
+The N1 surrogate is not an abstract construct. Because randomizing the phase sends `⟨|Im C|⟩_f → (2/π)⟨|C|⟩_f`, N1's null should be, near enough, *the incumbent pipeline run on ordinary coherence magnitude*. That was tested directly: `W = ⟨|C|⟩_f` was pushed through the identical backbone → Laplacian → heat-kernel → UPGMA → ρ_sym path for 5 patients × {α, β} × 16 scales, and compared against the N1 surrogate medians from the production run.
+
+They track at **Pearson r = 0.879** (mean absolute difference 0.156) — so yes, N1's floor is essentially "what ordinary coherence would have given you".
+
+That makes the negative concrete, and it carries a consequence the transform lane needs:
+
+| band | median ρ_sym on `\|ImCoh\|` | median ρ_sym on `⟨\|C\|⟩` |
+|---|---|---|
+| alpha | +0.212 | **+0.277** |
+| beta | +0.281 | **+0.355** |
+
+**Ordinary coherence produces a *larger* cross-phase trace than `|ImCoh|` does** (5 patients, all 16 scales). The estimator this project selected for its volume-conduction immunity is the weaker of the two on the statistic the paper is built on. Per-patient the gap is not uniform — Pat_05 β runs the other way (`|ImCoh|` +0.449 vs `|C|` −0.329), and Pat_06 β is the extreme case in the opposite direction (+0.219 vs +0.949, which is exactly why Pat_06 drives the N1 floor in §4) — so this is a 5-patient indication, not a cohort verdict. It is enough to define the experiment W0-A should run, and it is stated in §11.
+
 ## 7. A pipeline asymmetry found in passing — the A/B `nperseg`
 
 Not a null, but it surfaced while building one and it affects the observed statistic every lane uses. The production pipeline estimates the two `rest_pre` halves at `nperseg_for_fs(fs) // 2` while `task_test` and `rest_post` use the full `nperseg_for_fs(fs)`. In `ρ_sym = ½[ρ(D_task − D_A, D_post − D_B) + ρ(D_task − D_B, D_post − D_A)]`, **both** arguments of each Spearman then have the form (full-`nperseg`) − (half-`nperseg`). Any systematic part of that estimator difference is common to the two arguments, and a shared additive component inflates a correlation.
@@ -196,7 +211,9 @@ Everything cut is listed here; nothing was silently truncated.
 
 **Are the encoding/inference functionals safe to gate on?** Only against a surrogate, never zero — and under the lag null none of them survives BH anywhere (min q 0.801), `T_infspec_pe` included.
 
-**What is genuinely unsettled.** `high_gamma` under any new rung. Whether β's N3 result would survive BH with a less conservative session null. And the constructive question this lane can pose but not answer: **if the discriminative content is coherence magnitude rather than lag, is ordinary coherence the better substrate for this paper?** That belongs to W0-A, which owns the transform decision, and it should be told that the lag-specificity argument for `|ImCoh|` is not supported by the trace result. The natural next experiment is cheap and well-defined: run the incumbent gate on `⟨|C|⟩_f` and compare its effect size and null floor against `|ImCoh|` head to head.
+**What is genuinely unsettled.** `high_gamma` under any new rung. Whether β's N3 result would survive BH with a less conservative session null.
+
+**And one question this lane can now pose sharply but not settle, which belongs to W0-A.** §6b shows N1's null is, at r = 0.879, just the incumbent pipeline run on ordinary coherence — and that on 5 patients across all 16 scales, `⟨|C|⟩` yields a *larger* median ρ_sym than `|ImCoh|` in both trace bands (α +0.277 vs +0.212; β +0.355 vs +0.281). So the transform chosen for volume-conduction immunity appears to be the weaker one on the statistic the paper rests on. W0-A owns the transform decision and should be told two things: the lag-specificity argument for `|ImCoh|` is **not supported** by the trace result, and the head-to-head experiment is cheap and well-defined — run the incumbent gate on `⟨|C|⟩_f` across the full cohort and compare effect size, null floor and band selectivity against `|ImCoh|`. Note the trade this would force into the open: `⟨|C|⟩` is *not* volume-conduction-immune, so a larger trace on it is not automatically a better result — it may be a larger trace on a partly artefactual substrate. That is precisely the comparison the paper currently makes by assertion and has never made by evidence.
 
 ## 12. Reproducing any of this
 
