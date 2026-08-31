@@ -2,7 +2,7 @@
 name: 2026-08-25_w0a-substrate-contract
 kind: report
 era: PAPER_FINALIZATION (Wave 0, lane W0-A)
-status: in-progress
+status: complete
 created: 2026-08-25
 scope: Evidence report for the W0-A substrate contract. Decides the two choices that underpin every result in the paper -- the |ImCoh| magnitude transform and the sparsified backbone -- under a decision rule pre-registered before any number was computed. Reports the full sparsification stability surface, the parameter-free-filter verdict, and an explicit list of what remains unsettled.
 pointers:
@@ -17,7 +17,7 @@ pointers:
 
 ## Head
 
-PLACEHOLDER-HEAD
+The substrate is `imcoh_abs` on an mst-union backbone **reported over `f ∈ [0.07, 0.20]` rather than at any single fraction**, and the free parameter could not be eliminated — no parameter-free filter passed, so it is integrated over instead. Three things came out against expectation and all three matter. **α is recoverable**: it holds an invariantly-positive plateau over 2.32 octaves, which reverses the demotion sibling lane W0-C reached using a per-scale multiplicity correction that over-charges the correlated scale axis by ~11×. **The transform is not a free choice**: the reliability rule preferred `imcoh_sq`, but β's trace does not survive it (positive at 6/10 swept configs under `abs`, 3/10 under `sq`) and `sq` admits no stable window at all — so `abs` is kept because it is the only admissible option, not because it won. **The full band-selectivity claim is narrower than the trace claim**: adding low_γ to the required-null set shrinks the window to 0.51 octaves, below the pre-registered bar. The historical `f = 0.20` sits at the upper edge of every window computed here, which is the quantitative signature of an outcome-selected knob; the contract moves the representative fraction to the interior. Everything remains conditional on matched-strength, a null injected at the finished-FC-matrix stage — lane W0-B's ladder is what would remove that, and until it runs these verdicts are provisional in that specific sense.
 
 ---
 
@@ -102,19 +102,147 @@ Written after A1 and **before any A2 trace number**: a 1.2 % reliability margin 
 
 ## 2. A2 — the sparsification stability surface
 
-PLACEHOLDER-A2
+### 2.1 What was swept
+
+18 configurations × 6 bands × 4 functionals × 16 scales × 10 patients, matched-strength null at R = 100. The configurations span the density knob under three different *mechanisms* — `mst-union` at 10 fractions from 0.02 to 1.00, the plain global threshold at 3 fractions (same edge budget, no connectivity policy, so it fragments below the percolation point), and the disparity filter at 3 α — plus the two parameter-free filters, TMFG and percolation.
+
+One design decision does real work: within a cell, the matched-strength surrogate draws are **shared across every configuration**. Config-to-config differences are therefore attributable to the backbone and not to surrogate noise. That also makes neighbouring fractions *more* correlated, which is why the plateau claim is not allowed to rest on smoothness alone — it has to survive a change of mechanism at matched density, and it is reported alongside the structural covariates that show the graph itself changed materially across the window.
+
+### 2.2 The gate, and why it is not the one the sweep was run under
+
+The 16-scale axis is worth **n_eff = 1.51** independent tests (mean cross-scale correlation +0.79) on these margin matrices. Treating the scales as 16 independent tests over-charges by ~11×. Sibling lane W0-C reached the same conclusion independently on a 28-point sweep (n_eff 1.2–1.9, mean r +0.70 to +0.93) — two lanes, different data slices, same phenomenon.
+
+So the **primary** gate here is a single sign-flip cluster-mass test (Maris-Oostenveld, whole-patient-profile flips, which preserves the along-axis correlation) per (config, band, functional) over the entire 16-scale margin profile. It collapses the swept axis to one test and does not inherit the per-scale multiplicity problem at all. Everything is gated on the **margin** `obs − surr_p50`, never a raw observed value.
+
+Per-scale cleared-counts are demoted to secondary and reported under two families side by side. Verdict agreement with the primary gate is 0.729 (raw α = 0.05) and 0.750 (whole-grid BH) over 432 cells — **the family changes a quarter of the verdicts**, which is precisely why the plateau is defined on the family-free test. The gate was deliberately *not* swapped mid-sweep, so every row is internally comparable.
+
+### 2.3 The surface
+
+`T_probe` cluster p per fraction, mst-union family; bold = p < 0.05:
+
+| f | density | δ | θ | α | β | low_γ | high_γ |
+|---|---|---|---|---|---|---|---|
+| 0.02 | 0.028 | **0.009** | 0.311 | 0.064 | **0.025** | **0.020** | **0.034** |
+| 0.04 | 0.044 | **0.027** | 0.278 | **0.022** | 0.094 | 0.173 | 0.301 |
+| 0.05 | 0.053 | **0.032** | 1.000 | **0.008** | 0.082 | 0.062 | 1.000 |
+| 0.07 | 0.072 | **0.011** | 1.000 | **0.009** | **0.022** | **0.013** | 1.000 |
+| 0.10 | 0.101 | 0.150 | 0.286 | **0.028** | **0.031** | **0.022** | 0.176 |
+| 0.14 | 0.140 | 0.103 | 0.393 | **0.017** | **0.026** | 0.111 | 0.124 |
+| 0.20 | 0.200 | **0.013** | 0.426 | **0.018** | **0.004** | 0.098 | 0.083 |
+| 0.28 | 0.280 | **0.048** | 0.250 | 0.166 | **0.004** | 0.091 | 0.090 |
+| 0.40 | 0.400 | 0.209 | 0.402 | 0.093 | **0.003** | 0.068 | **0.013** |
+| 1.00 | 1.000 | **0.015** | 0.322 | 0.120 | **0.016** | 0.061 | 0.125 |
+
+Three-way plateau labels on `T_probe`:
+
+| band | label | widest constant run | positive at |
+|---|---|---|---|
+| **β** | **invariantly-positive** | f ∈ [0.07, 1.00], 3.84 oct | 8/10 fractions |
+| **α** | **invariantly-positive** | f ∈ [0.04, 0.20], 2.32 oct | 6/10 fractions |
+| θ | invariantly-null | f ∈ [0.02, 1.00], 5.64 oct | 0/10 |
+| low_γ | knob-dependent | — | 3/10, scattered |
+| high_γ | knob-dependent | — | 2/10, scattered |
+| δ | knob-dependent | — | 7/10, scattered (1111001101) |
+
+**α is recoverable, and this is the highest-value cell in the sweep.** W0-C demoted α on the incumbent substrate — 1 of 28 scales, q = 0.090, verdict broken by 3 of 10 patient drops — and flagged its status as substrate-sensitive. It was right to. Under a gate that does not over-charge the correlated scale axis, α is *invariantly-positive* across 2.32 octaves. The disagreement is the multiplicity family, not the data.
+
+**β is the most knob-robust result in the study**, holding from f = 0.07 all the way to the fully dense graph. **θ is the cleanest null**: not once positive anywhere on a 5.64-octave grid.
+
+### 2.4 The admissible window — the actual substrate decision
+
+A fraction is admissible when both signal bands are positive and the null band is not, on the same graph. An all-zeros plateau on a signal band is a *failure* of that substrate, not a success, which is why the three-way label matters.
+
+- **Required null = {θ}: `f ∈ [0.07, 0.20]`, contiguous, 1.51 octaves, 4/10 fractions.** Passes the pre-registered ≥ 1-octave bar. Over it: α 4/4 (median p = 0.017, margin +0.125), β 4/4 (0.024, +0.127), θ 0/4 (0.409, −0.012).
+- **Required null = {θ, low_γ}: `f ∈ [0.14, 0.20]`, 0.51 octaves.** *Fails* the bar. low_γ leaks at f = 0.07 (p = 0.013) and f = 0.10 (p = 0.022) and only goes null at f ≥ 0.14.
+
+The incumbent `f = 0.20` is inside both windows and at the **upper edge** of both. That is what an outcome-selected knob looks like from the outside, and it is the honest answer to the charge in the master plan's fracture 2: the choice was not arbitrary, but it was made at the boundary of the region that supports it, which is the least robust place to stand.
+
+### 2.5 The negative result on the inference-specific functional
+
+`T_probespec` is **invariantly null for α across the entire grid** (0/10 fractions, 5.64 octaves), and likewise for low_γ and high_γ. β is scattered (4/10). Whatever the inference-specific story becomes, it is not a knob-robust cross-phase trace in those bands. `T_probespec_pe` looks much stronger for β (9/10) but is a conditional statistic and is **uncalibrated** — W0-C showed a sham arc built inside pre-task rest can drive such a statistic to p = 0.007, so it cannot be gated until a data-based placebo exists.
+
+### 2.6 The transform arm (R1-bis resolved)
+
+Run under `imcoh_sq` on 10 configurations. On the 10 shared configurations, `T_probe`:
+
+| band | positive under `abs` | under `sq` |
+|---|---|---|
+| α | 7/10 | 7/10 |
+| β | **6/10** | **3/10** |
+
+On `T_encode`, β goes 4/10 → 1/10. The admissible window under `sq` is a **single fraction, 0.00 octaves**.
+
+So the verdict is not transform-invariant — but not in the direction R1-bis anticipated. α is transform-invariant; **β's trace is specific to `⟨|Im C|⟩`** and does not survive `⟨(Im C)²⟩`. low_γ also leaks more under `sq`, so band-selectivity is worse too.
+
+R1-bis's literal text ("adopt `sq` if the verdict is not transform-invariant") would have me adopt a transform under which no stable substrate exists. **That is an under-specification in my own pre-registration and I am flagging it rather than quietly rewriting it.** The resolution: R1 is a preference ordering over transforms; R2 is a hard admissibility gate, frozen before any number. A (transform, backbone) pair that admits no octave-wide invariant region is not admissible whatever its reliability. `imcoh_abs` is retained because it is the only one of the two that passes R2 — **not because it won R1; it lost.**
+
+The consequence belongs in Methods rather than in a footnote: the β trace is transform-specific, and that is a real fragility of the central claim.
 
 ---
 
 ## 3. A3 — killing the free parameter
 
-PLACEHOLDER-A3
+R2.1 preferred a genuinely parameter-free filter over a knob-integrated readout. **No candidate qualified**, and the three reasons are each worth stating because each retires something the project currently believes.
+
+### 3.1 Neither parameter-free filter clears the trace
+
+On `T_probe`, cluster p: TMFG α 0.141, β 0.086; percolation α 0.312, β 0.076. Neither clears in any band, so neither sits inside the plateau and R2.1 fails outright. The free parameter cannot be eliminated — only integrated over.
+
+### 3.2 PMFG is not TMFG, so the standing recommendation is unsound
+
+`.agents/guides/02_methods/sparsification-choice.md` recommends adopting the PMFG/TMFG family, citing PMFG as the principled parent and using TMFG as "its fast chordal computation", and its own adoption rule makes this conditional on clause (iii) **PMFG ≈ TMFG**. That clause had never been tested. Tested here for the first time on the observed per-scale readout, 10 patients × 4 bands × 16 scales:
+
+| functional | Pearson(TMFG, PMFG) | median \|diff\| | sd(TMFG) |
+|---|---|---|---|
+| `T_probe` | 0.624 | 0.105 | 0.235 |
+| `T_encode` | 0.539 | 0.129 | 0.227 |
+| `T_probespec` | 0.158 | 0.107 | 0.158 |
+| `T_probespec_pe` | 0.455 | 0.109 | 0.173 |
+
+TMFG accounts for under 40 % of PMFG's variance on the standard trace, with a typical disagreement about half the spread of the statistic itself. These are **two different filters**, not one filter and its fast approximation. Clause (iii) fails, so the planar family cannot be adopted on the argument the guide offers. This is a per-scale observed-readout comparison, not a null-gated one — PMFG is O(N³) planarity testing and cannot sit inside a 100-surrogate null — so it establishes disagreement of the readout, which is enough to void the clause.
+
+### 3.3 Planarity, not density, is what kills α — with an explicit mechanism
+
+The earlier "planarity kills the α trace" verdict (2026-07-15, 12/16 → 0/16) confounded the topological prior with the edge budget: TMFG is fixed at 3N−6 ≈ 5 % density while the incumbent was 20 %. Separated here by comparing TMFG against mst-union at **TMFG's own density, per phase** (0.0504 vs 0.0539, ratio 0.947):
+
+| band | TMFG median obs | budget-matched | ratio |
+|---|---|---|---|
+| α | +0.0416 | **+0.1886** | 4.5× |
+| β | +0.0951 | +0.1845 | 1.9× |
+| low_γ | +0.0568 | +0.1061 | 1.9× |
+| θ | +0.0312 | +0.0398 | 1.3× |
+
+Same number of edges, 4.5× less α trace. The loss is the topological prior and it is band-specific — θ, the null band, is barely touched. The A2 sweep says the same thing at the gate level: mst@0.05 (density 0.053) gives α p = 0.0055 while TMFG (density 0.050) gives p = 0.141.
+
+The mechanism is explicit in the edge composition. At matched size the two graphs share only a third of their edges (Jaccard 0.336, range [0.226, 0.539]). The edges planarity is **forced to discard** number 186 per phase and sit in the **top 3.4 % by weight** (mean normalised rank 0.0336, mean weight 0.111); the edges it takes instead average rank 0.214 and weight 0.061, against a median edge weight of 0.035 overall. Planarity spends its 3N−6 budget on a spatial embedding constraint and cannot fit the strong-edge structure the α trace lives on.
+
+### 3.4 Percolation is parameter-free but not stable
+
+Percolation fixes its threshold at the connectivity bottleneck, so its density is set by the data rather than chosen — genuinely parameter-free. But that density **swings 36-fold across cells**: median 0.178, range [0.018, 0.665], IQR [0.108, 0.257]. A filter whose density wanders that far cannot sit inside a single invariance window, and this is why it fails the trace. "Parameter-free" and "stable" are different properties, and only the second is what a substrate contract needs.
+
+### 3.5 Therefore: route (ii), the knob-integrated readout
+
+The contract ships the R2.3 fallback. `canonical_graph_ensemble` yields the graph at every fraction of `f ∈ {0.07, 0.10, 0.14, 0.20}`, and any reported number is the median over that window with the across-fraction spread attached. No single fraction is ever the pipeline setting. Plateau width — 1.51 octaves for the trace claim, 0.51 for the band-selectivity claim — is reported with it.
 
 ---
 
 ## 4. A4 — one substrate or two?
 
-PLACEHOLDER-A4
+**Recommendation: keep two substrates, but replace the justification — and re-verify the marker's before citing it.**
+
+The current pipeline uses mst@0.20 for the cross-phase trace and TMFG for the epilepsy marker, justified as a "magnitude vs skeleton" dissociation. The trace side is now settled and says a single substrate does **not** work:
+
+- TMFG's density (0.050) lies **below** the admissible trace window in density terms ([0.072, 0.200]).
+- TMFG fails the trace in every band on `T_probe` (α 0.141, β 0.086).
+- The failure is mechanistic, not marginal: at matched density planarity discards the top-3.4 % strongest edges and the α trace collapses 4.5× (§3.3).
+
+So a TMFG-only paper would lose α and weaken β, and an mst-only paper would have to give up whatever the marker gains from TMFG. Two substrates it is — on the trace-side evidence.
+
+But the marker's half of the justification is now **less secure than it looked**, and this is the part L3 must act on. The marker's TMFG win has always been read as evidence for the *planar filter principle* (PMFG as the principled parent, TMFG as its fast computation). §3.2 shows PMFG and TMFG disagree substantially on the cross-phase readout — Pearson 0.16–0.62 — so they cannot be assumed interchangeable on the marker either. **Until L3 verifies PMFG ≈ TMFG on the SOZ readout, the marker's backbone should be described as "TMFG", not as "the planar family", and no principled-parent argument should be made for it.** If they diverge there too, the marker's TMFG result is a property of one specific greedy triangulation, which is a much weaker thing to defend.
+
+A mechanistic hypothesis worth L3 testing rather than assuming: planarity systematically drops the strongest edges (§3.3), and in sEEG the strongest `|ImCoh|` edges are enriched for same-probe contact pairs. A filter that discards them may help a *within-phase* seeded-diffusion read of the SOZ for exactly the reason it hurts a *cross-phase* trace. That would turn the two-backbone posture from an awkward admission into a stated mechanism — but it is a hypothesis here, and the same-probe enrichment of the discarded edges has not been measured.
+
+What L3 inherits concretely: the trace substrate is fixed by this contract; the marker substrate is **not** settled by it; the decisive marker experiments are (a) PMFG vs TMFG on the SOZ readout, and (b) whether the edges planarity discards are same-probe enriched.
 
 ---
 
@@ -140,10 +268,39 @@ Supporting library work, all with general names and no manuscript-local tokens:
 
 ## 6. What is NOT settled
 
-PLACEHOLDER-OPEN
+Stated first, per the honesty rule, because several of these bear on claims already written up.
+
+1. **The null is still injected at the finished-FC-matrix stage.** Matched-strength shuffles the completed N×N matrix. Nothing in this lane tests the coherency estimator, the band split, session nonstationarity, drift, or artifact epochs. **Every verdict in this report is conditional on "given this FC matrix"**, and lane W0-B's timeseries-level ladder is what removes that.
+2. **The full band-selectivity claim is knob-dependent.** low_γ is null only for f ≥ 0.14, giving 0.51 octaves — below the pre-registered bar. Any claim of the form "the hierarchy rejects low_γ" must carry that window and that width.
+3. **The free parameter is integrated over, not eliminated.** A referee can still ask why mst-union rather than another family; the answer is the surface in §2, not a principle.
+4. **`T_probespec_pe` is uncalibrated** and cannot support a claim until a data-based placebo exists. This is the specific failure mode W0-C demonstrated (sham arc, p = 0.007).
+5. **`T_probespec` is invariantly null for α, low_γ and high_γ** across the whole grid. The inference-specific component is not a knob-robust trace in those bands.
+6. **δ and high_γ are knob-dependent** and no verdict is offered for them.
+7. **Only two transforms were compared.** Signed `⟨Im C⟩` and other coherence measures were not run.
+8. **PMFG is observed-only** — no surrogate null on that arm, so §3.2 voids the guide's PMFG ≈ TMFG clause but does not itself gate a claim.
+9. **n = 10.** The signed-rank p-floor is 1/1024 and the cluster test inherits the same ceiling. Nothing here has headroom for a heavily corrected family — which is the same wall W0-C hit.
+10. **The sq arm ran 10 configurations, not 18**, so its window is resolved more coarsely than the abs arm's. The β degradation was verified on the 10 *shared* configurations, so it is not a grid artifact, but the exact sq window edges are less precisely located.
+11. **R = 100 surrogates** (reduced from 200 under an earlier machine constraint). The gate uses the surrogate median, which is stable at R = 100; the per-cell upper-tail p resolution is 0.01.
+12. **The gate differs from W0-C's locked default.** This lane used the axis-cluster test throughout; W0-C's default is whole-grid BH with the cluster test as the smoothness-respecting alternative. Where the two ledgers disagree per-cell, the difference is the multiplicity family and not the data. Reconciling them is an integration task.
 
 ---
 
 ## 7. Compute provenance
 
-PLACEHOLDER-PROVENANCE
+Environment: `lapbrain` conda env, `PYTHONPATH` pinned to this worktree's `src/`, BLAS threads pinned to 1, worker pools 4–6. Every load-bearing number recomputed fresh from the cached freq-resolved `imcoh` arrays or from raw timeseries; none sourced from a prior report or CSV.
+
+| stage | script | output |
+|---|---|---|
+| pre-registration (frozen before any number) | `w0a_00_preregistration.md` | — |
+| A1 transform head-to-head | `w0a_01_transform_headtohead.py` | `data/paper_final/w0a_substrate/a1_transform/` |
+| split-half cache, both transforms | `w0a_01b_cache_halves_both_transforms.py` | `IMCOH_HALVES_CACHE` (240 files) |
+| A2 stability sweep | `w0a_02_sparsification_stability.py` | `.../a2_stability/{abs,sq}/` |
+| surface analysis | `w0a_03_plateau_analysis.py` | same dirs (`cluster_gate`, `plateaus`, `admissible_window_*`, `margin_surface`, `multiplicity_check`, …) |
+| A3 parameter-free filters | `w0a_04_parameter_free_filters.py` | `.../a3_parameter_free/` |
+| equivalence checks (real FC) | `w0a_verify_functionals.py`, `w0a_verify_canonical_graph.py` | — |
+
+All scripts under `scripts/01_compute/paper_final/`.
+
+**Validation anchors.** The `abs` split-half arm reproduces the legacy `imcoh_halves_fc` cache to max|diff| ≤ 3.0e-8 for all 10 patients. `T_probe` reproduces the incumbent `rho_sym_over_scales` to 1e-16, and all four functionals reproduce the `05_enc_inf_arc.py` reference implementation to 1e-16. `canonical_graph` reproduces the incumbent inline pipeline bit-for-bit (max|diff| = 0).
+
+**Compute.** A1 ≈ 5 min (10 patients × 3 Welch passes). A2 abs ≈ 42 min (60 cells × 18 configs, R = 100, 4 workers); A2 sq ≈ 20 min (10 configs). A3 ≈ 7 min (40 cells, PMFG dominating at ~10 s/graph). Surface analysis ≈ 3 min at 10 000 permutations. All runtimes were estimated from a timed 1–2 cell probe before launch and printed live with `[i/N] elapsed ETA`.
