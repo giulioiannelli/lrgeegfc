@@ -44,13 +44,15 @@ from lrg_eegfc.config.const import BRAIN_BANDS_NAMES, PATIENTS_4PHASE
 from lrg_eegfc.utils.fc.backbone import select_backbone
 from lrg_eegfc.utils.fc.heat_multiscale import laplacian_eig, linkage_at_scale
 from lrg_eegfc.utils.metrics.surrogate import matched_strength_shuffle
+from lrg_eegfc.utils.metrics.tree import pair_merge_level
 from lrg_eegfc.utils.scripting import setup_script_env
 from lrg_eegfc.workflow.substrate import CANONICAL, canonical_graph
 
 ROOT = setup_script_env()
 
 from w0s_01_scale_locality_grid import (                      # noqa: E402
-    BACKBONE, FRACS, PHASES, SGRID, SWAP_FACTOR, W_MAX, _contrib,
+    BACKBONE, FRACS, NQ, PHASES, SGRID, SWAP_FACTOR, W_MAX, _contrib, _sp,
+    _strata,
 )
 
 R_NULL = int(os.environ.get("W0S_CARRIER_R", "20"))
@@ -75,7 +77,12 @@ def _carrier_matrices(Ws: dict) -> tuple:
     """
     nS = SGRID.size
     acc = np.full((len(FRACS), 3, nS, nS), np.nan)
-    rel = np.full((len(FRACS), nS), np.nan)
+    #: three rows: the cophenetic vector over ALL pairs (what T correlates), the
+    #: same restricted to one tree-level stratum (what Tloc/Qloc correlate,
+    #: median over quintiles), and the merge-height profile (what Thei
+    #: correlates). One reliability per candidate family, same scale, two halves
+    #: of the same rest recording.
+    rel = np.full((len(FRACS), 3, nS), np.nan)
     for fi, f in enumerate(FRACS):
         eig = {ph: laplacian_eig(select_backbone(Ws[ph], BACKBONE, frac=float(f)))
                for ph in PHASES}
@@ -91,9 +98,13 @@ def _carrier_matrices(Ws: dict) -> tuple:
                    for v in C.values()):
                 C_by_s.append(None)
                 continue
-            ra, rb = rankdata(C["A"]), rankdata(C["B"])
-            ra, rb = ra - ra.mean(), rb - rb.mean()
-            rel[fi, j] = float(ra @ rb / (np.linalg.norm(ra) * np.linalg.norm(rb)))
+            rel[fi, 0, j] = _sp(C["A"], C["B"])
+            lev = pair_merge_level(Z["A"])
+            _, qlab = _strata(lev, Ws["A"].shape[0])
+            qq = [_sp(C["A"][qlab == g], C["B"][qlab == g])
+                  for g in range(1, NQ + 1) if int((qlab == g).sum()) >= 30]
+            rel[fi, 1, j] = float(np.median(qq)) if qq else np.nan
+            rel[fi, 2, j] = _sp(np.sort(Z["A"][:, 2]), np.sort(Z["B"][:, 2]))
             c = 0.5 * (_contrib(C["task_test"] - C["A"], C["rest_post"] - C["B"])
                        + _contrib(C["task_test"] - C["B"], C["rest_post"] - C["A"]))
             C_by_s.append(c)
@@ -111,12 +122,28 @@ def _carrier_matrices(Ws: dict) -> tuple:
         acc[fi, 1][idx] = Rn @ Rn.T
         acc[fi, 2][idx] = (Sg @ Sg.T) / X.shape[1] * 0.5 + 0.5
     m = np.nanmedian(acc, axis=0)
-    return m[0], m[1], m[2], np.nanmedian(rel, axis=0)
+    return m[0], m[1], m[2], np.nanmedian(rel, axis=0)  # rel: (3, nS)
 
 
 def per_cell(job):
     idx, pat, band = job
     t0 = time.time()
+    done = OUT / "carrier" / f"{pat}__{band}.npz"
+    if done.exists():
+        z = np.load(done)
+        iu = np.triu_indices(z["s"].size, 1)
+        rel = z["split_half_reliability"]
+        return dict(patient=pat, band=band, reused=True, elapsed_s=0.0,
+                    cos_mean_offdiag=float(np.nanmean(z["cos"][iu])),
+                    cos_first_last=float(z["cos"][0, -1]),
+                    spearman_mean_offdiag=float(np.nanmean(z["spearman"][iu])),
+                    sign_mean_offdiag=float(np.nanmean(z["sign"][iu])),
+                    cos_null_mean_offdiag=float(np.nanmean(
+                        np.nanmedian(z["cos_null"], axis=0)[iu])),
+                    coph_split_half_med=float(np.nanmedian(rel[0])),
+                    coph_split_half_min=float(np.nanmin(rel[0])),
+                    stratum_split_half_med=float(np.nanmedian(rel[1])),
+                    heights_split_half_med=float(np.nanmedian(rel[2])))
     try:
         Ws = {ph: canonical_graph(pat, ph, band, dense=True) for ph in PHASES}
     except Exception as exc:                                     # noqa: BLE001
@@ -147,8 +174,10 @@ def per_cell(job):
                 sign_mean_offdiag=float(np.nanmean(sgn_o[iu])),
                 cos_null_mean_offdiag=float(np.nanmean(
                     np.nanmedian(cos_n, axis=0)[iu])),
-                coph_split_half_med=float(np.nanmedian(rel_o)),
-                coph_split_half_min=float(np.nanmin(rel_o)))
+                coph_split_half_med=float(np.nanmedian(rel_o[0])),
+                coph_split_half_min=float(np.nanmin(rel_o[0])),
+                stratum_split_half_med=float(np.nanmedian(rel_o[1])),
+                heights_split_half_med=float(np.nanmedian(rel_o[2])))
 
 
 def main() -> None:
@@ -172,7 +201,8 @@ def main() -> None:
     summ = (df.groupby("band")[["cos_mean_offdiag", "cos_first_last",
                                 "spearman_mean_offdiag", "sign_mean_offdiag",
                                 "cos_null_mean_offdiag", "coph_split_half_med",
-                                "coph_split_half_min"]]
+                                "coph_split_half_min", "stratum_split_half_med",
+                                "heights_split_half_med"]]
             .median().reset_index())
     summ.to_csv(OUT / "carrier_overlap_summary.csv", index=False)
     print("\n-- carrier overlap across scales (cohort median) --")

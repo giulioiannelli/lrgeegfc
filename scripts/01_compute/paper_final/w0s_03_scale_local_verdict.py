@@ -55,7 +55,7 @@ OUT = Path(os.environ.get(
 #: The readouts carried through the full contract (bootstrap CI, LOO,
 #: calibration). The stratum-resolved surface is gated too, but exploratorily.
 HEADLINE = ("T", "Ccon_diag", "Tloc_diag", "Qcon_diag", "Qloc_diag", "Thei")
-N_PERM = 10_000
+N_PERM = int(os.environ.get("W0S_NPERM", "2000"))
 N_CAL_DRAWS = 100
 N_NEFF_DRAWS = 100
 EXPECT_N = 10
@@ -142,8 +142,17 @@ def main() -> None:
     # ------------------------------------------------------------------ #
     # 1. per-cell gate, all readouts
     # ------------------------------------------------------------------ #
-    grids = []
-    for m in cs.readouts:
+    gate_path = OUT / "gate_grid.csv"
+    if gate_path.exists():
+        # Stage 1 is ~15 min and is pure function of the cells on disk, so a
+        # kill between stages must not cost it. Reused verbatim when present.
+        gate = pd.read_csv(gate_path)
+        print(f"  reusing stage-1 gate grid ({len(gate)} rows) from "
+              f"{gate_path.name}", flush=True)
+        grids = None
+    else:
+        grids = []
+    for m in (cs.readouts if grids is not None else []):
         cells, labs0 = [], None
         for b in cs.bands:
             O, S, labs = cs.cell(b, m)
@@ -159,14 +168,23 @@ def main() -> None:
         grids.append(df)
         print(f"  gated {m:12s} cleared(q<.05) {int((df.q < .05).sum()):4d}"
               f"/{len(df)}", flush=True)
-    gate = pd.concat(grids, ignore_index=True)
-    gate.to_csv(OUT / "gate_grid.csv", index=False)
+    if grids is not None:
+        gate = pd.concat(grids, ignore_index=True)
+        gate.to_csv(gate_path, index=False)
 
     # ------------------------------------------------------------------ #
     # 2. axis-cluster gate + cross-scale independence (observed and null)
     # ------------------------------------------------------------------ #
     rows = []
+    ax_dir = OUT / "axis_parts"
+    ax_dir.mkdir(parents=True, exist_ok=True)
     for m in cs.readouts:
+        part = ax_dir / f"{m}.csv"
+        if part.exists():
+            rows.extend(pd.read_csv(part).to_dict("records"))
+            print(f"  axis {m:12s} reused", flush=True)
+            continue
+        mrows = []
         for b in cs.bands:
             M, _ = cs.margins(b, m)
             e = effective_tests(M)
@@ -180,7 +198,7 @@ def main() -> None:
             nn = nd["n_eff_pr"][np.isfinite(nd["n_eff_pr"])]
             sh = _shape_stats(M, s)
             e_f = effective_tests(M[:, fine])
-            rows.append(dict(
+            mrows.append(dict(
                 readout=m, band=b,
                 n_eff_pr=e["n_eff_pr"], n_eff_cn=e["n_eff_cn"],
                 mean_offdiag=e["mean_offdiag"], n_finite=e["n_finite"],
@@ -205,6 +223,8 @@ def main() -> None:
                 margin_med=float(np.nanmedian(M)),
                 knob_iqr_med=float(np.nanmedian(cs.knob_spread(b, m))),
             ))
+        pd.DataFrame(mrows).to_csv(part, index=False)
+        rows.extend(mrows)
         print(f"  axis {m:12s} done", flush=True)
     ax = pd.DataFrame(rows)
     for col, out in (("cluster_p", "cluster_q"), ("cluster_p_fine", "cluster_q_fine"),
