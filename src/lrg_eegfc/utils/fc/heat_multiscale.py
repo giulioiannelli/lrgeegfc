@@ -53,8 +53,10 @@ __all__ = [
     "CROSS_PHASE_VECTOR_NAMES",
     "cross_phase_vectors",
     "cross_phase_rank_corr",
+    "cross_phase_rank_corr_over_scales",
     "partial_from_corr_matrix",
     "cross_phase_functionals_from_corr",
+    "cross_phase_functionals_from_corr_stack",
     "cross_phase_functionals",
     "cross_phase_functionals_over_scales",
 ]
@@ -663,3 +665,97 @@ def cross_phase_functionals_from_corr(R: NDArray, *, swap: bool = False,
         if alias:
             out.setdefault(alias + k[len(base_k):], v)
     return out
+
+
+def cross_phase_rank_corr_over_scales(eig_by_phase: dict, s_grid: NDArray,
+                                      roles: dict | None = None,
+                                      rho_floor: float = RHO_FLOOR) -> NDArray:
+    """:func:`cross_phase_rank_corr` swept over a diffusion-scale grid.
+
+    ``eig_by_phase`` maps each of the five phases to its ``(eigenvalues,
+    eigenvectors)``. Returns ``(len(s_grid), 8, 8)``, ``NaN`` at any scale whose
+    cophenetic tree is degenerate (non-finite, or constant so the rank
+    correlation is undefined).
+
+    This is the storage form a knob-integrated pipeline should write instead of
+    collapsed functionals: one pass over the eigendecompositions yields an object
+    from which every cross-phase estimator -- including ones invented after the
+    compute finished -- is recovered exactly by
+    :func:`cross_phase_functionals_from_corr`.
+    """
+    roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    phases = [roles[k] for k in ("baseline_a", "baseline_b", "encode", "probe", "follow")]
+    n = len(CROSS_PHASE_VECTOR_NAMES)
+    out = np.full((len(s_grid), n, n), np.nan)
+    for j, s in enumerate(s_grid):
+        try:
+            D = {ph: cophenetic_at_scale(*eig_by_phase[ph], s, rho_floor)
+                 for ph in phases}
+            if any((not np.all(np.isfinite(v))) or np.std(v) == 0 for v in D.values()):
+                continue
+            out[j] = cross_phase_rank_corr(D, roles)
+        except Exception:                                          # noqa: BLE001
+            continue
+    return out
+
+
+def _partial1(r_xy, r_xz, r_yz):
+    """Vectorised first-order partial ``r(x, y | z)`` on broadcastable arrays."""
+    den = np.sqrt(np.clip(1.0 - r_xz ** 2, 0.0, None)
+                  * np.clip(1.0 - r_yz ** 2, 0.0, None))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.where(den > 0, (r_xy - r_xz * r_yz) / den, np.nan)
+
+
+def cross_phase_functionals_from_corr_stack(R: NDArray, *, swap: bool = False,
+                                            drift: bool = True) -> dict:
+    """:func:`cross_phase_functionals_from_corr` over a whole stack at once.
+
+    ``R`` is ``(..., 8, 8)``; returns ``{functional: array(...)}``. Identical
+    values to the per-matrix function (verified elementwise), obtained from the
+    recursive first-order partial identity rather than a matrix inverse, so a
+    surrogate ensemble of millions of matrices is evaluated in one pass. Both
+    naming schemes are emitted, as elsewhere in this module.
+    """
+    R = _swapped_corr_stack(R) if swap else np.asarray(R, float)
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+
+    def r(a, b):
+        return R[..., ix[a], ix[b]]
+
+    out = {
+        "T_probe": 0.5 * (r("g", "p") + r("g2", "p2")),
+        "T_encode": 0.5 * (r("e", "p") + r("e2", "p2")),
+        "T_probespec": 0.5 * (r("f", "p") + r("f", "p2")),
+        "T_probespec_pe": 0.5 * (
+            _partial1(r("f", "p"), r("f", "e"), r("p", "e"))
+            + _partial1(r("f", "p2"), r("f", "e2"), r("p2", "e2"))),
+    }
+    if drift:
+        def pd_(a, b):
+            return _partial1(r(a, b), r(a, "d"), r(b, "d"))
+        out["T_probe_d"] = 0.5 * (pd_("g", "p") + pd_("g2", "p2"))
+        out["T_encode_d"] = 0.5 * (pd_("e", "p") + pd_("e2", "p2"))
+        out["T_probespec_d"] = 0.5 * (pd_("f", "p") + pd_("f", "p2"))
+        # second order: condition on the encoding vector, then on drift
+        halves = []
+        for pk, ek in (("p", "e"), ("p2", "e2")):
+            a = _partial1(r("f", pk), r("f", ek), r(pk, ek))       # r(f,p|e)
+            b = _partial1(r("f", "d"), r("f", ek), r("d", ek))     # r(f,d|e)
+            c = _partial1(r(pk, "d"), r(pk, ek), r("d", ek))       # r(p,d|e)
+            halves.append(_partial1(a, b, c))
+        out["T_probespec_ped"] = 0.5 * (halves[0] + halves[1])
+    for k, v in list(out.items()):
+        base_k = k[:-2] if k.endswith("_d") else (k[:-1] if k.endswith("_ped") else k)
+        alias = _FUNCTIONAL_ALIASES.get(base_k)
+        if alias:
+            out.setdefault(alias + k[len(base_k):], v)
+    return out
+
+
+def _swapped_corr_stack(R: NDArray) -> NDArray:
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+    perm = [ix[_SWAP_ENCODE_PROBE[k][0]] for k in CROSS_PHASE_VECTOR_NAMES]
+    sgn = np.array([_SWAP_ENCODE_PROBE[k][1] for k in CROSS_PHASE_VECTOR_NAMES],
+                   float)
+    return np.asarray(R, float)[..., perm, :][..., :, perm] * np.outer(sgn, sgn)

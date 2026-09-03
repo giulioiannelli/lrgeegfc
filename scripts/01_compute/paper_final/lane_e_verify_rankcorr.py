@@ -18,6 +18,9 @@ That claim is checkable, and this checks it on random graphs:
 5. The drift-controlled functionals are *exactly* the uncontrolled ones when
    ``d`` carries no information (constructed case), which is the sanity check
    that conditioning is not silently shifting the estimator on its own.
+6. The vectorised stack derivation (recursive first-order partial identity,
+   used to evaluate millions of surrogate matrices in one pass) agrees
+   elementwise with the per-matrix version that goes through a matrix inverse.
 """
 from __future__ import annotations
 
@@ -31,6 +34,7 @@ from lrg_eegfc.utils.fc.heat_multiscale import (
     cophenetic_at_scale,
     cross_phase_functionals,
     cross_phase_functionals_from_corr,
+    cross_phase_functionals_from_corr_stack,
     cross_phase_rank_corr,
     laplacian_eig,
 )
@@ -92,13 +96,30 @@ def main():
     g0 = cross_phase_functionals_from_corr(R0)
     d_null = max(abs(g0[f] - g0[f + "_d"]) for f in ("T_test", "T_learn", "T_infspec"))
 
+    # vectorised stack derivation vs the per-matrix one, on random correlations
+    stack = np.empty((4, 5, 8, 8))
+    for a in range(4):
+        for b in range(5):
+            stack[a, b] = np.corrcoef(rng.standard_normal((8, 60)))
+    s_worst = 0.0
+    for sw in (False, True):
+        got = cross_phase_functionals_from_corr_stack(stack, swap=sw)
+        for a in range(4):
+            for b in range(5):
+                ref = cross_phase_functionals_from_corr(stack[a, b], swap=sw)
+                for k in ref:
+                    s_worst = max(s_worst, abs(float(got[k][a, b]) - float(ref[k])))
+
     print("max |tensor - direct|              :", worst["direct"])
     print("max |tensor(swap) - direct(swap)|  :", worst["swap"])
     print("max |swap algebraic identities|    :", worst["ident"])
     print("max |partial matrix - closed form| :", worst["partial"])
     print("max |drift-ctrl - plain| at d=0    :", d_null)
+    print("max |stack - per-matrix|           :", s_worst)
     tol = 1e-9
-    bad = [k for k, v in worst.items() if v > tol] + (["d_null"] if d_null > tol else [])
+    bad = ([k for k, v in worst.items() if v > tol]
+           + (["d_null"] if d_null > tol else [])
+           + (["stack"] if s_worst > tol else []))
     print("\nVERDICT:", "PASS" if not bad else f"FAIL {bad}")
     raise SystemExit(1 if bad else 0)
 
