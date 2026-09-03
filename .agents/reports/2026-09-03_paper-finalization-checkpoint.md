@@ -81,3 +81,43 @@ Branch **`integration/wave0`** merges all three lanes. Only `heat_multiscale.py`
 **Consequence for the paper's three results.** Result 1's "scale-dependent" half is dead — the phenomenon is scale-INVARIANT, which is a different (defensible, narrower) claim and matches `lrg_relational_lens_not_scale_superset`. Result 2 is weakened as above. Result 3 (epilepsy/SOZ) remains untested in this wave and is structurally independent of everything that failed.
 
 **Still running:** Lane E (encoding vs inference).
+
+## Update 2026-09-03 (later) — Lane E sham verdict, computed by me from its cells after it died on a 529
+
+Lane E's agent was killed by a server-side API error mid-run, leaving `data/paper_final/lane_e_encinf/sham/cells/*.npz` complete (10 patients × 4 bands × 2 source recordings). I analysed them directly rather than waiting. Aggregation: margin = obs − median over R=100 matched-strength surrogates, averaged over realizations and the 4 plateau fractions, median over the 16 scales.
+
+**The contamination is temporal ORDER, and only temporal order.** Ordered sham (fake 5-phase arc carved from one rest recording, blocks in natural time order, no task anywhere) returns non-zero margins; the shuffled arm (order destroyed) returns ≤ |0.026| and the equal-duration arm ≤ |0.046|. Matched-strength cannot see this because it shuffles the finished FC.
+
+Ordered-sham margins:
+
+| band | T_test | T_learn | T_infspec | T_infspec_pe |
+|---|---|---|---|---|
+| alpha | 0.039 | −0.009 | 0.014 | 0.035 |
+| beta | 0.020 | **−0.063** | **0.062** | 0.051 |
+| delta | 0.025 | 0.029 | 0.010 | 0.009 |
+| theta | 0.036 | 0.004 | 0.046 | 0.025 |
+
+Percentage of the REAL margin (`verdict/per_scale_grid.csv`, same aggregation) that the ordered sham alone reproduces:
+
+| band | T_test | T_learn | T_infspec | T_infspec_pe |
+|---|---|---|---|---|
+| alpha | 30% | −6% | **175%** | 64% |
+| beta | **14%** | **−52%** | **89%** | 61% |
+| delta | 25% | 36% | 34% | 18% |
+| theta | −103% | −10% | 383% | 179% |
+
+**T_test and T_learn are SAFE — this is the most important line in this file.** β T_test keeps +0.123 of +0.143; β T_learn keeps +0.185 because the sham runs *negative* there; α T_learn keeps +0.150. The persistence headline is not a within-session drift artifact.
+
+**T_infspec as constructed is dead.** `f = D_test − D_learn` correlates two adjacent-in-time phases and is measuring block adjacency. T_infspec_pe retains ~40% but was already un-calibrated; 61% sham-reproduced is not a foundation.
+
+### Why the symmetric estimator cannot escape this, and the fix
+
+The swap `½[ρ(D_test−D_A, D_post−D_B) + ρ(D_test−D_B, D_post−D_A)]` cancels *shared-baseline* bias, not drift: under a monotone session drift both arms acquire a positive drift component in the same direction, so the swap averages two contaminated arms. `split_half.py` states the recording is "cut in two contiguous halves", so **A = first half of rest_pre, B = second half**, and therefore `d := D_B − D_A` is a task-free drift vector already computed in every run at zero cost. Proposal handed to Lane E: recompute every functional as a partial correlation controlling for `d`, with a pre-registered two-sided acceptance criterion — **≈ 0 margin on the ordered sham AND retained margin on the real arc**. Caveats to carry: A/B are half-length so `d` is noisy and partialling under-corrects (any residual is an upper bound); and `d` spans one rest recording while the arc spans far longer, so if drift is non-linear `d` has the right direction but the wrong magnitude.
+
+### The dissociation lead, band-agnostic per the user's instruction
+
+Real minus ordered-sham, cohort-median (a LEAD, not a result — not the paired per-patient test, no error bars): α T_learn +0.150 vs T_test +0.091 (encoding ahead +0.059); β +0.185 vs +0.123 (encoding ahead +0.062); δ flips, +0.051 vs +0.075 (test ahead +0.024). Lane E instructed to gate the paired per-patient contrast `C = T_learn − T_test` against each patient's own ordered sham, and to extend the sham to low_γ and high_γ (currently unsham'd, real T_test +0.097).
+
+### The τ question reopened — contrasts, not functionals
+
+Lane S tested scale-locality of one functional at a time and never tested **contrasts between functionals**; two flat quantities can have a non-flat difference. On the real grid `C(s) = margin[T_learn] − margin[T_test]` changes sign along τ: δ −0.053→+0.004 (ρ=+0.64), θ −0.069→+0.028 (ρ=+0.87), β −0.055→+0.013 (ρ=+0.62), α +0.002→+0.038 (ρ=+0.46); and T_infspec alone has δ ρ=−0.83, α ρ=−0.64. **These ρ are hypotheses only** — cohort medians over an axis worth ~1.1 independent tests (p inflated ~15×), and a difference of two noisy quantities is noisier than either, which inflates scale-structure statistics in exactly the direction that trapped four of Lane S's five candidate readouts. Lane S reopened to run the contrast through its own noise-floor and cluster-gate machinery, referenced to the sham's contrast profile, and to state a verdict on the low_γ band-selectivity near-miss it tabulated but never discussed.
