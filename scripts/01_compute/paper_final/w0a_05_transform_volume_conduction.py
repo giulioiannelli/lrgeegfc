@@ -270,7 +270,18 @@ def _per_patient(job):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--report-only", action="store_true",
+                    help="re-emit the head-to-head from the cached CSVs (no recompute)")
+    args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    if args.report_only:
+        df = pd.read_csv(OUT / "per_patient_scale.csv")
+        bdf = pd.read_csv(OUT / "probe_bias.csv")
+        print(f"[a1b] report-only: {len(df)} rows from {OUT}", flush=True)
+        _summarise(df, bdf)
+        return
     ncpu = int(os.environ.get("SA_WORKERS", 6))
     jobs = [(i, p) for i, p in enumerate(COHORT)]
     print(f"[a1b] {len(jobs)} patients x {len(BANDS)} bands x {len(TRANSFORMS)} transforms "
@@ -291,6 +302,11 @@ def main():
             pd.DataFrame(bias).to_csv(OUT / "probe_bias.csv", index=False)
     df, bdf = pd.DataFrame(rows), pd.DataFrame(bias)
     print(f"\n[a1b] {len(df)} rows in {time.time()-t0:.0f}s", flush=True)
+    _write_config()
+    _summarise(df, bdf)
+
+
+def _write_config():
     (OUT / "config.json").write_text(json.dumps(dict(
         deliverable="a1b_transform_volume_conduction", cohort=COHORT, bands=BANDS,
         transforms=list(TRANSFORMS), masks=list(MASKS), fracs=[float(f) for f in FRACS],
@@ -298,10 +314,12 @@ def main():
         note="same-shaft removal applied to BOTH the graph (edges zeroed pre-sparsify) "
              "and the statistic (pairs dropped from rho_sym)"), indent=2))
 
+
+def _summarise(df, bdf):
     print("\n=== same-shaft bias per transform (CLAUDE.md invariant 5) ===", flush=True)
     for band in BANDS:
         for tk in TRANSFORMS:
-            x = bdf[(bdf.band == band) & (bdf.transform == tk)]
+            x = bdf[(bdf.band == band) & (bdf["transform"] == tk)]
             if x.empty:
                 continue
             print(f"  {band:6s} {tk:10s} same/cross weight ratio = {x.ratio.median():.2f}x "
@@ -315,7 +333,7 @@ def main():
             for tk in TRANSFORMS:
                 for mk in MASKS:
                     x = df[(df.functional == k) & (df.band == band)
-                           & (df.transform == tk) & (df.probe_mask == mk)]
+                           & (df["transform"] == tk) & (df.probe_mask == mk)]
                     if x.empty:
                         continue
                     g = x.groupby(["patient", "s", "frac"]).first().reset_index()
@@ -335,7 +353,7 @@ def main():
                 cells = []
                 for mk in MASKS:
                     y = sm[(sm.functional == k) & (sm.band == band)
-                           & (sm.transform == tk) & (sm.probe_mask == mk)]
+                           & (sm["transform"] == tk) & (sm.probe_mask == mk)]
                     if y.empty:
                         continue
                     cells.append(f"{mk:7s} obs={y.obs_med.iloc[0]:+.3f} "
@@ -343,9 +361,9 @@ def main():
                 print(f"      {tk:10s} " + " | ".join(cells), flush=True)
             # the decisive quantity: how much each transform LOSES to masking
             for tk in TRANSFORMS:
-                a = sm[(sm.functional == k) & (sm.band == band) & (sm.transform == tk)
+                a = sm[(sm.functional == k) & (sm.band == band) & (sm["transform"] == tk)
                        & (sm.probe_mask == "all")]
-                b = sm[(sm.functional == k) & (sm.band == band) & (sm.transform == tk)
+                b = sm[(sm.functional == k) & (sm.band == band) & (sm["transform"] == tk)
                        & (sm.probe_mask == "xshaft")]
                 if a.empty or b.empty:
                     continue

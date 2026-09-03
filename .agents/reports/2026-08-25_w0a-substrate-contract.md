@@ -100,6 +100,57 @@ Written after A1 and **before any A2 trace number**: a 1.2 % reliability margin 
 
 ---
 
+### 1.7 `⟨|C|⟩` vs `|ImCoh|`, with and without same-shaft pairs — the control W0-B's result forced
+
+**Nothing in this section reaches significance at n = 10.** Every number is directional and is reported as such.
+
+W0-B found that the trace fails every lag-destroying null and that ordinary coherence `⟨|C|⟩` gives a *larger* trace than `|ImCoh|` in both trace bands (β +0.355 vs +0.281, α +0.277 vs +0.212, five patients). If that held, the transform this project adopted for volume-conduction immunity would be the weaker one on its own headline statistic. But `⟨|C|⟩` is not VC-immune and carries the same-shaft bias of CLAUDE.md invariant 5, and anatomically fixed structure is trivially stable across phases — so the larger number might be the artifact. Zeroing the within-shaft block separates the two.
+
+Design: three transforms × two pair sets × three backbone fractions from the contract window × five phases × ten patients, all arms sharing **one Welch pass per phase** so the spectral estimate is bit-identical and only the transform differs. Same-shaft removal applied at **both** stages — edges zeroed before sparsification, and the pairs dropped from the ρ_sym correlation so they cannot re-enter through indirect cophenetic paths.
+
+**Same-shaft inflation, confirmed and quantified** (mean same-shaft / cross-shaft edge weight, task_test):
+
+| band | `imcoh_abs` | `⟨\|C\|⟩` |
+|---|---|---|
+| θ | 1.01× [0.73, 1.21] | 1.42× [1.16, 2.42] |
+| α | 1.05× [0.73, 1.42] | 1.51× [1.26, 2.33] |
+| β | 1.24× [0.90, 1.60] | 1.70× [1.32, 2.67] |
+
+`⟨|C|⟩` is consistently the more shaft-inflated measure, in the expected direction.
+
+**`T_probe`, cohort medians over scales and fractions** (obs, and margin vs matched-strength):
+
+| band | transform | all pairs | same-shaft removed | change |
+|---|---|---|---|---|
+| θ | `imcoh_abs` | +0.004 (m −0.002) | +0.024 (m +0.019) | +0.020 |
+| θ | `⟨\|C\|⟩` | **+0.133** (m +0.150) | **+0.115** (m +0.121) | −0.018 |
+| α | `imcoh_abs` | +0.138 (m +0.132) | +0.109 (m +0.101) | −0.029 |
+| α | `⟨\|C\|⟩` | +0.228 (m +0.214) | +0.137 (m +0.130) | −0.091 |
+| β | `imcoh_abs` | +0.171 (m +0.153) | +0.177 (m +0.160) | +0.006 |
+| β | `⟨\|C\|⟩` | +0.122 (m +0.114) | +0.182 (m +0.163) | +0.061 |
+
+Per-patient paired tests (n = 10), advantage of `⟨|C|⟩` over `|ImCoh|`:
+
+| band | all pairs | same-shaft removed |
+|---|---|---|
+| α | +0.024, 7/10 patients, p = 0.63 | +0.031, 6/10, p = 1.00 |
+| β | **−0.067**, 4/10, p = 0.43 | −0.060, 4/10, p = 0.92 |
+| θ | +0.076, 8/10, p = 0.084 | +0.060, 8/10, p = 0.16 |
+
+**Three readings, in order of how much weight they carry.**
+
+**(a) The advantage does not replicate.** At n = 10 on the locked substrate there is no α advantage worth the name (+0.024, p = 0.63) and β runs the *other* way (−0.067; `⟨|C|⟩` worse in 6 of 10 patients). W0-B's run used five patients and a different backbone, so this is a **non-replication, not a refutation** — but there was far less advantage here to explain than the premise assumed.
+
+**(b) The same-shaft confound is real but is not demonstrably the explanation.** Masking removes most of `⟨|C|⟩`'s pooled α advantage (+0.090 → +0.028), but the per-patient paired test on that *change* gives p = 0.85. The confound exists in the weights (table above); its effect on the trace cannot be established at this n.
+
+**(c) The decisive objection is band-selectivity, and it is stark.** `⟨|C|⟩`'s largest cross-phase value sits in **θ — the band that must be null**: margin +0.133 all-pairs, +0.120 after masking, against `|ImCoh|`'s −0.017 and −0.010. `⟨|C|⟩`'s θ value is comparable to its own α value. That is disqualifying on the project's own criterion regardless of significance. And because it **survives** same-shaft removal, it is not merely volume conduction: ordinary coherence is sensitive to stable structure that is simply not task-related.
+
+**The reassuring half, stated plainly because it was the most consequential of the three possible outcomes.** `|ImCoh|`'s own trace is **not** same-shaft-dependent: α changes +0.008 on masking (p = 0.85), β −0.035 (p = 0.13), neither significant, and both remain positive with positive margins. The scenario in which both transforms collapse and the trace turns out to rest on within-shaft structure **did not occur**.
+
+**Verdict: the contract stands, and the recorded justification changes.** `imcoh_abs` is retained not because it is larger (it is not, in α) and not because it is VC-immune by construction (§4b's rule 2 forbids that as a justification for a result), but because ordinary coherence fails the project's own band-selectivity criterion on this substrate and `|ImCoh|` does not.
+
+---
+
 ## 2. A2 — the sparsification stability surface
 
 ### 2.1 What was swept
@@ -284,7 +335,7 @@ Stated first, per the honesty rule, because several of these bear on claims alre
 4. **`T_probespec_pe` is uncalibrated** and cannot support a claim until a data-based placebo exists. This is the specific failure mode W0-C demonstrated (sham arc, p = 0.007).
 5. **`T_probespec` is invariantly null for α, low_γ and high_γ** across the whole grid. The inference-specific component is not a knob-robust trace in those bands.
 6. **δ and high_γ are knob-dependent** and no verdict is offered for them.
-7. **Only two transforms were compared.** Signed `⟨Im C⟩` and other coherence measures were not run.
+7. **Three transforms were compared and none of the contrasts is significant at n = 10.** `imcoh_abs`, `imcoh_sq`, `⟨|C|⟩`; signed `⟨Im C⟩` and other coherence families were not run. The `⟨|C|⟩` rejection (§1.7) is a directional band-selectivity argument, and it is a non-replication of W0-B's advantage rather than a refutation — the two runs differ in cohort size and backbone and were not reconciled.
 8. **PMFG is observed-only** — no surrogate null on that arm, so §3.2 voids the guide's PMFG ≈ TMFG clause but does not itself gate a claim.
 9. **n = 10.** The signed-rank p-floor is 1/1024 and the cluster test inherits the same ceiling. Nothing here has headroom for a heavily corrected family — which is the same wall W0-C hit.
 10. **The sq arm ran 10 configurations, not 18**, so its window is resolved more coarsely than the abs arm's. The β degradation was verified on the 10 *shared* configurations, so it is not a grid artifact, but the exact sq window edges are less precisely located.
@@ -305,6 +356,7 @@ Environment: `lapbrain` conda env, `PYTHONPATH` pinned to this worktree's `src/`
 | A2 stability sweep | `w0a_02_sparsification_stability.py` | `.../a2_stability/{abs,sq}/` |
 | surface analysis | `w0a_03_plateau_analysis.py` | same dirs (`cluster_gate`, `plateaus`, `admissible_window_*`, `margin_surface`, `multiplicity_check`, …) |
 | A3 parameter-free filters | `w0a_04_parameter_free_filters.py` | `.../a3_parameter_free/` |
+| A1b `⟨\|C\|⟩` vs `\|ImCoh\|` ± same-shaft | `w0a_05_transform_volume_conduction.py` | `.../a1b_volume_conduction/` |
 | equivalence checks (real FC) | `w0a_verify_functionals.py`, `w0a_verify_canonical_graph.py` | — |
 
 All scripts under `scripts/01_compute/paper_final/`.
