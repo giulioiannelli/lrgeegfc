@@ -98,7 +98,9 @@ ROOT = setup_script_env()
 
 R = int(os.environ.get("LANE_E_SHAM_R", "100"))
 N_SHUF = int(os.environ.get("LANE_E_SHAM_NSHUF", "3"))
-WORKERS = int(os.environ.get("LANE_E_WORKERS", "8"))
+WORKERS = int(os.environ.get("LANE_E_WORKERS", "4"))
+#: seconds between the first-wave workers' recording loads (see :func:`per_cell`)
+STAGGER_S = float(os.environ.get("LANE_E_STAGGER_S", "45"))
 OUT = Path(os.environ.get("LANE_E_OUT",
                           ROOT / "data" / "paper_final" / "lane_e_encinf")) / "sham"
 RESUME = os.environ.get("LANE_E_RESUME", "1") not in ("0", "false", "False")
@@ -176,25 +178,33 @@ def _block_of_segment(n_seg: int, nperseg: int, blk: int) -> np.ndarray:
 def band_grids(pat: str, source: str, bands) -> dict:
     """``{band: {"full"/"half": (F, scale, block_of_segment)}}`` from ONE load.
 
-    The recording is the expensive object (a ``rest`` phase is ~1 GB in float64),
-    so it is read once per (patient, source) and every band's Welch coefficient
-    array is derived from it before it is released. Both nperseg grids are built
-    because the real pipeline estimates the split-half arms at ``nperseg // 2``.
+    The recording is the expensive object (a ``rest`` phase is ~1 GB in float64)
+    and the segment rFFT over it is the dominant cost, so BOTH are paid once.
+    One transform per ``nperseg`` covers the union of the requested bands and
+    each band is then a bin slice of that array -- four bands cost two passes,
+    not eight. Both nperseg grids are built because the real pipeline estimates
+    the split-half arms at ``nperseg // 2``.
     """
     fs = FS_OVERRIDES.get(pat, DEFAULT_SAMPLE_RATE)
     nps = nperseg_for_fs(fs)
     nps_h = max(256, nps // 2)
     blk = int(round(BLOCK_SECONDS * fs))
+    lo = min(BRAIN_BANDS[b][0] for b in bands)
+    hi = max(BRAIN_BANDS[b][1] for b in bands)
     X = np.asarray(load_timeseries(pat, source, SEEG_DATAPATH), float)
     if X.shape[0] > X.shape[1]:
         X = X.T
-    out = {}
-    for band in bands:
-        g = {}
-        for tag, nperseg in (("full", nps), ("half", nps_h)):
-            _, F, sc = segment_fft(X, fs, nperseg, band=BRAIN_BANDS[band])
-            g[tag] = (F, sc, _block_of_segment(F.shape[1], nperseg, blk))
-        out[band] = g
+    out = {b: {} for b in bands}
+    for tag, nperseg in (("full", nps), ("half", nps_h)):
+        freqs, F, sc = segment_fft(X, fs, nperseg, band=(lo, hi))
+        bos = _block_of_segment(F.shape[1], nperseg, blk)
+        for band in bands:
+            f0, f1 = BRAIN_BANDS[band]
+            m = (freqs >= f0) & (freqs <= f1)
+            if not m.any():
+                raise ValueError(f"no rFFT bins in {band} at nperseg={nperseg}")
+            out[band][tag] = (np.ascontiguousarray(F[:, :, m]), sc, bos)
+        del F
     del X
     return out
 
@@ -251,13 +261,22 @@ ARMS = (("ordered", "identity", 1, False),
 
 
 def per_cell(job):
-    """One (patient, source): read the recording once, score every band's arcs."""
+    """One (patient, source): read the recording once, score every band's arcs.
+
+    The load + segment-rFFT is the memory peak (a rest phase is ~1.2 GB in
+    float64 and the batched transform holds ~0.5 GB more), so worker starts are
+    staggered: ``systemd-oomd`` kills the whole compute slice on *pressure*, not
+    on a hard limit, and eight simultaneous loads is exactly the spike that
+    triggers it. Staggering costs one stagger interval and removes the spike.
+    """
     idx, pat, source, bands = job
     t0 = time.time()
     todo = [b for b in bands
             if not ((OUT / "cells" / f"{pat}__{b}__{source}.npz").exists() and RESUME)]
     if not todo:
         return dict(patient=pat, source=source, bands=len(bands), reused=True)
+    if idx < WORKERS and STAGGER_S:
+        time.sleep(STAGGER_S * idx)
     rng = np.random.default_rng([BASE_SEED, idx])
     try:
         grids = band_grids(pat, source, todo)
