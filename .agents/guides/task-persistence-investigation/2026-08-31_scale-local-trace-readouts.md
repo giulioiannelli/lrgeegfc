@@ -2,7 +2,7 @@
 name: 2026-08-31_scale-local-trace-readouts
 type: scope
 era: PAPER_FINALIZATION (Wave 0, lane W0-S)
-status: draft
+status: current
 created: 2026-08-31
 updated: 2026-08-31
 scope: Pre-registration for lane W0-S. Asks whether the diffusion-scale axis is genuinely flat or whether the incumbent readout (a global Spearman over all contact pairs) cannot see scale. Defines the dilution diagnostic, three candidate scale-local readouts, and — before any number — the three criteria a readout must satisfy to replace the incumbent, plus the criterion under which the dilution hypothesis is declared wrong.
@@ -12,6 +12,7 @@ pointers:
   - src/lrg_eegfc/utils/fc/heat_multiscale.py
   - src/lrg_eegfc/utils/metrics/cohort_gate.py
   - scripts/01_compute/paper_final/w0s_01_scale_locality_grid.py
+  - .agents/reports/2026-08-31_lane-s-scale-variability.md   # OUTCOME: negative, all criteria failed
 ---
 
 # Scale-local trace readouts — is the scale axis flat, or is the readout blind to it?
