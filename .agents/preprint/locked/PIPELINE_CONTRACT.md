@@ -29,7 +29,7 @@ The substrate is **`imcoh_abs`** on an **mst-union backbone reported over the wi
 
 | choice | locked value | how it was chosen |
 |---|---|---|
-| FC transform | `imcoh_abs` = `⟨\|Im C\|⟩_f` | R1 selected `imcoh_sq` on split-half reliability (5/6 bands, p = 5.0e-6, margin ≈ 1.2 % relative). `imcoh_sq` then **failed the frozen R2 admissibility gate**: its admissible window is a single fraction, 0.00 octaves. β — the paper's strongest claim — is positive at 6/10 swept configs under `abs` and only 3/10 under `sq`. See §4.1; this is the one place my pre-registration was under-specified and the resolution is flagged as such. |
+| FC transform | `imcoh_abs` = `⟨\|Im C\|⟩_f` | R1 selected `imcoh_sq` on split-half reliability (5/6 bands, p = 5.0e-6, margin ≈ 1.2 % relative). `imcoh_sq` then **failed the frozen R2 admissibility gate**: its admissible window is a single fraction, 0.00 octaves. β — the paper's strongest claim — is positive at 6/10 swept configs under `abs` and only 3/10 under `sq`. Ordinary coherence `⟨\|C\|⟩` was tested too (§4b) and is rejected on **band-selectivity**: its θ margin is +0.133 against `abs`'s −0.017. See §4.1; §4.1 is also the one place my pre-registration was under-specified and the resolution is flagged as such. |
 | backbone family | mst-union (`MST ∪ strongest f of edges`) | The only family in the panel with an octave-wide admissible window. |
 | backbone density | **knob-integrated over `f ∈ [0.07, 0.20]`**, fractions `(0.07, 0.10, 0.14, 0.20)`; representative single graph `f = 0.14` | R2.1 (parameter-free) failed for every candidate → R2.3 fallback. `f = 0.14` is an interior point of both windows; the incumbent `0.20` is at the edge of both. |
 | phase set | 5 phases, `task_learn` first-class | The paradigm separates learning a structure from applying it. §2. |
@@ -137,6 +137,39 @@ Over the wide window all four fractions agree: α 4/4 (median p = 0.017, margin 
 
 ---
 
+## 4b. What this substrate does and does not license
+
+This section exists because it is the single most likely thing for a referee to attack, and because sibling lane W0-B established the facts that make the old wording indefensible.
+
+**Matched-strength is an *independence* null, not a lag null.** W0-B showed it agrees cell-for-cell with an independent segment-lattice null (r = 0.983 across 800 cells), so it tests whether the cross-phase structure could arise from independently-drawn graphs with the same strength sequence. It says nothing about whether the structure is carried by coupling *magnitude* or by *lag*. Every verdict in §4.2 is therefore an independence verdict.
+
+**The trace fails the lag-destroying nulls.** With the backbone edge set pinned to the observed `|ImCoh|` one — the control built to give the trace its best chance — W0-B found a cohort median margin of **−0.003 for β and +0.004 for α**, against +0.214 and +0.130 under matched-strength. No separation, at any scale, in any band. The α and β traces clear independence nulls and survive order-preserving session repartitioning (β 10/16 scales, best p = 0.0049, not BH-significant, min q = 0.186), but they do not clear a null that preserves coherence magnitude and destroys only lag.
+
+Two rules follow, and they bind on every lane inheriting this contract:
+
+1. **Every cohort claim needs three rungs**, reported together: matched-strength / N1b (independence), **N1 with the backbone fixed** (lag), and **N3 order-preserving** (session structure). A claim resting on matched-strength alone is an independence claim and must be labelled as one.
+2. **Where N1 is not cleared — currently α, β, and all four five-phase functionals — the claim must be stated as being about *coherence structure*, not about lagged interaction, and volume-conduction immunity must not be offered as its justification.** The substrate is `|ImCoh|`, which is *constructed* to be VC-immune; but a result that does not separate from a magnitude-preserving, lag-destroying surrogate has not demonstrated that its content is the lagged part. The conservative construction is a property of the estimator, not evidence about the finding.
+
+### The `⟨|C|⟩` head-to-head, and why the contract stands
+
+W0-B's result raised the obvious question: if the trace is carried by coherence magnitude rather than lag, and ordinary coherence `⟨|C|⟩` gives a *larger* trace than `|ImCoh|`, then the transform chosen for volume-conduction immunity may be the weaker one. That was tested directly — three transforms, with and without same-shaft contact pairs, five phases, ten patients, on this contract's own substrate, all arms sharing one Welch pass per phase so only the transform differs. Same-shaft removal was applied at **both** stages: edges zeroed before sparsification, and the pairs dropped from the ρ_sym correlation so they cannot re-enter through indirect cophenetic paths.
+
+**Nothing in this comparison reaches significance at n = 10.** Every number below is directional. That said, three things are clear enough to act on:
+
+1. **The advantage does not replicate here.** W0-B reported `⟨|C|⟩` ahead in both trace bands (β +0.355 vs +0.281, α +0.277 vs +0.212, five patients). On the locked substrate at n = 10 the paired per-patient advantage of `⟨|C|⟩` over `|ImCoh|` is **+0.024 in α (p = 0.63)** and **−0.067 in β (p = 0.43) — i.e. `⟨|C|⟩` is *worse* in β, in 6 of 10 patients**. The two results are not directly comparable (different cohort size and backbone), so this is reported as a **non-replication**, not as a refutation. But there is much less advantage here to explain than the premise assumed.
+
+2. **The same-shaft confound is real but is not, on its own, the explanation.** `⟨|C|⟩` carries a same/cross-shaft mean weight ratio of **1.42–1.70×** across bands against **1.01–1.24×** for `|ImCoh|` — the expected direction and a clear inflation. Masking removes most of `⟨|C|⟩`'s pooled α advantage (+0.090 → +0.028), but the per-patient paired test on that *change* is not significant (p = 0.85), so it cannot be claimed that the advantage is demonstrably volume-conduction-driven.
+
+3. **The decisive objection is band-selectivity, and it is stark.** `⟨|C|⟩`'s largest cross-phase value sits in **θ — the band that must be null**: margin **+0.133** (all pairs) and **+0.120** after same-shaft removal, against `|ImCoh|`'s **−0.017** and **−0.010**. `⟨|C|⟩`'s θ value is comparable to its own α value. A measure whose "trace" is as large in the null band as in a signal band is not a better substrate whatever its level, and because the θ value *survives* same-shaft masking it is not merely volume conduction — ordinary coherence is simply sensitive to stable structure that has nothing to do with the task.
+
+**And the reassuring half:** `|ImCoh|`'s own trace is **not** same-shaft-dependent. Its change on masking is +0.008 in α (p = 0.85) and −0.035 in β (p = 0.13), neither significant. The third possible outcome — that the trace rests on within-shaft structure and both transforms collapse — **did not occur**, and that is worth stating plainly because it would have been the most consequential finding available.
+
+**Verdict: `imcoh_abs` stands, on band-selectivity rather than on level.** The contract is unchanged. The justification recorded here is not "|ImCoh| is bigger" (it is not, in α) and not "|ImCoh| is VC-immune by construction" (rule 2 above forbids that as a justification); it is that ordinary coherence fails the project's own band-selectivity criterion on this substrate, and `|ImCoh|` does not.
+
+**No functional may ever be tested against zero.** W0-B found that none of the four five-phase functionals is zero-centred: all four, `T_probe` included, are significantly positive at 16/16 scales for α and β on a sham arc carved from a single resting recording with temporal order destroyed. This does not void surrogate-referenced results — the surrogate inherits the same construction — but it does mean the only admissible statistic is a **margin against a per-configuration surrogate**. Everything in this contract is computed that way (§5); anything downstream must be too.
+
+---
+
 ## 5. The cohort gate used here
 
 One **sign-flip cluster-mass test** (Maris-Oostenveld; whole-patient-profile flips, which preserves the along-axis correlation) per (config, band, functional) over the entire 16-scale margin profile. This collapses the swept axis to a single test, so it does not inherit the per-scale multiplicity problem at all.
@@ -153,13 +186,13 @@ Per-scale cleared-counts are reported as **secondary** and under two families si
 
 ## 6. What is NOT settled by this contract
 
-1. **The null is still injected at the finished-FC-matrix stage.** Matched-strength shuffles the completed N×N matrix, so nothing here tests the coherency estimator, the band split, session nonstationarity, drift, or artifact epochs. Every verdict above is conditional on "given this FC matrix". Lane W0-B's timeseries-level ladder is what removes this, and until it has run, **every number in this contract is provisional in that specific sense.**
+1. **The trace does not clear a lag-destroying null, and that is now the largest open item in the project.** Matched-strength is an independence null (§4b); W0-B's N1 with the backbone pinned gives a cohort median margin of −0.003 (β) and +0.004 (α). Every verdict here is an **independence** verdict about **coherence structure**. Whether any of it is carried by lagged interaction is unresolved, and §4b's wording rules are mandatory until it is.
 2. **The full band-selectivity claim is knob-dependent.** low_γ is null only at `f ≥ 0.14`, giving 0.51 octaves — below the pre-registered bar. Any claim of the form "the hierarchy rejects low_γ" must be reported with that window and that width, or not made.
 3. **The free parameter is integrated over, not eliminated.** No parameter-free filter passed. A referee can still ask why mst-union; the answer is the surface in §4.2, not a principle.
 4. **`T_probespec_pe` is uncalibrated** (§2) and cannot support a claim until a data-based placebo exists.
 5. **`T_probespec` (inference-specific) is invariantly null for α across the whole grid** (0/10 fractions), and for low_γ and high_γ too. Whatever the inference-specific story becomes, it is not a knob-robust cross-phase trace in those bands.
 6. **δ and high_γ are knob-dependent** and no verdict is offered for them here.
-7. **The transform comparison rests on two candidates.** `⟨Im C⟩` (signed) and other coherence measures were not run.
+7. **The transform comparison covers three candidates and none of its contrasts is significant at n = 10.** `imcoh_abs`, `imcoh_sq` and `⟨|C|⟩` were compared; signed `⟨Im C⟩` and other coherence families were not run. The `⟨|C|⟩` verdict (§4b) rests on a directional band-selectivity argument, not on a significant test, and it is a **non-replication** of W0-B's advantage rather than a refutation of it — the two runs differ in cohort size and backbone and were not reconciled.
 8. **PMFG was evaluated observed-only**; it is O(N³) planarity testing and does not sit inside a 100-surrogate null, so the planar arm establishes agreement of the readout, not that PMFG clears a null.
 9. **n = 10.** The cohort signed-rank p-floor is 1/1024, and the cluster test inherits the same ceiling. Nothing here has the headroom for a heavily corrected family.
 

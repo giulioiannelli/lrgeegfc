@@ -406,7 +406,8 @@ def _partial_from_corr(r_xy: float, r_xz: float, r_yz: float) -> float:
     return float((r_xy - r_xz * r_yz) / den) if den > 0 else float("nan")
 
 
-def cross_phase_functionals(D: dict, roles: dict | None = None) -> dict:
+def cross_phase_functionals(D: dict, roles: dict | None = None,
+                            pair_mask: NDArray | None = None) -> dict:
     """Symmetric split-half cross-phase functionals from cophenetic distances.
 
     ``D`` maps a phase name to its condensed cophenetic distance vector (all on
@@ -439,10 +440,18 @@ def cross_phase_functionals(D: dict, roles: dict | None = None) -> dict:
     matrix per call rather than by repeated pairwise ``spearmanr``. If no
     ``encode`` phase is present only ``T_probe`` is returned.
 
+    ``pair_mask`` optionally restricts every functional to a subset of the pair
+    index (a boolean array over the condensed upper triangle). Use it to hold a
+    confound out of the statistic itself rather than only out of the graph --
+    e.g. excluding same-shaft sEEG contact pairs, whose anatomically fixed
+    proximity makes them trivially stable across phases.
+
     Note: ``T_probe`` is numerically identical to :func:`rho_sym` on the same
     four phases.
     """
     roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    if pair_mask is not None:
+        D = {k: np.asarray(v)[pair_mask] for k, v in D.items()}
     A, B = D[roles["baseline_a"]], D[roles["baseline_b"]]
     P, F = D[roles["probe"]], D[roles["follow"]]
     enc_key = roles.get("encode")
@@ -476,7 +485,8 @@ def cross_phase_functionals(D: dict, roles: dict | None = None) -> dict:
 def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
                                         roles: dict | None = None,
                                         rho_floor: float = RHO_FLOOR,
-                                        phases: tuple | None = None) -> dict:
+                                        phases: tuple | None = None,
+                                        pair_mask: NDArray | None = None) -> dict:
     """:func:`cross_phase_functionals` swept over a diffusion-scale grid.
 
     ``eig_by_phase`` maps each phase present to its ``(eigenvalues,
@@ -500,7 +510,7 @@ def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
     for i, s in enumerate(s_grid):
         try:
             D = {ph: cophenetic_at_scale(*eig_by_phase[ph], s, rho_floor) for ph in phases}
-            vals = cross_phase_functionals(D, roles)
+            vals = cross_phase_functionals(D, roles, pair_mask=pair_mask)
         except Exception:
             continue
         for k in keys:
