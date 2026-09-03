@@ -15,6 +15,7 @@ pointers:
   - data/paper_final/lane_e_encinf/grid/cells
   - data/paper_final/lane_e_encinf/sham/cells
   - .agents/reports/2026-08-31_lane-s-scale-variability.md   # OUTCOME: negative, all criteria failed
+  - .agents/reports/2026-09-03_lane-s-contrast-scale-structure.md   # OUTCOME of Amendment B: negative, B1/B2/B3 all failed; low_gamma = gate artefact
 ---
 
 # Scale-local trace readouts — is the scale axis flat, or is the readout blind to it?
