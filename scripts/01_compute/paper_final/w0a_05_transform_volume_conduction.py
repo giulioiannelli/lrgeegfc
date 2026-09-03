@@ -96,7 +96,10 @@ COHORT = list(PATIENTS_4PHASE)
 BANDS = (os.environ.get("W0A_BANDS", "").split(",") if os.environ.get("W0A_BANDS")
          else ["theta", "alpha", "beta"])
 PHASES = ("A", "B", "task_learn", "task_test", "rest_post")
-TRANSFORMS = ("imcoh_abs", "imcoh_sq", "coh_abs")
+# Configurable so the decisive PAIR (imcoh_abs vs coh_abs) can be run alone:
+# imcoh_sq is already settled by A2 and is not needed for the VC question.
+TRANSFORMS = tuple(os.environ.get("W0A_TRANSFORMS",
+                                  "imcoh_abs,imcoh_sq,coh_abs").split(","))
 MASKS = ("all", "xshaft")                       # all pairs / same-shaft removed
 FRACS = tuple(CANONICAL.plateau_fracs[1:])      # (0.10, 0.14, 0.20) -- contract window
 FUNCTIONALS = ("T_probe", "T_encode", "T_probespec", "T_probespec_pe")
@@ -159,13 +162,18 @@ def _per_patient(job):
         W_by[tk] = {}
 
     def _reduce(ph, X, nper):
-        C = complex_coherency_bands(np.ascontiguousarray(X), fs, bands, nper)
+        # float32 in: halves the timeseries footprint. Pat_07's task_test is
+        # MATLAB v7.3 and loads through the h5py fallback (~2.4 GB as float64),
+        # which with concurrent workers is what OOM-killed two earlier runs.
+        # welch_csd upcasts internally, so the spectral estimate is unchanged.
+        C = complex_coherency_bands(np.ascontiguousarray(X, dtype=np.float32),
+                                    fs, bands, nper)
         for tk in TRANSFORMS:
             W_by[tk][ph] = {b: band_adjacency(C[b], tk) for b in BANDS}
         del C
 
     try:
-        X = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), float)
+        X = np.asarray(load_timeseries(pat, "rest_pre", SEEG_DATAPATH), np.float32)
         if X.shape[0] > X.shape[1]:
             X = X.T
         T = X.shape[1]
@@ -173,7 +181,7 @@ def _per_patient(job):
         _reduce("B", X[:, T // 2:], nper_half)
         del X
         for ph in ("task_learn", "task_test", "rest_post"):
-            Y = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), float)
+            Y = np.asarray(load_timeseries(pat, ph, SEEG_DATAPATH), np.float32)
             if Y.shape[0] > Y.shape[1]:
                 Y = Y.T
             _reduce(ph, Y, nper_full)
