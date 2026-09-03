@@ -114,6 +114,24 @@ class CellSet:
         self._cache[key] = (O, S, labs)
         return O, S, labs
 
+    def cell_at(self, band: str, readout: str, fi: int
+                ) -> tuple[np.ndarray, np.ndarray, list[str]]:
+        """``(O, S, labels)`` at ONE plateau fraction, bypassing the knob median.
+
+        The knob integration exists so that no number is reported at a single
+        fraction. This accessor is the deliberate exception: it is how a
+        knob-integrated result is *audited* for knob dependence -- if a band's
+        verdict is carried by one end of the plateau and absent at the other,
+        the integrated number is hiding a knob artefact rather than averaging
+        four equally good readings. Never use it to report a headline.
+        """
+        m = self.ix[readout]
+        labs = self.have(band)
+        O = np.stack([self._obs[(p, band)][fi, :, m] for p in labs])
+        S = np.stack([self._surr[(p, band)][:, fi, :, m].astype(float)
+                      for p in labs])
+        return O, S, labs
+
     def knob_spread(self, band: str, readout: str) -> np.ndarray:
         """Across-fraction IQR of the observed statistic, ``(K, nS)`` -- knob uncertainty."""
         m = self.ix[readout]
