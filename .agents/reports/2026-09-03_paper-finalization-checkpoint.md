@@ -133,3 +133,48 @@ Both lanes died on a session limit on 2026-09-03 having finished their compute a
 **One nuance not to flatten.** Several cells do show a significant *absolute* slope after BH (`q_slope_abs` ≈ 0.02–0.04 for T_test δ/low_γ/high_γ and T_learn δ/β). Part A already explains it: the margin grows with scale while the surrogate spread grows with it in step, so the effect size in margin units rises (β ~6× along the axis) while standardized detectability does not (per-scale p stays 0.019–0.12 throughout). Report both halves; a reader shown only the margin curve would conclude the opposite of the verdict.
 
 **Band-selectivity: not supported, in either direction.** From `band_separation_verdict.csv`: low_γ margin **+0.095** against β's **+0.092** — low_γ is if anything the larger of the two. low_γ's own clearing is a **gate artefact** (LOO p rises 0.045 → 0.121, `loo_collapses = True`, clears only at f ≤ 0.10, knob-dependent), *but* the direct paired test `β − low_γ` is null in **both** directions (p = 1.000 each way). So at n = 10 we can neither establish low_γ's trace nor demonstrate that β differs from it. **The paper's second result cannot currently be stated as a band dissociation.** This is the third independent line pointing the same way (W0-A's 0.51-octave window, Lane S part A's tabulated near-miss, now the direct paired test).
+
+## Update 2026-09-07 — Lane E closed (merged). I ran its verdict script; it had never been run.
+
+Lane E died on a session limit having committed everything but never executed `lane_e_10_dissociation_verdict.py`. Compute was complete on disk (60 real cells, 180 sham cells, 6 bands, knob-integrated over the four plateau fractions). I ran it (~35 min, 10 000 sign-flip permutations × 132 gate calls) and cross-checked every headline with my own paired Wilcoxons on the per-patient table before trusting it.
+
+### 1. The encoding-vs-inference dissociation does not exist — in any band
+
+`C = T_learn − T_test`, each patient referenced to **their own ordered sham**, two-sided, BH over 6 bands:
+
+| band | Δ C | p | q |
+|---|---|---|---|
+| delta | −0.011 | 0.220 | 0.661 |
+| theta | +0.041 | 0.172 | 0.661 |
+| alpha | −0.009 | 0.775 | 0.930 |
+| beta | +0.022 | 0.521 | 0.782 |
+| low_gamma | +0.029 | 0.455 | 0.782 |
+| high_gamma | +0.030 | 1.000 | 1.000 |
+
+The user's instruction was that another band was acceptable. All six were tested. **Nothing.** Lane S independently reached the same place from the scale side: `C_learn_minus_test` has `cluster_q = 1.000` in all six bands under matched-strength. Two lanes, two references, one answer.
+
+### 2. `T_infspec` is demonstrably contaminated and must not be used
+
+On the ordered sham — data with no task in it — `T_infspec` is **significantly positive**: β median +0.053, **p = 0.001, q = 0.006**; `T_infspec_pe` β +0.056, q = 0.046. Descriptive share of the real margin that the sham alone reproduces: **β 84%, α 69%, low_γ 152%, θ 484%**. `f = D_test − D_learn` correlates two phases adjacent in time and is reading adjacency. Retire the construct.
+
+### 3. The persistence result survives in substance but is NOT formally established against this reference
+
+Descriptive, knob-integrated, share of the real margin reproduced by the ordered sham: **α 12%, β 25%, δ 30%, low_γ 27%**, and high_γ 116% / θ negative-real — i.e. the two bands the project treats as null behave as null against this reference too. That is the reassuring half and it is real.
+
+But the paired test does not clear BH. Best cells: α `Δ T_test` p = 0.043 **q = 0.146**; β `Δ T_learn` p = 0.044 q = 0.157; β `Δ T_test` p = 0.073 q = 0.146. Nothing at q < 0.05, and `loo_n_lost` is 7–10 of 10, so it is fragile to dropping a single patient. **This is a power limit, not a refutation** — the sham supplies only two realizations per patient (one per source recording), so the per-patient Δ is noisy. Against matched-strength alone the same functionals are fine (real `T_test` α q = 0.032, β q = 0.032). **Honest status: the persistence headline clears independence nulls and is directionally clean against the drift sham, but is not yet significant against it. Deepening the sham ensemble is the cheapest way to settle it and should be the next compute.**
+
+### 4. My drift-regressor proposal failed, and the reason is structural
+
+Partialling out `d = D_B − D_A` fails **both** frozen criteria. V1 (must be ≈0 on the sham): it **overcorrects** to −0.123 (α `T_test_d`), −0.153 (β `T_learn_d`). V2 (must be retained on the real arc): β `T_test` +0.148 → +0.016 (q = 0.458); β `T_learn` +0.112 → −0.094.
+
+The diagnosis is not the noise caveat I flagged when proposing it. It is a **shared-term artefact**: `p = D_post − D_B` and `d = D_B − D_A` both contain `D_B`, so they are negatively correlated by construction and partialling `d` out removes signal, not just drift. The confirming detail: `T_infspec` — the one functional built from neither A nor B — is the only one the correction leaves alone (β +0.063 → +0.060 on the sham, +0.082 → +0.066 on the real). Anyone revisiting this must build the drift regressor from phases disjoint with the functional it corrects. Recorded so it is not retried in the same form.
+
+### Where the three paper results now stand
+
+| | status |
+|---|---|
+| 1. Persistence, scale-dependent | persistence clears independence nulls and is directionally clean against drift, **not yet significant against drift**; "scale-dependent" is **dead** (Lane S parts A and B) |
+| 2. Per-band dissociation | **unsupported at n = 10** — β vs low_γ null in both directions; and no encoding/inference dissociation in any band |
+| 3. Epilepsy / SOZ | **still untested in this wave**, and structurally independent of every failure above |
+
+Result 3 has never been re-derived and is now, by elimination, the most likely surviving contribution. It is a within-phase readout: it never touches ρ_sym, the cross-phase construction, the drift sham, the lag null, or the scale axis. Nothing in Waves 0–1 bears on it either way.
