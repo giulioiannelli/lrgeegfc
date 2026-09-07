@@ -49,6 +49,14 @@ __all__ = [
     "CROSS_PHASE_ROLES",
     "partial_spearman",
     "CROSS_PHASE_FUNCTIONALS",
+    "CROSS_PHASE_FUNCTIONALS_DRIFT",
+    "CROSS_PHASE_VECTOR_NAMES",
+    "cross_phase_vectors",
+    "cross_phase_rank_corr",
+    "cross_phase_rank_corr_over_scales",
+    "partial_from_corr_matrix",
+    "cross_phase_functionals_from_corr",
+    "cross_phase_functionals_from_corr_stack",
     "cross_phase_functionals",
     "cross_phase_functionals_over_scales",
 ]
@@ -339,6 +347,25 @@ def partial_spearman(a: NDArray, b: NDArray, c: NDArray) -> float:
 #: block permutation, or a sham arc built inside a single recording.
 CROSS_PHASE_FUNCTIONALS = ("T_test", "T_learn", "T_infspec", "T_infspec_pe")
 
+#: Drift-controlled counterparts: the same four functionals with the task-free
+#: drift direction ``d`` partialled out of both arguments (see
+#: :func:`cross_phase_functionals_from_corr`).
+CROSS_PHASE_FUNCTIONALS_DRIFT = ("T_test_d", "T_learn_d", "T_infspec_d",
+                                 "T_infspec_ped")
+
+#: Reorganisation vectors of a five-phase arc, in the row order used by
+#: :func:`cross_phase_rank_corr`. Everything the cross-phase functionals measure
+#: is a (partial) correlation between two of these, so storing their rank
+#: correlation matrix stores every functional -- present and future -- exactly.
+#:
+#: ``d = D_baseline_b - D_baseline_a`` is the **task-free drift** vector. The two
+#: baselines are contiguous halves of ONE pre-task recording, so ``d`` is the
+#: reorganisation the system performs over a comparable timespan with no task in
+#: it: same subject, same session, same estimator. It is the natural covariate
+#: for any claim that a cross-phase change is task-driven rather than elapsed
+#: time, and it costs nothing -- it is already implied by every arc.
+CROSS_PHASE_VECTOR_NAMES = ("e", "e2", "f", "g", "g2", "p", "p2", "d")
+
 #: Two naming schemes for the same four functionals arrived from two independent
 #: Wave-0 implementations, verified to agree to full float precision before being
 #: unified here. The role-neutral names are canonical in the library; the
@@ -516,3 +543,229 @@ def cross_phase_functionals_over_scales(eig_by_phase: dict, s_grid: NDArray,
         for k in keys:
             out[k][i] = vals.get(k, np.nan)
     return out
+
+
+# --------------------------------------------------------------------------- #
+# rank-correlation tensor: every cross-phase functional as a post-hoc derivation
+# --------------------------------------------------------------------------- #
+def cross_phase_vectors(D: dict, roles: dict | None = None) -> dict:
+    """Reorganisation vectors of a five-phase arc, keyed by
+    :data:`CROSS_PHASE_VECTOR_NAMES`.
+
+    ``D`` maps phase name -> condensed cophenetic distance vector, all on the
+    same pair index set; ``roles`` maps the semantic roles to phase names and
+    defaults to :data:`CROSS_PHASE_ROLES`. See :func:`cross_phase_functionals`
+    for what each vector means; ``d`` is the task-free baseline drift.
+    """
+    roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    A, B = D[roles["baseline_a"]], D[roles["baseline_b"]]
+    P, F, E = D[roles["probe"]], D[roles["follow"]], D[roles["encode"]]
+    return {"e": E - A, "e2": E - B, "f": P - E, "g": P - A, "g2": P - B,
+            "p": F - B, "p2": F - A, "d": B - A}
+
+
+def cross_phase_rank_corr(D: dict, roles: dict | None = None) -> NDArray:
+    """Spearman correlation matrix of :func:`cross_phase_vectors`, ``(8, 8)``.
+
+    This is the sufficient statistic for the whole cross-phase family. Every
+    functional in :data:`CROSS_PHASE_FUNCTIONALS`, its drift-controlled
+    counterpart, the encode/probe role swap and any contrast between them is an
+    exact function of this matrix, so a pipeline that stores it can be
+    re-interrogated with a new estimator without recomputing a single
+    eigendecomposition. Rows are in :data:`CROSS_PHASE_VECTOR_NAMES` order.
+    """
+    V = cross_phase_vectors(D, roles)
+    return np.corrcoef(np.vstack([_average_ranks(V[k])
+                                  for k in CROSS_PHASE_VECTOR_NAMES]))
+
+
+def partial_from_corr_matrix(R: NDArray, i: int, j: int, controls=()) -> float:
+    """Partial correlation ``r(x_i, x_j | x_controls)`` from a correlation matrix.
+
+    Any order, via the precision matrix of the relevant submatrix:
+    ``r_ij.rest = -P_ij / sqrt(P_ii P_jj)``. With no controls this returns
+    ``R[i, j]``; with one it agrees with the closed-form first-order expression
+    to floating point. ``NaN`` if the submatrix is singular (a control that is a
+    linear combination of the others).
+    """
+    ctrl = [int(c) for c in controls if int(c) not in (int(i), int(j))]
+    if not ctrl:
+        return float(R[i, j])
+    idx = [int(i), int(j)] + ctrl
+    S = np.asarray(R, float)[np.ix_(idx, idx)]
+    if not np.all(np.isfinite(S)):
+        return float("nan")
+    try:
+        P = np.linalg.inv(S)
+    except np.linalg.LinAlgError:
+        return float("nan")
+    den = np.sqrt(P[0, 0] * P[1, 1])
+    return float(-P[0, 1] / den) if np.isfinite(den) and den > 0 else float("nan")
+
+
+#: Encode<->probe role swap as a SIGNED PERMUTATION of the vectors, not a
+#: recomputation. Exchanging which phase is "encode" and which is "probe" maps
+#: ``e -> g``, ``e2 -> g2``, ``g -> e``, ``g2 -> e2``, ``f -> -f`` and leaves
+#: ``p``, ``p2``, ``d`` untouched -- so the swapped arc's rank correlations are
+#: obtained from the observed ones by relabelling and a sign, exactly. This is
+#: what makes the swap a construction-preserving null: it changes only the
+#: semantic assignment of two phases and nothing about the graphs.
+_SWAP_ENCODE_PROBE = {"e": ("g", 1), "e2": ("g2", 1), "f": ("f", -1),
+                      "g": ("e", 1), "g2": ("e2", 1), "p": ("p", 1),
+                      "p2": ("p2", 1), "d": ("d", 1)}
+
+
+def _swapped_corr(R: NDArray) -> NDArray:
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+    perm = [ix[_SWAP_ENCODE_PROBE[k][0]] for k in CROSS_PHASE_VECTOR_NAMES]
+    sgn = np.array([_SWAP_ENCODE_PROBE[k][1] for k in CROSS_PHASE_VECTOR_NAMES],
+                   float)
+    return np.asarray(R, float)[np.ix_(perm, perm)] * np.outer(sgn, sgn)
+
+
+def cross_phase_functionals_from_corr(R: NDArray, *, swap: bool = False,
+                                      drift: bool = True) -> dict:
+    """Every cross-phase functional derived from a stored rank-correlation matrix.
+
+    ``R`` is the ``(8, 8)`` matrix from :func:`cross_phase_rank_corr`. Returns
+    :data:`CROSS_PHASE_FUNCTIONALS` (both naming schemes) and, when ``drift``,
+    :data:`CROSS_PHASE_FUNCTIONALS_DRIFT`.
+
+    The drift-controlled variants partial the task-free drift direction ``d`` out
+    of both arguments of every correlation. Motivation: the two baselines are the
+    contiguous halves of one resting recording, so a session that drifts
+    monotonically makes *every* later phase resemble *every* other later phase,
+    and the arc inherits that similarity with no task involved. The symmetric
+    A/B arm average cancels shared-*baseline* bias but NOT drift -- both arms
+    pick up the drift component with the same sign -- which is why an arc carved
+    out of pure rest, in temporal order, returns positive functionals.
+    Conditioning on ``d`` removes the component of each change vector that lies
+    along the measured drift direction.
+
+    Two caveats that belong with any number this produces. ``d`` is estimated
+    from half-length recordings, so it is noisier than the full-phase vectors,
+    and partialling out a noisy regressor UNDER-corrects (regression dilution):
+    a surviving drift-controlled value is an upper bound on the drift-free
+    effect, not an unbiased estimate of it. And ``d`` spans one rest recording
+    while the arc spans much longer, so if drift is non-linear in time ``d`` has
+    the right direction but the wrong magnitude. Neither is a reason not to
+    condition; both are reasons to validate the corrected statistic on a
+    no-signal arc rather than trust it.
+
+    ``swap`` evaluates the encode<->probe role exchange via
+    :data:`_SWAP_ENCODE_PROBE`, an exact signed relabelling of the same
+    vectors -- no second pass over the data.
+    """
+    R = _swapped_corr(R) if swap else np.asarray(R, float)
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+
+    def pr(a, b, ctrl=()):
+        return partial_from_corr_matrix(R, ix[a], ix[b], [ix[c] for c in ctrl])
+
+    out = {}
+    for suffix, base in ((("", ()),) + ((("_d", ("d",)),) if drift else ())):
+        out["T_probe" + suffix] = 0.5 * (pr("g", "p", base) + pr("g2", "p2", base))
+        out["T_encode" + suffix] = 0.5 * (pr("e", "p", base) + pr("e2", "p2", base))
+        out["T_probespec" + suffix] = 0.5 * (pr("f", "p", base) + pr("f", "p2", base))
+        key = "T_probespec_pe" + ("d" if suffix else "")
+        out[key] = 0.5 * (pr("f", "p", ("e",) + base) + pr("f", "p2", ("e2",) + base))
+    for k, v in list(out.items()):
+        base_k = k[:-2] if k.endswith("_d") else (k[:-1] if k.endswith("_ped") else k)
+        alias = _FUNCTIONAL_ALIASES.get(base_k)
+        if alias:
+            out.setdefault(alias + k[len(base_k):], v)
+    return out
+
+
+def cross_phase_rank_corr_over_scales(eig_by_phase: dict, s_grid: NDArray,
+                                      roles: dict | None = None,
+                                      rho_floor: float = RHO_FLOOR) -> NDArray:
+    """:func:`cross_phase_rank_corr` swept over a diffusion-scale grid.
+
+    ``eig_by_phase`` maps each of the five phases to its ``(eigenvalues,
+    eigenvectors)``. Returns ``(len(s_grid), 8, 8)``, ``NaN`` at any scale whose
+    cophenetic tree is degenerate (non-finite, or constant so the rank
+    correlation is undefined).
+
+    This is the storage form a knob-integrated pipeline should write instead of
+    collapsed functionals: one pass over the eigendecompositions yields an object
+    from which every cross-phase estimator -- including ones invented after the
+    compute finished -- is recovered exactly by
+    :func:`cross_phase_functionals_from_corr`.
+    """
+    roles = dict(CROSS_PHASE_ROLES if roles is None else roles)
+    phases = [roles[k] for k in ("baseline_a", "baseline_b", "encode", "probe", "follow")]
+    n = len(CROSS_PHASE_VECTOR_NAMES)
+    out = np.full((len(s_grid), n, n), np.nan)
+    for j, s in enumerate(s_grid):
+        try:
+            D = {ph: cophenetic_at_scale(*eig_by_phase[ph], s, rho_floor)
+                 for ph in phases}
+            if any((not np.all(np.isfinite(v))) or np.std(v) == 0 for v in D.values()):
+                continue
+            out[j] = cross_phase_rank_corr(D, roles)
+        except Exception:                                          # noqa: BLE001
+            continue
+    return out
+
+
+def _partial1(r_xy, r_xz, r_yz):
+    """Vectorised first-order partial ``r(x, y | z)`` on broadcastable arrays."""
+    den = np.sqrt(np.clip(1.0 - r_xz ** 2, 0.0, None)
+                  * np.clip(1.0 - r_yz ** 2, 0.0, None))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return np.where(den > 0, (r_xy - r_xz * r_yz) / den, np.nan)
+
+
+def cross_phase_functionals_from_corr_stack(R: NDArray, *, swap: bool = False,
+                                            drift: bool = True) -> dict:
+    """:func:`cross_phase_functionals_from_corr` over a whole stack at once.
+
+    ``R`` is ``(..., 8, 8)``; returns ``{functional: array(...)}``. Identical
+    values to the per-matrix function (verified elementwise), obtained from the
+    recursive first-order partial identity rather than a matrix inverse, so a
+    surrogate ensemble of millions of matrices is evaluated in one pass. Both
+    naming schemes are emitted, as elsewhere in this module.
+    """
+    R = _swapped_corr_stack(R) if swap else np.asarray(R, float)
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+
+    def r(a, b):
+        return R[..., ix[a], ix[b]]
+
+    out = {
+        "T_probe": 0.5 * (r("g", "p") + r("g2", "p2")),
+        "T_encode": 0.5 * (r("e", "p") + r("e2", "p2")),
+        "T_probespec": 0.5 * (r("f", "p") + r("f", "p2")),
+        "T_probespec_pe": 0.5 * (
+            _partial1(r("f", "p"), r("f", "e"), r("p", "e"))
+            + _partial1(r("f", "p2"), r("f", "e2"), r("p2", "e2"))),
+    }
+    if drift:
+        def pd_(a, b):
+            return _partial1(r(a, b), r(a, "d"), r(b, "d"))
+        out["T_probe_d"] = 0.5 * (pd_("g", "p") + pd_("g2", "p2"))
+        out["T_encode_d"] = 0.5 * (pd_("e", "p") + pd_("e2", "p2"))
+        out["T_probespec_d"] = 0.5 * (pd_("f", "p") + pd_("f", "p2"))
+        # second order: condition on the encoding vector, then on drift
+        halves = []
+        for pk, ek in (("p", "e"), ("p2", "e2")):
+            a = _partial1(r("f", pk), r("f", ek), r(pk, ek))       # r(f,p|e)
+            b = _partial1(r("f", "d"), r("f", ek), r("d", ek))     # r(f,d|e)
+            c = _partial1(r(pk, "d"), r(pk, ek), r("d", ek))       # r(p,d|e)
+            halves.append(_partial1(a, b, c))
+        out["T_probespec_ped"] = 0.5 * (halves[0] + halves[1])
+    for k, v in list(out.items()):
+        base_k = k[:-2] if k.endswith("_d") else (k[:-1] if k.endswith("_ped") else k)
+        alias = _FUNCTIONAL_ALIASES.get(base_k)
+        if alias:
+            out.setdefault(alias + k[len(base_k):], v)
+    return out
+
+
+def _swapped_corr_stack(R: NDArray) -> NDArray:
+    ix = {k: i for i, k in enumerate(CROSS_PHASE_VECTOR_NAMES)}
+    perm = [ix[_SWAP_ENCODE_PROBE[k][0]] for k in CROSS_PHASE_VECTOR_NAMES]
+    sgn = np.array([_SWAP_ENCODE_PROBE[k][1] for k in CROSS_PHASE_VECTOR_NAMES],
+                   float)
+    return np.asarray(R, float)[..., perm, :][..., :, perm] * np.outer(sgn, sgn)
