@@ -115,6 +115,7 @@ __all__ = [
     "loo_grid_flips",
     "effective_tests",
     "axis_cluster_gate",
+    "axis_reversal_gate",
     "calibrate_from_surrogates",
     "calibrate_synthetic",
     "DESCRIPTIVE_ALPHA",
@@ -617,6 +618,94 @@ def axis_cluster_gate(
         sgn = rng.choice((-1.0, 1.0), size=(K, 1))
         null[i] = _mass(X * sgn)[0]
     out["p"] = float((1 + int(np.sum(null >= obs_mass))) / (n_perm + 1))
+    return out
+
+
+def axis_reversal_gate(
+    M,
+    x,
+    *,
+    n_perm: int = 10_000,
+    rng: Optional[np.random.Generator] = None,
+    z_thresh: float = 1.0,
+) -> dict:
+    """Does a cohort margin profile *reverse sign* along a swept axis?
+
+    ``M`` is ``(K, n_axis)`` of per-patient margins, ``x`` the axis positions
+    (positive; treated on a log scale, as a diffusion-scale or frequency sweep
+    is). A reversal is a strictly stronger and more falsifiable claim than a
+    slope: it asserts that the cohort effect is *negative* over one stretch of
+    the axis and *positive* over a later one, and it can fail in ways a slope
+    cannot -- a profile can trend upward for its whole length without ever
+    changing sign.
+
+    The claim is therefore decomposed into three parts, each reported
+    separately so a partial pass cannot be read as a pass:
+
+    ``p_pos`` / ``p_neg``
+        :func:`axis_cluster_gate` run on ``M`` and on ``-M``. Both must clear
+        for a reversal: one supra-threshold stretch of each sign.
+    ``ordered``
+        whether the negative cluster's centre lies at *smaller* ``x`` than the
+        positive cluster's. A reversal in the opposite order is a different
+        claim and is not silently accepted as one.
+    ``xstar_*``
+        per-patient zero crossings. Each patient's profile is fitted by ordinary
+        least squares against ``log x``; the fitted line crosses zero at
+        ``x* = exp(-a / b)``. ``n_cross`` counts patients whose crossing falls
+        inside the swept range, ``xstar_mad`` is the median absolute deviation of
+        ``log10 x*`` over those patients -- small when patients agree on *where*
+        the effect turns over.
+
+    No null is applied to the crossing statistics here, deliberately. The
+    sign-flip null that licenses :func:`axis_cluster_gate` is **invalid** for a
+    crossing location: flipping a whole profile's sign negates both ``a`` and
+    ``b`` and leaves ``x* = exp(-a/b)`` exactly unchanged, so a sign-flip null
+    would return a p-value of 1 by construction and look like a fair test. The
+    caller must supply the null by evaluating this same function on null draws
+    that break cross-patient alignment -- held-out surrogate realizations, or a
+    sham arc -- and comparing ``xstar_mad`` and ``n_cross`` against them.
+
+    Returns ``p_pos``, ``mass_pos``, ``cluster_pos``, ``p_neg``, ``mass_neg``,
+    ``cluster_neg``, ``ordered``, ``n_cross``, ``n_pat``, ``xstar_med``,
+    ``xstar_mad``, ``slope_med`` and ``reversal`` (all three cluster conditions
+    met).
+    """
+    M = np.asarray(M, dtype=float)
+    x = np.asarray(x, dtype=float)
+    rng = rng or np.random.default_rng(0)
+    pos = axis_cluster_gate(M, n_perm=n_perm, rng=np.random.default_rng(
+        rng.integers(1 << 32)), z_thresh=z_thresh)
+    neg = axis_cluster_gate(-M, n_perm=n_perm, rng=np.random.default_rng(
+        rng.integers(1 << 32)), z_thresh=z_thresh)
+    out = dict(p_pos=pos["p"], mass_pos=pos["mass"], cluster_pos=pos["cluster"],
+               p_neg=neg["p"], mass_neg=neg["mass"], cluster_neg=neg["cluster"],
+               ordered=False, reversal=False, n_pat=int(M.shape[0]),
+               n_cross=0, xstar_med=np.nan, xstar_mad=np.nan,
+               slope_med=np.nan)
+    if pos["cluster"] is not None and neg["cluster"] is not None:
+        cp = 0.5 * (pos["cluster"][0] + pos["cluster"][1])
+        cn = 0.5 * (neg["cluster"][0] + neg["cluster"][1])
+        out["ordered"] = bool(cn < cp)
+
+    ok = np.isfinite(M).all(axis=0) & np.isfinite(x) & (x > 0)
+    if ok.sum() >= 3:
+        lx = np.log(x[ok])
+        A = np.column_stack((np.ones(lx.size), lx))
+        coef, *_ = np.linalg.lstsq(A, M[:, ok].T, rcond=None)   # (2, K)
+        a, b = coef[0], coef[1]
+        out["slope_med"] = float(np.median(b))
+        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+            xs = np.exp(-a / b)   # a near-zero slope sends the crossing
+                                  # to +-inf, which the range filter drops
+        inside = np.isfinite(xs) & (xs >= x[ok].min()) & (xs <= x[ok].max())
+        out["n_cross"] = int(inside.sum())
+        if inside.sum() >= 2:
+            l10 = np.log10(xs[inside])
+            out["xstar_med"] = float(np.median(l10))
+            out["xstar_mad"] = float(np.median(np.abs(l10 - np.median(l10))))
+    out["reversal"] = bool(out["ordered"] and pos["p"] < DESCRIPTIVE_ALPHA
+                           and neg["p"] < DESCRIPTIVE_ALPHA)
     return out
 
 

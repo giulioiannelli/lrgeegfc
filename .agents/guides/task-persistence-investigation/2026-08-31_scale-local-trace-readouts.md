@@ -4,15 +4,18 @@ type: scope
 era: PAPER_FINALIZATION (Wave 0, lane W0-S)
 status: current
 created: 2026-08-31
-updated: 2026-08-31
-scope: Pre-registration for lane W0-S. Asks whether the diffusion-scale axis is genuinely flat or whether the incumbent readout (a global Spearman over all contact pairs) cannot see scale. Defines the dilution diagnostic, three candidate scale-local readouts, and — before any number — the three criteria a readout must satisfy to replace the incumbent, plus the criterion under which the dilution hypothesis is declared wrong.
+updated: 2026-09-03
+scope: Pre-registration for lane W0-S. Asks whether the diffusion-scale axis is genuinely flat or whether the incumbent readout (a global Spearman over all contact pairs) cannot see scale. Defines the dilution diagnostic, three candidate scale-local readouts, and — before any number — the three criteria a readout must satisfy to replace the incumbent, plus the criterion under which the dilution hypothesis is declared wrong. Amendment B (2026-09-03) extends the pre-registration to a *contrast between functionals* (T_learn - T_test, and T_infspec alone), which Part A did not cover, and pre-registers the low_gamma band-selectivity call.
 pointers:
   - .agents/reports/2026-08-25_w0c-cohort-gate-and-tau.md
   - .agents/preprint/locked/PIPELINE_CONTRACT.md
   - src/lrg_eegfc/utils/fc/heat_multiscale.py
   - src/lrg_eegfc/utils/metrics/cohort_gate.py
   - scripts/01_compute/paper_final/w0s_01_scale_locality_grid.py
+  - data/paper_final/lane_e_encinf/grid/cells
+  - data/paper_final/lane_e_encinf/sham/cells
   - .agents/reports/2026-08-31_lane-s-scale-variability.md   # OUTCOME: negative, all criteria failed
+  - .agents/reports/2026-09-03_lane-s-contrast-scale-structure.md   # OUTCOME of Amendment B: negative, B1/B2/B3 all failed; low_gamma = gate artefact
 ---
 
 # Scale-local trace readouts — is the scale axis flat, or is the readout blind to it?
@@ -279,3 +282,49 @@ Library entry points reused unmodified: `workflow.substrate.{canonical_graph_ens
 2. **Octave count**: fixed at powers of two, so it is `floor(log2 N)` and varies with implant size (5–7 across the cohort). Cells are compared within an octave index, not renormalised.
 3. **`Thei` on log heights** is a choice; the linear-height variant is not run, and that is recorded as untested rather than claimed equivalent.
 4. **The fine end of the grid** (`s < 1`) is the raw-FC limit by construction. Whether the trace there is "the hierarchy" at all is a framing question this lane surfaces but does not settle.
+
+---
+
+## 12. Amendment B (2026-09-03) — scale structure in a *contrast between functionals*
+
+**Written before any contrast statistic was computed.** Part A (§1–§11) tested scale-locality of **one functional at a time**: the incumbent `T` and five scale-local reconstructions of it. It returned a negative. A contrast between two functionals is a **different object** and is not covered by that verdict, because two quantities can each be flat along τ while their difference is not — the flat parts cancel and only the scale-dependent residue survives. This amendment pre-registers the test of that object.
+
+### 12.1 The object
+
+Lane E's five-phase grid (`data/paper_final/lane_e_encinf/grid/cells/*.npz`) stores, per patient × band, `obs (nF, nS, nFunc)` and `surr (nF, R, nS, nFunc)` over `funcs = (T_test, T_learn, T_infspec, T_infspec_pe)` on the locked contract grid `s ∈ [1, 180]`, 16 points, `R = 200`. The surrogate realization index `r` is **shared across functionals** within a cell, so a contrast can be formed with its pairing intact.
+
+The **paired contrast** (primary) forms the difference at the raw level, before any surrogate subtraction, so that the locked `patient_margin` contract stays exact rather than approximated:
+
+    C_k(f, s)      = obs_k[f, s, T_learn] − obs_k[f, s, T_test]
+    C_k(f, r, s)   = surr_k[f, r, s, T_learn] − surr_k[f, r, s, T_test]
+    M_k(s)         = median_f C_k(f, s) − median_r median_f C_k(f, r, s)
+
+The **unpaired contrast** (sensitivity only) is `margin[T_learn] − margin[T_test]`, which subtracts two independently-drawn surrogate medians and therefore discards the pairing. It is reported beside the paired one; if the two disagree, the paired one stands and the disagreement is reported as a caveat, because the unpaired variant is strictly the noisier estimator of the same quantity.
+
+`T_infspec` alone is carried as a second object under the identical protocol, since the lead cites a slope in it independently of the contrast.
+
+### 12.2 Five-point critical preamble
+
+1. **The claim.** `C(s) = T_learn(s) − T_test(s)` carries scale structure that neither functional carries alone, and specifically **changes sign** along τ; and `T_infspec(s)` has a real monotone scale slope.
+2. **The null.** Two, and both are required. (a) **Held-out matched-strength realizations of the same contrast**: promote surrogate draw `r₀` to the observed slot and re-reference to the remaining `R−1`. This is the contrast, at the contrast's own noise level, with no task-order information. (b) **Lane E's ordered sham** (`data/paper_final/lane_e_encinf/sham/cells/*.npz`): a fake five-phase arc carved from one rest recording with block order preserved and no task, which reproduces 89 % of β `T_infspec`. Its own contrast profile is the reference for any scale-structure statistic.
+3. **The strongest plausible alternative.** A difference of two noisy quantities is noisier than either of them. Independent noise decorrelates the columns of the per-patient × per-scale margin matrix, so the effective number of independent scales `n_eff` **rises with noise**; and a noisier per-patient profile has a larger `|Spearman(margin, log s)|` by chance. Both of the statistics that would be cited as evidence for the claim move in the claim's direction for a purely mechanical reason. This is the exact trap that caught four of the five Part-A candidates. The second alternative is **within-recording drift**: `rest_pre → rest_post` ordering produces a monotone τ-trend with no task involved.
+4. **Does the null control for it — by mechanism.** (a) controls the noise inflation exactly, because the held-out draw *is* the contrast at the contrast's noise level, so the inflation is already inside the null distribution; this is not a vibes argument but an identity of construction. (a) **cannot** control drift: matched-strength surrogates are redrawn per phase and carry no recording-order information. (b) controls drift by construction, because the ordered sham has real within-recording drift and no task. Neither null controls for **low power**: with `K = 10` patients and an axis Part A measured as worth ≈ 1.1 independent tests, a negative means *not detectable at n = 10*, never *proven absent*.
+5. **What would falsify the claim, and what remains.** The contrast claim dies if `n_eff(C)` fails to exceed its own held-out noise floor, **or** if the reversal statistic fails to exceed the ordered sham's. It survives only if **both** hold. Remaining regardless of outcome: no timeseries-level null (W0-B's open dependency); `s < 1` is unsampled on Lane E's grid, so this amendment speaks only for `s ∈ [1, 180]`; and the sham exists for four bands (δ, θ, α, β) only, so low_γ and high_γ get null (a) but not null (b).
+
+### 12.3 Pre-registered criteria
+
+- **B1 — more independent cross-scale information.** `n_eff(C)` must exceed the 95th percentile of its own held-out-null `n_eff` (upper-tail `p < 0.05`) in at least one band, after BH over the six bands. The `n_eff` of each raw functional is reported beside it, so that "the contrast decorrelates more than its parts" is visible as a number rather than asserted. *This is Part A's criterion (b), unchanged, on a new object.*
+- **B2 — reversal, not merely slope.** A sign flip is the stronger and more falsifiable claim, and it is tested as one. All three must hold in the same band: (i) a **negative** supra-threshold cluster and a **positive** supra-threshold cluster each clear `axis_cluster_gate` (the locked sign-flip cluster-mass test, run on `M` and on `−M`); (ii) the negative cluster lies at **smaller** `s` than the positive one; (iii) the per-patient zero-crossing scales `s*_k` are **more concentrated** (smaller MAD in `log s`) than under null (a) *and* than under null (b). Patients with no crossing are counted and reported, never silently dropped.
+- **B3 — sham-referenced.** Every scale-structure statistic is reported as a pair, `p_vs_surrogate` and `p_vs_sham`. A statistic that clears (a) but not (b) is **within-recording drift** and is reported as such, not as scale structure.
+- **Calibration.** As in §5.2: cells failing held-out-realization calibration are withheld, not caveated.
+
+### 12.4 Reporting rule (binding)
+
+Every functional and every contrast attempted is reported, including failures: `T_test`, `T_learn`, `T_infspec`, `T_infspec_pe`, the paired `C = T_learn − T_test`, and the unpaired variant. Per-scale, never best-scale. For each object: the number of **distinct values** it takes, its **split-half reliability**, and its scale-variation number are reported together, so that a scale-variation figure can never be read without the noise level that generates it. A flat answer is the expected outcome under the Part-A result and will be the headline if that is what the numbers say; "the contrast is flat too" is a cleaner and more final negative than Part A alone and is to be stated that way.
+
+### 12.5 The low_γ ownership question (declared in advance)
+
+Part A's own grid puts low_γ at margin `+0.096` against β's `+0.105` with a cluster spanning the whole axis and `q = 0.063`. Part A tabulated it and never discussed it. Combined with W0-A's finding that the band-selectivity window is only 0.51 octaves wide, two lanes now independently suggest band-selectivity is weaker than the project claims. The call is pre-registered here so it cannot be made after seeing which answer is convenient:
+
+- low_γ is a **genuine near-miss** — a real threat to the second result — if it passes calibration, its cluster survives leave-one-patient-out, its margin is not carried by a minority of patients, and the **paired** per-patient difference `β − low_γ` fails to clear. That combination says the gate is behaving correctly and the two bands are not separable at `n = 10`.
+- low_γ is a **gate artefact** if it fails calibration, or its clearing collapses under LOO, or the paired `β − low_γ` difference clears. That combination says the near-miss is an artefact of reading two marginal `q` values side by side rather than testing their difference.

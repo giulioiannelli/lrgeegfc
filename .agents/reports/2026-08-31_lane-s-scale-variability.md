@@ -7,6 +7,7 @@ created: 2026-08-31
 updated: 2026-09-03
 scope: Does the cross-phase trace vary across diffusion scales, or is the incumbent readout blind to scale? Pre-registered before any number, run on the locked substrate knob-integrated over the plateau f in [0.07, 0.20], every readout referenced to a matched-strength null and gated by the locked cohort gate. Verdict is NEGATIVE and that is the headline: the effect is the same at every scale, the readout is not the reason, and the mechanism is measured rather than asserted.
 pointers:
+  - .agents/reports/2026-09-03_lane-s-contrast-scale-structure.md   # PART B: contrasts are flat too; low_gamma call
   - .agents/guides/task-persistence-investigation/2026-08-31_scale-local-trace-readouts.md
   - scripts/01_compute/paper_final/w0s_01_scale_locality_grid.py
   - scripts/01_compute/paper_final/w0s_06_quantization_ceiling.py
@@ -18,6 +19,8 @@ pointers:
 ## Head
 
 **The scale axis is genuinely flat, the readout is not the reason, and the project should drop the multiscale framing.** Knob-integrated over the locked plateau, the trace clears the per-band axis-cluster gate in delta, alpha and beta (cluster q = 0.034 each) with the supra-threshold cluster spanning the **entire** axis, s = 0.02 to 180, and clearing separately in both halves of it; theta is null (p = 1.000) exactly as the known-null band should be. The 32-point sweep is worth **1.06-1.26 independent tests**, while the same statistic's own held-out-surrogate noise floor would give **2.9-3.4** — so the axis is *more* redundant than chance, in every band, at p = 1.000. Nothing survives correction for scale variation (slope min q = 0.078; cross-patient shape agreement min q = 0.088). And the suspect readout is exonerated: **none of five scale-local constructions passes the pre-registered criteria**, every one of them sitting *below* its own noise floor on the very statistic that was supposed to show it carrying more information.
+
+**Part B (2026-09-03) extends this verdict to a *contrast between functionals*,** which part A did not cover: `T_learn - T_test` and `T_infspec` are flat too, the reported sign change along tau is an artefact of reading a slope off a cohort-median curve, and `low_gamma`'s near-miss (tabulated in section 3 below and not discussed there) is settled. See `.agents/reports/2026-09-03_lane-s-contrast-scale-structure.md`.
 
 **Two limitations first, per project rule.** Everything here is conditioned on "given this FC matrix" — matched-strength shuffles the finished connectivity, so nothing in this lane is verified against a timeseries-level null, and W0-B's ladder remains a live dependency. And the surrogate ensemble is R = 50, reduced from a pre-registered 100 during a period of machine contention and stated rather than tuned; it is adequate for margin medians, for calibration at tolerance 0.10, and for a null-referenced p at 1/51 resolution, but a borderline calibration number would deserve a deeper ensemble.
 
