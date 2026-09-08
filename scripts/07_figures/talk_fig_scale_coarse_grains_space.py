@@ -58,7 +58,7 @@ PAT, BAND, PHASE = "Pat_05", "beta", "rest_pre"
 TAGS = ("micro", "meso", "macro")
 SCALES = [(0.4, 50), (1.2, 12), (6.0, 2)]
 N_EDGES = 420                # strongest |ImCoh| edges considered for the drawn network
-SHELL, SHELL_OP = "#8c9299", 0.11    # grey glass shell
+SHELL, SHELL_OP = "#565b63", 0.13    # darker grey glass shell
 R_CONTACT = 2.4
 GAP = 12                     # transparent px between the three tight-cropped brains
 # arcs bow INWARD (into the volume, behind the contacts) so the nodes read on top

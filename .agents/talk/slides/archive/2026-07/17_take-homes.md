@@ -3,11 +3,19 @@ name: talk-slide-17-take-homes
 type: report
 era: IMCOH_ABS × COHORT_N10 (mst@0.20 recovery)
 slide: 17
-status: draft
-updated: 2026-07-13
+status: superseded
+updated: 2026-07-16
 canva: NEW numbering (old 21). Localization line CORRECTED to β coarse-left / SOZ-independent (not
   "delocalized/placeless"); higher-order added to the method frame.
+superseded_by: 17_closing-takeon-ongoing-outlook.md
 ---
+
+> ⚠ **SUPERSEDED 2026-07-16 — absorbed into `17_closing-takeon-ongoing-outlook.md`** (the compound
+> closer: TAKE-HOMES · ONGOING · OUTLOOK). Kept on disk for the detailed result numbers + full speech,
+> which now feed the compound closer's presenter notes. **Two corrections carried into the closer:**
+> (1) the "β coarse LEFT home" line here is WITHDRAWN — β is **delocalized**, localization is an OPEN
+> ongoing question, never a result (localization slide dropped 2026-07-14); (2) messages, not the
+> detailed tables. Do not build a slide from this file.
 
 # Slide 17 — Take-homes
 

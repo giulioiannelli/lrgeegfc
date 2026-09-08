@@ -105,6 +105,28 @@ def autopick(scale):
     return picks
 
 
+def _time_colorbar(fig, bounds, rect=(0.30, -0.05, 0.40, 0.017)):
+    """Horizontal key for the trajectory colour = window time (TCMAP): the flow
+    runs rest_pre -> task_learn -> task_test -> rest_post, so a warmer colour = later
+    in the recording. White ticks mark the mean phase transitions across the four
+    exemplars; labels sit at the phase midpoints."""
+    cax = fig.add_axes(rect)
+    g = np.linspace(0, 1, 256)[None, :]
+    cax.pcolormesh(np.linspace(0, 1, 257), np.array([0, 1]), g, cmap=TCMAP,
+                   rasterized=False, shading="flat")
+    cum = np.mean(np.vstack(bounds), axis=0)
+    mids = 0.5 * (np.concatenate([[0.0], cum[:-1]]) + cum)
+    cax.vlines(cum[:-1], 0, 1, colors="white", lw=1.8, zorder=3)   # phase transitions
+    cax.set_yticks([]); cax.set_xlim(0, 1)
+    cax.set_xticks(mids)
+    cax.set_xticklabels([PHLAB[p] for p in PHASES], fontsize=13)
+    cax.tick_params(length=0)
+    cax.set_title("trajectory colour  =  window time", fontsize=12.5, pad=4)
+    for s in cax.spines.values():
+        s.set_visible(False)
+    return cax
+
+
 def _axis_triad(fig, rect):
     """A single shared enc/inf/residual KEY drawn in the central gap: three arrows
     (encoding=x, inference=y, residual=z) rendered in the SAME 3-D view as every panel
@@ -158,10 +180,13 @@ def main():
     TALK_POS = [(0.00, 0.53, 0.42, 0.42), (0.58, 0.53, 0.42, 0.42),
                 (0.00, 0.03, 0.42, 0.42), (0.58, 0.03, 0.42, 0.42)]
     fig = plt.figure(figsize=(9.2, 9.2) if args.talk else (10.4, 9.4))
+    bounds = []                                         # per-exemplar phase-boundary fractions
     for i, arch in enumerate(order, 1):
         pat, band, meta = chosen[arch]
         P, ph, _ = load_embedding(pat, band, args.scale)
         d_home, d_task = phase_dists(P, ph)
+        cnt = np.array([np.sum(ph == p) for p in PHASES], float)
+        bounds.append(np.cumsum(cnt) / cnt.sum())
         ax = fig.add_axes(TALK_POS[i - 1], projection="3d") if args.talk \
             else fig.add_subplot(2, 2, i, projection="3d")
         tt = meta.get("T_test__obs_s1", float("nan"))
@@ -175,6 +200,7 @@ def main():
 
     if args.talk:
         _axis_triad(fig, (0.40, 0.40, 0.20, 0.20))      # shared enc/inf/residual key in the gap
+        _time_colorbar(fig, bounds)                     # trajectory colormap key at the bottom
         out = ROOT / "data" / "outputs" / "figures" / "talk" / "slide15_encoding_inference_gallery.png"
         out.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(out, transparent=True, dpi=200, bbox_inches="tight", pad_inches=0.03)

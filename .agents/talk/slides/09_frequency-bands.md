@@ -2,7 +2,7 @@
 name: talk-slide-09-frequency-bands
 type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym)
-slide: 10
+slide: 9
 status: draft
 updated: 2026-07-11
 canva: page 10 · ~35%

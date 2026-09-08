@@ -57,7 +57,11 @@ PATIENT, BAND, PHASE = "Pat_08", "delta", "rest_post"
 HEMI = "left"                           # Pat_08 is a left-only implant
 TAU_FRAC = 10.0                         # tau_5 = 10 / lambda_max (coarse marker scale)
 N_SEED = 3                              # k=3 known onset seeds (matches the detector)
-TOP_ARC = 7                             # strongest diffusion flows drawn (top-affinity targets)
+TOP_ARC = 7                             # top-K shortlist (false-alarm markers + precision)
+ARC_MODE = "topk"                       # arcs drawn: "topk" (paper: strongest flows, label-blind),
+#                                         "onset" (seed->every onset, a star), or "community" (the
+#                                         onset↔onset co-diffusion web — each links to its partners)
+ARC_KNN = 2                             # community mode: strongest heat partners per contact
 
 C_SEED = "#f2c200"                      # gold: known seed seizure contacts
 C_TRUTH = "#0a0c0f"                     # near-black ring: true (unseeded) onset — ground truth
@@ -118,16 +122,45 @@ def compute():
     u, _ = mannwhitneyu(aff_r[held_soz], aff_r[healthy], alternative="greater")
     auc = u / (len(held_soz) * len(healthy))
 
-    # ARCS = the genuine strongest diffusion flows: the top-K non-seed contacts by score,
-    # WHATEVER they are — onset (hits) AND healthy (false alarms). No cherry-picking onto the
-    # ground truth. Each arc leaves the seed that most couples to that target (so origins are
-    # the real strongest seeds, not one fixed point) with width ∝ that heat-kernel flow K[s,t].
+    # SHORTLIST = the top-K non-seed contacts by score (the detection read); its healthy members
+    # are the false alarms and its onset fraction is the precision — always computed for the caption.
     nonseed = np.setdiff1d(np.arange(N), seeds)
-    arc_dest = nonseed[np.argsort(aff_r[nonseed])[::-1][:TOP_ARC]]
-    arcs = [(int(seeds[np.argmax(K[t, seeds])]), int(t), float(K[t, seeds].max()))
-            for t in arc_dest]
-    false_alarm = np.intersect1d(arc_dest, healthy)        # healthy the heat actually reaches
-    prec = np.isin(arc_dest, held_soz).mean()
+    shortlist = nonseed[np.argsort(aff_r[nonseed])[::-1][:TOP_ARC]]
+    false_alarm = np.intersect1d(shortlist, healthy)       # healthy the heat actually reaches
+    prec = np.isin(shortlist, held_soz).mean()
+    # ARCS = the diffusion links drawn.
+    #  "topk"      : strongest flows from seeds, label-blind (paper default; honest false alarms).
+    #  "onset"     : one flow seed->EACH unseeded onset contact (a star from the seeds).
+    #  "community" : the co-diffusing COMMUNITY web — each seizure contact linked to its ARC_KNN
+    #                strongest heat-kernel partners AMONG the seizure set, so onset contacts tie to
+    #                EACH OTHER (not spokes from one node). width ∝ K[i,j]. This is the actual claim.
+    if ARC_MODE == "community":
+        # co-diffusion community backbone: a MAXIMUM spanning tree over the seizure set on the
+        # heat-kernel affinity (== MST on 1/K) -> every onset threaded into ONE connected community
+        # with no hub-star and minimal crossings; then add each contact's single strongest extra
+        # partner for a little web richness. Edge weight = K[i,j].
+        from scipy.sparse.csgraph import minimum_spanning_tree
+        S = np.concatenate([seeds, held_soz]).astype(int)
+        KS = K[np.ix_(S, S)].copy()
+        D = 1.0 / (KS + 1e-12)
+        np.fill_diagonal(D, 0.0)
+        mst = minimum_spanning_tree(D).toarray()
+        edges = {}
+        for a in range(len(S)):
+            for b in range(len(S)):
+                if mst[a, b] > 0:
+                    edges[(min(S[a], S[b]), max(S[a], S[b]))] = float(K[S[a], S[b]])
+        for a in range(len(S)):                          # + 1 strongest extra partner each (web)
+            order_b = np.argsort(-KS[a])
+            for b in order_b:
+                if b != a:
+                    edges.setdefault((min(S[a], S[b]), max(S[a], S[b])), float(K[S[a], S[b]]))
+                    break
+        arcs = [(int(a), int(b), w) for (a, b), w in edges.items()]
+    else:
+        arc_dest = held_soz if ARC_MODE == "onset" else shortlist
+        arcs = [(int(seeds[np.argmax(K[t, seeds])]), int(t), float(K[t, seeds].max()))
+                for t in arc_dest]
 
     keep = fin                                             # only plot finite-coord contacts
     idx = np.where(keep)[0]
@@ -141,7 +174,7 @@ def compute():
         n_seed=len(seeds), n_held=len(held_soz), seed_shaft=str(seed_shaft),
         held_shafts=sorted(set(probes[held_soz].tolist())),
         auc=float(auc), prec=float(prec), n_fa=int(len(false_alarm)),
-        n_arc_onset=int(np.isin(arc_dest, held_soz).sum()), n_soz=len(soz),
+        n_arc_onset=int(np.isin(shortlist, held_soz).sum()), n_soz=len(soz),
     )
 
 

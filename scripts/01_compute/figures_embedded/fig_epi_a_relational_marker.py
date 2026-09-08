@@ -38,7 +38,7 @@ from lrg_eegfc.visuals.styles import use_lrg_style
 ROOT = setup_script_env()
 use_lrg_style()
 
-SRC = ROOT / "data/sparsified_arc/epi_arc_mst020/per_cell.csv"
+SRC = ROOT / "data/sparsified_arc/epi_arc_tmfg/per_cell.csv"   # marker backbone = TMFG (settled 2026-07-15)
 OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_a_relational_marker.pdf"
 
 BANDS = ["delta", "low_gamma", "beta", "alpha"]      # descending median multiscale AUC
@@ -128,7 +128,7 @@ def main():
     plt.close(fig)
 
     pc, counts = stats["pc"], stats["counts"]
-    print("fig:epi_a — relational SOZ marker (strength-residual, all contacts, mst@0.20)\n")
+    print("fig:epi_a — relational SOZ marker (strength-residual, all contacts, TMFG)\n")
     for b in BANDS:
         x = pc[pc.band == b]
         print(f"  {b:11s} median AUC single={x.auc_single.median():.3f} "
