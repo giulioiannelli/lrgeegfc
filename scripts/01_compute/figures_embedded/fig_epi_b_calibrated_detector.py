@@ -20,8 +20,8 @@ P(SOZ) with the per-patient AUC strip and the SOZ/healthy probability separation
 Ablation numbers (delta-only 0.76/34%, 6-band 0.81/60%, GBM 0.86/54%) are the detector
 model-selection table (audit_117 README; detector_ablation.csv stores only the canonical row).
 
-Reads : data/audit/epi_propagator_detector/detector_lopo_per_patient.csv
-        data/audit/epi_marker_compound/calibration_curve.csv
+Reads : data/sparsified_arc/marker_detector_tmfg/detector_lopo_per_patient.csv
+        data/sparsified_arc/marker_detector_tmfg/calibration_curve.csv  (backbone = TMFG, script 27)
 Writes: data/reports/results_section3/fig_epi_b_calibrated_detector.pdf
 """
 from __future__ import annotations
@@ -40,14 +40,14 @@ from lrg_eegfc.visuals.styles import use_lrg_style
 ROOT = setup_script_env()
 use_lrg_style()
 
-DET = ROOT / "data/audit/epi_propagator_detector/detector_lopo_per_patient.csv"
-CAL = ROOT / "data/audit/epi_marker_compound/calibration_curve.csv"
+DET = ROOT / "data/sparsified_arc/marker_detector_tmfg/detector_lopo_per_patient.csv"
+CAL = ROOT / "data/sparsified_arc/marker_detector_tmfg/calibration_curve.csv"
 OUT = ROOT / "data/preprint/figures/results_section3/fig_epi_b_calibrated_detector.pdf"
 
-# detector model-selection table (audit_117 README): AUC, precision@5
-ABLATION = {"delta-only": dict(auc=0.76, prec5=0.34),
-            "6-band": dict(auc=0.81, prec5=0.60),
-            "GBM (6-band)": dict(auc=0.86, prec5=0.54)}
+# detector model-selection table (TMFG backbone, script 27): AUC, precision@5
+ABLATION = {"delta-only": dict(auc=0.82, prec5=0.50),
+            "6-band": dict(auc=0.91, prec5=0.60),
+            "GBM (6-band)": dict(auc=0.91, prec5=0.60)}
 C_D1, C_FUSE, C_GBM = "#6baed6", "#08519c", "#9a9a9a"
 
 
@@ -74,12 +74,12 @@ def draw_fusion(ax, letters=True):
                     xytext=(15, -1), fontsize=8.5, color=C_GBM, va="center")
         if ref is not None:
             ax.axhline(ref, color="0.6", lw=0.9, ls=":", zorder=1)
-    # the two-word verdict, enacted by the bar heights
-    ax.annotate("", xy=(1.6 + 0.28, 0.60), xytext=(1.6 - 0.28, 0.34),
+    # fusion lift, enacted by the bar heights (AUC +9 pts, precision +10 pts)
+    ax.annotate("", xy=(1.6 + 0.28, 0.60), xytext=(1.6 - 0.28, 0.50),
                 arrowprops=dict(arrowstyle="->", color="#b03030", lw=1.8))
-    ax.text(1.6 - 0.36, 0.50, "+26 pts", color="#b03030", fontsize=10.5, ha="right",
-            fontweight="bold", rotation=38, va="bottom")
-    ax.text(0.0, 0.905, "+5 pts", color="0.35", fontsize=10, ha="center")
+    ax.text(1.6 - 0.36, 0.545, "+10 pts", color="#b03030", fontsize=10.5, ha="right",
+            fontweight="bold", rotation=20, va="bottom")
+    ax.text(0.0, 0.945, "+9 pts", color="0.35", fontsize=10, ha="center")
     ax.set_xticks([0.0, 1.6])
     ax.set_xticklabels(["AUC\n(discrimination)", "precision@5\n(top-of-list)"],
                        fontsize=11.5)
@@ -118,7 +118,7 @@ def draw_calibration(ax, det, cal, letters=True):
                 va="bottom", fontweight="bold")
     txt = (rf"median AUC $= {med_auc:.2f}$" "\n"
            rf"{n_above}/10 patients $>$ chance" "\n"
-           rf"label-shuffle null $= 0.48$" "\n"
+           rf"label-shuffle null $= 0.47$" "\n"
            rf"$P_{{\mathrm{{seizure}}}} = {p_soz:.2f}$  vs  $P_{{\mathrm{{healthy}}}} = {p_h:.2f}$")
     ax.text(0.97, 0.06, txt, transform=ax.transAxes, ha="right", va="bottom",
             fontsize=10, color="0.2",

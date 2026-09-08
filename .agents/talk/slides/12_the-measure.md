@@ -1,14 +1,14 @@
 ---
-name: talk-slide-11b-the-measure
+name: talk-slide-12-the-measure
 type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym · mst@0.20 backbone)
-slide: 11b   # S2 in the 10-slot results restructure (.agents/talk/2026-07-13_results-restructure-9slot.md); sits between pipeline (11) and taxonomy (12)
+slide: 12   # the measure ρ^coph; sits between pipeline (11) and the taxonomy/tanglegrams (13)
 status: draft
-updated: 2026-07-13
+updated: 2026-07-16
 canva: page 17 (deck) · math column LOCKED to the on-slide LaTeX below; figure = reinstatement colored circular dendrograms. RE-RENDER pending decisions on (i) the extra conceptual image, (ii) whether the per-patient panel b stays here.
 ---
 
-# Slide 11b (S2) — The Measure
+# Slide 12 — The Measure
 
 1. TITLE
 The Measure
@@ -43,9 +43,9 @@ Left column (bullets + compiled LaTeX, top → bottom) — LOCKED to the Canva d
 Small caption near panel b: "per-patient ρ^coph vs a matched-strength null (the sole null — unpacked next)".
 
 4. SPEECH
-The pipeline turned each phase into a hierarchy. The measure asks one thing: how similar are two of those hierarchies, at a given scale. Three steps, all on the left. First, the tree hands every pair of contacts a cophenetic distance — the height at which the two first merge into one branch. That's a fingerprint of the whole hierarchy, one number per pair. Second, a displacement: how far a phase moved that fingerprint away from a reference — Δ for the task, Δ for the rest afterwards. Third, the measure itself: rank-correlate the two displacements. If they agree, the task's reshaping is still there at rest. We measure both against a split rest-pre baseline, a different half for each side so they share no noise, then swap and average — that's the symmetrized rho-coph. And the colour on the right is that number made visible: every contact is shaded by how well it kept its cophenetic place — green kept it, grey lost it — and the bar under each tree is the single number. Keep two things in mind because they organize the whole rest of the talk: we read this at every scale, and it compares phases. One last thing — the per-patient bars at the bottom are read against a matched-strength null, the one null in this talk; I'll show you exactly what that destroys in a couple of slides.
+The pipeline turned each phase into a hierarchy; the measure asks one thing — how similar are two of those hierarchies, at a given scale. Three steps, all on the left. First, read a distance off the tree: for two contacts i and j, follow their branches up to where they first join — their lowest common ancestor — and take the height of that merge. That's the cophenetic distance, D-coph — one number per pair, and scale-aware, since the tree changes with the diffusion scale τ. Second, a displacement — how far a phase pushed that fingerprint from a reference X. For the trace X is rest-pre, so Δ-task is task minus rest-pre and Δ-rest is rest-post minus rest-pre. Third, the measure: rank-correlate those two displacements — Spearman, so it's the ordering of pairs that must agree — giving rho-coph, from minus one to one. If the task's reshaping predicts the rest-after reshaping, the trace survived. We take the baseline from two halves of rest-pre, a different half on each side so they share no noise, then swap and average — the symmetrized rho-coph. The colour on the right is that number made visible: each contact shaded by how well it kept its cophenetic place — green kept, grey lost — and the bar under each tree is the single number, read at every scale, against a matched-strength null. One thing about that bar: its top is not one. Split rest-pre into two halves and correlate the hierarchy with itself and you still get only about a half — each tree is estimated from finite, noisy data, so that self-reproducibility, not one, is the most any phase can score, and a perfect trace lands there. So a rho-coph near a half is read against that reproducibility and the null, never against one. Next, we watch it move: one patient, how each population's place holds or shifts across the phases.
 
-Careful: give only the SENSE of the measure here — do NOT front-run the selectivity (which bands), the scale-signature (β vs α), or the full matched-strength argument (all later). ρ is SPEARMAN on cophenetic distances (rank), never Pearson, never a partition metric (ARI/NMI/fcluster-at-k). The symmetrization uses the two rest_pre halves A,B with a DIFFERENT half per displacement (bias-fix — not "averaging two runs"). Read PER-SCALE τ, never a single best-τ scalar. Matched-strength is the SOLE null (drift retired) — if panel b stays, NAME the null (its p is on the x-axis) but keep the "what it destroys" cartoon for the nulls slide. The tanglegram + 4 fates belong to the NEXT slide (S3) — do NOT pre-empt.
+Careful: give only the SENSE of the measure here — do NOT front-run the selectivity (which bands), the scale-signature (β vs α), or the full matched-strength argument (all later). ρ is SPEARMAN on cophenetic distances (rank), never Pearson, never a partition metric (ARI/NMI/fcluster-at-k). The symmetrization uses the two rest_pre halves A,B with a DIFFERENT half per displacement (bias-fix — not "averaging two runs"). Read PER-SCALE τ, never a single best-τ scalar. Matched-strength is the SOLE null (drift retired) — if panel b stays, NAME the null (its p is on the x-axis) but keep the "what it destroys" cartoon for the nulls slide. The tanglegram + 4 fates belong to the NEXT slide (slide 13) — do NOT pre-empt.
 
 5. FIGURES
 - **MAIN — the multiscale reinstatement across scales (user pick 2026-07-13).** Use
@@ -57,10 +57,10 @@ Careful: give only the SENSE of the measure here — do NOT front-run the select
   carries BOTH of the measure's two axes at once: **colour = the number on the tree** (compares
   phases — rest_post rides greener / closer to test than rest_pre) AND **read at every scale** (the
   three rows). SINGLE-PATIENT ILLUSTRATIVE — a measure demo, NOT the cohort result; the cohort
-  ρ_sym(τ) curves + nulls + survivors are the whole of slide 13. Name the matched-strength null in
-  WORDS here; it is shown quantitatively on 13.
+  ρ_sym(τ) curves + nulls + survivors are the whole of slide 14. Name the matched-strength null in
+  WORDS here; it is shown quantitatively on 14.
   - Optional small companion `fig_measure_rhocoph.png` (reference / real 0.53 / matched-strength
-    shuffle 0.23) if you want the null shown *visually* on 11b; otherwise it is named in speech.
+    shuffle 0.23) if you want the null shown *visually* on slide 12; otherwise it is named in speech.
 - **ADDITIONAL CONCEPTUAL IMAGE — the binned correlation + honest calibration gauge.**
   `data/outputs/figures/talk/fig_measure_binned.png` (gen `scripts/07_figures/talk_fig_measure_binned.py`,
   Pat_08 β, s=5.6). RIGHT: a **smoothed density map** (log-scaled, peak-normalized) of pairs ranked
@@ -85,7 +85,7 @@ Careful: give only the SENSE of the measure here — do NOT front-run the select
   exemplar's magnitude. See [[rho_sym_magnitude_calibration_2026_07_13]].
 - **OPTIONAL grounding glyph — the merge-height inset.** A tiny rectangular dendrogram with leaves i, j, their LCA and the height h marked → makes D^coph_ij = h(LCA) tangible next to the first formula. Build in Canva or as a small vector; low priority.
 - **DECISION FLAGS:** (i) extra conceptual image = the Δ-scatter (build below); (ii) per-patient
-  panel b — **RESOLVED 2026-07-13: MOVED to slide 13** (the lasting-trace punchline). 11b is now a
+  panel b — **RESOLVED 2026-07-13: MOVED to slide 14** (the lasting-trace punchline). slide 12 is now a
   pure sense-of-measure slide via `fig_measure_rhocoph.png`; the null is *named* here (the shuffle
   panel), the cohort evidence (panel b, 10/10) lives on 13. Ensure 13 / nulls / scale slides ADD
   (multiscale ρ_sym(τ) curves, band comparison, scale-signature), not repeat.
@@ -95,4 +95,4 @@ Careful: give only the SENSE of the measure here — do NOT front-run the select
 - Spearman rank correlation — standard.
 
 7. CANVA STATUS
-Page 17 · math column FINAL (LaTeX above locked to the deck). Figure = the reinstatement colored circular dendrograms (panel a) with per-patient panel b. OPEN (this session): (i) add the Δ-scatter conceptual image (built → `fig_measure_scatter.png`); (ii) decide whether panel b stays (recommend keep + name the matched-strength null in one line, defer the "what it destroys" cartoon to the nulls slide). ⚠ Coordination: S2 owning the ρ^coph formula means slide 11 (pipeline) should NOT also carry the ρ estimator formula (2) — keep only the D^coph definition there.
+Page 17 · math column FINAL (LaTeX above locked to the deck). Figure = the reinstatement colored circular dendrograms (panel a) with per-patient panel b. OPEN (this session): (i) add the Δ-scatter conceptual image (built → `fig_measure_scatter.png`); (ii) decide whether panel b stays (recommend keep + name the matched-strength null in one line, defer the "what it destroys" cartoon to the nulls slide). ⚠ Coordination: the measure slide (12) owning the ρ^coph formula means slide 11 (pipeline) should NOT also carry the ρ estimator formula (2) — keep only the D^coph definition there.

@@ -1,14 +1,14 @@
 ---
-name: talk-slide-12-tanglegram-categories
+name: talk-slide-13-tanglegram-categories
 type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym)
-slide: 12
+slide: 13
 status: draft
 updated: 2026-07-11
 canva: NEW — no Canva page yet
 ---
 
-# Slide 12 — Task-induced taxonomy of neuronal populations (trace / anchor / reset / reorganized)
+# Slide 13 — Task-induced taxonomy of neuronal populations (trace / anchor / reset / reorganized)
 
 1. TITLE
 Task-induced taxonomy of neuronal populations

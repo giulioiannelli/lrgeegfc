@@ -4,7 +4,7 @@ type: report
 era: IMCOH_ABS × COHORT_N10 (ρ_sym · mst@0.20 backbone)
 slide: 11
 status: draft
-updated: 2026-07-13
+updated: 2026-07-16
 canva: page 11 · ~55% (⚠ figures rebuilt 2026-07-13 — 7-panel sparsification sequence; RE-COMPOSE in Canva)
 ---
 
@@ -39,7 +39,7 @@ D^{\mathrm{coph}}_{ij}=h_{\mathcal{L}[D]}\bigl(\mathrm{LCA}(i,j)\bigr)
 (every D is the cophenetic D^coph; **D^A_pre, D^B_pre = the two split-halves of rest_pre** — that is what A and B are; ρ_S = Spearman; (A↔B) = the same term with the two rest_pre halves swapped, and the ½ averages them so no half is privileged. First slot = how the task moved the hierarchy; second slot = how rest_post moved it; ρ asks whether the two agree. In the real analysis ρ is read across the τ-scan, not at one scale.)
 
 4. SPEECH
-Here's the whole machine on one slide, on one example patient. From the raw sEEG we build the per-band imaginary-coherence network — and now the step you haven't seen yet. That network is fully connected: every contact couples to every other, and a fully-connected graph has essentially one scale — the diffusion has nothing multiscale to resolve. So we sparsify: keep the maximum spanning tree plus the strongest fifth of the edges — a connected, cycle-rich backbone. On THAT backbone the diffusion propagator, e to the minus tau L, genuinely telescopes: as we sweep the diffusion time the specific heat C of tau grows a mesoscale ladder — several peaks, several scales — instead of one collapse; the inset shows the propagator spreading as tau increases. We read the resulting communication distances into a cophenetic dendrogram, and compare two phases by rank-correlating those cophenetic distances. Our trace estimator, ρ, asks whether the reorganization the task induced still shows up at rest afterwards — measured against a split rest_pre baseline so no half is privileged, and read across the whole scale scan rather than at one τ.
+Here's the whole machine on one slide, on one example patient. From the raw sEEG we build the per-band imaginary-coherence network — and now the step you haven't seen yet. That network is fully connected: every contact couples to every other, and a fully-connected graph has essentially one scale — the diffusion has nothing multiscale to resolve. So we sparsify: keep the maximum spanning tree plus the strongest fifth of the edges — a connected, cycle-rich backbone. On THAT backbone the diffusion propagator, e to the minus tau L, genuinely telescopes: as we sweep the diffusion time the specific heat C of tau grows a mesoscale ladder — several peaks, several scales — instead of one collapse; the inset shows the propagator spreading as tau increases. The last panel reads that diffusion geometry into a cophenetic tree — the hierarchy of the network at scale. How we turn two of those trees, one per phase, into a single trace number — ρ — is the next slide.
 
 Careful: the sparsification is WHY the LRG is non-degenerate here — on the fully-connected graph the trace is identical with and without diffusion (audit_174), so the backbone is not cosmetic; it is what makes the propagator multiscale (audit_175). τ IS swept — it is the scale scanner, and the band-specificity lives in the scale-dependence. Present ρ as the estimator, NOT a verdict — the matched-strength control that turns ρ into a verdict comes on slides 14–15 (kept off this slide on purpose). Matched-strength is now the ONLY null (drift retired — a directional task makes a drift null degenerate with the trace).
 
@@ -63,7 +63,7 @@ Careful: the sparsification is WHY the LRG is non-degenerate here — on the ful
 6. REFERENCES
 - LRG operator + communication distance + UPGMA dendrogram: Villegas, P., Gili, T., Caldarelli, G., Gabrielli, A. (2023), "Laplacian renormalization group for heterogeneous networks", Nature Physics 19, 445–450; Villegas, P., Gabrielli, A., Poggialini, A., Gili, T. (2025), Physical Review Research 7, 013065 (the fully-connected → single-C(τ)-peak degeneracy and the multiscale-ladder regime).
 - Sparse backbone (MST ∪ strongest edges, connected + spanning): Tumminello et al. 2005 (PNAS); Massara, Di Matteo & Aste 2016 (TMFG). audit_175 established `mst@0.20` for this cohort.
-- |ImCoh| FC: Nolte et al. 2004 / Ewald et al. 2012 (introduced slide 9).
+- |ImCoh| FC: Nolte et al. 2004 / Ewald et al. 2012 (introduced slide 8).
 
 7. CANVA STATUS
 ⚠ 2026-07-13 (late): ρ^coph glyph REMOVED from this slide (it belongs on the dedicated ρ-measure slide); pipeline is now 6 panels ending at the tree. Panel 4 chord emitted in TWO ring orders (`_shaft` anatomical + `_auto` algorithm/leaf-order, the clean HEB). Panel 6 tensor v2 reworked: 4 GRADUAL trees at increasing τ (labelled by τ, not s), all inside the resolution window (no star-collapse), partitions GROW front→back (≈4→9) via a stepping cut — "communities emerge with τ, never many→1 in one step" (β delocalisation means one giant clade persists; the count is the illustrative cut).

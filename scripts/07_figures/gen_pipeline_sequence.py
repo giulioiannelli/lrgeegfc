@@ -221,23 +221,37 @@ def _shaft_colors(probes: list[str]) -> list:
 
 def panel4_backbone(patient: str, B: np.ndarray, Z: np.ndarray, dens: float,
                     *, beta: float = 0.88, edge_cmap: str = "magma_r",
-                    ring_order: str = "shaft") -> Path:
+                    ring_order: str = "shaft", gamma: float = 4.0,
+                    alpha_range: tuple = (0.06, 0.78), cmap_window: tuple = (0.14, 0.60),
+                    width_max: float = 6.5, floor_per_node: bool = False,
+                    name_base: str = "pipeline_seq_4_backbone_network") -> Path:
     """The mst@0.20 backbone as a circular hierarchical-edge-bundled chord (graph-tool).
 
-    Leaves sit evenly on a ring; the backbone edges are Holten-bundled THROUGH the LRG
-    communication hierarchy ``Z`` (``get_hierarchy_control_points``, beta), so coupling
-    within a community routes as tight cool arcs and cross-community coupling sweeps across
-    the disk — the "cool graph-tool chord" look. ONLY the circular layout + bundled arcs +
-    shaft-coloured node beads; NO dendrogram overlay, colorbars, or labels. Rendered with
-    cairo to a transparent PNG.
+    Leaves sit evenly on a ring; the edges are Holten-bundled THROUGH the LRG communication
+    hierarchy ``Z`` (``get_hierarchy_control_points``, beta), so coupling within a community
+    routes as tight arcs and cross-community coupling sweeps across the disk — the ordered
+    "tree-of-life" chord (matching ``fig_hierarchy_chord_network``). ONLY the circular layout
+    + bundled arcs + shaft-coloured node beads; NO dendrogram overlay, colorbars, or labels.
+    Rendered with cairo to a transparent PNG.
+
+    Edge visibility follows the canonical renderer: each edge's percentile rank ``r`` maps to
+    ``tw = r**gamma``; alpha/width/colour ramp with ``tw``. A HIGH ``gamma`` (≈4) collapses the
+    weak edges to invisibility, leaving the strong-edge skeleton bundled through the trunks —
+    this is what keeps a busy graph ORDERED instead of a wash. A LOWER ``gamma`` (≈2) reveals
+    the fuller canopy (use it for the dense twin so its extra edges actually show).
 
     ``ring_order``:
       - ``"shaft"``  — beads sorted by sEEG probe, so each shaft is a contiguous coloured
         arc segment (anatomical reading). Output ``..._shaft.png``.
-      - ``"tree"``   — beads in the LRG hierarchy's own leaf order (``leaves_list(Z)``), i.e.
-        the order the drawing algorithm itself produces; communities become contiguous and
-        the bundling tightens (the classic HEB look). Beads stay shaft-coloured so you can
-        see how each probe scatters across communities. Output ``..._auto.png``.
+      - ``"tree"``   — beads in the LRG hierarchy's own leaf order (``leaves_list(Z)``): the
+        order that produces the clean bundle. Communities become contiguous and the trunks
+        tighten (the classic HEB look). Beads stay shaft-coloured. Output ``..._auto.png``.
+
+    ``name_base`` selects the output stem: the default emits ``pipeline_seq_4_backbone_network``;
+    pass ``"pipeline_seq_4_dense_network"`` and the FULL dense |ImCoh| matrix as ``B`` (with the
+    SAME backbone hierarchy ``Z``, ``ring_order``, and ``beta``) to draw the pre-sparsification
+    twin — identical node ring, every FC edge bundled through the same trunks, so the sparse
+    figure reads as this one with the weak edges pruned (the sparsification step, side by side).
     """
     import math
     import cairo
@@ -305,18 +319,21 @@ def panel4_backbone(patient: str, B: np.ndarray, Z: np.ndarray, dens: float,
 
     ei, ej, wk = r[keep], c[keep], w[keep]
     rank = (np.argsort(np.argsort(wk)) + 1) / max(len(keep), 1)
-    tw = rank ** 2.0                                   # emphasise strong edges (gentler)
-    # guarantee EVERY node shows at least one clear arc: mark each node's strongest incident
-    # edge (the spanning backbone reaches all nodes, so no node is truly disconnected — only
-    # its weak arcs were near-invisible). Those get a visibility floor and draw on top.
+    tw = rank ** float(gamma)                          # gamma high -> weak edges vanish (ordered)
+    a0, a1 = alpha_range
+    c0, c1 = cmap_window
+    # optional visibility floor: mark each node's strongest incident edge so no node is left
+    # arc-less. OFF by default (the reference renderer does not floor — flooring the faint web
+    # is exactly what turns a busy graph into a wash rather than a clean skeleton).
     strongest = np.zeros(len(keep), bool)
-    best = {}
-    for idx in range(len(keep)):
-        for nd in (int(ei[idx]), int(ej[idx])):
-            if nd not in best or wk[idx] > best[nd][0]:
-                best[nd] = (wk[idx], idx)
-    for _, idx in best.values():
-        strongest[idx] = True
+    if floor_per_node:
+        best = {}
+        for idx in range(len(keep)):
+            for nd in (int(ei[idx]), int(ej[idx])):
+                if nd not in best or wk[idx] > best[nd][0]:
+                    best[nd] = (wk[idx], idx)
+        for _, idx in best.values():
+            strongest[idx] = True
 
     mag = plt.colormaps[edge_cmap]
     rng = np.random.default_rng(0)
@@ -325,13 +342,13 @@ def panel4_backbone(patient: str, B: np.ndarray, Z: np.ndarray, dens: float,
     epw = g.new_edge_property("double")
     eord = g.new_edge_property("double")
     for idx, e in enumerate(g.edges()):
-        col = mag(0.16 + 0.55 * tw[idx])
-        alpha = 0.14 + 0.62 * tw[idx]
-        width = 0.45 + 4.6 * tw[idx]
+        col = mag(c0 + (c1 - c0) * tw[idx])
+        alpha = a0 + (a1 - a0) * tw[idx]
+        width = 0.35 + width_max * tw[idx]
         order_z = float(zrand[idx])
-        if strongest[idx]:                             # one visible arc per node
-            alpha = max(alpha, 0.60)
-            width = max(width, 1.7)
+        if strongest[idx]:                             # one visible arc per node (opt-in)
+            alpha = max(alpha, 0.55)
+            width = max(width, 1.6)
             order_z += len(keep)                       # draw on top of the faint web
         ecol[e] = [col[0], col[1], col[2], float(alpha)]
         epw[e] = float(width)
@@ -374,7 +391,7 @@ def panel4_backbone(patient: str, B: np.ndarray, Z: np.ndarray, dens: float,
 
     OUTDIR.mkdir(parents=True, exist_ok=True)
     QA.mkdir(parents=True, exist_ok=True)
-    png = OUTDIR / f"pipeline_seq_4_backbone_network{suffix}.png"
+    png = OUTDIR / f"{name_base}{suffix}.png"
     surf.write_to_png(str(png))
     from PIL import Image                               # white-matte QA composite
     im = Image.open(png).convert("RGBA")
@@ -675,11 +692,53 @@ def main() -> None:
                     help="panel 1: all-implant cohort overlay (default) or the example patient only")
     ap.add_argument("--cut-k", type=int, default=12, help="panel 6: illustrative number of partitions at the psi_n cut")
     ap.add_argument("--tensor-cards", type=int, default=4, help="panel 6 v2: number of stacked dendrograms (3-4)")
+    ap.add_argument("--panel4-only", action="store_true",
+                    help="regenerate ONLY panel 4 as a consistent SPARSIFICATION PAIR: the dense "
+                         "twin (pipeline_seq_4_dense_network_{auto,shaft}.png) beside the mst@0.20 "
+                         "backbone (pipeline_seq_4_backbone_network_{auto,shaft}.png); skips the "
+                         "slow 3D brain. Same node ring + hierarchy + bundling; edges differ only.")
+    ap.add_argument("--dense-only", action="store_true",
+                    help="alias of --panel4-only (kept for back-compat)")
+    ap.add_argument("--dense-beta", type=float, default=0.88,
+                    help="panel-4 HEB bundling strength for BOTH twins (tight bundling = ordered "
+                         "tree-of-life trunks, like fig_hierarchy_chord_network)")
+    ap.add_argument("--dense-gamma", type=float, default=2.2,
+                    help="panel-4 dense twin edge-visibility exponent (fuller canopy reveals density)")
+    ap.add_argument("--sparse-gamma", type=float, default=2.2,
+                    help="panel-4 backbone edge-visibility exponent (complete spanning tree, thinner)")
     a = ap.parse_args()
 
     t0 = time.perf_counter()
     use_lrg_style()
     print(f"[pipeline-seq] patient={a.patient} band={a.band}  ->  {OUTDIR}", flush=True)
+
+    if a.panel4_only or a.dense_only:
+        print(f"[panel4-only] mst@{BACKBONE_FRAC:.2f} sparsification PAIR — same ring/hierarchy/"
+              f"bundling (beta={a.dense_beta}), edges differ only", flush=True)
+        A = _load_fc_or_die(a.patient, "rest_pre", a.band)
+        B = mst_union_top_fraction(A, BACKBONE_FRAC)
+        ev, V = laplacian_eig(B)                          # ONE backbone hierarchy for both twins
+        Z0 = linkage_at_scale(ev, V, 1.0)
+        dens = backbone_density(B)
+        Adense = np.array(A, dtype=float, copy=True)      # every off-diagonal FC edge
+        np.fill_diagonal(Adense, 0.0)
+        Adense[~np.isfinite(Adense)] = 0.0
+        dens_full = backbone_density(Adense)
+        for ro in ("shaft", "tree"):
+            # dense twin: floor OFF — it already has strong edges everywhere; the point is the
+            # busy full canopy. backbone twin: floor ON — the spanning tree must visibly reach
+            # EVERY node (else its weak strands fade and it reads as a lopsided half-tree).
+            panel4_backbone(a.patient, Adense, Z0, dens_full, beta=a.dense_beta,
+                            gamma=a.dense_gamma, ring_order=ro, floor_per_node=False,
+                            alpha_range=(0.06, 0.78),
+                            name_base="pipeline_seq_4_dense_network")
+            panel4_backbone(a.patient, B, Z0, dens, beta=a.dense_beta,
+                            gamma=a.sparse_gamma, ring_order=ro, floor_per_node=True,
+                            alpha_range=(0.12, 0.82),
+                            name_base="pipeline_seq_4_backbone_network")
+        print(f"      dense density = {dens_full:.3f}   backbone density = {dens:.3f}", flush=True)
+        print(f"[done] {time.perf_counter() - t0:.1f}s", flush=True)
+        return
 
     print(f"[1/7] brain electrodes (3D, {a.brain})", flush=True)
     panel1_brain(a.patient, brain=a.brain)
@@ -691,16 +750,26 @@ def main() -> None:
     A = _load_fc_or_die(a.patient, "rest_pre", a.band)
     panel3_fc(A)
 
-    print(f"[4/6] mst@{BACKBONE_FRAC:.2f} backbone chord network (HEB) — 2 ring orders", flush=True)
+    print(f"[4/6] mst@{BACKBONE_FRAC:.2f} backbone chord network (HEB) + dense twin — 2 ring orders",
+          flush=True)
     B = mst_union_top_fraction(A, BACKBONE_FRAC)
     dens = backbone_density(B)
     # shared spectrum + tau_min tree (chord bundling hierarchy + panels 5 & 6 leaf order)
     ev, V = laplacian_eig(B)
     Z0 = linkage_at_scale(ev, V, 1.0)                 # s=1 => tau=1/lambda_max
     order = list(dendrogram(Z0, no_plot=True)["leaves"])
-    panel4_backbone(a.patient, B, Z0, dens, ring_order="shaft")   # v1: anatomical
-    panel4_backbone(a.patient, B, Z0, dens, ring_order="tree")    # v2: algorithm-ordered
-    print(f"      backbone density = {dens:.3f}", flush=True)
+    Adense = np.array(A, dtype=float, copy=True)      # the pre-sparsification twin: every FC edge
+    np.fill_diagonal(Adense, 0.0)
+    Adense[~np.isfinite(Adense)] = 0.0
+    dens_full = backbone_density(Adense)
+    for ro in ("shaft", "tree"):                      # sparsification PAIR, same ring/hierarchy/bundle
+        panel4_backbone(a.patient, Adense, Z0, dens_full, beta=a.dense_beta, gamma=a.dense_gamma,
+                        ring_order=ro, floor_per_node=False, alpha_range=(0.06, 0.78),
+                        name_base="pipeline_seq_4_dense_network")
+        panel4_backbone(a.patient, B, Z0, dens, beta=a.dense_beta, gamma=a.sparse_gamma,
+                        ring_order=ro, floor_per_node=True, alpha_range=(0.12, 0.82),
+                        name_base="pipeline_seq_4_backbone_network")
+    print(f"      dense density = {dens_full:.3f}   backbone density = {dens:.3f}", flush=True)
 
     print("[5/6] specific heat C(tau) & entropy + propagator inset", flush=True)
     panel5_specific_heat(ev, V, order)

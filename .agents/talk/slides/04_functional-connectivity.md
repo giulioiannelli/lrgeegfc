@@ -14,7 +14,7 @@ canva: page 5 · ~55%
 Functional connectivity
 
 2. MAIN CONCEPT
-- The network-scientist's route to the relational features of neural activity is functional connectivity: for each pair of contacts, a coupling estimate on their time series gives a weighted graph — FCᵢⱼ = coupling(xᵢ, xⱼ) → W. (The estimator is kept generic here; the specific choice, imaginary coherence, arrives on slide 9.)
+- The network-scientist's route to the relational features of neural activity is functional connectivity: for each pair of contacts, a coupling estimate on their time series gives a weighted graph — FCᵢⱼ = coupling(xᵢ, xⱼ) → W. (The estimator is kept generic here; the specific choice, imaginary coherence, arrives on slide 8.)
 - It is a genuinely functional object — related to, but not reducible to, anatomy: strong coupling appears even between regions with no direct structural link (Honey et al. 2009). We do NOT teach a "structure vs function" dichotomy — only that we work with a functional object, potentially independent of the wiring.
 - Network neuroscience is a mature field with fundamental results on this graph: brain networks are small-world (Bassett & Bullmore 2006), built around a rich club of hubs (van den Heuvel & Sporns 2011), and organized into modular communities (Sporns & Betzel 2016) — balancing integration and segregation.
 - "Communities" already hints at the multiscale organization we push on next (slide 5). Our contribution is what we do next to that graph.
@@ -27,7 +27,7 @@ small-world · rich-club · communities
 4. SPEECH
 How does a network scientist get at relations between brain areas? Functional connectivity. For every pair of contacts we take their time series and compute a coupling estimate — how much they fluctuate together — and that pairwise coupling is a weighted graph. Here it is for four of our patients, across the four phases of the experiment — the same functional object every time. It is genuinely functional: it does not just retrace the anatomy — strong coupling shows up even between regions with no direct structural link. On that graph, decades of network neuroscience have found real organization — small-world, a rich club of hubs, communities that trade off integration against segregation. A mature, productive toolkit. Our contribution is what we do next to that graph.
 
-Careful: the coupling symbol on the formula is GENERIC — do NOT write imCoh or name β here (the specific estimator comes on slide 9). On this slide the matrix is just "a functional network".
+Careful: the coupling symbol on the formula is GENERIC — do NOT write imCoh or name β here (the specific estimator comes on slide 8). On this slide the matrix is just "a functional network".
 
 5. FIGURES
 - FC matrix mosaic — 4 patients × 4 phases (rest_pre → task_learn → task_test → rest_post) — data/outputs/figures/talk/n4_delta_imcoh_abs_generic_log_per_row.pdf. Method-neutral BY CONSTRUCTION: colorbar reads a generic "FCᵢⱼ" (no imCoh / no band named), no probe-letter ticks; dense structure reads straight off the dataset slide and quietly previews the four-phase structure the talk exploits. (Underlying data = δ imcoh_abs — honest in the filename, NOT shown on-figure.) Generator (uses the new colorbar_label override + use_lrg_style fix): `.agents/guides/05_plotting/fc_templates/mosaic_patient_phase.py --patients Pat_02,Pat_05,Pat_08,Pat_13 --band delta --fc-method imcoh_abs --tick-labels generic --colorbar-label '$\mathrm{FC}_{ij}$' --out-dir data/outputs/figures/talk`.

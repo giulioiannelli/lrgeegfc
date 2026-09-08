@@ -29,12 +29,12 @@ Iannelli, G. et al. (2026). Multiscale sustained states in brain networks underp
 Good morning everyone, I'm Giulio Iannelli PostDoc at CREF and today I present to you some fresh results comingfrom last year work in the context of an European project about rvealing higher order features of Human Brain with Network neurocience. In paritcular today I am going to show you how cognition — and disease — reshape these neurological networks leaving traces that can only be detected with appropriate multiscale tools.
 I beg pardon to the neuroscientific audience for my brutality in exposing the neurological side of this work, also because this is ongoing work with the Sapienza neuroscience group and i lead the methodology leveraging the expertise gathered on the network side of the field at my research center; it is not finished, so I'm genuinely after your questions and any solid neurophysiological interpretation you can suggest we might have overlooked.
 
-1. FIGURES
+5. FIGURES
 - (optional) a single hero image — none required.
 
-1. REFERENCES
+6. REFERENCES
 - Dataset / working title: Iannelli, G. et al. (2026). Multiscale sustained states in brain networks underpin cognitive tasks and reveal hidden connectivity patterns of epileptogenic niches. [Ongoing]
 - TITLE TBD (2026-07-11) — current title to be sharpened; none of the drafts adopted. Keep the good bits: "multiscale" (the core contribution), the trace/persistent framing (accurate), "epileptogenic niches" (distinctive word), "inference" (punchy), and the two-payoff cognition+epilepsy option. Drop "sustained states" (leans on the partly-negative replay/reinstatement thread) and vague verbs ("underpin"). Open direction: cognition-primary flagship vs. two-payoff title:subtitle.
 
-1. CANVA STATUS
+7. CANVA STATUS
 Page 1 · ~90%. Have: title, subtitle, author, four institutional logos (Palermo · Roma Tre · CREF · Sapienza), Lipari School crest, full working-title self-citation. Missing: fix the subtitle on Canva — "cognitions"→"cognition", "higer-order"→"higher-order", and add the verb ("hide"). No figure needed.

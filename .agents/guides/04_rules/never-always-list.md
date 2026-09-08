@@ -18,6 +18,19 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
 
 ## Never
 
+- Never build a motivation / "why it matters" slide (or a paper
+  intro) around **questions reverse-engineered from our own results** —
+  a "seed question" whose answer *is* our finding is self-referential
+  and reads as us setting up our own punchline. Instead pose the
+  field's real, general, easy PROBLEMS (ones a skeptic agrees are open),
+  so our results later read as *progress* on them — direction is
+  **problem → (later) solution**, never answer-dressed-as-question.
+  Retired 2026-07-15 examples (all our results as questions):
+  "characteristic scale or scale-free?", "which rhythm carries it?",
+  "focal or distributed?". Motivation slides state NO result / no number.
+  (Added 2026-07-15 — user: "too result-oriented, not general interest…
+  make our results appear as pointing solutions to those, not to
+  self reference"; `feedback_motivation_problems_not_result_inversions`.)
 - Never use `lrg.optimal_threshold` as a diffusion time τ — they live
   in different spaces.
 - Never call `fig.suptitle` on publication figures — context goes in
@@ -50,6 +63,21 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   null as "β = drift, all bands fail" from an unfair scale-max gate;
   per-scale, β is above drift at every scale and high_γ beats it at
   coarse scales. `feedback_report_tau_dependence_no_scalar_collapse`.)
+- Never label a diffusion scale (s = τλ_max) "micro" / "meso" /
+  "macro" — or any size adjective — without a NUMBER grounding it:
+  physical reach ℓ(s) in mm vs the implant span, or the community
+  count / cluster granularity of the dendrogram at that τ. "α is
+  mesoscale (peaks s≈5)" is a vibe and it is FALSE: on mst@0.20
+  (`26_diffusion_spatial_reach_mst020`) reach saturates to the full
+  implant span (~85–90 mm) by s≈2, so α's peak at s≈5.65 → ℓ≈86 mm ≈
+  the WHOLE implant (global, not meso); even τ_min (s=1) → ℓ≈65 mm ≈
+  3/4 of the span; only s<1 is local (ℓ<20 mm), where the hierarchy
+  degenerates to raw edges. "clears N/16 scales" is a scale-COVERAGE
+  statement, orthogonal to community size — never conflate. Corollary:
+  the hierarchy is non-trivial only for s>1, exactly where reach is
+  already global → "multiscale hierarchy" and "spatially local" are
+  mutually exclusive here (the mechanistic reason localization washes
+  out). (Added 2026-07-23. `feedback_no_unquantified_scale_labels`.)
 - Never build opaque matrix-level surrogate nulls (e.g. Haar-rotation
   coherency surrogates). Default null is **matched-strength**; a null must
   be explainable in one sentence and not swingable by an unconstrained
@@ -91,6 +119,11 @@ mention and gets a matching `feedback_<short>.md` memory saved.**
   OFC convergence, NOT this single gate. (Locked 2026-07-06;
   `feedback_rho_sym_gate_marginal_not_clean_bands`.)
 - Never skip frontmatter on a new `.agents/` .md file.
+- Never hard-wrap prose in `.md` deliverables (talk slides, reports,
+  guides). Write each paragraph/bullet as ONE physical line and let the
+  editor soft-wrap; no hardcoded mid-sentence newlines. ON-SLIDE TEXT
+  blocks (the slide's discrete lines) are the only exception. Added
+  2026-07-16. See `feedback_no_hardcoded_newlines_md.md`.
 - Never invent metric names — cite literature or existing code.
 - Never apply BH-FDR / Bonferroni / Holm (or any multiple-comparison
   correction) unless all three checks pass: (1) the corrected `p` /

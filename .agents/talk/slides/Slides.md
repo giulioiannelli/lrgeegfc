@@ -53,7 +53,7 @@ The tool that we will use for revealing this multiscale structure in network sci
 - The sense of the higher order here can be intended by looking to the fact that the propagator encodes higher order steps (explain this better) terms of the e^(-tau L) = sum_n(-tau L)^n/n!
 Figures: video
 
-## Slide 7: The bet: form mirrors from
+## Slide 7: Form Mirrors Form
 the intrincic ability of the brain to perform inference is wriitten in the multiscale structure of functional relatiosn between brain areas
 - What if the built relational map live in the higher order structure? 
 - it is not a completely brand new idea that cognition resides in multiscale feature of brain (add examples and quote )

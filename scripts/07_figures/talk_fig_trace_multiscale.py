@@ -10,8 +10,9 @@ scale sweep as a split violin, so both figures now express the tau-dependence ho
          the (band x scale) trace map: -log10(cohort matched-strength gate p) over all 16
          diffusion scales, one row per band, with the p=0.05 contour drawn. This is the
          honest per-scale gate (NO scalar collapse): beta lights up scale-BROAD, alpha a
-         mesoscale band, theta / low_gamma stay dark (the built-in controls), delta /
-         high_gamma flare only in the coarse-collapse tail. Answers WHERE a trace exists.
+         mesoscale band, theta / low_gamma stay dark (NO COHORT CONSENSUS -- not trace-free;
+         individual patients still trace, low_gamma strongly), delta / high_gamma flare only in
+         the coarse-collapse tail. Answers WHERE the cohort-consistent trace lives.
 
   Fig 2  trace_band_scale_violin.png
          per-band SPLIT violin across the tau-sweep. For each band the LEFT half is the
@@ -22,13 +23,27 @@ scale sweep as a split violin, so both figures now express the tau-dependence ho
          (worst..best), NOT a best-scale verdict: the verdict is the gate breadth N/16 (the
          tag under each band) and Fig 1. The one band whose BOTH halves clear the null is
          beta = scale-invariant; alpha (and the patient-specific delta/high_gamma) clear
-         only at their best scale; theta/low_gamma straddle.
+         only at their best scale; theta/low_gamma never reach cohort consensus -- heterogeneous
+         (strong but inconsistent per-patient traces), NOT trace-free.
 
-Register: cohort claim = the matched-strength Wilcoxon gate READ PER SCALE (Fig 1 / the N/16
-tags), NOT the violin height, NOT a best-tau scalar. beta is DELOCALIZED (no anatomy here).
+  Fig 3  trace_band_scale_curves.png
+         per-band rho_sym(s) CURVES over the tau-sweep, one per band, with the same full/empty
+         gate grammar as the encoding/inference scale-payoff figure (fig_encinf_scale_payoff):
+         FILLED marker = the cohort clears the matched-strength gate at that scale (p<0.05),
+         OPEN marker = ns. The MAGNITUDE companion to Fig 1 -- the gate map shows -log10(p), this
+         shows the actual cross-phase similarity and its scale profile, so band-selectivity reads
+         at a glance: beta rides high and all-filled (16/16, scale-invariant), alpha high with a
+         mesoscale filled run (12/16), delta/high_gamma partial, theta/low_gamma low and all-open
+         (0/16, NO COHORT CONSENSUS -- not trace-free; the per-patient spread is Fig 2). Grey floor
+         = matched-strength null envelope.
+
+Register: cohort claim = the matched-strength Wilcoxon gate READ PER SCALE (Fig 1 / Fig 3 dots /
+the N/16 tags), NOT the violin/curve height, NOT a best-tau scalar. beta is DELOCALIZED (no anatomy
+here).
 
 Writes: data/outputs/figures/talk/trace_scale_map.{png,pdf}
         data/outputs/figures/talk/trace_band_scale_violin.{png,pdf}
+        data/outputs/figures/talk/trace_band_scale_curves.{png,pdf}
 """
 from __future__ import annotations
 
@@ -42,6 +57,7 @@ import numpy as np
 import pandas as pd
 from matplotlib import patheffects as pe
 from matplotlib.colors import Normalize
+from matplotlib.lines import Line2D
 from scipy.stats import gaussian_kde
 
 _STROKE = [pe.withStroke(linewidth=2.4, foreground="white")]      # legibility on any band colour
@@ -54,7 +70,8 @@ C.use_lrg_style()
 
 BANDS = ["delta", "theta", "alpha", "beta", "low_gamma", "high_gamma"]
 CARRIER = ("beta", "alpha")                       # cohort carriers (bold)
-NULLBAND = ("theta", "low_gamma")                 # ride the matched-strength floor
+NOCONSENSUS = ("theta", "low_gamma")              # no cohort consensus: theta hugs the floor,
+#                                                   low_gamma is heterogeneous (strong but inconsistent)
 OUTDIR = C.ROOT / "data" / "outputs" / "figures" / "talk"
 GREY = "0.5"
 
@@ -194,9 +211,10 @@ def fig_band_scale_violin():
     is upward-biased and drifts to the coarse-collapse tail). LEFT filled 'violin' = the band's
     WEAKEST-trace scale (max gate p); RIGHT outline 'line' = its STRONGEST-trace scale (min gate
     p). y = Delta = obs_rho - matched-strength null so 0 == null. Each median is SOLID+dot if it
-    clears the gate at that scale, DASHED+ring if not: beta = two solid (scale-invariant), the
-    null bands theta/low_gamma = two rings (no trace even at their best scale), alpha/delta/
-    high_gamma = one of each. The verdict is the gate, shown BOTH as the dot/ring and the N/16."""
+    clears the gate at that scale, DASHED+ring if not: beta = two solid (scale-invariant),
+    theta/low_gamma = two rings (NO COHORT CONSENSUS -- traces present per patient but they don't
+    cohere; NOT trace-free), alpha/delta/high_gamma = one of each. The ring means the cohort didn't
+    hold, NEVER 'no trace'. The verdict is the gate, shown BOTH as the dot/ring and the N/16."""
     pp = pd.read_csv(C.MS / "per_patient_scale.csv")
     gate = _load_gate()
 
@@ -261,10 +279,10 @@ def fig_band_scale_violin():
 
     # compact reading key (top-left, above the violins)
     ax.text(-0.66, yhi,
-            r"$\blacktriangleleft$ filled $=$ weakest-trace scale      "
-            r"outline $\blacktriangleright$ $=$ strongest-trace scale"
-            "\n" r"$\bullet$ clears the matched-strength gate  ·  $\circ$ does not  ·  "
-            r"$N/16$ $=$ scales clearing it",
+            r"$\blacktriangleleft$ filled $=$ weakest  ·  "
+            r"outline $\blacktriangleright$ $=$ strongest scale  ·  violin $=$ all 10 patients"
+            "\n" r"$\bullet$ cohort clears matched-strength  ·  $\circ$ no cohort consensus  ·  "
+            r"$N/16$ $=$ scales the cohort holds",
             va="top", ha="left", fontsize=9.5, color="0.4")
 
     _save(fig, "trace_band_scale_violin")
@@ -273,6 +291,85 @@ def fig_band_scale_violin():
         print(f"  {band:11s} strongest s={S['s_hi']:6.1f} p={S['p_hi']:.3f}"
               f"{'●' if S['p_hi']<0.05 else '○'}   "
               f"weakest s={S['s_lo']:6.1f} p={S['p_lo']:.3f}{'●' if S['p_lo']<0.05 else '○'}")
+
+
+# ─────────────── Fig 3 — per-band ρ_sym(s) curves over the τ-sweep (filled/open gate) ───────────────
+def fig_band_scale_curves():
+    r"""Per-band cophenetic trace ρ_sym as a function of diffusion scale s = τ·λ_max, one curve per
+    band, **filled marker = the cohort clears the matched-strength gate at that scale (p<0.05), open
+    marker = ns** — the same full/empty grammar as the encoding/inference scale-payoff figure
+    (``fig_encinf_scale_payoff``). This is the MAGNITUDE companion to Fig 1: the gate map shows
+    −log₁₀(p), this shows the actual cross-phase similarity and its scale profile, so band-selectivity
+    reads at a glance — β rides high and all-filled (16/16, scale-invariant), α high with a filled
+    mesoscale run (12/16), δ / γ_high partial, θ / γ_low low and all-open (0/16, no cohort consensus —
+    NOT trace-free; the per-patient spread is Fig 2). y = raw ρ_sym (whole-graph reinstatement, whose
+    ρ_sym approaches the split-half reliability ceiling); grey floor = matched-strength null envelope.
+    Register: the ●/○ IS the per-scale gate (never a curve-height read, never a patient count)."""
+    gate = _load_gate()
+    s_all = np.sort(gate.s.unique())
+    # matched-strength null floor: envelope of the per-band surrogate medians (grey = null level)
+    surr_env = np.array([gate[np.isclose(gate.s, s)].surr_med.max() for s in s_all])
+
+    fig, ax = plt.subplots(figsize=(11.3, 5.7))
+    ax.axhline(0.0, color="0.82", lw=0.8, zorder=0)
+    ax.fill_between(s_all, 0, np.clip(surr_env, 0, None), color="0.72", alpha=0.35, lw=0, zorder=1)
+    ax.plot(s_all, surr_env, color="0.6", lw=1.0, zorder=1)
+    ax.axvline(C.S_REPORT, color="0.78", lw=1.1, ls=(0, (2, 3)), zorder=0)                    # s_report
+
+    # bands drawn weakest→strongest so the carriers sit on top; legend ranked by breadth N/16
+    order = sorted(BANDS, key=lambda b: _sig_count(gate[gate.band == b]))
+    handles = []
+    for band in order:
+        gb = gate[gate.band == band].sort_values("s")
+        ss, obs, gp = gb.s.values, gb.obs_med.values, gb.gate_p.values
+        col = C.band_color(band)
+        carrier = band in CARRIER
+        sig = gp < 0.05
+        n16 = int(sig.sum())
+        ax.plot(ss, obs, "-", color=col, lw=3.2 if carrier else 1.9,
+                alpha=0.97 if carrier else 0.78, zorder=(5 if carrier else 3),
+                solid_capstyle="round")
+        ax.scatter(ss[sig], obs[sig], s=78 if carrier else 54, color=col, edgecolor="white",
+                   lw=1.6, zorder=(7 if carrier else 6))                       # clears gate → filled
+        ax.scatter(ss[~sig], obs[~sig], s=54 if carrier else 40, facecolor="white", edgecolor=col,
+                   lw=1.9, alpha=0.95, zorder=(6 if carrier else 4))           # ns → open ring
+        handles.append(Line2D([0], [0], color=col, lw=3.0 if carrier else 2.0, marker="o",
+                              mfc=col, mec="white", ms=9 if carrier else 7.5,
+                              label=rf"{C.BTeX.get(band, band)}  {n16}/16"))
+
+    ax.set_xscale("log")
+    ax.set_xlim(0.9, 210)
+    ax.set_xticks([1, 10, 100]); ax.set_xticklabels(["1", "10", "100"])
+    ax.set_xlabel(r"diffusion scale  $s=\tau\lambda_{\max}$   (fine $\rightarrow$ coarse)", fontsize=13)
+    ax.set_ylabel(C.YLAB_RHO + r"   (cohort median)", fontsize=13)
+    ax.tick_params(labelsize=11)
+    for sp in ("top", "right"):
+        ax.spines[sp].set_visible(False)
+
+    # bands legend OUTSIDE the axes (ranked by breadth, carriers first) — colour + N/16
+    leg = fig.legend(handles=handles[::-1], loc="center left", bbox_to_anchor=(0.795, 0.60),
+                     frameon=False, fontsize=14, handletextpad=0.6, labelspacing=0.55,
+                     title="band   scales/16", title_fontsize=11)
+    leg._legend_box.align = "left"
+    # filled/open + null reading key
+    key = [
+        Line2D([0], [0], color="0.35", lw=0, marker="o", mfc="0.35", mec="white", ms=9,
+               label=r"cohort clears matched-strength ($p<0.05$)"),
+        Line2D([0], [0], color="0.35", lw=0, marker="o", mfc="white", mec="0.35", mew=1.9, ms=9,
+               label="ns (no cohort consensus)"),
+        Line2D([0], [0], color="0.66", lw=6, alpha=0.5, label="matched-strength null"),
+    ]
+    fig.legend(handles=key, loc="lower center", bbox_to_anchor=(0.45, -0.02), ncol=3,
+               frameon=False, fontsize=10, handletextpad=0.5, columnspacing=1.5)
+    fig.subplots_adjust(left=0.085, right=0.79, top=0.975, bottom=0.16)
+
+    _save(fig, "trace_band_scale_curves")
+    for band in BANDS:
+        gb = gate[gate.band == band].sort_values("s")
+        n16 = int((gb.gate_p < 0.05).sum())
+        print(f"  {band:11s} {n16}/16  ρ_sym peak={gb.obs_med.max():.3f} "
+              f"@s={gb.s.values[int(np.argmax(gb.obs_med.values))]:.1f}  "
+              f"(s_report ρ_sym={gb[np.isclose(gb.s, C.S_REPORT)].obs_med.values[0]:.3f})")
 
 
 def _save(fig, stem):
@@ -287,3 +384,4 @@ def _save(fig, stem):
 if __name__ == "__main__":
     fig_scale_map()
     fig_band_scale_violin()
+    fig_band_scale_curves()

@@ -41,9 +41,10 @@ def main():
     for ax in fig.axes:
         for txt in ax.texts:
             bb = txt.get_bbox_patch()
-            if bb is not None:
+            if bb is not None:                        # boxed annotation: dark slate box + white ink
                 bb.set_facecolor("#2a2f36")
                 bb.set_edgecolor("#5a616b")
+                txt.set_color("white")
     OUT.parent.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):
         fig.savefig(f"{OUT}.{ext}", transparent=True, bbox_inches="tight", dpi=200)

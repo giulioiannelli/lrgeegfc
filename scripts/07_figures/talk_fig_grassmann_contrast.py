@@ -7,8 +7,10 @@ mst@0.20 backbone (Grassmann on the whole graph) against the SAME matched-streng
 
   STANDARD NETWORK DESCRIPTORS (the toolkit we tested):
     raw FC edges  -> beta (a convergence carrier); alpha/high_g fragile -- pairwise, non-selective
-    node strength / clustering / effective resistance -> blind (nothing representative)
+    clustering coef. / effective resistance -> blind (nothing representative)
     graph geodesic -> low_gamma ONLY -- a GLOBAL path metric picking up a global structure
+    (node strength is NOT shown: the matched-strength null fixes it by construction, so it is
+     the control variable -- testing it against that null is circular.)
   FIELD-STANDARD SPECTRAL CLUSTERING:
     Grassmann chordal (whole-graph Laplacian eigen-subspaces, one fixed dim k)
       -> beta (agrees) + low_gamma; MISSES alpha
@@ -86,8 +88,10 @@ def _cell(ax, j, y, band, mark):
 
 def main():
     # the full read-out ladder: standard toolkit -> field-standard spectral clustering -> ours
+    # NB: node strength is intentionally NOT a row -- the matched-strength null
+    # preserves the node-strength sequence by construction, so testing it against
+    # that null is circular (it can never clear). It is the control, not a probe.
     std = [("raw_fc",     "raw FC edges\n(pairwise)"),
-           ("strength",   "node strength\n(local)"),
            ("clustering", "clustering coef.\n(local)"),
            ("geodesic",   "graph geodesic\n(paths · global)"),
            ("resistance", "effective resistance\n(spectral · global)")]
@@ -115,25 +119,21 @@ def main():
     ax.axhline(1.5, color="0.5", lw=1.0, ls=(0, (4, 3)), zorder=1)
     ax.axhline(0.5, color="0.5", lw=1.0, ls=(0, (4, 3)), zorder=1)
 
-    # column callouts above the top row
-    y_sym, y_desc = n + 0.28, n - 0.02
-    ax.text(ja, y_sym, r"$\alpha$", ha="center", va="bottom", fontsize=18,
-            color=C.band_color("alpha"))
-    ax.text(jb, y_sym, r"$\beta$", ha="center", va="bottom", fontsize=20,
-            color=C.band_color("beta"), fontweight="bold")
-    ax.text(jg, y_sym, r"$\gamma_{\mathrm{low}}$", ha="center", va="bottom", fontsize=18,
-            color=C.band_color("low_gamma"))
-    ax.text(ja, y_desc, "multiscale-\nonly", ha="center", va="top", fontsize=13,
-            color=C.band_color("alpha"))
-    ax.text(jg, y_desc, "global —\nnot multiscale", ha="center", va="top", fontsize=13,
-            color=C.band_color("low_gamma"))
-
     ax.set_xlim(-0.6, len(BANDS) - 0.4)
-    ax.set_ylim(-0.7, n + 1.3)
+    ax.set_ylim(-0.7, n - 0.2)                              # tight top: nothing above the dots
     ax.set_xticks(range(len(BANDS)))
-    ax.set_xticklabels([C.BTeX[b] for b in BANDS], fontsize=25)
+    xtl = ax.set_xticklabels([C.BTeX[b] for b in BANDS], fontsize=33)
+    for t, b in zip(xtl, BANDS):                            # colour each band name
+        t.set_color(C.band_color(b))
+
+    # interpretive callouts relocated BELOW the band names (top stays clean)
+    tr = ax.get_xaxis_transform()                          # x in data, y in axes frac
+    ax.text(ja, -0.14, "multiscale-\nonly", transform=tr, ha="center", va="top",
+            fontsize=16, color=C.band_color("alpha"), clip_on=False)
+    ax.text(jg, -0.14, "global —\nnot multiscale", transform=tr, ha="center", va="top",
+            fontsize=16, color=C.band_color("low_gamma"), clip_on=False)
     ax.set_yticks([r[2] for r in rows])
-    ax.set_yticklabels([r[0] for r in rows], fontsize=13.5)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=17)
     for t in ax.get_yticklabels():
         if "cophenetic" in t.get_text():
             t.set_fontweight("bold")                    # ours
@@ -141,14 +141,14 @@ def main():
         ax.spines[side].set_visible(False)
     ax.tick_params(length=0)
 
-    leg = [Line2D([], [], marker="o", ls="none", ms=15, mfc="0.8", mec="white",
+    leg = [Line2D([], [], marker="o", ls="none", ms=17, mfc="0.8", mec="white",
                   label="robust trace"),
-           Line2D([], [], marker="o", ls="none", ms=15, mfc="none", mec="0.8", mew=3.0,
+           Line2D([], [], marker="o", ls="none", ms=17, mfc="none", mec="0.8", mew=3.0,
                   label="sig. but LOO-fragile"),
-           Line2D([], [], marker="o", ls="none", ms=14, mfc="none", mec=NONCLEAR,
+           Line2D([], [], marker="o", ls="none", ms=16, mfc="none", mec=NONCLEAR,
                   label="no trace")]
-    ax.legend(handles=leg, loc="lower center", bbox_to_anchor=(0.5, -0.15), ncol=3,
-              frameon=False, fontsize=13, handletextpad=0.3, columnspacing=1.8)
+    ax.legend(handles=leg, loc="lower center", bbox_to_anchor=(0.5, -0.30), ncol=3,
+              frameon=False, fontsize=16, handletextpad=0.3, columnspacing=1.8)
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     for ext in ("pdf", "png"):

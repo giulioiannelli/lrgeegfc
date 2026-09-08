@@ -1,15 +1,15 @@
 ---
-name: talk-slide-15-encoding-vs-inference
+name: talk-slide-16-encoding-vs-inference
 type: report
 era: IMCOH_ABS × COHORT_N10 (mst@0.20 recovery)
-slide: 15
+slide: 16
 status: draft
 updated: 2026-07-13
 canva: NEW — merges old 17 (decomposition setup) + old 18 (both persist). Dissociation is now by
   SCALE, not anatomy; the "where" (anatomical localization) is CUT — there is no localization slide (dropped 2026-07-14; the cognitive trace is delocalized).
 ---
 
-# Slide 15 — Encoding vs inference: the order it never saw, held offline
+# Slide 16 — Encoding vs inference: the order it never saw, held offline
 
 1. TITLE
 Held offline — not just the pairs it saw, but the order it inferred
@@ -59,35 +59,21 @@ encoding (e), inference (f), rest persistence (p)
   $T_{\mathrm{inf}}=\rho_S\big(\Delta_f,\,\Delta_p(B)\mid \Delta_e(A)\big)$   (inference; sym. $A\!\leftrightarrow\!B$)
   $\displaystyle \rho_S(x,y\mid z)=\frac{\rho_{xy}-\rho_{xz}\,\rho_{yz}}{\sqrt{(1-\rho_{xz}^{2})(1-\rho_{yz}^{2})}}$   (partial Spearman; $\rho_{xy}\!=\!\rho_S(x,y)$)
 
-encoding persists — β every scale, α too
-inference persists — β AND α, only at the mesoscale
-mesoscale-emergent = the shape of an abstraction
+encoding persists — β at every scale, α only sparsely at microscale
+inference persists — β AND α, appears only as the network coarse-grains
 
-4. SPEECH
-The trace holds — but holding what? In the task the patient did two things: they were shown adjacent
-pairs, and from those they had to work out an order they were never shown. Encoding versus inference.
-The four phases let us separate them cleanly, and rest keeps both. Let me show you how the measure is
-built, because it's the same idea as before, just resolved into two pieces. In every phase we read the
-hierarchy as a cophenetic distance — how far apart two contacts sit in that phase's tree. Encoding is how
-much the tree moved from rest to learning, while the pairs were on screen. Inference is the *further* move
-from learning to test — the structure the pairs never showed. And persistence is what rest holds onto,
-the shift from before the task to after. Then, across every pair of contacts, we ask by rank correlation:
-did the task's reshaping predict what rest kept? For inference we partial encoding out, so what's left is
-only what the inferred order added beyond the pairs it saw. And one honest detail that makes the whole
-thing trustworthy: we never measure a task-shift and a rest-shift against the *same* baseline — we split
-the pre-task rest into two independent halves and cross-pair them, then average. That symmetrization is
-what stops a shared baseline from manufacturing a correlation; drop it and the number more than doubles.
-Encoding persists strongly — in beta
-at every scale, and in alpha too, where ordinary tools already see it. Now the inferred order — and here
-is the correction to the older version of this talk. It is not beta alone: beta and alpha both, seven of
-sixteen scales each. And it has a beautiful property — it is mesoscale-emergent. At the finest scale it
-isn't there; it only becomes significant as the network coarse-grains. Think about what that means: a
-re-grouping that exists only when you zoom out is the signature of an abstraction, not a replayed detail.
-One honesty point: raw connectivity already detects the beta inference signal, because the hierarchy is
-built from the same edges — so detection is tied. What the multiscale read adds is the form, that this
-persistence lives as a coarse re-grouping. And it's held, not replayed — a sustained state across the ten
-minutes of rest, spread across the network with no single hotspot, and it doesn't scale with how long the
-phases ran. Rest keeps not just what the brain saw, but the order it built.
+4. SPEECH  (~130 s — bridges from slide 15, calls back to the task (slide 2) and the offline promise (slide 6/7), then the dissociation)
+So the trace is real, it's multiscale, and it's carried by alpha and beta. But step back to what the task actually was. [callback: the disc-golf bracket, slide 2] You were shown a handful of head-to-head results — adjacent pairs — and from those you worked out an order you were never shown: the matchups between players who never met. Two different things happened in your head — the pairs you were *shown*, and the order you *inferred* — and right at the start we said the interesting one, the inference, is the part the brain is thought to build offline, at rest. So the sharp question is: this trace that rest holds onto — is it just the pairs the brain saw, or does it also keep the order it never saw but worked out? Encoding, or inference?
+
+The four phases let us separate them, and here is the space they define. [gesture: the 3-D portraits] One axis is how much the hierarchy moved from rest to learning, while the pairs were on the screen — that is encoding. The other is the *further* move from learning to test, the structure the pairs never showed — that is inference. Each patient's network traces a path through that space, and we ask, by rank correlation across every pair of contacts: did the task's reshaping predict what rest kept? For inference we partial encoding out, so what's left is only what the inferred order added, beyond the pairs it saw.
+
+And one honest detail that makes it trustworthy: we never measure a task-shift and a rest-shift against the *same* baseline — we split the pre-task rest into two independent halves, cross-pair them, and average. That symmetrisation is what stops a shared baseline from manufacturing a correlation; drop it and the number more than doubles.
+
+And rest keeps both — you can read it straight off the held tree. [gesture: the tinted hierarchy] Some of its branches are encoding-origin, in amber; others are inference-origin, in teal — both kinds survive into rest. Encoding isn't a nuisance we scrub away: the pairs the brain saw genuinely stick — in beta at every one of the sixteen scales, and in alpha too, where even ordinary tools already see it.
+
+Now the inferred order — the thing we actually care about — and this is the real result, read against the matched-strength null across diffusion scales. [gesture: the scale curves] The amber curve, encoding, rides high across the whole scale axis in beta. The teal curve, inference, does something different and telling: at the finest scale it sits right on the null — it isn't there — and it lifts clear of the null only as the network coarse-grains, in *both* bands, beta and alpha, seven of the sixteen scales each. That's the correction to the older version of this talk — it was never beta alone. And a signal that is absent at the fine scale and appears only once you zoom out is the signature of an abstraction — the very geometry of the cognitive map we opened with — not a replayed detail.
+
+One honesty point: raw connectivity already detects the beta inference signal, because the hierarchy is built from the same edges — so detection is tied by construction. What the multiscale read adds is the *form* — that this persistence lives as a coarse re-grouping. And it's held, not replayed: a sustained state across the ten minutes of rest, spread across the network with no single hotspot, and it doesn't grow with how long the phases ran. Rest keeps not just what the brain saw, but the order it built.
 
 Careful: inference is α AND β, NEVER "β-only"; the δ inference-specific effect is a partial-correlation
 artifact, CUT (never mention it). Do NOT say "only multiscale sees inference" / "invisible to simple
@@ -121,7 +107,10 @@ never a brain–behaviour correlation (no behavioural data).
   `scripts/01_compute/sparsified_arc/fig_encinf_scale_payoff.py`). Two panels (β, α): cohort concordance
   with persistence vs diffusion scale s, encoding `T_learn` (amber) + inference-specific `T_infspec_pe` (teal),
   over the matched-strength null floor; filled marker = gate_p<0.05 at that scale, open = ns, "ns" flags the
-  finest scale. Carries the headline directly: inference-specific is ns at s₁ (β .097 / α .28) → significant
+  finest scale. Y-AXIS = fraction of split-half reliability rel(s)=ρ(D_A,D_B) (the measure-slide anchor;
+  cache `rel_vs_s.csv`); 1.0 = reachable ceiling, null divided by same rel(s) so gate_p unchanged. Encoding
+  peaks ~0.5 of reliability, inference ~0.25 (sub-components don't saturate rel the way whole-graph reinstatement
+  does). Carries the headline directly: inference-specific is ns at s₁ (β .097 / α .28) → significant
   at the mesoscale, in BOTH bands (7/16 each); encoding is scale-broad in β (16/16). Numbers on-figure.
 - ⚠ RETIRE / REBUILD: any figure showing the β inference wedge glowing ALONE (contradicts α+β 7/16 each), or
   encoding→OFC / inference→cingulate "different cortex" (that localization is retired; the localization slide was dropped 2026-07-14).
@@ -131,8 +120,9 @@ never a brain–behaviour correlation (no behavioural data).
   four-phase decomposition and the mesoscale-emergence of inference-specific persistence are ours.
 
 7. CANVA STATUS
+⚠ 2026-07-16 SPEECH reworked (user) — continuity + figure-grounded + result made concrete. It now (1) bridges from slide 15 ("the trace is real, multiscale, alpha and beta"), (2) calls BACK to where we started — the disc-golf task (slide 2, the pairs you were shown vs the matchups you inferred) and the offline-consolidation promise (slide 6/7) — so "why we moved to encoding-vs-inference" is motivated, not abrupt; (3) points at the THREE on-slide figures at their beats: the 3-D enc/inf SPACE at the decomposition (the space encoding+inference define, states trace a path — NOT four validated categories), the tinted HIERARCHY at "rest keeps both" (amber encoding-origin / teal inference-origin branches), and the SCALE curves for the real result (amber encoding high across all β scales / teal inference on the null at the finest scale, lifting clear only at the mesoscale, β AND α, 7/16 each); (4) closes the abstraction back to slide 2's "geometry of the cognitive map". Rails held: inference α AND β (δ cut), detection tied → value-add is FORM, held-not-replayed, no anatomy, matched-strength sole null, abstraction licensed by mesoscale-emergence not behaviour.
 NEW slide (merges old 17 setup + old 18 persistence). Recast so the encoding/inference dissociation is by
 SCALE (inference mesoscale-emergent = offline abstraction), the "different cortex / OFC-vs-cingulate"
 localization is CUT (dropped 2026-07-14 — no localization slide; cognitive trace delocalized), inference is α AND β (δ cut),
-and detection-vs-form is stated. Missing on deck: decomposition schematic + mesoscale-emergence curve,
-compressed on-slide text, presenter notes.
+and detection-vs-form is stated. On deck: the three BUILT figures (3-D enc/inf gallery + tinted hierarchy + mesoscale-emergence
+scale curves) placed; paste compressed on-slide text; speech → presenter notes.

@@ -3,11 +3,18 @@ name: talk-slide-18-outlook-thanks
 type: report
 era: IMCOH_ABS × COHORT_N10 (mst@0.20 recovery)
 slide: 18
-status: draft
-updated: 2026-07-13
+status: superseded
+updated: 2026-07-16
 canva: NEW numbering (old 22). Dropped "larger OFC coverage" (β has no fine OFC home — the honest
   "where" is delocalized — no focal cognitive home).
+superseded_by: 17_closing-takeon-ongoing-outlook.md
 ---
+
+> ⚠ **SUPERSEDED 2026-07-16 — absorbed into `17_closing-takeon-ongoing-outlook.md`** (the compound
+> closer: TAKE-HOMES · ONGOING · OUTLOOK). The outlook bullets + acknowledgements here are folded into
+> the closer's OUTLOOK block + thanks footer, expanded to 6 arc-closing points (behaviour link,
+> fluctuation-as-biomarker, triage→clinic, nonlinear decompositions, bigger/diverse data, AI-inspiration
+> closing the slide-06 opening). Do not build a separate slide from this file.
 
 # Slide 18 — Outlook & thanks
 
