@@ -4,7 +4,7 @@ type: guide
 era: IMCOH_ABS × COHORT_N10
 status: current
 created: 2026-04-25
-updated: 2026-07-04
+updated: 2026-09-08
 pointers:
   - .agents/guides/task-persistence-investigation/2026-04-25_task-trace-canonical.md
   - .agents/preprint/headlines/README.md
@@ -112,6 +112,7 @@ Every report under this folder MUST contain, in order:
 | 2026-06-22 | [τ-sweep of the consolidation arc](2026-06-22_tau-sweep-consolidation-arc.md) | N2.2 (mesoscale) | Scale-sweep of the inference-specific component — mildly mesoscale-favouring, robust not exclusive. |
 | 2026-06-25 | [Per-node trace decomposition](2026-06-25_per-node-trace-decomposition.md) | N1 per-node | Bottom-up explanator of per-patient heterogeneity: `ρ_split` → per-node carrier / neutral / anti-trace scores, matched-strength calibrated. |
 | 2026-07-09 | [Grassmann inference arc](2026-07-09_grassmann-inference-arc.md) | N2 (**NEGATIVE**) | Subspace second-witness attempt for the inference-specific β trace: `T_G^infspec` **null in all 6 bands** (β p_mass=0.408). The leading-*k* subspace resolves the whole-task + encoding trace (`onl` reproduces audit_70) but not the inference refinement, which stays cophenetic-only. On-thesis: a coarse spectral probe can't see the fine multiscale inference signal. `infspec_lm` length-matched = pan-band truncation artifact (fires in θ). audit_165. |
+| 2026-09-08 | [Hierarchy-level decomposition](2026-09-08_hierarchy-level-decomposition.md) | Wave 2 — objective 1 (**DRAFT**, unverified) | Bin pairs by the rest_pre tree level at which they merge (k modules remaining); per-level `ρ_sym` on disjoint pair sets; scale specificity = within-patient level profile vs the patient's own ordered sham. Same-day probe: β absent at k ≤ 4, present at k ≥ 5 (9/10). |
 
 ## Archived measures (by era)
 
