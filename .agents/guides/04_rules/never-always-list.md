@@ -744,3 +744,5 @@ User says "never X" or "always Y" → append to this list on first
 mention AND save a `feedback_<short>.md` memory. This list is the
 single source of truth; CLAUDE.md mirrors it inline so every agent
 session sees the rules in context.
+
+- **Never present a cut of the hierarchical tree at a single τ (level k, cluster count) as the LRG scale axis.** Scale = τ (s = τλ_max). A scale claim is a ρ_sym(s) profile with a null at every s and cross-patient alignment of the τ window. Locked 2026-09-09.
